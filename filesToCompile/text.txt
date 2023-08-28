@@ -1,0 +1,5 @@
+primera línea de el archivo de texto
+Segunda
+s
+\n
+Tercera.
