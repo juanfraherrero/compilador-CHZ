@@ -9,6 +9,7 @@ Este es el main, y en la práctica se indico que el sintáctico era el main y es
 
 int main(int arg_count, char *arg_list[]) {
 
+    // checkeo que se haya pasado el archivo a compilar
     if (arg_count < 2) {
         cout << "Se requiere que se pase por parámetro el archivo a compilar" << endl;
         exit(0);
@@ -17,10 +18,11 @@ int main(int arg_count, char *arg_list[]) {
     string file_name = arg_list[1];
     cout << "Compilando archivo: " << file_name << endl;
 
+    // cargamos nuestra fase de analisis léxico
     Lexico lexico = Lexico(file_name); // la dejamos en la pila porque tiene un tamaño pequeño y su tamaño no es dinámico
     
     tokenWithLexeme *token;
-
+    //esto se supone que será reemplazado por el ya que irá pidiendo tokens
     while (!lexico.endOfFile()) {
         token = lexico.getToken(); // esto queda guardado en el heap // checkear cuando hay que eliminarlo
         cout << token->token << token->lexeme << endl;

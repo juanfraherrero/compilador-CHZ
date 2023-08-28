@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "include/Automaton.hpp"
-#include "include/types.hpp"
+
 Automaton::Automaton() {
 
 }

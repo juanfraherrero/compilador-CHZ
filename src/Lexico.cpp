@@ -1,7 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include "include/Lexico.hpp"
-#include "include/types.hpp"
 #include "Automaton.cpp"
 
 Lexico::Lexico(string file_name) {
