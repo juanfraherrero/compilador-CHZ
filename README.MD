@@ -11,7 +11,11 @@ instalarse la extensión:
 
 Luego checkear tener instalado make en la máquina, deberían sino no busquen como
 
-Cuando lo tengan todo instalado, si no tocaron nada en el código.    desde la carpeta raiz le dan:
+Cuando lo tengan todo instalado, si no tocaron nada en el código.  
+
+En el archivo Makefile en la línea 13, en la variable src deben poner la carpeta raíz de donde esté su proyecto
+
+desde la carpeta raiz le dan:
 
 ```make
 make all
