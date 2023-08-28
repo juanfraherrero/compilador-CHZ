@@ -2,10 +2,17 @@
 #define _TYPES_H_
 
 #include <iostream>
-
+#include "AccionSemantica.hpp"
 struct tokenWithLexeme {
     int token;
     std::string lexeme;
 };
+
+struct valueOfMatrix
+{
+    int next_state;
+    AccionSemantica * accionp;
+};
+
 
 #endif

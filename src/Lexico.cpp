@@ -40,15 +40,14 @@ tokenWithLexeme *Lexico::getToken(){
         cout << "Linea PREV: " << this->line << endl;
         this->line.erase(0, 1); // y se lo eliminamos a la línea
         cout << "Linea AFTER: " << this->line << endl;
-        stateAutomaton = this->automaton->processCharacter(firstCharacter);
+        stateAutomaton = this->automaton->processCharacter(firstCharacter, stateAutomaton);
         if(this->line == ""){
             stateAutomaton = 30;
         }
     }
 
-
+    cout << "El estado final es: " << stateAutomaton << endl;
     return this->automaton->getLastToken();
-
 }
 
 bool Lexico::endOfFile(){
