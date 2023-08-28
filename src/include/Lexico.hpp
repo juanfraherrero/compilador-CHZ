@@ -25,6 +25,7 @@ class Lexico {
         bool endOfFile();
         string getLastLine();
         void getNextLine();
+        void incrementLineNumber();
 };
 
 #endif

@@ -26,17 +26,24 @@ tokenWithLexeme *Lexico::getToken(){
 
     // obtenemos la línea siguiente si la última línea leída está vacía
     if (this->getLastLine() == "") {
+        cout << "La línea está vacía" << endl;
         this->getNextLine();    // se encarga de cargarle la siguiente línea al string y checkea si llegó al end of file
+        cout << "Ahora la línea es: " << this->getLastLine() << endl;
     }
 
     int stateAutomaton = 0;
 
     // obtenemos un token // suponemos que el 30 es el estado final
-    while (stateAutomaton == 30){
+    while (stateAutomaton != 30){
         
         char firstCharacter = this->line[0]; // obtenemos el primer caracter de la línea
+        cout << "Linea PREV: " << this->line << endl;
         this->line.erase(0, 1); // y se lo eliminamos a la línea
+        cout << "Linea AFTER: " << this->line << endl;
         stateAutomaton = this->automaton->processCharacter(firstCharacter);
+        if(this->line == ""){
+            stateAutomaton = 30;
+        }
     }
 
 
@@ -49,23 +56,26 @@ bool Lexico::endOfFile(){
 }
 
 string Lexico::getLastLine(){
-    string aux = this->line;
-    this->line = "";
-    return aux;
+    return this->line;
 }
 
 void Lexico::getNextLine(){
+    cout << " Obteniendo la siguiente línea" << endl;
     //abriomos el archivo
     file.open(this->file_name);
     file.seekg(this->character); // nos posicionamos en el caracter que quedó pendiente de leer
-
+    
     this->eof = !(bool)getline(file, this->line); // cargamos la línea y seteamos si es o no el fin del archivo
     
-    this->lineNumber++; // incrementamos el contador de líneas
+    this->incrementLineNumber(); // incrementamos el contador de líneas
 
     this->character = file.tellg(); // guardamos la posición del último caracter leído
-
+    
     // cerramos el archivo
     file.close();
     return;
+}
+
+void Lexico::incrementLineNumber(){
+    this->lineNumber++;
 }

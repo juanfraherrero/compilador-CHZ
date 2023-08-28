@@ -7,6 +7,8 @@ Automaton::Automaton() {
 }
 
 int Automaton::processCharacter(char character) {
+    if (character == ' ')
+        return 30;
     return 0;
 }
 
