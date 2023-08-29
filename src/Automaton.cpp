@@ -1,9 +1,48 @@
 #include <iostream>
 #include <fstream>
+#include <string>
 #include "include/Automaton.hpp"
 
-Automaton::Automaton() {
 
+Automaton::Automaton() {
+    
+    //abrir archivo
+    ifstream arch("src/files/matrixOfState.csv");
+    
+    char character;
+    string str = "";
+    int row = 0;
+    int column = 0;
+    while (arch.get(character)) {
+        if(character != '\n' && character != ',') // si no es ni un salto ni un tab
+        {
+            str += character;
+        }else 
+        {
+            try{
+                int num = std::stoi(str);
+                this->matrix[row][column] = valueOfMatrix{num, NULL};
+            }catch(const std::invalid_argument& e){
+                this->matrix[row][column] = valueOfMatrix{-1, NULL};
+            }
+
+            str = "";
+            column++;
+            if (column == 28){        
+                column = 0;
+                row++;
+            }
+        };
+    }
+    try{
+        int num = std::stoi(str);
+        this->matrix[row][column] = valueOfMatrix{num, NULL};
+    }catch(const std::invalid_argument& e){
+        this->matrix[row][column] = valueOfMatrix{-1, NULL};
+    }
+
+    //esta línea es para ver la matriz cargada
+    this->printMatrix();
 }
 
 int Automaton::processCharacter(char character, int actual_state) {
@@ -54,4 +93,15 @@ tokenWithLexeme* Automaton::getLastToken(){
     this->tokenToreturn->lexeme = "";
 
     return token;
+}
+
+void Automaton::printMatrix(){
+    for (int i = 0; i < 22; i++)
+    {
+        for (int j = 0; j < 28; j++)
+        {
+            cout << this->matrix[i][j].next_state << " ";
+        }
+        cout << endl;
+    }   
 }

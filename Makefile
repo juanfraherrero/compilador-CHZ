@@ -10,7 +10,7 @@ LDFLAGS =
 # Makefile settings - Can be customized.
 APPNAME = compilador-CHZ
 EXT = .cpp
-SRCDIR = /home/juan/Documentos/AAUniversidad/4Cuarto/8-DisenioDeCompiladores/TPE/Compilador
+SRCDIR = /home/juan/Documentos/AAUniversidad/4Cuarto/8-DisenioDeCompiladores/TPE/compilador
 OBJDIR = obj
 
 ############## Do not change anything from here downwards! #############
