@@ -14,42 +14,46 @@ Lexico::Lexico(string file_name) {
 }
 
 tokenWithLexeme *Lexico::getToken(){
-    
-    // Checheamos si el string que guarda lo ultimo leído está vacío
-        // si está vacío leemos la siguiente línea (se debe verificar cuando se llega al end of file)
-        // si no está vacío, no hacemos nada
-    // Seteamos el estado del automata en estado inicial "0"
-    // ciclamos leyendo caracter del string y procesandolo por el autómata
-        // ciclamos hasta que el estado recibido sea el final
-        // el autómata internamente se encarga de ejecutar las aciones semánticas correspondientes (también debe de definir el token correspondiente)
-    // al llegar al estado final, devolvemos el token correspondiente y el lexema si es necesario
 
-    // obtenemos la línea siguiente si la última línea leída está vacía
+    // si el buffer string está vacío, leemos la siguiente línea
     if (this->getLastLine() == "") {
-        cout << "La línea está vacía" << endl;
-        this->getNextLine();    // se encarga de cargarle la siguiente línea al string y checkea si llegó al end of file
-        cout << "Ahora la línea es: " << this->getLastLine() << endl;
+        
+        // se encarga de cargarle la siguiente línea al string y checkea si llegó al end of file        
+        this->getNextLine();    
     }
 
+    // seteamos el estado del autómata en 0
     int stateAutomaton = 0;
 
-    // obtenemos un token // suponemos que el 30 es el estado final
+    // obtenemos un token       
+    /*
+        Esto está fijado para que vaya devolviendo las plabras, hayque juntarlo con el automata
+        
+        suponemos que el 30 es el estado final
+    */
     while (stateAutomaton != 30){
         
-        char firstCharacter = this->line[0]; // obtenemos el primer caracter de la línea
-        cout << "Linea PREV: " << this->line << endl;
-        this->line.erase(0, 1); // y se lo eliminamos a la línea
-        cout << "Linea AFTER: " << this->line << endl;
+        // obtenemos el primer caracter de la línea
+        char firstCharacter = this->line[0]; 
+        
+        // eliminamos ese caracter de la línea
+        this->line.erase(0, 1); 
+
+        // procesamos el caracter por el autómata esperando el estado siguiente
         stateAutomaton = this->automaton->processCharacter(firstCharacter, stateAutomaton);
+        
+        /*
+            ACA LO ESTAMOS FORZANDO A QUE TERMINE CUANDO SE ACABA LA LÍNEA
+        */
         if(this->line == ""){
             stateAutomaton = 30;
         }
     }
 
-    cout << "El estado final es: " << stateAutomaton << endl;
     return this->automaton->getLastToken();
 }
 
+// checkea si es el final de archivo
 bool Lexico::endOfFile(){
     return this->eof;
 }
@@ -58,17 +62,21 @@ string Lexico::getLastLine(){
     return this->line;
 }
 
+// obtiene la siguiente línea del archivo y la guarda en el buffer string
 void Lexico::getNextLine(){
-    cout << " Obteniendo la siguiente línea" << endl;
-    //abriomos el archivo
+    
+    //abrimos el archivo y nos posicionamos en el caracter que quedó pendiente de leer
     file.open(this->file_name);
     file.seekg(this->character); // nos posicionamos en el caracter que quedó pendiente de leer
     
-    this->eof = !(bool)getline(file, this->line); // cargamos la línea y seteamos si es o no el fin del archivo
+    // leemos la línea y seteamos si es o no el fin del archivo
+    this->eof = !(bool)getline(file, this->line);
     
-    this->incrementLineNumber(); // incrementamos el contador de líneas
+    // incrementamos el contador de líneas
+    this->incrementLineNumber(); 
 
-    this->character = file.tellg(); // guardamos la posición del último caracter leído
+    // guardamos la posición del último caracter leído
+    this->character = file.tellg(); 
     
     // cerramos el archivo
     file.close();

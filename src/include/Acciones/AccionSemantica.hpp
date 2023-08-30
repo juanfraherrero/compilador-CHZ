@@ -7,8 +7,8 @@ class AccionSemantica {
     private:
         
     public:
-        AccionSemantica();
         virtual void execute() = 0;
+        virtual string name() = 0;
 };
 
 

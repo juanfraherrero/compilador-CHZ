@@ -25,7 +25,7 @@ int main(int arg_count, char *arg_list[]) {
     //esto se supone que será reemplazado por el ya que irá pidiendo tokens
     while (!lexico.endOfFile()) {
         token = lexico.getToken(); // esto queda guardado en el heap // checkear cuando hay que eliminarlo
-        cout << "VOLVIO ---->>>> " << token->token << token->lexeme << endl;
+        cout << "TOKEN ---->>>> " << token->lexeme << endl;
         
         // le das uso al token y antes de terminar el while lo borras porque el get Token te da otro
         delete token;
