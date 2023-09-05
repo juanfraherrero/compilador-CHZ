@@ -2,12 +2,14 @@
 #include <fstream>
 #include <string>
 #include <map>
+#include <cctype>
 
 #include "include/Automaton.hpp"
-#include "AS1.cpp"
-#include "AS2.cpp"
-#include "AS3.cpp"
-#include "AS4.cpp"
+#include "Acciones/AS1.cpp"
+#include "Acciones/AS2.cpp"
+#include "Acciones/AS3.cpp"
+#include "Acciones/AS4.cpp"
+#include "Acciones/ASE.cpp"
 
 
 Automaton::Automaton() {
@@ -25,12 +27,24 @@ int Automaton::processCharacter(char character, int actual_state) {
 
     valueOfMatrix* value = this->getValueOfMatrix(character, actual_state);
 
+    string prb = "NULL";
+
     // esto lo debe hacer una accion semantica
     this->tokenToreturn->lexeme+=character;
-    // if (value->accionp != NULL){
-    //     value->accionp->execute();
-    // }   
+    if (value->accionp != NULL){
+        value->accionp->execute();
+        prb = value->accionp->name();
+    }   
     
+    cout << "todojoya1" << endl;
+    for (int i = 0; i < sizeof(char); ++i) {
+        std::cout << static_cast<int>(reinterpret_cast<unsigned char*>(&character)[i]) << " ";
+    }
+    std::cout << std::endl;
+    cout << "character: " << character << " state: " << actual_state << " next state: " << value->next_state << "x" << endl;
+    cout << "la acción a ejecutar es: " << prb << endl;
+    cout << "todojoya2" << endl;
+
     return value->next_state;
 }
 
@@ -41,24 +55,95 @@ valueOfMatrix * Automaton::getValueOfMatrix (char character, int actual_state){
     return &this->matrix[row][column];
 }
 
-/*
-    Acá hay que extender con todos los subconjuntos que se necesiten adecuados a las tablas
-*/
+// Obtenemos la columna dado el caracter obtenido
 int Automaton::getSubconjunto(char character){
-    if (isalpha(character)) {
-        // std::cout << "Es una letra." << std::endl;
-        return 0;
-    } else if (isdigit(character)) {
-        // std::cout << "Es un número." << std::endl;
-        return 0;
-    } else if (isspace(character)) {
-        // std::cout << "Es un espacio." << std::endl;
-        return 1;
-    } else {
-        // std::cout << "No es una letra, número ni espacio." << std::endl;
-        return 0;
+    switch (character)
+    {
+        case '\n':
+            return 0;
+            break;
+        case 's':
+            return 1;
+            break;
+        case 'u':
+            return 2;
+            break;
+        case 'i':
+            return 3;
+            break;
+        case ' ':         
+            return 4;
+            break;
+        case '.':
+            return 5;
+            break;
+        case 'e':
+            return 6;
+            break;
+        case 'E':      
+            return 7;
+            break;
+        case '+':
+            return 8;
+            break;
+        case '-':
+            return 9;
+            break;
+        case '/':
+            return 10;
+            break;
+        case '*':
+            return 11;
+            break;
+        case '=':
+            return 12;
+            break;
+        case '!':
+            return 13;
+            break;
+        case '<':
+            return 14;
+            break;
+        case '>':
+            return 15;
+            break;
+        case '{':
+            return 16;
+            break;
+        case '}':
+            return 17;
+            break;
+        case '(':
+            return 18;
+            break;
+        case ',':
+            return 19;
+            break;
+        case ';':
+            return 20;
+            break;
+        case '#':
+            return 21;
+            break;
+        case ')':
+            return 22;
+            break;
+        case '_':
+            return 26;
+            break;
+        
+        // sino es ninguno de los anteriores caracteresverificamos si es parte de un subconjunto
+        default:
+            if(islower(character)) // 'l'
+                return 23;
+            else if(isupper(character)) // 'L'
+                return 24;
+            else if(isdigit(character)) // 'd'
+                return 25;
+            else                        // NV
+                return 27;
+            break;
     }
-
 }
 
 // devuelve el token con su lexema
@@ -113,7 +198,8 @@ AccionSemantica* Automaton::getAccionSemantica(string accionStr){
         {"AS1", new AS1()},
         {"AS2", new AS2()},
         {"AS3", new AS3()},
-        {"AS4", new AS4()}
+        {"AS4", new AS4()},
+        {"ASE", new ASE()}
         };
 
     auto it = actionMap.find(accionStr);

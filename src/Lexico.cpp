@@ -31,7 +31,7 @@ tokenWithLexeme *Lexico::getToken(){
         
         suponemos que el 30 es el estado final
     */
-    while (stateAutomaton != 30){
+    while (stateAutomaton != 19 && stateAutomaton != 20 ){
         
         // obtenemos el primer caracter de la línea
         char firstCharacter = this->line[0]; 
@@ -41,13 +41,6 @@ tokenWithLexeme *Lexico::getToken(){
 
         // procesamos el caracter por el autómata esperando el estado siguiente
         stateAutomaton = this->automaton->processCharacter(firstCharacter, stateAutomaton);
-        
-        /*
-            ACA LO ESTAMOS FORZANDO A QUE TERMINE CUANDO SE ACABA LA LÍNEA
-        */
-        if(this->line == ""){
-            stateAutomaton = 30;
-        }
     }
 
     return this->automaton->getLastToken();
