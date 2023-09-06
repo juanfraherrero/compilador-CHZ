@@ -1,4 +1,4 @@
-#include "../include/Acciones/AccionSemantica.hpp"
+#include "../include/AccionSemantica.hpp"
 #include "../include/Automaton.hpp"
 #include "../include/types.hpp"
 
@@ -12,7 +12,7 @@ class AS4 : public AccionSemantica {
         
     public:
         AS4(){};
-        void execute(Automaton* automaton, char characterReaded) override {
+        void execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
             cout << "AS4" << endl;
         } ;
         string name() override {

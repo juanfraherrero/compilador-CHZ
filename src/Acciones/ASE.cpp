@@ -1,4 +1,4 @@
-#include "../include/Acciones/AccionSemantica.hpp"
+#include "../include/AccionSemantica.hpp"
 #include "../include/Automaton.hpp"
 #include "../include/types.hpp"
 
@@ -13,7 +13,7 @@ class ASE : public AccionSemantica {
         
     public:
         ASE(){};
-        void execute(Automaton* automaton, char characterReaded) override {
+        void execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
             cout << "EJECUTANDO - ASE - ERROR" << endl;
         } ;
         string name() override {

@@ -1,16 +1,21 @@
-#include <iostream>
-#include <fstream>
 #include "include/Lexico.hpp"
 #include "Automaton.cpp"
+#include "include/TableSymbol.hpp"
+#include "include/TableReservedWord.hpp"
+// #include "include/TableSymbol.hpp"
+// #include "include/TableReservedWord.hpp"
 
-Lexico::Lexico(string file_name) {
+#include <iostream>
+#include <fstream>
+
+Lexico::Lexico(string file_name, TableSymbol* tableSymbol, TableReservedWord* tableRWords) {
     // definimos que archivo va a usar y las variables para hacer el conteo de lineas y caracteres leídos   
     this->file_name = file_name;
     this->line = "";
     this->lineNumber = 0;
     this->character = 0;
     this->eof = false;
-    this->automaton = new Automaton();
+    this->automaton = new Automaton(tableSymbol, tableRWords);
 }
 
 tokenWithLexeme *Lexico::getToken(){
@@ -27,14 +32,12 @@ tokenWithLexeme *Lexico::getToken(){
 
     // obtenemos un token       
     /*
-        Esto está fijado para que vaya devolviendo las plabras, hayque juntarlo con el automata
-        
-        suponemos que el 30 es el estado final
+        suponemos que el 19 es el estado final y 20 de errores (ambos terminan el token)
     */
     while (stateAutomaton != 19 && stateAutomaton != 20 ){
         char firstCharacter;
         // si el buffer del autómata está vacío le mandamos otro sino el mismo que tiene
-        if(!this->automaton->isBufferEmpty()){
+        if(this->automaton->isBufferEmpty()){
             // obtenemos el primer caracter de la línea
             firstCharacter = this->line[0]; 
             // eliminamos ese caracter de la línea

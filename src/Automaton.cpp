@@ -4,7 +4,8 @@
 #include "Acciones/AS3.cpp"
 #include "Acciones/AS4.cpp"
 #include "Acciones/ASE.cpp"
-
+#include "TableSymbol.cpp"
+#include "TableReservedWord.cpp"
 
 #include <iostream>
 #include <fstream>
@@ -14,13 +15,17 @@
 
 using namespace std;
 
-Automaton::Automaton() {
+Automaton::Automaton(TableSymbol* tableSymbol, TableReservedWord* tableRWords) {
     
     // cargamos la tabla de estados y acciones semanticas
     // debe coincidir el path y además checkear que los límtes de la matriz en el .hpp sean correctos
     this->loadStateTable("src/files/TablaProximoEstado.csv");
     this->loadActionsTable("src/files/TablaAccionesSemanticas.csv");
-         
+
+    // guardamos las tablas
+    this->tableSymbol = tableSymbol;
+    this->tableRWords = tableRWords;
+
     //esta línea es para ver la matriz cargada
     // this->printMatrix();
 }
@@ -29,23 +34,23 @@ int Automaton::processCharacter(char character, int actual_state) {
 
     valueOfMatrix* value = this->getValueOfMatrix(character, actual_state);
 
-    // string prb = "NULL";
+    string prb = "NULL";
 
     // // esto lo debe hacer una accion semantica
     // this->tokenToreturn->lexeme+=character;
     if (value->accionp != NULL){
-        value->accionp->execute(this, character);
-        // prb = value->accionp->name();
+        value->accionp->execute(this, character, this->tableSymbol, this->tableRWords);
+        prb = value->accionp->name();
     }   
     
-    // cout << "todojoya1" << endl;
-    // for (int i = 0; i < sizeof(char); ++i) {
-    //     std::cout << static_cast<int>(reinterpret_cast<unsigned char*>(&character)[i]) << " ";
-    // }
-    // std::cout << std::endl;
-    // cout << "character: " << character << " state: " << actual_state << " next state: " << value->next_state << "x" << endl;
-    // cout << "la acción a ejecutar es: " << prb << endl;
-    // cout << "todojoya2" << endl;
+    cout << "todojoya1" << endl;
+    for (int i = 0; i < sizeof(char); ++i) {
+        std::cout << static_cast<int>(reinterpret_cast<unsigned char*>(&character)[i]) << " ";
+    }
+    std::cout << std::endl;
+    cout << "character: " << character << " state: " << actual_state << " next state: " << value->next_state << "x" << endl;
+    cout << "la acción a ejecutar es: " << prb << endl;
+    cout << "todojoya2" << endl;
 
     return value->next_state;
 }

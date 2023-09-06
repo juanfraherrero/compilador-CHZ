@@ -1,6 +1,8 @@
 #ifndef _LEXICO_H_
 #define _LEXICO_H_
 
+#include "TableSymbol.hpp"
+#include "TableReservedWord.hpp"
 #include "Automaton.hpp"
 
 #include <iostream>
@@ -20,7 +22,7 @@ class Lexico {
         Automaton *automaton; // es el autómata que se encarga de procesar los tokens
         
     public:
-        Lexico(string file_name);
+        Lexico(string file_name, TableSymbol* tableSymbol, TableReservedWord* tableRWords);
         tokenWithLexeme * getToken();
         bool endOfFile();
         string getLastLine();

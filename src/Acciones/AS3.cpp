@@ -1,4 +1,4 @@
-#include "../include/Acciones/AccionSemantica.hpp"
+#include "../include/AccionSemantica.hpp"
 #include "../include/Automaton.hpp"
 #include "../include/types.hpp"
 
@@ -18,7 +18,7 @@ class AS3 : public AccionSemantica {
         
     public:
         AS3(){};
-        void execute(Automaton* automaton, char characterReaded) override {
+        void execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
             cout << "AS3" << endl;
             automaton->getToken()->lexeme += characterReaded; // concatenas el caracter leído al lexema
             

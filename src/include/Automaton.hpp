@@ -2,7 +2,10 @@
 #define _AUTOMATON_H_
 
 #include "types.hpp"
-#include "Acciones/AccionSemantica.hpp"
+#include "TableSymbol.hpp"
+#include "TableReservedWord.hpp"
+#include "AccionSemantica.hpp"
+
 #include <iostream>
 #include <fstream>
 
@@ -18,9 +21,11 @@ class Automaton {
         int getSubconjunto(char character);
         AccionSemantica* getAccionSemantica(string accionStr);
         char bufferForCharacter = '\0';
+        TableSymbol* tableSymbol;
+        TableReservedWord* tableRWords;
 
     public:
-        Automaton();
+        Automaton(TableSymbol* tableSymbol, TableReservedWord* tableRWords);
         int processCharacter(char character, int actual_satate);
         tokenWithLexeme* getToken();            
         tokenWithLexeme* getCopyOfToken();
