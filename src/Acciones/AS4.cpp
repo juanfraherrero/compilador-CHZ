@@ -1,15 +1,18 @@
+#include "../include/Acciones/AccionSemantica.hpp"
+#include "../include/Automaton.hpp"
+#include "../include/types.hpp"
+
 #include <iostream>
 #include <string>
 
 using namespace std;
-#include "../include/Acciones/AccionSemantica.hpp"
 
 class AS4 : public AccionSemantica {
     private:
         
     public:
         AS4(){};
-        void execute() override {
+        void execute(Automaton* automaton, char characterReaded) override {
             cout << "AS4" << endl;
         } ;
         string name() override {

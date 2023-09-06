@@ -1,12 +1,12 @@
 #ifndef _LEXICO_H_
 #define _LEXICO_H_
 
+#include "Automaton.hpp"
+
 #include <iostream>
 #include <fstream>
 using namespace std;
 
-#include "Automaton.hpp"
-#include "types.hpp"
 
 class Lexico {
     private:

@@ -32,18 +32,24 @@ tokenWithLexeme *Lexico::getToken(){
         suponemos que el 30 es el estado final
     */
     while (stateAutomaton != 19 && stateAutomaton != 20 ){
+        char firstCharacter;
+        // si el buffer del autómata está vacío le mandamos otro sino el mismo que tiene
+        if(!this->automaton->isBufferEmpty()){
+            // obtenemos el primer caracter de la línea
+            firstCharacter = this->line[0]; 
+            // eliminamos ese caracter de la línea
+            this->line.erase(0, 1); 
+        }
+        else{
+            firstCharacter = this->automaton->getAndClearBuffer(); 
+        }
         
-        // obtenemos el primer caracter de la línea
-        char firstCharacter = this->line[0]; 
-        
-        // eliminamos ese caracter de la línea
-        this->line.erase(0, 1); 
 
         // procesamos el caracter por el autómata esperando el estado siguiente
         stateAutomaton = this->automaton->processCharacter(firstCharacter, stateAutomaton);
     }
 
-    return this->automaton->getLastToken();
+    return this->automaton->getCopyOfTokenAndResetToken();
 }
 
 // checkea si es el final de archivo

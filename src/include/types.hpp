@@ -1,8 +1,10 @@
 #ifndef _TYPES_H_
 #define _TYPES_H_
 
-#include <iostream>
 #include "Acciones/AccionSemantica.hpp"
+
+#include <iostream>
+
 struct tokenWithLexeme {
     int token;
     std::string lexeme;

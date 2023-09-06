@@ -1,9 +1,3 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <map>
-#include <cctype>
-
 #include "include/Automaton.hpp"
 #include "Acciones/AS1.cpp"
 #include "Acciones/AS2.cpp"
@@ -11,6 +5,14 @@
 #include "Acciones/AS4.cpp"
 #include "Acciones/ASE.cpp"
 
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <map>
+#include <cctype>
+
+using namespace std;
 
 Automaton::Automaton() {
     
@@ -27,23 +29,23 @@ int Automaton::processCharacter(char character, int actual_state) {
 
     valueOfMatrix* value = this->getValueOfMatrix(character, actual_state);
 
-    string prb = "NULL";
+    // string prb = "NULL";
 
-    // esto lo debe hacer una accion semantica
-    this->tokenToreturn->lexeme+=character;
+    // // esto lo debe hacer una accion semantica
+    // this->tokenToreturn->lexeme+=character;
     if (value->accionp != NULL){
-        value->accionp->execute();
-        prb = value->accionp->name();
+        value->accionp->execute(this, character);
+        // prb = value->accionp->name();
     }   
     
-    cout << "todojoya1" << endl;
-    for (int i = 0; i < sizeof(char); ++i) {
-        std::cout << static_cast<int>(reinterpret_cast<unsigned char*>(&character)[i]) << " ";
-    }
-    std::cout << std::endl;
-    cout << "character: " << character << " state: " << actual_state << " next state: " << value->next_state << "x" << endl;
-    cout << "la acción a ejecutar es: " << prb << endl;
-    cout << "todojoya2" << endl;
+    // cout << "todojoya1" << endl;
+    // for (int i = 0; i < sizeof(char); ++i) {
+    //     std::cout << static_cast<int>(reinterpret_cast<unsigned char*>(&character)[i]) << " ";
+    // }
+    // std::cout << std::endl;
+    // cout << "character: " << character << " state: " << actual_state << " next state: " << value->next_state << "x" << endl;
+    // cout << "la acción a ejecutar es: " << prb << endl;
+    // cout << "todojoya2" << endl;
 
     return value->next_state;
 }
@@ -147,7 +149,27 @@ int Automaton::getSubconjunto(char character){
 }
 
 // devuelve el token con su lexema
-tokenWithLexeme* Automaton::getLastToken(){
+tokenWithLexeme* Automaton::getToken(){
+    return this->tokenToreturn;
+}
+
+// devuelve una copia del token con su lexema
+tokenWithLexeme* Automaton::getCopyOfToken(){
+
+    tokenWithLexeme *token = new tokenWithLexeme();
+    
+    // copiamos el token con su lexema
+    token->token = this->tokenToreturn->token;
+    token->lexeme = this->tokenToreturn->lexeme;
+    
+    // // limpiamos el token usado como buffer para guardar el token a devolver
+    // this->tokenToreturn->token = 0;
+    // this->tokenToreturn->lexeme = "";
+
+    return token;
+}
+// devuelve el token con su lexema y resetea el token del autómata
+tokenWithLexeme* Automaton::getCopyOfTokenAndResetToken(){
 
     tokenWithLexeme *token = new tokenWithLexeme();
     
@@ -199,7 +221,7 @@ AccionSemantica* Automaton::getAccionSemantica(string accionStr){
         {"AS2", new AS2()},
         {"AS3", new AS3()},
         {"AS4", new AS4()},
-        {"ASE", new ASE()}
+        {"ASE", new ASE()},
         };
 
     auto it = actionMap.find(accionStr);
@@ -288,4 +310,18 @@ void Automaton::loadActionsTable(string pathFle){
     //esto es para el último elemento de la matriz que siempre falta por propiedades del ifstream    
     AccionSemantica* accion = this->getAccionSemantica(str);
     this->matrix[row][column].accionp = accion;
+};
+
+bool Automaton::isBufferEmpty(){
+    return this->bufferForCharacter == '\0';
+};
+
+void Automaton::setBuffer(char character){
+    this->bufferForCharacter = character;
+};
+
+char Automaton::getAndClearBuffer(){
+    char character = this->bufferForCharacter;
+    this->bufferForCharacter = '\0';
+    return character;
 };

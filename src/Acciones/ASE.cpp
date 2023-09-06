@@ -1,15 +1,19 @@
+#include "../include/Acciones/AccionSemantica.hpp"
+#include "../include/Automaton.hpp"
+#include "../include/types.hpp"
+
 #include <iostream>
 #include <string>
 
 using namespace std;
-#include "../include/Acciones/AccionSemantica.hpp"
+
 
 class ASE : public AccionSemantica {
     private:
         
     public:
         ASE(){};
-        void execute() override {
+        void execute(Automaton* automaton, char characterReaded) override {
             cout << "EJECUTANDO - ASE - ERROR" << endl;
         } ;
         string name() override {
