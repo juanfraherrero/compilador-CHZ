@@ -27,9 +27,15 @@ class AS9 : public AccionSemantica {
             // trunca el lexema a una logitud de 20 caracteres
             automaton->getToken()->lexeme = automaton->getToken()->lexeme.substr(0, 20);
 
-            //guardar en la tabla de símbolos el identificador
-            ////symbolTable.insert(automaton->getToken()->lexeme);
+            string lexeme = automaton->getToken()->lexeme;
+
+            //guardar en la tabla de símbolos el identificador (id:48)
+            tableSymbol->insert(lexeme, lexeme, 48);
+
+            // encontramos un identificador y definimos el token como identificador
+            automaton->getToken()->token = 48;
         };
+
         string name() override {
             return "AS9";
         };

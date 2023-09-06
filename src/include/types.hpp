@@ -20,8 +20,8 @@ struct valueOfMatrix
 
 // Definición de la estructura que contiene un string y un entero
 struct symbol {
-    std::string name;
-    int value;
+    std::string name;   //lexema
+    int value;          //id del token
 
     symbol(const string& n, int v) : name(n), value(v) {}
 };
