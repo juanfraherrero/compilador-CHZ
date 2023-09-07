@@ -19,23 +19,11 @@ class AS9 : public AccionSemantica {
     private:
         bool isInRange(const string& _str) {
 
-            /*
-                limites de float. 
-                El problema es que solo toman hasta 6 digitos decimales, y en el enunciado nos pide checkear 8 y no seríamos precisos
-                terminamos usando double (64bits) pero podemos checkear el rango de forma precisa
-            
-            // string limiteFloat = "3.40282356E+38"; 
-            // string limiteFloat2 = "1.17549432E-38"; 
-            // string limiteFloat3 = "-3.40282356E+38";
-            // string limiteFloat4 = "-1.17549432E-38";
-
-            */
-
             // Definir los límites del rango ENUNCIADO
-            double limitPositiveInf = 1.17549435E-38;
-            double limitPositiveSup = 3.40282347E+38;
-            double limitNegativeInf = -3.40282347E+38;
-            double limitNegativeSup = -1.17549435E-38;
+            const double limitPositiveInf = 1.17549435E-38;
+            const double limitPositiveSup = 3.40282347E+38;
+            const double limitNegativeInf = -3.40282347E+38;
+            const double limitNegativeSup = -1.17549435E-38;
 
             double value;
 
@@ -56,32 +44,18 @@ class AS9 : public AccionSemantica {
                     throw std::out_of_range("El número está fuera del rango permitido");
                 }
 
-            } catch (const std::invalid_argument& e) {
-
-                // no debería llegar nunca a este caso
-
-                std::cerr << "Error de conversión: " << e.what() << std::endl;
-                return false;
-                
             } catch (const std::out_of_range& e) {
-                // std::cerr << "Desbordamiento al convertir: " << e.what() << std::endl;
-
-                // si se pasa de rango debemos lanzar un warning
-                //
-                //
-                //
                 return false;
             }
         }
 
     public:
         AS9(){};
-        void execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
-            cout << "AS9" << endl;
-
+        void execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {            
             // guarda el caracter en el buffer del automaton
             automaton->setBuffer(characterReaded);
 
+            //checkear que el lexema no se pase de rango
             string lexeme = automaton->getToken()->lexeme;
 
             // checkea el rango de la constante de Punto Flotante
@@ -93,8 +67,7 @@ class AS9 : public AccionSemantica {
                 automaton->getToken()->token = 50;
             }
             else{
-                // lanzar warning
-                // cout << "Warning: la constante de Punto Flotante está fuera de rango" << endl;
+                std::cerr << "Error por punto flotante fuera de rango" << endl;
             };
             
         };
