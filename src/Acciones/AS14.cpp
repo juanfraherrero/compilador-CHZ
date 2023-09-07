@@ -67,7 +67,7 @@ class AS9 : public AccionSemantica {
                 automaton->getToken()->token = 50;
             }
             else{
-                std::cerr << "Error por punto flotante fuera de rango" << endl;
+                std::cerr << "Error por punto flotante fuera de rango - Linea " << *(automaton->getPtrLineNumber()) << endl;
             };
             
         };

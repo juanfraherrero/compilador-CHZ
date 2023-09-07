@@ -23,9 +23,10 @@ class Automaton {
         char bufferForCharacter = '\0';
         TableSymbol* tableSymbol;
         TableReservedWord* tableRWords;
+        int* ptrLineNumber;
 
     public:
-        Automaton(TableSymbol* tableSymbol, TableReservedWord* tableRWords);
+        Automaton(TableSymbol* tableSymbol, TableReservedWord* tableRWords, int* ptrLineNumber);
         int processCharacter(char character, int actual_satate);
         tokenWithLexeme* getToken();            
         tokenWithLexeme* getCopyOfToken();
@@ -36,6 +37,7 @@ class Automaton {
         bool isBufferEmpty();
         void setBuffer(char character);
         char getAndClearBuffer();
+        int * getPtrLineNumber();
 };
 
 #endif

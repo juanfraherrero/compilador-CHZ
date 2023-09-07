@@ -47,7 +47,7 @@ class AS3 : public AccionSemantica {
                 }
             } catch (const std::out_of_range& e) {
                 
-                std::cerr << "Error por entero corto fuera de rango { -128 - 127 }" << endl;
+                std::cerr << "Error por entero corto fuera de rango { -128 - 127 } - Linea " << *(automaton->getPtrLineNumber()) << endl;
 
             }
             

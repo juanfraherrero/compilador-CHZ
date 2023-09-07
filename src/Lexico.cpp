@@ -15,7 +15,7 @@ Lexico::Lexico(string file_name, TableSymbol* tableSymbol, TableReservedWord* ta
     this->lineNumber = 0;
     this->character = 0;
     this->eof = false;
-    this->automaton = new Automaton(tableSymbol, tableRWords);
+    this->automaton = new Automaton(tableSymbol, tableRWords, &(this->lineNumber));
 }
 
 tokenWithLexeme *Lexico::getToken(){

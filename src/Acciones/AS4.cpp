@@ -44,7 +44,7 @@ class AS4 : public AccionSemantica {
                 }
             } catch (const std::out_of_range& e) {
                 
-                cerr <<"Error por entero sin signo fuera de rango { 0 - 65535 }" << endl;
+                cerr <<"Error por entero sin signo fuera de rango { 0 - 65535 } - Linea " << *(automaton->getPtrLineNumber()) << endl;
 
             }
 

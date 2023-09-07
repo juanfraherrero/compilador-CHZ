@@ -15,7 +15,7 @@
 
 using namespace std;
 
-Automaton::Automaton(TableSymbol* tableSymbol, TableReservedWord* tableRWords) {
+Automaton::Automaton(TableSymbol* tableSymbol, TableReservedWord* tableRWords, int* ptrLineNumber) {
     
     // cargamos la tabla de estados y acciones semanticas
     // debe coincidir el path y además checkear que los límtes de la matriz en el .hpp sean correctos
@@ -25,7 +25,7 @@ Automaton::Automaton(TableSymbol* tableSymbol, TableReservedWord* tableRWords) {
     // guardamos las tablas
     this->tableSymbol = tableSymbol;
     this->tableRWords = tableRWords;
-
+    this->ptrLineNumber = ptrLineNumber;
     //esta línea es para ver la matriz cargada
     // this->printMatrix();
 }
@@ -43,14 +43,14 @@ int Automaton::processCharacter(char character, int actual_state) {
         prb = value->accionp->name();
     }   
     
-    cout << "todojoya1" << endl;
-    for (int i = 0; i < sizeof(char); ++i) {
-        std::cout << static_cast<int>(reinterpret_cast<unsigned char*>(&character)[i]) << " ";
-    }
-    std::cout << std::endl;
-    cout << "character: " << character << " state: " << actual_state << " next state: " << value->next_state << "x" << endl;
-    cout << "la acción a ejecutar es: " << prb << endl;
-    cout << "todojoya2" << endl;
+    // cout << "todojoya1" << endl;
+    // for (int i = 0; i < sizeof(char); ++i) {
+    //     std::cout << static_cast<int>(reinterpret_cast<unsigned char*>(&character)[i]) << " ";
+    // }
+    // std::cout << std::endl;
+    // cout << "character: " << character << " state: " << actual_state << " next state: " << value->next_state << "x" << endl;
+    // cout << "la acción a ejecutar es: " << prb << endl;
+    // cout << "todojoya2" << endl;
 
     return value->next_state;
 }
@@ -329,4 +329,8 @@ char Automaton::getAndClearBuffer(){
     char character = this->bufferForCharacter;
     this->bufferForCharacter = '\0';
     return character;
+};
+
+int * Automaton::getPtrLineNumber(){
+    return this->ptrLineNumber;
 };
