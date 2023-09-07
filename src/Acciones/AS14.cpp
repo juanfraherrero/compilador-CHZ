@@ -15,7 +15,7 @@ using namespace std;
         guardar en la tabla de símbolos la constante de Punto Flotante
 
 */
-class AS9 : public AccionSemantica {
+class AS14 : public AccionSemantica {
     private:
         bool isInRange(const string& _str) {
 
@@ -50,7 +50,7 @@ class AS9 : public AccionSemantica {
         }
 
     public:
-        AS9(){};
+        AS14(){};
         void execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {            
             // guarda el caracter en el buffer del automaton
             automaton->setBuffer(characterReaded);
@@ -73,6 +73,6 @@ class AS9 : public AccionSemantica {
         };
 
         string name() override {
-            return "AS9";
+            return "AS14";
         };
 };

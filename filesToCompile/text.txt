@@ -1,5 +1,3 @@
-primera línea de el archivo de texto
-Segunda
-s
-\n
-Tercera.
+IF test = 1234_s
+ENDIF
+IF test = 1234_ui

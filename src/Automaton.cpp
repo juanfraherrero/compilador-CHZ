@@ -3,6 +3,13 @@
 #include "Acciones/AS2.cpp"
 #include "Acciones/AS3.cpp"
 #include "Acciones/AS4.cpp"
+#include "Acciones/AS5.cpp"
+#include "Acciones/AS6.cpp"
+#include "Acciones/AS7.cpp"
+
+#include "Acciones/AS9.cpp"
+
+#include "Acciones/AS14.cpp"
 #include "Acciones/ASE.cpp"
 #include "TableSymbol.cpp"
 #include "TableReservedWord.cpp"
@@ -43,14 +50,14 @@ int Automaton::processCharacter(char character, int actual_state) {
         prb = value->accionp->name();
     }   
     
-    // cout << "todojoya1" << endl;
+    
     // for (int i = 0; i < sizeof(char); ++i) {
     //     std::cout << static_cast<int>(reinterpret_cast<unsigned char*>(&character)[i]) << " ";
     // }
     // std::cout << std::endl;
-    // cout << "character: " << character << " state: " << actual_state << " next state: " << value->next_state << "x" << endl;
-    // cout << "la acción a ejecutar es: " << prb << endl;
-    // cout << "todojoya2" << endl;
+    cout << "character: " << character << " state: " << actual_state << " next state: " << value->next_state << "x" << endl;
+    cout << "la acción a ejecutar es: " << prb << endl;
+    
 
     return value->next_state;
 }
@@ -226,6 +233,13 @@ AccionSemantica* Automaton::getAccionSemantica(string accionStr){
         {"AS2", new AS2()},
         {"AS3", new AS3()},
         {"AS4", new AS4()},
+        {"AS5", new AS5()},
+        {"AS6", new AS6()},
+        {"AS7", new AS7()},
+        
+        {"AS9", new AS9()},
+
+        {"AS14", new AS14()},
         {"ASE", new ASE()},
         };
 

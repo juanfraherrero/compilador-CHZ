@@ -19,8 +19,6 @@ class AS9 : public AccionSemantica {
     public:
         AS9(){};
         void execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
-            cout << "AS9" << endl;
-
             // guarda el caracter en el buffer del automaton
             automaton->setBuffer(characterReaded);
 

@@ -16,7 +16,6 @@ class AS2 : public AccionSemantica {
     public:
         AS2(){};
         void execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
-            cout << "AS2" << endl;
             automaton->getToken()->lexeme += characterReaded; // concatenas el caracter leído al lexema
         } ;
         string name() override {
