@@ -24,7 +24,7 @@ class AS5 : public AccionSemantica {
             string lexeme = automaton->getToken()->lexeme;
 
             //guardar en la tabla de símbolos el operador (id:52)
-            tableSymbol->insert(lexeme, lexeme, 52);
+            tableSymbol->insert(lexeme, lexeme, "52");
 
             // encontramos un identificador y definimos el token como identificador
             automaton->getToken()->token = 52;

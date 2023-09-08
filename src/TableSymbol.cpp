@@ -18,10 +18,10 @@ symbol* TableSymbol::getSymbol(const string& key) {
 }
 
 // insertar un elemento en la tabla
-void TableSymbol::insert(const string& key, const string& name, int value) {
+void TableSymbol::insert(const string& key, const string& lexema, const string& value) {
     
     // Crear un nuevo simbolo y almacenarlo en la tabla
-    symbol* newSymbol = new symbol(name, value);
+    symbol* newSymbol = new symbol(lexema, value);
     symbolTable[key] = newSymbol;
 }
 
@@ -30,7 +30,7 @@ void TableSymbol::imprimirTabla() {
     cout << "Tabla de símbolos:" << endl;
     for (const auto& pair : symbolTable) {
         const symbol* symbol = pair.second;
-        cout << "Clave: " << pair.first << ", Nombre: " << symbol->name << ", Valor: " << symbol->value << endl;
+        cout << "Clave: " << pair.first << ", Lexema: " << symbol->lexema << ", Valor: " << symbol->value << endl;
     }
 }
 

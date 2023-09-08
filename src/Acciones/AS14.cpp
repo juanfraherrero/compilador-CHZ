@@ -61,7 +61,7 @@ class AS14 : public AccionSemantica {
             // checkea el rango de la constante de Punto Flotante
             if(isInRange(lexeme)){
                 // guardar en la tabla de símbolos la constante de Punto Flotante (id: 50)
-                tableSymbol->insert(lexeme, lexeme, 50);
+                tableSymbol->insert(lexeme, lexeme, "50");
 
                 // encontramos una constante de punto flotante y definimos el token como constante
                 automaton->getToken()->token = 50;

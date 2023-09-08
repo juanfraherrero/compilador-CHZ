@@ -28,7 +28,7 @@ class AS9 : public AccionSemantica {
             string lexeme = automaton->getToken()->lexeme;
 
             //guardar en la tabla de símbolos el identificador (id:48)
-            tableSymbol->insert(lexeme, lexeme, 48);
+            tableSymbol->insert(lexeme, lexeme, "48");
 
             // encontramos un identificador y definimos el token como identificador
             automaton->getToken()->token = 48;

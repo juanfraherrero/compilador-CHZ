@@ -21,7 +21,7 @@ class TableSymbol{
         symbol* getSymbol(const string& key);
 
         // insertar un elemento en la tabla
-        void insert(const string& key, const string& name, int value);
+        void insert(const string& key, const string& lexema, const string& value);
 
         // Función para imprimir la tabla completa
         void imprimirTabla();

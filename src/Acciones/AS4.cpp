@@ -34,7 +34,7 @@ class AS4 : public AccionSemantica {
                 if(value >= 0 && value <= 65535){
 
                     //Cargar en la tabla de símbolos el short int (id: 51)
-                    tableSymbol->insert(lexeme, lexeme, 51);
+                    tableSymbol->insert(lexeme, lexeme, "51");
 
                     // encontramos un short int y definimos el token como short int
                     automaton->getToken()->token = 51;

@@ -7,11 +7,13 @@
 
 using namespace std;
 
+// struct para el tipo del token que devuelve el léxico
 struct tokenWithLexeme {
     int token;
     string lexeme;
 };
 
+// struct para los valores que contiene la matriz del autómata
 struct valueOfMatrix
 {
     int next_state;
@@ -20,10 +22,12 @@ struct valueOfMatrix
 
 // Definición de la estructura que contiene un string y un entero
 struct symbol {
-    std::string name;   //lexema
-    int value;          //id del token
+    string lexema;          // lexema
+    string value;           // valor del token
+    string type;            // define un tipo
 
-    symbol(const string& n, int v) : name(n), value(v) {}
+    symbol(const string& _lexema) : lexema(_lexema) {}
+    symbol(const string& _lexema, string _value) : lexema(_lexema), value(_value) {}
 };
 
 

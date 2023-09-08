@@ -47,6 +47,9 @@ int main(int arg_count, char *arg_list[]) {
     }
 
 
+    tableSymbol->imprimirTabla();
+    tableRWords->imprimirTabla();
+
 
     delete tableSymbol;
     delete tableRWords;

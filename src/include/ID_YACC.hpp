@@ -1,0 +1,18 @@
+#ifndef _IDYACC_H_
+#define _IDYACC_H_
+
+#include <iostream>
+
+const int IDENTIFICADOR = 300;
+const int CONSTANTE_ENTERO_SIN_SIGNO = 301;
+const int CONSTANTE_ENTERO_CORTO = 302;
+const int CONSTANTE_PUNTO_FLOTANTE = 303;
+const int CONSTANTE_CADENA_CARACTERES = 304;
+const int COMPARADOR_IGUAL_IGUAL = 305;
+const int COMPARADOR_DISTINTO = 306;
+const int OPERADOR_SUMA_SUMA = 307;
+
+
+
+
+#endif

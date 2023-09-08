@@ -38,7 +38,7 @@ class AS3 : public AccionSemantica {
                 // si se puede convertir checkeamos que esté en los límtes que nos indicaron
                 if(value >= 0 && value <= 128){
                     //Cargar en la tabla de símbolos el short int (id: 49)
-                    tableSymbol->insert(lexeme, lexeme, 49);
+                    tableSymbol->insert(lexeme, lexeme, "49");
 
                     // encontramos un short int y definimos el token como short int
                     automaton->getToken()->token = 49;

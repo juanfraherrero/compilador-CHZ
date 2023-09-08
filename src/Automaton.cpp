@@ -55,8 +55,8 @@ int Automaton::processCharacter(char character, int actual_state) {
     //     std::cout << static_cast<int>(reinterpret_cast<unsigned char*>(&character)[i]) << " ";
     // }
     // std::cout << std::endl;
-    cout << "character: " << character << " state: " << actual_state << " next state: " << value->next_state << "x" << endl;
-    cout << "la acción a ejecutar es: " << prb << endl;
+    // cout << "character: " << character << " state: " << actual_state << " next state: " << value->next_state << "x" << endl;
+    // cout << "la acción a ejecutar es: " << prb << endl;
     
 
     return value->next_state;
