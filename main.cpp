@@ -40,15 +40,16 @@ int main(int arg_count, char *arg_list[]) {
     cout << "\n\n EJECUCIÓN \n\n";
 
     //esto se supone que será reemplazado por el ya que irá pidiendo tokens
-    while (!lexico.endOfFile()) {
-        token = lexico.getToken(); // esto queda guardado en el heap // checkear cuando hay que eliminarlo
-        
-        cout << "TOKEN ---->>>> lexema -> " << token->lexeme << " - id ->" << token->token << endl;
-        
-        // le das uso al token y antes de terminar el while lo borras porque el get Token te da otro
-        delete token;
+    if(!lexico.isFileOff()){    //con este if se chequea que el archivo no este vacio
+        while (!lexico.endOfFile()){
+            token = lexico.getToken(); // esto queda guardado en el heap // checkear cuando hay que eliminarlo
+            
+            cout << "TOKEN ---->>>> lexema -> " << token->lexeme << " - id ->" << token->token << endl;
+            
+            // le das uso al token y antes de terminar el while lo borras porque el get Token te da otro
+            delete token;
+        }
     }
-    
     cout << "\n\n --------------- \n\n";
 
     tableSymbol->imprimirTabla();

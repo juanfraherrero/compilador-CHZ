@@ -69,6 +69,12 @@ bool Lexico::endOfFile(){
     return this->eof;
 }
 
+bool Lexico::isFileOff(){
+    fileAux.open(this->file_name);
+    //quiero ver si la siguiente linea del archivo es endOfFile
+    this->fileOff = !(bool)getline(fileAux, this->line);
+    return this->fileOff;
+}	
 string Lexico::getLastLine(){
     return this->line;
 }

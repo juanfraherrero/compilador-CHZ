@@ -1,4 +1,3 @@
-
 IFIFIF test = 1234_s
-ENDIF
+ENDIF <=
 IF test = 1234_ui,
