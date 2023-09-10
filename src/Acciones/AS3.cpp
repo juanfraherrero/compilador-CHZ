@@ -2,6 +2,7 @@
 #include "../include/Automaton.hpp"
 #include "../include/types.hpp"
 #include "../include/ID_YACC.hpp"
+#include "./E4.cpp"
 
 #include <iostream>
 #include <string>
@@ -19,7 +20,7 @@ using namespace std;
 */
 class AS3 : public AccionSemantica {
     private:
-        
+        E4 error;
     public:
         AS3(){};
         int execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
@@ -52,12 +53,8 @@ class AS3 : public AccionSemantica {
                     throw std::out_of_range("El número está fuera del rango permitido");
                 }
             } catch (const std::out_of_range& e) {
-                
-                std::cerr << "Linea: " << *(automaton->getPtrLineNumber()) << "-> Error por entero corto fuera de rango { -128 - 127 }"  << endl;
-
-                // al ser un error forzamos volver al estado 0 y vaciamos el lexema
-                automaton->getToken()->lexeme = "";
-                return 0;
+                //Fuera de rango
+                return this->error.execute(automaton, characterReaded, tableSymbol, tableRWords);
             }
             
             // desde la acción no modificamos el siguiente estado

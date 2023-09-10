@@ -2,6 +2,7 @@
 #include "../include/Automaton.hpp"
 #include "../include/types.hpp"
 #include "../include/ID_YACC.hpp"
+#include "./E7.cpp"
 
 #include <iostream>
 #include <string>
@@ -16,6 +17,8 @@ using namespace std;
             sI NO es '!' se guarda el caracter leído y se devuelve el código ASCII del '!'
 */
 class AS15 : public AccionSemantica {
+    private:
+        E7 error;
     public:
         AS15(){};
         int execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {            
@@ -24,14 +27,8 @@ class AS15 : public AccionSemantica {
                 automaton->getToken()->token = id_COMPARADOR_DISTINTO;
             }
             else{
-                // guarda el caracter en el buffer del automaton
-                automaton->setBuffer(characterReaded);
-
-                std::cerr <<"Linea: " << *(automaton->getPtrLineNumber()) << " -> Error encontrado en '!'. No es parte del lenguaje" << endl;
-                
-                // al ser un error forzamos volver al estado 0 y vaciamos el lexema
-                automaton->getToken()->lexeme = "";
-                return 0;    
+                //Simbolo distinto de "!" luego de un "!".
+                return this->error.execute(automaton, characterReaded, tableSymbol, tableRWords);
             }
 
             // desde la acción no modificamos el siguiente estado

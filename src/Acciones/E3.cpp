@@ -21,7 +21,7 @@ class E3 : public AccionSemantica {
         E3(){};
         int execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
             // indicar un error por pantalla de caracter no válido detectado
-            cerr << "Linea: " << *(automaton->getPtrLineNumber()) << "-> Error: salto de línea en cadena de texo " << endl;
+            cerr << "\033[31m" << "Linea: " << *(automaton->getPtrLineNumber()) << "-> Error: salto de línea en cadena de texo " << "\033[0m"<< endl;
 
             // guarda el caracter en el buffer del automaton
             automaton->setBuffer(characterReaded);

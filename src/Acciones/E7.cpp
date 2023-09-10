@@ -8,28 +8,28 @@
 using namespace std;
 
 /*
-    La acción semántica de ERROR 2 (detección de un caracter no válido en una constante numérica) se encarga de:
-        Indicar un error por pantalla de caracter no válido detectado 
-        Guardar el caracter en el buffer 
-        Vaciar el string del buffer 
+    La acción semántica de ERROR 7 se encarga de:
+        Indicar un error por pantalla de un simbolo cualquiera luego de un "!".
+        Guardar el caracter en el buffer del automaton.
+        Vaciar el string del lexema.
+        Volver al estado 0.
 */
-class E2 : public AccionSemantica {
+class E7 : public AccionSemantica {
     private:
         
     public:
-        E2(){};
+        E7(){};
         int execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
-            // indicar un error por pantalla de caracter no válido detectado
-            cerr << "\033[31m" << "Linea: " << *(automaton->getPtrLineNumber()) << "-> Error: en constante numérica " << "\033[0m"<< endl;
-
             // guarda el caracter en el buffer del automaton
             automaton->setBuffer(characterReaded);
 
+            std::cerr << "\033[31m" << "Linea: " << *(automaton->getPtrLineNumber()) << " -> Error encontrado en '!'. No es parte del lenguaje" << "\033[0m" <<endl;
+            
             // al ser un error forzamos volver al estado 0 y vaciamos el lexema
             automaton->getToken()->lexeme = "";
-            return 0;    
+            return 0;   
         } ;
         string name() override {
-            return "E2";
+            return "E7";
         } ;
 };

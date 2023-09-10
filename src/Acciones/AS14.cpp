@@ -2,6 +2,7 @@
 #include "../include/Automaton.hpp"
 #include "../include/types.hpp"
 #include "../include/ID_YACC.hpp"
+#include "./E6.cpp"
 
 #include <iostream>
 #include <string>
@@ -18,6 +19,7 @@ using namespace std;
 */
 class AS14 : public AccionSemantica {
     private:
+        E6 error;
         bool isInRange(const string& _str) {
 
             // Definir los límites del rango ENUNCIADO
@@ -69,11 +71,8 @@ class AS14 : public AccionSemantica {
                 return -1;
             }
             else{
-                std::cerr <<"Linea: " << *(automaton->getPtrLineNumber()) << " -> Error en constante de punto flotante fuera de rango " << endl;
-                
-                // al ser un error forzamos volver al estado 0 y vaciamos el lexema
-                automaton->getToken()->lexeme = "";
-                return 0;
+                //Fuera de rango
+                return this->error.execute(automaton, characterReaded, tableSymbol, tableRWords);
             };
             
         };

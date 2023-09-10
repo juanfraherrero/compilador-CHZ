@@ -1,3 +1,4 @@
-IFIFIF test = 1234_s
-ENDIF <=
+IF test = 1234_s
+ENDIF,
+identificadorlarguisimo = 25_u,
 IF test = 1234_ui,

@@ -18,7 +18,7 @@ class E1 : public AccionSemantica {
         E1(){};
         int execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
             // indicar un error por pantalla de caracter no válido detectado
-            cerr << "Linea: " << *(automaton->getPtrLineNumber()) << "-> Error: Caracter no válido detectado: " << characterReaded<< endl;
+            cerr << "\033[31m" << "Linea: " << *(automaton->getPtrLineNumber()) << "-> Error: Caracter no válido detectado: " << characterReaded<< "\033[0m" << endl;
 
             // desde la acción no modificamos el siguiente estado
             return -1;     

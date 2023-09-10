@@ -1,6 +1,7 @@
 #include "../include/AccionSemantica.hpp"
 #include "../include/Automaton.hpp"
 #include "../include/types.hpp"
+#include "./E5.cpp"
 
 #include <iostream>
 #include <string>
@@ -14,7 +15,7 @@ using namespace std;
 */
 class AS6 : public AccionSemantica {
     private:
-        
+        E5 error;
     public:
         AS6(){};
         int execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
@@ -29,11 +30,7 @@ class AS6 : public AccionSemantica {
                 automaton->getToken()->token = id;
             }else{
                 // la palabra reservada no existe
-                std::cerr << "Linea: " << *(automaton->getPtrLineNumber()) << "-> Error por palabra reservada mal formada"  << endl;
-
-                // al ser un error forzamos volver al estado 0 y vaciamos el lexema
-                automaton->getToken()->lexeme = "";
-                return 0;
+                return this->error.execute(automaton, characterReaded, tableSymbol,tableRWords);
             }
             
             // desde la acción no modificamos el siguiente estado
