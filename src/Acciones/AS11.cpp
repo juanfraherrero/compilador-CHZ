@@ -24,7 +24,7 @@ class AS11 : public AccionSemantica {
 
             // encontramos un '{','}','(',')',',';' y definimos el identificador en token
             automaton->getToken()->token = valorAscii;
-            
+            automaton->getToken()->lexeme = characterReaded; //le asigno el caracter leixo al lexema para que no quede vacio 
             // desde la acción no modificamos el siguiente estado
             return -1;
         };
