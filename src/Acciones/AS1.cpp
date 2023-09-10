@@ -18,8 +18,11 @@ class AS1 : public AccionSemantica {
     public:
         AS1(){};
 
-        void execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
+        int execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
             automaton->getToken()->lexeme = characterReaded; // seteas el lexema con el caracter leído
+            
+            // desde la acción no modificamos el siguiente estado
+            return -1;
         } ;
         string name() override {
             return "AS1";

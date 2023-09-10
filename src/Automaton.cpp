@@ -6,11 +6,18 @@
 #include "Acciones/AS5.cpp"
 #include "Acciones/AS6.cpp"
 #include "Acciones/AS7.cpp"
-
+#include "Acciones/AS8.cpp"
 #include "Acciones/AS9.cpp"
-
+#include "Acciones/AS10.cpp"
+#include "Acciones/AS11.cpp"
+#include "Acciones/AS12.cpp"
+#include "Acciones/AS13.cpp"
 #include "Acciones/AS14.cpp"
-#include "Acciones/ASE.cpp"
+#include "Acciones/AS15.cpp"
+#include "Acciones/E1.cpp"
+#include "Acciones/E2.cpp"
+#include "Acciones/E3.cpp"
+
 #include "TableSymbol.cpp"
 #include "TableReservedWord.cpp"
 
@@ -34,38 +41,42 @@ Automaton::Automaton(TableSymbol* tableSymbol, TableReservedWord* tableRWords, i
     this->tableRWords = tableRWords;
     this->ptrLineNumber = ptrLineNumber;
     //esta línea es para ver la matriz cargada
-    // this->printMatrix();
+    this->printMatrix();
 }
 
 int Automaton::processCharacter(char character, int actual_state) {
 
     valueOfMatrix* value = this->getValueOfMatrix(character, actual_state);
 
-    string prb = "NULL";
+    // // string prb = "NULL";
 
-    // // esto lo debe hacer una accion semantica
-    // this->tokenToreturn->lexeme+=character;
+    int next_state = -1;    
     if (value->accionp != NULL){
-        value->accionp->execute(this, character, this->tableSymbol, this->tableRWords);
-        prb = value->accionp->name();
+        next_state = value->accionp->execute(this, character, this->tableSymbol, this->tableRWords);
+        // // prb = value->accionp->name();
     }   
     
     
-    // for (int i = 0; i < sizeof(char); ++i) {
-    //     std::cout << static_cast<int>(reinterpret_cast<unsigned char*>(&character)[i]) << " ";
-    // }
-    // std::cout << std::endl;
-    // cout << "character: " << character << " state: " << actual_state << " next state: " << value->next_state << "x" << endl;
-    // cout << "la acción a ejecutar es: " << prb << endl;
+    // // for (int i = 0; i < sizeof(char); ++i) {
+    // //     std::cout << static_cast<int>(reinterpret_cast<unsigned char*>(&character)[i]) << " ";
+    // // }
+    // // std::cout << std::endl;
+    // // cout << "character: " << character << " state: " << actual_state << " next state: " << value->next_state << "x" << endl;
+    // // cout << "la acción ejecutada es: " << prb << endl;
     
 
-    return value->next_state;
+    if(next_state == -1){ 
+        //si es -1 entonces la acción no modificó el siguiente estado y usamos la tabla
+        return value->next_state;
+    }else{
+        // la acción modifico el siguiente estado
+        return next_state;
+    }
 }
 
 valueOfMatrix * Automaton::getValueOfMatrix (char character, int actual_state){
     int column = this->getSubconjunto(character);
     int row = actual_state;
-    
     return &this->matrix[row][column];
 }
 
@@ -197,8 +208,11 @@ tokenWithLexeme* Automaton::getCopyOfTokenAndResetToken(){
 }
 // imprime la matriz pasada por parámetro
 void Automaton::printMatrix(){
+    cout <<endl << endl;
+
+    cout << "Matriz de estados \n\n";
     //imprimimos la matriz de estados
-    for (int i = 0; i < 22; i++)
+    for (int i = 0; i < 20; i++)
     {
         for (int j = 0; j < 28; j++)
         {
@@ -206,9 +220,9 @@ void Automaton::printMatrix(){
         }
         cout << endl;
     } 
-
+    cout << "\n\nMatriz de acciones \n\n";
     //imprimimos la matriz de acciones
-    for (int i = 0; i < 22; i++)
+    for (int i = 0; i < 20; i++)
     {
         for (int j = 0; j < 28; j++)
         {
@@ -222,6 +236,7 @@ void Automaton::printMatrix(){
         }
         cout << endl;
     }     
+    cout << " ----------- \n\n";
 }
 
 // checkear si esto no te los crea en cada llamada y nunca desaparecen
@@ -236,11 +251,17 @@ AccionSemantica* Automaton::getAccionSemantica(string accionStr){
         {"AS5", new AS5()},
         {"AS6", new AS6()},
         {"AS7", new AS7()},
-        
+        {"AS8", new AS8()},
         {"AS9", new AS9()},
-
+        {"AS10", new AS10()},
+        {"AS11", new AS11()},
+        {"AS12", new AS12()},
+        {"AS13", new AS13()},
         {"AS14", new AS14()},
-        {"ASE", new ASE()},
+        {"AS15", new AS15()},
+        {"E1", new E1()},
+        {"E2", new E2()},
+        {"E3", new E3()}
         };
 
     auto it = actionMap.find(accionStr);
@@ -314,6 +335,32 @@ void Automaton::loadActionsTable(string pathFle){
         // si es un salto de línea oun tab ontentamos obtener un entero del string y lo guardamos en la matriz
         else 
         {
+            string type = str.substr(0, 1);
+            if (type == "E")
+            {
+                try{
+                    string number = str.substr(1, str.length());
+                    int num = std::stoi(number);
+                    std::stringstream ss;
+                    ss << num;
+                    std::string str_number = ss.str();
+                    str = "E"+ str_number;
+                }catch(const std::invalid_argument& e){
+                    str = "ASE";
+                }
+            }else if (type == "A"){
+                try{
+                string number = str.substr(2, str.length());
+                int num = std::stoi(number);
+                std::stringstream ss;
+                ss << num;
+                std::string str_number = ss.str();
+                str = "AS"+ str_number;
+                }catch(const std::invalid_argument& e){
+                    str = "ASE";
+                }
+                    
+            }
             AccionSemantica* accion = this->getAccionSemantica(str);
             this->matrix[row][column].accionp = accion;
             

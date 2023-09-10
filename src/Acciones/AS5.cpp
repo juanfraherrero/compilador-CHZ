@@ -8,26 +8,29 @@
 using namespace std;
 
 /*
-    La acción semántica 5 ('-','/') se encarga de:
+    La acción semántica 5 ('-','/','.') se encarga de:
         guarda el caracter en el buffer del automaton
-        guardar en la tabla de símbolos el token operador
+        devolver el identificador de esos caracteres
 */
 class AS5 : public AccionSemantica {
     private:
         
     public:
         AS5(){};
-        void execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
+        int execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
             // guarda el caracter en el buffer del automaton
             automaton->setBuffer(characterReaded);
 
             string lexeme = automaton->getToken()->lexeme;
+            
+            // convertimos el caracter a su valor ASCII
+            int valorAscii = static_cast<int>(lexeme[0]);
 
-            //guardar en la tabla de símbolos el operador (id:52)
-            tableSymbol->insert(lexeme, lexeme, "52");
+            // encontramos un '-', '/', '.' y definimos el identificador en token
+            automaton->getToken()->token = valorAscii;
 
-            // encontramos un identificador y definimos el token como identificador
-            automaton->getToken()->token = 52;
+            // desde la acción no modificamos el siguiente estado
+            return -1;
         };
 
         string name() override {

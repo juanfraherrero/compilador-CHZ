@@ -1,6 +1,7 @@
 #include "../include/AccionSemantica.hpp"
 #include "../include/Automaton.hpp"
 #include "../include/types.hpp"
+#include "../include/ID_YACC.hpp"
 
 #include <iostream>
 #include <string>
@@ -18,20 +19,34 @@ class AS9 : public AccionSemantica {
         
     public:
         AS9(){};
-        void execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
+        int execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
             // guarda el caracter en el buffer del automaton
             automaton->setBuffer(characterReaded);
 
-            // trunca el lexema a una logitud de 20 caracteres
-            automaton->getToken()->lexeme = automaton->getToken()->lexeme.substr(0, 20);
+
+            // si el lexema tiene más de 20 caracteres lo trunca
+            if(automaton->getToken()->lexeme.length() > 20){
+                automaton->getToken()->lexeme = automaton->getToken()->lexeme.substr(0, 20);
+                
+                // avisamos que truncamos el lexema
+                cerr << "Linea: " << *(automaton->getPtrLineNumber()) << " -> Warning identificador " << automaton->getToken()->lexeme <<" excedía los 20 caracteres y fue truncado"<< endl;
+            }
 
             string lexeme = automaton->getToken()->lexeme;
 
-            //guardar en la tabla de símbolos el identificador (id:48)
-            tableSymbol->insert(lexeme, lexeme, "48");
+            
+            // verificamos si ya existe el identificador en la tabla de símbolos
+            if(tableSymbol->getSymbol(lexeme) == nullptr){
+                    //insertamos en la tabla de símbolos el short int 
+                        // con el lexema como key, el lexema y el valor que es el lexema
+                    tableSymbol->insert(lexeme, lexeme, lexeme);
+            }
+            
+            //definimos el token como un identificador
+            automaton->getToken()->token = id_IDENTIFICADOR;
 
-            // encontramos un identificador y definimos el token como identificador
-            automaton->getToken()->token = 48;
+            // desde la acción no modificamos el siguiente estado
+            return -1;
         };
 
         string name() override {

@@ -17,15 +17,27 @@ class AS6 : public AccionSemantica {
         
     public:
         AS6(){};
-        void execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
+        int execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
             // guarda el caracter en el buffer del automaton
             automaton->setBuffer(characterReaded);
 
             string lexeme = automaton->getToken()->lexeme;
 
-            //obtener id de la tabla de palabras reservadas
-            automaton->getToken()->token = tableRWords->getId(lexeme);
+            int id = tableRWords->getId(lexeme);
+            if(id != -1){
+                //seteamos el id de la palabra reservada de palabras reservadas
+                automaton->getToken()->token = id;
+            }else{
+                // la palabra reservada no existe
+                std::cerr << "Linea: " << *(automaton->getPtrLineNumber()) << "-> Error por palabra reservada mal formada"  << endl;
+
+                // al ser un error forzamos volver al estado 0 y vaciamos el lexema
+                automaton->getToken()->lexeme = "";
+                return 0;
+            }
             
+            // desde la acción no modificamos el siguiente estado
+            return -1;
         };
 
         string name() override {

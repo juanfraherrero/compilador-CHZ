@@ -1,6 +1,7 @@
 #include "../include/AccionSemantica.hpp"
 #include "../include/Automaton.hpp"
 #include "../include/types.hpp"
+#include "../include/ID_YACC.hpp"
 
 #include <iostream>
 #include <string>
@@ -11,7 +12,7 @@ using namespace std;
 /*
     La acción semántica 14 (Punto Flotante) se encarga de:
         guarda el caracter en el buffer del automaton
-        checkea el rango de la constante de Punto Flotante
+        checkea el rango de la constante de Punto Flotante (sino está en rango avisa del error y vuelve al estado 0)
         guardar en la tabla de símbolos la constante de Punto Flotante
 
 */
@@ -20,10 +21,8 @@ class AS14 : public AccionSemantica {
         bool isInRange(const string& _str) {
 
             // Definir los límites del rango ENUNCIADO
-            const double limitPositiveInf = 1.17549435E-38;
-            const double limitPositiveSup = 3.40282347E+38;
-            const double limitNegativeInf = -3.40282347E+38;
-            const double limitNegativeSup = -1.17549435E-38;
+            const double limitInf = 1.17549435E-38;
+            const double limitSup = 3.40282347E+38;
 
             double value;
 
@@ -31,14 +30,8 @@ class AS14 : public AccionSemantica {
                 value = std::stod(_str); //convertimos el string a double
 
                 // si se puede convertir checkeamos que esté en los límtes que nos indicaron
-                if(
-                    (value > limitPositiveInf && value < limitPositiveSup)
-                    ||
-                    (value > limitNegativeInf && value < limitNegativeSup)
-                    ){
-                    
+                if(value > limitInf && value < limitSup){
                     return true;
-
                 }
                 else{
                     throw std::out_of_range("El número está fuera del rango permitido");
@@ -51,7 +44,7 @@ class AS14 : public AccionSemantica {
 
     public:
         AS14(){};
-        void execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {            
+        int execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {            
             // guarda el caracter en el buffer del automaton
             automaton->setBuffer(characterReaded);
 
@@ -60,14 +53,27 @@ class AS14 : public AccionSemantica {
 
             // checkea el rango de la constante de Punto Flotante
             if(isInRange(lexeme)){
-                // guardar en la tabla de símbolos la constante de Punto Flotante (id: 50)
-                tableSymbol->insert(lexeme, lexeme, "50");
+                
+                // verificamos si el lexema está en la tabla de símbolos
+                if(tableSymbol->getSymbol(lexeme) == nullptr){
+
+                    //insertamos en la tabla de símbolos la constante de punto flotante 
+                        // con el lexema como key, el lexema, el valor es el mismo lexema
+                    tableSymbol->insert(lexeme, lexeme, lexeme);
+                }
 
                 // encontramos una constante de punto flotante y definimos el token como constante
-                automaton->getToken()->token = 50;
+                automaton->getToken()->token = id_CONSTANTE_PUNTO_FLOTANTE;
+
+                // desde la acción no modificamos el siguiente estado
+                return -1;
             }
             else{
-                std::cerr << "Error por punto flotante fuera de rango - Linea " << *(automaton->getPtrLineNumber()) << endl;
+                std::cerr <<"Linea: " << *(automaton->getPtrLineNumber()) << " -> Error en constante de punto flotante fuera de rango " << endl;
+                
+                // al ser un error forzamos volver al estado 0 y vaciamos el lexema
+                automaton->getToken()->lexeme = "";
+                return 0;
             };
             
         };

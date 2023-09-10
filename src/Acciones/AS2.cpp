@@ -15,8 +15,11 @@ class AS2 : public AccionSemantica {
         
     public:
         AS2(){};
-        void execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
+        int execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
             automaton->getToken()->lexeme += characterReaded; // concatenas el caracter leído al lexema
+
+            // desde la acción no modificamos el siguiente estado
+            return -1;
         } ;
         string name() override {
             return "AS2";

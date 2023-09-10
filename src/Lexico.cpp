@@ -34,10 +34,19 @@ tokenWithLexeme *Lexico::getToken(){
     /*
         suponemos que el 19 es el estado final y 20 de errores (ambos terminan el token)
     */
-    while (stateAutomaton != 19 && stateAutomaton != 20 ){
+    while (stateAutomaton != 19 ){
         char firstCharacter;
         // si el buffer del autómata está vacío le mandamos otro sino el mismo que tiene
         if(this->automaton->isBufferEmpty()){
+            // si el buffer string está vacío, leemos la siguiente línea
+            if (this->getLastLine() == "") {
+                
+                // se encarga de cargarle la siguiente línea al string y checkea si llegó al end of file        
+                this->getNextLine();    
+                if(this->endOfFile()){
+                    break;
+                }
+            }
             // obtenemos el primer caracter de la línea
             firstCharacter = this->line[0]; 
             // eliminamos ese caracter de la línea

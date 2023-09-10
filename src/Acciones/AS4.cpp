@@ -9,9 +9,11 @@ using namespace std;
 
 /*
     La acción semántica 4 (Enteros sin signo 0 a 65535) se encarga de:
-        concantenar un caracter al lexema. 
-        checkear que el lexema no se pase de rango (checkear al no poder ser negativo)
-        verifcar si está en la tabla de símbolos
+        Verificar si el caracter leído es 'i'
+            Si es Concatenarmos el caracter al string
+            Si no es al strig le agregamos la i, y guardamos el caracter en el buffer, luego informamosun warning de que se agregó una 'i'
+        checkear que el lexema no se pase de rango
+        verifcar si está en la tabla de símbolos sino agregarlo
 */
 
 class AS4 : public AccionSemantica {
@@ -19,8 +21,21 @@ class AS4 : public AccionSemantica {
         
     public:
         AS4(){};
-        void execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
-            automaton->getToken()->lexeme += characterReaded; // concatenas el caracter leído al lexema
+        int execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
+            
+            if (characterReaded == 'i'){
+                // concatenas el caracter leído al lexema
+                automaton->getToken()->lexeme += characterReaded; 
+            }else{
+                // guardamos el caracter en el buffer
+                automaton->setBuffer(characterReaded);
+
+                // concatenas el caracter leído al lexema
+                automaton->getToken()->lexeme += 'i'; 
+
+                // informamos que se agregó una 'i'
+                cerr << "Linea: " << *(automaton->getPtrLineNumber()) << "-> Warning: Se agregó una 'i' al final del entero sin signo" << endl;
+            }
             
             //checkear que el lexema no se pase de rango
             string lexeme = automaton->getToken()->lexeme;
@@ -32,21 +47,34 @@ class AS4 : public AccionSemantica {
                 
                 // si se puede convertir checkeamos que esté en los límtes que nos indicaron
                 if(value >= 0 && value <= 65535){
+                    // verificamos si ya existe la constante entera corta en la tabla de símbolos
+                    if(tableSymbol->getSymbol(lexeme)== nullptr){
+                        // obtenemos el valor del entero sin signo
+                        size_t pos = lexeme.find("_ui");
+                        string value = lexeme.substr(0, pos);
 
-                    //Cargar en la tabla de símbolos el short int (id: 51)
-                    tableSymbol->insert(lexeme, lexeme, "51");
+                        //insertamos en la tabla de símbolos el short int 
+                            // con el lexema como key, el lexema, el valor
+                        tableSymbol->insert(lexeme, lexeme, value);
+                    }
 
-                    // encontramos un short int y definimos el token como short int
-                    automaton->getToken()->token = 51;
+                    //definimos el token como short int
+                    automaton->getToken()->token = id_CONSTANTE_ENTERO_SIN_SIGNO;
 
                 }else{
                     throw std::out_of_range("El número está fuera del rango permitido");
                 }
             } catch (const std::out_of_range& e) {
                 
-                cerr <<"Error por entero sin signo fuera de rango { 0 - 65535 } - Linea " << *(automaton->getPtrLineNumber()) << endl;
+                cerr << "Linea: " << *(automaton->getPtrLineNumber()) << "-> Error por entero sin signo fuera de rango { 0 - 65535 }" << endl;
 
+                // al ser un error forzamos volver al estado 0 y vaciamos el lexema
+                automaton->getToken()->lexeme = "";
+                return 0;
             }
+
+            // desde la acción no modificamos el siguiente estado
+            return -1;
 
         } ;
         string name() override {

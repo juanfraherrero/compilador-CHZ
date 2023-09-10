@@ -38,7 +38,7 @@ void TableReservedWord::insert(const string& word, int value) {
 
 // Función para imprimir la tabla completa
 void TableReservedWord::imprimirTabla() {
-    cout << "Tabla de símbolos:" << endl;
+    cout << "\n\nTabla de palabras reservadas:\n\n" << endl;
     for (const auto& pair : wordMap) {
         cout << "Clave: " << pair.first << ", id: " << pair.second << endl;
     }

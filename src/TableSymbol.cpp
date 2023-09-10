@@ -27,7 +27,7 @@ void TableSymbol::insert(const string& key, const string& lexema, const string& 
 
 // Función para imprimir la tabla completa
 void TableSymbol::imprimirTabla() {
-    cout << "Tabla de símbolos:" << endl;
+    cout << "\n\nTabla de símbolos:\n\n" << endl;
     for (const auto& pair : symbolTable) {
         const symbol* symbol = pair.second;
         cout << "Clave: " << pair.first << ", Lexema: " << symbol->lexema << ", Valor: " << symbol->value << endl;

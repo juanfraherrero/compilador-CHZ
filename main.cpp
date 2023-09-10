@@ -36,6 +36,9 @@ int main(int arg_count, char *arg_list[]) {
 
 
     tokenWithLexeme *token;
+
+    cout << "\n\n EJECUCIÓN \n\n";
+
     //esto se supone que será reemplazado por el ya que irá pidiendo tokens
     while (!lexico.endOfFile()) {
         token = lexico.getToken(); // esto queda guardado en el heap // checkear cuando hay que eliminarlo
@@ -45,7 +48,8 @@ int main(int arg_count, char *arg_list[]) {
         // le das uso al token y antes de terminar el while lo borras porque el get Token te da otro
         delete token;
     }
-
+    
+    cout << "\n\n --------------- \n\n";
 
     tableSymbol->imprimirTabla();
     tableRWords->imprimirTabla();

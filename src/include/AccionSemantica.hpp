@@ -17,7 +17,7 @@ class AccionSemantica {
     private:
         
     public:
-        virtual void execute(Automaton * automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWord) = 0;
+        virtual int execute(Automaton * automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWord) = 0;
         virtual string name() = 0;
 };
 

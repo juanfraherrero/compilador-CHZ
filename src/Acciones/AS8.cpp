@@ -8,23 +8,23 @@
 using namespace std;
 
 /*
-    La acción semántica 7 (cuando encontras un '/n') se encarga de:
-        sumar uno al numero de linea
+    La acción semántica 8 (para el fin de un comentario) se encarga de:
+        vaciar el lexema
 */
-class AS7 : public AccionSemantica {
+class AS8 : public AccionSemantica {
     private:
         
     public:
-        AS7(){};
+        AS8(){};
         int execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
-            // sumar uno al numero de linea
-            (*(automaton->getPtrLineNumber()))++;
-            
+            // vaciar el lexema
+            automaton->getToken()->lexeme = "";
+
             // desde la acción no modificamos el siguiente estado
             return -1;
         };
 
         string name() override {
-            return "AS7";
+            return "AS8";
         };
 };
