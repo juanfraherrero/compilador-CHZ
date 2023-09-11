@@ -34,21 +34,25 @@ int main(int arg_count, char *arg_list[]) {
     Lexico lexico = Lexico(file_name, tableSymbol, tableRWords); // la dejamos en la pila porque tiene un tamaño pequeño y su tamaño no es dinámico
     
 
+    //Checkeamos que el archivo con el código no esté vacío
+    if(lexico.isFileOff()){    
+        cerr << "El archivo esta vacio" << endl;
+        exit(0);
+    }
 
-    tokenWithLexeme *token;
 
     cout << "\n\n EJECUCIÓN \n\n";
 
+    tokenWithLexeme *token;
+
     //esto se supone que será reemplazado por el ya que irá pidiendo tokens
-    if(!lexico.isFileOff()){    //con este if se chequea que el archivo no este vacio
-        while (!lexico.endOfFile()){
-            token = lexico.getToken(); // esto queda guardado en el heap // checkear cuando hay que eliminarlo
-            
-            cout << "TOKEN ---->>>> lexema -> " << token->lexeme << " - id ->" << token->token << endl;
-            
-            // le das uso al token y antes de terminar el while lo borras porque el get Token te da otro
-            delete token;
-        }
+    while (!lexico.endOfFile()){
+        token = lexico.getToken(); // esto queda guardado en el heap // checkear cuando hay que eliminarlo
+        
+        cout << "TOKEN ---->>>> lexema -> " << token->lexeme << " - id ->" << token->token << endl;
+        
+        // le das uso al token y antes de terminar el while lo borras porque el get Token te da otro
+        delete token;
     }
     cout << "\n\n --------------- \n\n";
 
