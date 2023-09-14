@@ -19,6 +19,7 @@ TableReservedWord::TableReservedWord(){
     insert("FLOAT",9);
     insert("WHILE",10);
     insert("DO",11);
+    insert("RETURN",12);
 };
 
 // devuelve el nro de token asociado al lexema

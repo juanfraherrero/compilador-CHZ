@@ -1,0 +1,5 @@
+''' yacc -v --output=parser.cpp --header=parser.hpp gramaticaComCHZExtendida.y '''
+
+
+Ese comando te genera el .cpp y el .hpp del parser
+
