@@ -19,7 +19,7 @@ class AS8 : public AccionSemantica {
         int execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
             // vaciar el lexema
             automaton->getToken()->lexeme = "";
-
+            automaton->setCommentIsActive(false);
             // desde la acción no modificamos el siguiente estado
             return -1;
         };

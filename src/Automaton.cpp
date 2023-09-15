@@ -14,6 +14,7 @@
 #include "Acciones/AS13.cpp"
 #include "Acciones/AS14.cpp"
 #include "Acciones/AS15.cpp"
+#include "Acciones/AS16.cpp"
 #include "Acciones/E1.cpp"
 #include "Acciones/E2.cpp"
 #include "Acciones/E3.cpp"
@@ -29,13 +30,13 @@
 
 using namespace std;
 
-Automaton::Automaton(TableSymbol* tableSymbol, TableReservedWord* tableRWords, int* ptrLineNumber) {
+Automaton::Automaton(TableSymbol* tableSymbol, TableReservedWord* tableRWords, int* ptrLineNumber, bool * isCommentActive) {
     
     // cargamos la tabla de estados y acciones semanticas
     // debe coincidir el path y además checkear que los límtes de la matriz en el .hpp sean correctos
     this->loadStateTable("src/files/TablaProximoEstado.csv");
     this->loadActionsTable("src/files/TablaAccionesSemanticas.csv");
-
+    this->isCommentActive = isCommentActive;
     // guardamos las tablas
     this->tableSymbol = tableSymbol;
     this->tableRWords = tableRWords;
@@ -45,24 +46,26 @@ Automaton::Automaton(TableSymbol* tableSymbol, TableReservedWord* tableRWords, i
 }
 
 int Automaton::processCharacter(char character, int actual_state) {
-
+    if(character == '\n'){
+        cout << "SALTO DE LINEA" << endl;
+    }
     valueOfMatrix* value = this->getValueOfMatrix(character, actual_state);
 
-    // // string prb = "NULL";
+    string prb = "NULL";
 
     int next_state = -1;    
     if (value->accionp != NULL){
         next_state = value->accionp->execute(this, character, this->tableSymbol, this->tableRWords);
-        // // prb = value->accionp->name();
+        prb = value->accionp->name();
     }   
     
     
-    // // for (int i = 0; i < sizeof(char); ++i) {
-    // //     std::cout << static_cast<int>(reinterpret_cast<unsigned char*>(&character)[i]) << " ";
-    // // }
-    // // std::cout << std::endl;
-    // // cout << "character: " << character << " state: " << actual_state << " next state: " << value->next_state << "x" << endl;
-    // // cout << "la acción ejecutada es: " << prb << endl;
+    for (int i = 0; i < sizeof(char); ++i) {
+        std::cout << static_cast<int>(reinterpret_cast<unsigned char*>(&character)[i]) << " ";
+    }
+    std::cout << std::endl;
+    cout << "character: " << character << " state: " << actual_state << " next state: " << value->next_state << "x" << endl;
+    cout << "la acción ejecutada es: " << prb << endl;
     
 
     if(next_state == -1){ 
@@ -259,6 +262,7 @@ AccionSemantica* Automaton::getAccionSemantica(string accionStr){
         {"AS13", new AS13()},
         {"AS14", new AS14()},
         {"AS15", new AS15()},
+        {"AS16", new AS16()},
         {"E1", new E1()},
         {"E2", new E2()},
         {"E3", new E3()}
@@ -394,4 +398,8 @@ char Automaton::getAndClearBuffer(){
 
 int * Automaton::getPtrLineNumber(){
     return this->ptrLineNumber;
+};
+
+void Automaton::setCommentIsActive(bool value){
+    *(this->isCommentActive) = value;
 };

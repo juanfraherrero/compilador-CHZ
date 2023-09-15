@@ -8,55 +8,60 @@
 #include <iostream>
 #include <fstream>
 
-Lexico::Lexico(string file_name, TableSymbol* tableSymbol, TableReservedWord* tableRWords) {
+Lexico::Lexico(TableSymbol* tableSymbol, TableReservedWord* tableRWords, string * content, int* lineNumber) {
     // definimos que archivo va a usar y las variables para hacer el conteo de lineas y caracteres leídos   
-    this->file_name = file_name;
-    this->line = "";
-    this->lineNumber = 0;
-    this->character = 0;
+    this->content = *content;
+    this->lineNumber = lineNumber;
+    this->automaton = new Automaton(tableSymbol, tableRWords, this->lineNumber, &(this->isCommentActive));
+    this->isCommentActive = false;
     this->eof = false;
-    this->automaton = new Automaton(tableSymbol, tableRWords, &(this->lineNumber));
 }
 
 tokenWithLexeme *Lexico::getToken(){
 
-    // si el buffer string está vacío, leemos la siguiente línea
-    if (this->getLastLine() == "") {
-        
-        // se encarga de cargarle la siguiente línea al string y checkea si llegó al end of file        
-        this->getNextLine();    
+    if(this->content.empty()){
+        //ya no tenemos más que caracteres que leer
+        this->eof = true;
+        return nullptr;
     }
-
     // seteamos el estado del autómata en 0
     int stateAutomaton = 0;
 
     // obtenemos un token       
     /*
-        suponemos que el 19 es el estado final y 20 de errores (ambos terminan el token)
+        suponemos que el 19 es el estado final (ambos terminan el token)
     */
     while (stateAutomaton != 19 ){
+        if(this->eof){
+            //ya no terminamos de leer el archivo
+            if(this->isCommentActive)
+            {
+                // si hay un comentario activo lo informamos
+                cerr << "\033[31m" << "Linea: " << *(this->lineNumber) << "-> Error: Comentario activo al final del archivo" << "\033[0m" << endl;
+            }
+                
+            return nullptr;
+        }
         char firstCharacter;
         // si el buffer del autómata está vacío le mandamos otro sino el mismo que tiene
-        if(this->automaton->isBufferEmpty()){
-            // si el buffer string está vacío, leemos la siguiente línea
-            if (this->getLastLine() == "") {
-                
-                // se encarga de cargarle la siguiente línea al string y checkea si llegó al end of file        
-                this->getNextLine();    
-                if(this->endOfFile()){
-                    break;
-                }
-            }
+        if(this->automaton->isBufferEmpty()){        
             // obtenemos el primer caracter de la línea
-            firstCharacter = this->line[0]; 
-            // eliminamos ese caracter de la línea
-            this->line.erase(0, 1); 
+            if(!this->content.empty()){
+                firstCharacter = this->content[0]; 
+                // eliminamos ese caracter de la línea
+                this->content.erase(0, 1); 
+            }else{
+                this->eof = true; //seteamos que termianmos de leer el archivo
+                
+                // si no hay más caracteres le mandamos un espacio que no afecta en ningun caso,
+                    // esto es para que termine de leer un posible token que no terminó
+                firstCharacter = ' ';
+            }
         }
         else{
             firstCharacter = this->automaton->getAndClearBuffer(); 
         }
         
-
         // procesamos el caracter por el autómata esperando el estado siguiente
         stateAutomaton = this->automaton->processCharacter(firstCharacter, stateAutomaton);
     }
@@ -69,38 +74,7 @@ bool Lexico::endOfFile(){
     return this->eof;
 }
 
-bool Lexico::isFileOff(){
-    fileAux.open(this->file_name);
-    string auxLine;
-    //quiero ver si la siguiente linea del archivo es endOfFile
-    this->fileOff = !(bool)getline(fileAux, auxLine);
-    return this->fileOff;
-}	
-string Lexico::getLastLine(){
-    return this->line;
-}
-
-// obtiene la siguiente línea del archivo y la guarda en el buffer string
-void Lexico::getNextLine(){
-    
-    //abrimos el archivo y nos posicionamos en el caracter que quedó pendiente de leer
-    file.open(this->file_name);
-    file.seekg(this->character); // nos posicionamos en el caracter que quedó pendiente de leer
-    
-    // leemos la línea y seteamos si es o no el fin del archivo
-    this->eof = !(bool)getline(file, this->line);
-    
-    // incrementamos el contador de líneas
-    this->incrementLineNumber(); 
-
-    // guardamos la posición del último caracter leído
-    this->character = file.tellg(); 
-    
-    // cerramos el archivo
-    file.close();
-    return;
-}
 
 void Lexico::incrementLineNumber(){
-    this->lineNumber++;
+    (*(this->lineNumber))++;
 }

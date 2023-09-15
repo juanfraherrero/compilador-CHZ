@@ -24,9 +24,10 @@ class Automaton {
         TableSymbol* tableSymbol;
         TableReservedWord* tableRWords;
         int* ptrLineNumber;
+        bool* isCommentActive;
 
     public:
-        Automaton(TableSymbol* tableSymbol, TableReservedWord* tableRWords, int* ptrLineNumber);
+        Automaton(TableSymbol* tableSymbol, TableReservedWord* tableRWords, int* ptrLineNumber, bool * isCommentActive);
         int processCharacter(char character, int actual_satate);
         tokenWithLexeme* getToken();            
         tokenWithLexeme* getCopyOfToken();
@@ -38,6 +39,7 @@ class Automaton {
         void setBuffer(char character);
         char getAndClearBuffer();
         int * getPtrLineNumber();
+        void setCommentIsActive(bool value);
 };
 
 #endif
