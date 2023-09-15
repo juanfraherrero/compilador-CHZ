@@ -1,6 +1,17 @@
 %{
-    #include <iostream>
-    using namespace std;
+
+#include "include/Lexico.hpp"
+
+#include <iostream>
+#include <fstream>
+#include <string>
+
+using namespace std;
+
+void yyerror(string s){
+    cerr << "Error sintactico" << s << endl;
+};
+
 %}
 
 
@@ -150,8 +161,3 @@ acceso_objeto   :   IDENTIFICADOR '.' IDENTIFICADOR '=' expresion_aritmetica ','
                 ;
 
 %%
-
-int main() {
-    yyparse();
-    return 0;
-}

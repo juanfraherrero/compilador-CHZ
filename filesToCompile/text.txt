@@ -1,8 +1,6 @@
-IF test = 1234_s
-ENDIF *{ ,
-identificadorlarguis
+{
+x = 123_s ,
+y = 1234_ui,
+
+IF (x < y) {PRINT #juan# } END_IF ,
 }
-
-}*
-
-IF = 123_s ;

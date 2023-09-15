@@ -16,6 +16,20 @@ Lexico::Lexico(TableSymbol* tableSymbol, TableReservedWord* tableRWords, string 
     this->isCommentActive = false;
     this->eof = false;
 }
+int Lexico::yylex(){
+    
+    tokenWithLexeme * token = this->getToken(); // esto queda guardado en el heap // checkear cuando hay que eliminarlo
+    
+    if(token == nullptr){
+        return 0; //segun documentación el token final es un 0
+    };
+    
+    cout <<  "El token es: " << token->token << " - " << token->lexeme << endl;
+
+    //yyval = token->lexeme;
+    return token->token;
+
+}
 
 tokenWithLexeme *Lexico::getToken(){
 

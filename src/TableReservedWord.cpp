@@ -8,18 +8,19 @@ using namespace std;
 
 TableReservedWord::TableReservedWord(){    
     // insertar las palabras reservadas
-    insert("IF",1);
-    insert("ELSE",2);
-    insert("END_IF",3);
-    insert("PRINT",4);
-    insert("CLASS",5);
-    insert("VOID",6);
-    insert("SHORT",7);
-    insert("UINT",8);
-    insert("FLOAT",9);
-    insert("WHILE",10);
-    insert("DO",11);
-    insert("RETURN",12);
+    insert("VOID",267);
+    insert("RETURN",268);
+    insert("IF",269);
+    insert("ELSE",270);
+    insert("END_IF",271);
+    insert("PRINT",272);
+    insert("WHILE",273);
+    insert("DO",274);
+    insert("SHORT",275);
+    insert("UINT",276);
+    insert("FLOAT",277);
+    insert("TOF",278);
+    insert("CLASS",279);
 };
 
 // devuelve el nro de token asociado al lexema

@@ -46,26 +46,24 @@ Automaton::Automaton(TableSymbol* tableSymbol, TableReservedWord* tableRWords, i
 }
 
 int Automaton::processCharacter(char character, int actual_state) {
-    if(character == '\n'){
-        cout << "SALTO DE LINEA" << endl;
-    }
+
     valueOfMatrix* value = this->getValueOfMatrix(character, actual_state);
 
-    string prb = "NULL";
+    // // string prb = "NULL";
 
     int next_state = -1;    
     if (value->accionp != NULL){
         next_state = value->accionp->execute(this, character, this->tableSymbol, this->tableRWords);
-        prb = value->accionp->name();
+        // // prb = value->accionp->name();
     }   
     
     
-    for (int i = 0; i < sizeof(char); ++i) {
-        std::cout << static_cast<int>(reinterpret_cast<unsigned char*>(&character)[i]) << " ";
-    }
-    std::cout << std::endl;
-    cout << "character: " << character << " state: " << actual_state << " next state: " << value->next_state << "x" << endl;
-    cout << "la acción ejecutada es: " << prb << endl;
+    // // for (int i = 0; i < sizeof(char); ++i) {
+    // //     std::cout << static_cast<int>(reinterpret_cast<unsigned char*>(&character)[i]) << " ";
+    // // }
+    // // std::cout << std::endl;
+    // // cout << "character: " << character << " state: " << actual_state << " next state: " << value->next_state << "x" << endl;
+    // // cout << "la acción ejecutada es: " << prb << endl;
     
 
     if(next_state == -1){ 

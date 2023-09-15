@@ -21,6 +21,7 @@ class Lexico {
         
     public:
         Lexico(TableSymbol* tableSymbol, TableReservedWord* tableRWords, string * line, int* lineNumber);
+        int yylex();
         tokenWithLexeme * getToken();
         bool endOfFile();
         string getLastLine();
