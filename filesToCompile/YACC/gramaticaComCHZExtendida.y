@@ -1,5 +1,6 @@
 %{
 
+#include "include/types.hpp"
 #include "include/Lexico.hpp"
 
 #include <iostream>
@@ -8,8 +9,9 @@
 
 using namespace std;
 
-void yyerror(string s){
+void yyerror(string s, int* lineNumber){
     cerr << "Error sintactico" << s << endl;
+    cerr << "\033[31m" << "Linea: " << *lineNumber << "-> Error: parsing failed " << "\033[0m"<< endl;
 };
 
 %}
@@ -38,14 +40,15 @@ void yyerror(string s){
 
 %%
 
-programa    :   '{' sentencias '}' /* es el programa que debe arrancar y terminar con '{' '}' */
+programa    :   '{' sentencias '}'      /* es el programa que debe arrancar y terminar con '{' '}' */
+            |   '{' '}'                 /* podría ser un programa sin nada, hay que preguntar! */               { cerr << "\033[33m" <<"Linea: " << *(lineNumber) << "-> Warning: Se está compilando un programa sin contenido" << "\033[0m" << endl;}
 
-sentencias  :   sentencia sentencias 
-            |   /* podría ser un programa sin nada, hay que preguntar! */
+sentencias  :   sentencia sentencias
+            |   sentencia
             ;
 
-sentencia   :   declarativa
-            |   ejecutable
+sentencia   :   declarativa                                     { cout << "Se detectó una sentencia declarativa " << endl;}
+            |   ejecutable                                      { cout << "Se detectó una sentencia ejecutable " << endl;}
             ;
 
 declarativa :   tipo lista_de_variables ','
@@ -64,7 +67,7 @@ lista_de_atributos  :    tipo IDENTIFICADOR ',' lista_de_atributos
                     ;
 
 lista_de_metodos    :   metodo lista_de_metodos 
-                    | /* vacío */
+                    |   /* vacío */
                     ;
 
 metodo  :   VOID IDENTIFICADOR '(' parametro ')' '{' cuerpo_de_la_funcion '}' ','
@@ -110,6 +113,10 @@ invocacion : IDENTIFICADOR '(' expresion_aritmetica ')' ','
 
 expresion_aritmetica : expresion_aritmetica '+' termino
                     | expresion_aritmetica '-' termino
+                    | expresion_aritmetica '-' '*' termino      { cerr << "\033[33m" <<"Linea: " << *(lineNumber) << "-> Warning: Se detectó un error en operador, quedará '-'" << "\033[0m" << endl;}
+                    | expresion_aritmetica '+' '*' termino      { cerr << "\033[33m" <<"Linea: " << *(lineNumber) << "-> Warning: Se detectó un error en operador, quedará '+'" << "\033[0m" << endl;}
+                    | expresion_aritmetica '-' '/' termino      { cerr << "\033[33m" <<"Linea: " << *(lineNumber) << "-> Warning: Se detectó un error en operador, quedará '-'" << "\033[0m" << endl;}
+                    | expresion_aritmetica '+' '/' termino      { cerr << "\033[33m" <<"Linea: " << *(lineNumber) << "-> Warning: Se detectó un error en operador, quedará '+'" << "\033[0m" << endl;}
                     | termino
                     ;
 
@@ -121,7 +128,7 @@ termino : termino '*' factor
 factor : IDENTIFICADOR
        | IDENTIFICADOR OPERADOR_SUMA_SUMA
        | constante
-       | TOF '(' expresion_aritmetica ')'  /* conversión de tipo */
+       | TOF '(' expresion_aritmetica ')'       /* conversión de tipo */
        ;
 
 
@@ -149,10 +156,12 @@ sentencias_ejecutables  :   ejecutable sentencias_ejecutables
                         |   ejecutable
                         ;
 
-constante   :   ENTERO_SIN_SIGNO
-            |   ENTERO_CORTO
-            |   PUNTO_FLOTANTE
-            |   CADENA_CARACTERES
+constante   :   ENTERO_SIN_SIGNO                        { cout << "Se detectó un entero sin signo: " << $1 << endl;}
+            |   ENTERO_CORTO                            { cout << "Se detectó un entero corto: " << $1 << endl;}
+            |   '-' ENTERO_CORTO                        { cout << "Se detectó un entero corto: " << $1 << endl;}
+            |   PUNTO_FLOTANTE                          { cout << "Se detectó un punto flotante: " << $1 << endl;}
+            |   '-' PUNTO_FLOTANTE                      { cout << "Se detectó un punto flotante: " << $1 << endl;}
+            |   CADENA_CARACTERES                       { cout << "Se detectó una cadena de caracteres: " << $1 << endl;}
             ;
 
 acceso_objeto   :   IDENTIFICADOR '.' IDENTIFICADOR '=' expresion_aritmetica ','

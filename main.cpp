@@ -42,7 +42,7 @@ int main(int arg_count, char *arg_list[]) {
 
     // INICIAR EL LEXICO 
 
-    int lineNumber = 0;
+    int lineNumber = 1;
 
     // generamos la tabla de símbolos
     TableSymbol* tableSymbol = new TableSymbol();
@@ -56,7 +56,7 @@ int main(int arg_count, char *arg_list[]) {
     
     cout << "\n\n EJECUCIÓN \n\n";
 
-    int resultParsing = yyparse(lexico);
+    int resultParsing = yyparse(lexico, &lineNumber);
     if(resultParsing == 0){
         cout << "\n\n --------------- \n\n";
         cout << "Parsing succed" << endl;
