@@ -190,13 +190,13 @@ void checkIntegerShort(string lexeme){
                 std::cerr << "\033[31m" << "Linea: " << lineNumber << "-> Error: No se encuentra el token en la tabla de símbolo"  << "\033[0m"<< endl;
         }
 }
-void checkIntegerShortNegative(string lexeme, TableSymbol* ts){
-        ts.deleteSymbol(&lexeme); // reduce el contador, si llega a 0 lo elimina
+void checkIntegerShortNegative(string lexeme){
+        tableSymbol->deleteSymbol(lexeme); // reduce el contador, si llega a 0 lo elimina
         
         lexeme = '-'+lexeme;
 
         size_t pos = lexeme.find("_s");
         string value = lexeme.substr(0, pos);
         
-        ts.insert(&lexeme, &lexeme, value);
+        tableSymbol->insert(lexeme, lexeme, value);
 }

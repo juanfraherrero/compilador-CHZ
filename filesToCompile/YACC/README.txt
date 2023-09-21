@@ -9,8 +9,6 @@ dentro del Parser.cpp, hay que ir a la función yyparse() y cambiar la declaraci
 
 Luego en los dos lugares donde se llama " yylex() " dentro de yyparse se debe reemplazar por " lexico->yylex() "
 
-y cuando se llame a yyerror(string) cambiarlo por yyerror(string)
-
 Además se debe cambiar el typedef de TYPEDEF por string
 
 Con estos pasos ya se puede usar, los warnings que te tira son porque no se usan algunas variables
