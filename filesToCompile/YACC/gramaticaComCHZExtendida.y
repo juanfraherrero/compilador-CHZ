@@ -1,6 +1,7 @@
 %{
 
 #include "include/types.hpp"
+#include "include/TableSymbol.hpp"
 #include "include/Lexico.hpp"
 
 #include <iostream>
@@ -10,7 +11,6 @@
 using namespace std;
 
 void yyerror(string s, int* lineNumber){
-    cerr << "Error sintactico" << s << endl;
     cerr << "\033[31m" << "Linea: " << *lineNumber << "-> Error: parsing failed " << "\033[0m"<< endl;
 };
 
@@ -157,8 +157,8 @@ sentencias_ejecutables  :   ejecutable sentencias_ejecutables
                         ;
 
 constante   :   ENTERO_SIN_SIGNO                        { cout << "Se detectó un entero sin signo: " << $1 << endl;}
-            |   ENTERO_CORTO                            { cout << "Se detectó un entero corto: " << $1 << endl;}
-            |   '-' ENTERO_CORTO                        { cout << "Se detectó un entero corto: " << $1 << endl;}
+            |   ENTERO_CORTO                            { checkIntegerShort($1, ts)}
+            |   '-' ENTERO_CORTO                        { checkIntegerShortNegative($2, ts)}
             |   PUNTO_FLOTANTE                          { cout << "Se detectó un punto flotante: " << $1 << endl;}
             |   '-' PUNTO_FLOTANTE                      { cout << "Se detectó un punto flotante: " << $1 << endl;}
             |   CADENA_CARACTERES                       { cout << "Se detectó una cadena de caracteres: " << $1 << endl;}
@@ -170,3 +170,19 @@ acceso_objeto   :   IDENTIFICADOR '.' IDENTIFICADOR '=' expresion_aritmetica ','
                 ;
 
 %%
+void checkIntegerShort(string lexeme, TableSymbol* ts){
+        symbol* sm = ts.getSymbol(&lexeme);
+        if(atoi(sm->value) >= 128){
+                std::cerr << "\033[31m" << "Linea: " << *(automaton->getPtrLineNumber()) << "-> Error por entero corto fuera de rango { -128 - 127 }"  << "\033[0m"<< endl;
+        }
+}
+void checkIntegerShortNegative(string lexeme, TableSymbol* ts){
+        ts.deleteSymbol(&lexeme); // reduce el contador, si llega a 0 lo elimina
+        
+        lexeme = '-'+lexeme;
+
+        size_t pos = lexeme.find("_s");
+        string value = lexeme.substr(0, pos);
+        
+        ts.insert(&lexeme, &lexeme, value);
+}

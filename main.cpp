@@ -1,6 +1,6 @@
-#include "src/include/types.hpp"
-#include "src/include/TableSymbol.hpp"
-#include "src/include/TableReservedWord.hpp"
+// #include "src/include/types.hpp"
+// #include "src/include/TableSymbol.hpp"
+// #include "src/include/TableReservedWord.hpp"
 #include "src/Lexico.cpp"
 #include "src/Parser.cpp"
 
@@ -42,13 +42,11 @@ int main(int arg_count, char *arg_list[]) {
 
     // INICIAR EL LEXICO 
 
-    int lineNumber = 1;
+    extern int lineNumber;
 
-    // generamos la tabla de símbolos
-    TableSymbol* tableSymbol = new TableSymbol();
+    extern TableSymbol* tableSymbol;
+    extern TableReservedWord* tableRWords;
 
-    // generamos la tabla de palabras reservadas
-    TableReservedWord* tableRWords = new TableReservedWord();
 
     // cargamos nuestra fase de analisis léxico
     Lexico * lexico = new Lexico(tableSymbol, tableRWords, &contenido, &lineNumber); // la dejamos en la pila porque tiene un tamaño pequeño y su tamaño no es dinámico
@@ -56,7 +54,7 @@ int main(int arg_count, char *arg_list[]) {
     
     cout << "\n\n EJECUCIÓN \n\n";
 
-    int resultParsing = yyparse(lexico, &lineNumber);
+    int resultParsing = yyparse(lexico);
     if(resultParsing == 0){
         cout << "\n\n --------------- \n\n";
         cout << "Parsing succed" << endl;

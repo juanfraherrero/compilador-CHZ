@@ -34,6 +34,10 @@ void TableSymbol::imprimirTabla() {
     }
 }
 
+void TableSymbol::deleteSymbol(const string& key){
+    cout << "DELETE simbol " << key << endl;
+}
+
 // Destructor para liberar la memoria de los símbolos
 TableSymbol::~TableSymbol() {
     for (auto& pair : symbolTable) {
