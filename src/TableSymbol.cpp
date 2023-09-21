@@ -19,10 +19,20 @@ symbol* TableSymbol::getSymbol(const string& key) {
 
 // insertar un elemento en la tabla
 void TableSymbol::insert(const string& key, const string& lexema, const string& value) {
+    // buscamos si ya existe ese símbolo en la tabla
+    auto it = symbolTable.find(key);
+    if (it != symbolTable.end()) {
+        // encontró un símbolo con esa clave
+        // incrementamos el contador de ese símbolo
+        it->second->count++;
+    }else{
+        //no encontró un símbolo con esa clave
+        // Crear un nuevo simbolo y almacenarlo en la tabla
+        symbol* newSymbol = new symbol(lexema, value);
+        symbolTable[key] = newSymbol;
+    }
     
-    // Crear un nuevo simbolo y almacenarlo en la tabla
-    symbol* newSymbol = new symbol(lexema, value);
-    symbolTable[key] = newSymbol;
+
 }
 
 // Función para imprimir la tabla completa
@@ -35,7 +45,18 @@ void TableSymbol::imprimirTabla() {
 }
 
 void TableSymbol::deleteSymbol(const string& key){
-    cout << "DELETE simbol " << key << endl;
+    // buscamos si ya existe ese símbolo en la tabla
+    auto it = symbolTable.find(key);
+    if (it != symbolTable.end()) {
+        //no encontró un símbolo con esa clave
+        // decrementamos el contador de ese símbolo   
+        it->second->count--;
+        if(it->second->count <= 0){
+            // si el contador es 0 o menor, eliminamos el símbolo de la tabla
+            delete it->second;
+            symbolTable.erase(it);
+        }
+    }
 }
 
 // Destructor para liberar la memoria de los símbolos

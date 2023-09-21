@@ -27,16 +27,13 @@ class AS13 : public AccionSemantica {
 
             string lexeme = automaton->getToken()->lexeme;
 
-            // verificamos si el lexema está en la tabla de símbolos
-            if(tableSymbol->getSymbol(lexeme) == nullptr){
+            // obtenemos el valor del entero sin los dos #
+            string value = lexeme.substr(1, lexeme.length() - 2);
 
-                // obtenemos el valor del entero sin los dos #
-                string value = lexeme.substr(1, lexeme.length() - 2);
-
-                //insertamos en la tabla de símbolos la cadena de caracteres 
-                    // con el lexema como key, el lexema, el valor es el lexema sin los #
-                tableSymbol->insert(lexeme, lexeme, value);
-            }
+            //insertamos en la tabla de símbolos la cadena de caracteres 
+                // con el lexema como key, el lexema, el valor es el lexema sin los #
+                // el insert checkea la existencia de otro lexema igual 
+            tableSymbol->insert(lexeme, lexeme, value);
 
             //definimos el token como cadena de caracteres
             automaton->getToken()->token = id_CONSTANTE_CADENA_CARACTERES;

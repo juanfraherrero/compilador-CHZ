@@ -36,16 +36,14 @@ class AS3 : public AccionSemantica {
                 
                 // si se puede convertir checkeamos que esté en los límites que nos indicaron
                 if(value >= 0 && value <= 128){
-                    // verificamos si ya existe la constante entera corta en la tabla de símbolos
-                    if(tableSymbol->getSymbol(lexeme)== nullptr){
-                        // obtenemos el valor del entero sin signo
-                        size_t pos = lexeme.find("_s");
-                        string value = lexeme.substr(0, pos);
+                    // obtenemos el valor del entero sin signo
+                    size_t pos = lexeme.find("_s");
+                    string value = lexeme.substr(0, pos);
 
-                        //insertamos en la tabla de símbolos el short int 
-                            // con el lexema como key, el lexema, el valor
-                        tableSymbol->insert(lexeme, lexeme, value);
-                    }
+                    //insertamos en la tabla de símbolos el short int 
+                        // con el lexema como key, el lexema, el valor
+                        // el insert checkea la existencia de otro lexema igual 
+                    tableSymbol->insert(lexeme, lexeme, value);
 
                     //definimos el token como short int
                     automaton->getToken()->token = id_CONSTANTE_ENTERO_CORTO;

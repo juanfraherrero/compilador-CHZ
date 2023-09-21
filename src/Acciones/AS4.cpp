@@ -45,16 +45,15 @@ class AS4 : public AccionSemantica {
                 
                 // si se puede convertir checkeamos que esté en los límtes que nos indicaron
                 if(value >= 0 && value <= 65535){
-                    // verificamos si ya existe la constante entera corta en la tabla de símbolos
-                    if(tableSymbol->getSymbol(lexeme)== nullptr){
-                        // obtenemos el valor del entero sin signo
-                        size_t pos = lexeme.find("_ui");
-                        string value = lexeme.substr(0, pos);
+                    
+                    // obtenemos el valor del entero sin signo
+                    size_t pos = lexeme.find("_ui");
+                    string value = lexeme.substr(0, pos);
 
-                        //insertamos en la tabla de símbolos el short int 
-                            // con el lexema como key, el lexema, el valor
-                        tableSymbol->insert(lexeme, lexeme, value);
-                    }
+                    //insertamos en la tabla de símbolos el short int 
+                        // con el lexema como key, el lexema, el valor
+                        // el insert checkea la existencia de otro lexema igual 
+                    tableSymbol->insert(lexeme, lexeme, value);
 
                     //definimos el token como short int
                     automaton->getToken()->token = id_CONSTANTE_ENTERO_SIN_SIGNO;

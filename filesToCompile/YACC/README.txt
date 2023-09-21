@@ -5,11 +5,11 @@ Para convertir el .y en un código usar el siguiente comando
 Esto te genera un "y.tab.c" que hay que renombrarlo a "Parser.cpp" y hay que moverlo a la carpeta "" Compilador-CHZ/src ""
 
 
-dentro del Parser.cpp, hay que ir a la función yyparse() y cambiar la declaración a  yyparse(Lexico* lexico, int* lineNumber)
+dentro del Parser.cpp, hay que ir a la función yyparse() y cambiar la declaración a  yyparse(Lexico* lexico)
 
 Luego en los dos lugares donde se llama " yylex() " dentro de yyparse se debe reemplazar por " lexico->yylex() "
 
-y cuando se llame a yyerror(string) cambiarlo por yyerror(string, lineNumber)
+y cuando se llame a yyerror(string) cambiarlo por yyerror(string)
 
 Además se debe cambiar el typedef de TYPEDEF por string
 

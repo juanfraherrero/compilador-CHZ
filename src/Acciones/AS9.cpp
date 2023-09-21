@@ -33,12 +33,10 @@ class AS9 : public AccionSemantica {
             string lexeme = automaton->getToken()->lexeme;
 
             
-            // verificamos si ya existe el identificador en la tabla de símbolos
-            if(tableSymbol->getSymbol(lexeme) == nullptr){
-                    //insertamos en la tabla de símbolos el short int 
-                        // con el lexema como key, el lexema y el valor que es el lexema
-                    tableSymbol->insert(lexeme, lexeme, lexeme);
-            }
+            //insertamos en la tabla de símbolos el short int 
+                // con el lexema como key, el lexema y el valor que es el lexema
+                // el insert checkea la existencia de otro lexema igual 
+            tableSymbol->insert(lexeme, lexeme, lexeme);
             
             //definimos el token como un identificador
             automaton->getToken()->token = id_IDENTIFICADOR;

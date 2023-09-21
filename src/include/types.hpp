@@ -25,9 +25,10 @@ struct symbol {
     string lexema;          // lexema
     string value;           // valor del token
     string type;            // define un tipo
+    int count;
 
-    symbol(const string& _lexema) : lexema(_lexema) {}
-    symbol(const string& _lexema, string _value) : lexema(_lexema), value(_value) {}
+    symbol(const string& _lexema) : lexema(_lexema), count(1) {};
+    symbol(const string& _lexema, string _value) : lexema(_lexema), value(_value), count(1) {};
 };
 
 

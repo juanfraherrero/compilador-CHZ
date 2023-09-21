@@ -2,6 +2,7 @@
 
 #include "include/types.hpp"
 #include "include/TableSymbol.hpp"
+#include "include/TableReservedWord.hpp"
 #include "include/Lexico.hpp"
 
 #include <iostream>
@@ -10,8 +11,17 @@
 
 using namespace std;
 
-void yyerror(string s, int* lineNumber){
-    cerr << "\033[31m" << "Linea: " << *lineNumber << "-> Error: parsing failed " << "\033[0m"<< endl;
+// generamos la tabla de símbolos
+TableSymbol* tableSymbol = new TableSymbol();
+
+// generamos la tabla de palabras reservadas
+TableReservedWord* tableRWords = new TableReservedWord();
+
+int lineNumber = 1;
+
+
+void yyerror(string s){
+    cerr << "\033[31m" << "Linea: " << lineNumber << "-> Error: parsing failed " << s <<"\033[0m"<< endl;
 };
 
 %}
@@ -170,10 +180,14 @@ acceso_objeto   :   IDENTIFICADOR '.' IDENTIFICADOR '=' expresion_aritmetica ','
                 ;
 
 %%
-void checkIntegerShort(string lexeme, TableSymbol* ts){
-        symbol* sm = ts.getSymbol(&lexeme);
-        if(atoi(sm->value) >= 128){
-                std::cerr << "\033[31m" << "Linea: " << *(automaton->getPtrLineNumber()) << "-> Error por entero corto fuera de rango { -128 - 127 }"  << "\033[0m"<< endl;
+void checkIntegerShort(string lexeme){
+        symbol* sm = tableSymbol->getSymbol(lexeme);
+        if(sm != nullptr ){
+            if(atoi(sm->value.c_str()) >= 128){
+                    std::cerr << "\033[31m" << "Linea: " << lineNumber << "-> Error por entero corto fuera de rango { -128 - 127 }"  << "\033[0m"<< endl;
+            }
+        }{
+                std::cerr << "\033[31m" << "Linea: " << lineNumber << "-> Error: No se encuentra el token en la tabla de símbolo"  << "\033[0m"<< endl;
         }
 }
 void checkIntegerShortNegative(string lexeme, TableSymbol* ts){
