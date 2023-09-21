@@ -1,22 +1,23 @@
-#ifndef YYBISONPARSER
-#define YYBISONPARSER
 #ifndef lint
 static char yysccsid[] = "@(#)yaccpar	1.8 (Berkeley) 01/20/90";
 #endif
 #define YYBYACC 1
 #line 2 "gramaticaComCHZExtendida.y"
 
+#include "include/types.hpp"
+#include "include/Lexico.hpp"
+
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "include/Lexico.hpp"
+
 using namespace std;
 
 void yyerror(string s){
     cerr << "Error sintactico" << s << endl;
 };
 
-#line 15 "y.tab.c"
+#line 21 "y.tab.c"
 #define IDENTIFICADOR 257
 #define ENTERO_SIN_SIGNO 258
 #define ENTERO_CORTO 259
@@ -272,7 +273,7 @@ char *yyrule[] = {
 };
 #endif
 #ifndef YYSTYPE
-typedef int YYSTYPE;
+typedef string YYSTYPE;
 #endif
 #define yyclearin (yychar=(-1))
 #define yyerrok (yyerrflag=0)
@@ -302,7 +303,8 @@ YYSTYPE yyvs[YYSTACKSIZE];
 #define YYABORT goto yyabort
 #define YYACCEPT goto yyaccept
 #define YYERROR goto yyerrlab
-int yyparse(Lexico * lexico)
+int
+yyparse(Lexico * lexico)
 {
     register int yym, yyn, yystate;
 #if YYDEBUG
@@ -437,6 +439,23 @@ yyreduce:
     yyval = yyvsp[1-yym];
     switch (yyn)
     {
+case 61:
+#line 153 "gramaticaComCHZExtendida.y"
+{ cout << "Se detectó un entero sin signo: " << yyvsp[0] << endl;}
+break;
+case 62:
+#line 154 "gramaticaComCHZExtendida.y"
+{ cout << "Se detectó un entero corto: " << yyvsp[0] << endl;}
+break;
+case 63:
+#line 155 "gramaticaComCHZExtendida.y"
+{ cout << "Se detectó un punto flotante: " << yyvsp[0] << endl;}
+break;
+case 64:
+#line 156 "gramaticaComCHZExtendida.y"
+{ cout << "Se detectó una cadena de caracteres: " << yyvsp[0] << endl;}
+break;
+#line 459 "y.tab.c"
     }
     yyssp -= yym;
     yystate = *yyssp;
@@ -493,4 +512,3 @@ yyabort:
 yyaccept:
     return (0);
 }
-#endif

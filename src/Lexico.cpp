@@ -8,6 +8,9 @@
 #include <iostream>
 #include <fstream>
 
+// ACÁ DEFNIR EL TIPO QUE ESTÁ EN EL PARSER.CPP
+extern string yylval;
+
 Lexico::Lexico(TableSymbol* tableSymbol, TableReservedWord* tableRWords, string * content, int* lineNumber) {
     // definimos que archivo va a usar y las variables para hacer el conteo de lineas y caracteres leídos   
     this->content = *content;
@@ -26,7 +29,7 @@ int Lexico::yylex(){
     
     cout <<  "El token es: " << token->token << " - " << token->lexeme << endl;
 
-    //yyval = token->lexeme;
+    yylval = token->lexeme;
     return token->token;
 
 }

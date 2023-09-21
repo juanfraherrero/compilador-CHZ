@@ -56,23 +56,14 @@ int main(int arg_count, char *arg_list[]) {
     
     cout << "\n\n EJECUCIÓN \n\n";
 
-    yyparse(lexico);
-    
-
-    // // ESTA SERÍA LA FUNCIÓN YYLEX()
-
-
-    // tokenWithLexeme *token;
-    // //esto se supone que será reemplazado por el ya que irá pidiendo tokens
-    // while (!lexico.endOfFile()){
-    //     token = lexico.getToken(); // esto queda guardado en el heap // checkear cuando hay que eliminarlo
-    //     if(token != nullptr){
-    //         cout << "TOKEN ---->>>> lexema -> " << token->lexeme << " - id ->" << token->token << endl;
-    //         // le das uso al token y antes de terminar el while lo borras porque el get Token te da otro
-    //         delete token;
-    //     }
-        
-    // }
+    int resultParsing = yyparse(lexico);
+    if(resultParsing == 0){
+        cout << "\n\n --------------- \n\n";
+        cout << "Parsing succed" << endl;
+    }else{
+        cout << "\n\n --------------- \n\n";
+        cout << "Parsing failed" << endl;
+    }
 
     cout << "\n\n --------------- \n\n";
 

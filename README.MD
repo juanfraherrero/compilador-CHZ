@@ -9,9 +9,9 @@ instalarse la extensión:
 - c/c++ Makefile Project
 - Code Runner
 
-Luego checkear tener instalado make en la máquina, deberían sino no busquen como
+Luego checkear tener instalado make en la máquina, https://sourceforge.net/projects/mingw/ 
 
-Cuando lo tengan todo instalado, si no tocaron nada en el código.  
+Cuando lo tengan todo instalado, si no tocaron nada en el código.   
 
 En el archivo Makefile en la línea 13, en la variable src deben poner la carpeta raíz de donde esté su proyecto
 

@@ -1,6 +1,7 @@
 {
-x = 123_s ,
-y = 1234_ui,
-
-IF (x < y) {PRINT #juan# ,} END_IF ,
+  x = 10_s,
+  y = 20_ui,
+  IF (x < y) {
+    PRINT #x es mayor que y#,
+  } END_IF,
 }
