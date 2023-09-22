@@ -21,7 +21,10 @@ int lineNumber = 1;
 
 
 void yyerror(string s){
-    cerr << "\033[31m" << "Linea: " << lineNumber << "-> Error: parsing failed " << s <<"\033[0m"<< endl;
+    cerr << "\033[31m" << "Linea: " << lineNumber << "-> Error: " << s <<"\033[0m"<< endl;
+};
+void yywarning(string s){
+    cerr << "\033[33m" << "Linea: " << lineNumber << "-> Warning: " << s <<"\033[0m"<< endl;
 };
 
 %}
@@ -51,7 +54,7 @@ void yyerror(string s){
 %%
 
 programa    :   '{' sentencias '}'      /* es el programa que debe arrancar y terminar con '{' '}' */
-            |   '{' '}'                 /* podría ser un programa sin nada, hay que preguntar! */               { cerr << "\033[33m" <<"Linea: " << *(lineNumber) << "-> Warning: Se está compilando un programa sin contenido" << "\033[0m" << endl;}
+            |   '{' '}'                 /* podría ser un programa sin nada, hay que preguntar! */               { yywarning("Se está compilando un programa sin contenido");}
 
 sentencias  :   sentencia sentencias
             |   sentencia
@@ -111,9 +114,11 @@ ejecutable  :    asignacion
             |    PRINT CADENA_CARACTERES ','
             |    ciclo_while
             |    acceso_objeto
+            |    PRINT ','                                      { yyerror("Se detectó la falta de una cadena de caracteres al querer imprimir");}
             ;
 
 asignacion : IDENTIFICADOR '=' expresion_aritmetica ','
+           | IDENTIFICADOR '=' ','                              { yyerror("Se detectó la falta de una expresión arimética en la sentencia ejecutable");}
            ;
 
 invocacion : IDENTIFICADOR '(' expresion_aritmetica ')' ','
@@ -123,10 +128,10 @@ invocacion : IDENTIFICADOR '(' expresion_aritmetica ')' ','
 
 expresion_aritmetica : expresion_aritmetica '+' termino
                     | expresion_aritmetica '-' termino
-                    | expresion_aritmetica '-' '*' termino      { cerr << "\033[33m" <<"Linea: " << *(lineNumber) << "-> Warning: Se detectó un error en operador, quedará '-'" << "\033[0m" << endl;}
-                    | expresion_aritmetica '+' '*' termino      { cerr << "\033[33m" <<"Linea: " << *(lineNumber) << "-> Warning: Se detectó un error en operador, quedará '+'" << "\033[0m" << endl;}
-                    | expresion_aritmetica '-' '/' termino      { cerr << "\033[33m" <<"Linea: " << *(lineNumber) << "-> Warning: Se detectó un error en operador, quedará '-'" << "\033[0m" << endl;}
-                    | expresion_aritmetica '+' '/' termino      { cerr << "\033[33m" <<"Linea: " << *(lineNumber) << "-> Warning: Se detectó un error en operador, quedará '+'" << "\033[0m" << endl;}
+                    | expresion_aritmetica '-' '*' termino      { yywarning("Se detectó un error en operador, quedará '-'");}
+                    | expresion_aritmetica '+' '*' termino      { yywarning("Se detectó un error en operador, quedará '+'");}
+                    | expresion_aritmetica '-' '/' termino      { yywarning("Se detectó un error en operador, quedará '-'");}
+                    | expresion_aritmetica '+' '/' termino      { yywarning("Se detectó un error en operador, quedará '+'");}
                     | termino
                     ;
 
@@ -135,11 +140,6 @@ termino : termino '*' factor
         | factor
         ;
 
-factor : IDENTIFICADOR
-       | IDENTIFICADOR OPERADOR_SUMA_SUMA
-       | constante
-       | TOF '(' expresion_aritmetica ')'       /* conversión de tipo */
-       ;
 
 
 
@@ -165,14 +165,23 @@ bloque_ejecutables  :   '{' sentencias_ejecutables '}'
 sentencias_ejecutables  :   ejecutable sentencias_ejecutables 
                         |   ejecutable
                         ;
+factor : IDENTIFICADOR
+       | IDENTIFICADOR OPERADOR_SUMA_SUMA
+       | constanteSinSigno
+       | constanteConSigno
+       | TOF '(' expresion_aritmetica ')'       /* conversión de tipo */
+       ;
 
-constante   :   ENTERO_SIN_SIGNO                        { cout << "Se detectó un entero sin signo: " << $1 << endl;}
-            |   ENTERO_CORTO                            { checkIntegerShort($1, ts)}
-            |   '-' ENTERO_CORTO                        { checkIntegerShortNegative($2, ts)}
-            |   PUNTO_FLOTANTE                          { cout << "Se detectó un punto flotante: " << $1 << endl;}
-            |   '-' PUNTO_FLOTANTE                      { cout << "Se detectó un punto flotante: " << $1 << endl;}
-            |   CADENA_CARACTERES                       { cout << "Se detectó una cadena de caracteres: " << $1 << endl;}
-            ;
+constanteSinSigno       :       ENTERO_SIN_SIGNO                        { cout << "Se detectó un entero sin signo: " << $1 << endl;}
+                        |       CADENA_CARACTERES                       { cout << "Se detectó una cadena de caracteres: " << $1 << endl;}
+                        ;
+
+constanteConSigno       :       ENTERO_CORTO                            { checkIntegerShort($1);}
+                        |       '-' ENTERO_CORTO                        { checkIntegerShortNegative($2);}
+                        |       PUNTO_FLOTANTE                          { cout << "Se detectó un punto flotante positivo: " << $1 << endl;}
+                        |       '-' PUNTO_FLOTANTE                      { cout << "Se detectó un punto flotante negativo: " << $2 << endl;}
+                        |       '-'                                     { yyerror("Falta constante numérica en la expresión"); }
+                        ;
 
 acceso_objeto   :   IDENTIFICADOR '.' IDENTIFICADOR '=' expresion_aritmetica ','
                 |   IDENTIFICADOR '.' IDENTIFICADOR '=' IDENTIFICADOR '.' IDENTIFICADOR ','
@@ -184,10 +193,10 @@ void checkIntegerShort(string lexeme){
         symbol* sm = tableSymbol->getSymbol(lexeme);
         if(sm != nullptr ){
             if(atoi(sm->value.c_str()) >= 128){
-                    std::cerr << "\033[31m" << "Linea: " << lineNumber << "-> Error por entero corto fuera de rango { -128 - 127 }"  << "\033[0m"<< endl;
+                    yyerror("Entero corto fuera de rango { -128 - 127 }");
             }
-        }{
-                std::cerr << "\033[31m" << "Linea: " << lineNumber << "-> Error: No se encuentra el token en la tabla de símbolo"  << "\033[0m"<< endl;
+        }else{
+                yyerror("No se encuentra el token en la tabla de símbolo");
         }
 }
 void checkIntegerShortNegative(string lexeme){

@@ -1,14 +1,26 @@
 {
-  x = 10_s,
-  x = 10_s,
-  x = -10_s,
-  x = 127_s,
-  x = 128_s,
-  y = 20_ui,
-  z = #juansin#,
-  w = 23_ui + 4_s,
-  w = z++,
-  w = 23_ui +* 5_s,
+  var1 = 10_s,
+  var2 = 10_s,
+  var3 = -10_s,
+  var4 = 127_s,
+  var5 = 128_s,
+  var5 = -129_s,
+  var6 = 20_ui,
+
+  var7 = 23_ui + 4_s,
+  var8 = 23_ui +* 5_s,
+
+  var9 = 12.23E-22,
+  var10 = 12.E-222,
+  var11 = .23E+32,
+
+  var12 = -12.23E-22,
+  var13 = -12.E-222,
+  var14 = -.23E+32,
+
+  z = z++,
+  
+  x = #juansin#,
   IF (x < y) {
     PRINT #x es mayor que y#,
   } END_IF,
