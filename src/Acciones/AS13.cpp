@@ -33,7 +33,7 @@ class AS13 : public AccionSemantica {
             //insertamos en la tabla de símbolos la cadena de caracteres 
                 // con el lexema como key, el lexema, el valor es el lexema sin los #
                 // el insert checkea la existencia de otro lexema igual 
-            tableSymbol->insert(lexeme, lexeme, value);
+            tableSymbol->insert(lexeme, lexeme, value, "string");
 
             //definimos el token como cadena de caracteres
             automaton->getToken()->token = id_CONSTANTE_CADENA_CARACTERES;

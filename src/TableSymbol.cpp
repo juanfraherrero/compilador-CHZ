@@ -18,7 +18,7 @@ symbol* TableSymbol::getSymbol(const string& key) {
 }
 
 // insertar un elemento en la tabla
-void TableSymbol::insert(const string& key, const string& lexema, const string& value) {
+void TableSymbol::insert(const string& key, const string& lexema, const string& value, const string& type) {
     // buscamos si ya existe ese símbolo en la tabla
     auto it = symbolTable.find(key);
     if (it != symbolTable.end()) {
@@ -28,7 +28,7 @@ void TableSymbol::insert(const string& key, const string& lexema, const string& 
     }else{
         //no encontró un símbolo con esa clave
         // Crear un nuevo simbolo y almacenarlo en la tabla
-        symbol* newSymbol = new symbol(lexema, value);
+        symbol* newSymbol = new symbol(lexema, value, type);
         symbolTable[key] = newSymbol;
     }
     
@@ -40,7 +40,7 @@ void TableSymbol::imprimirTabla() {
     cout << "\n\nTabla de símbolos:\n\n" << endl;
     for (const auto& pair : symbolTable) {
         const symbol* symbol = pair.second;
-        cout << "Clave: " << pair.first << ", Lexema: " << symbol->lexema << ", Valor: " << symbol->value << endl;
+        cout << "Clave: " << pair.first << "\t Lexema: " << symbol->lexema << "\t Valor: " << symbol->value << "\t Tipo: " << symbol->type << endl;
     }
 }
 

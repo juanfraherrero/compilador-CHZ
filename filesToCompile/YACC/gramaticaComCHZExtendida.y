@@ -195,7 +195,8 @@ void checkIntegerShort(string lexeme){
             if(atoi(sm->value.c_str()) >= 128){
                     yyerror("Entero corto fuera de rango { -128 - 127 }");
             }
-        }else{
+        }
+        else{
                 yyerror("No se encuentra el token en la tabla de símbolo");
         }
 }
@@ -207,5 +208,5 @@ void checkIntegerShortNegative(string lexeme){
         size_t pos = lexeme.find("_s");
         string value = lexeme.substr(0, pos);
         
-        tableSymbol->insert(lexeme, lexeme, value);
+        tableSymbol->insert(lexeme, lexeme, value, "short");
 }

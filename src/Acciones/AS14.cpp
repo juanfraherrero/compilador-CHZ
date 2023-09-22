@@ -59,7 +59,7 @@ class AS14 : public AccionSemantica {
                 //insertamos en la tabla de símbolos la constante de punto flotante 
                     // con el lexema como key, el lexema, el valor es el mismo lexema
                     // el insert checkea la existencia de otro lexema igual 
-                tableSymbol->insert(lexeme, lexeme, lexeme);
+                tableSymbol->insert(lexeme, lexeme, lexeme, "float");
 
                 // encontramos una constante de punto flotante y definimos el token como constante
                 automaton->getToken()->token = id_CONSTANTE_PUNTO_FLOTANTE;

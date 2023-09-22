@@ -29,6 +29,7 @@ struct symbol {
 
     symbol(const string& _lexema) : lexema(_lexema), count(1) {};
     symbol(const string& _lexema, string _value) : lexema(_lexema), value(_value), count(1) {};
+    symbol(const string& _lexema, string _value, string _type) : lexema(_lexema), value(_value), type(_type), count(1) {};
 };
 
 

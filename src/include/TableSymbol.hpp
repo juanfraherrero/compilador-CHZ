@@ -21,7 +21,7 @@ class TableSymbol{
         symbol* getSymbol(const string& key);
 
         // insertar un elemento en la tabla
-        void insert(const string& key, const string& lexema, const string& value);
+        void insert(const string& key, const string& lexema, const string& value,const string& type);
 
         // eliminar un elemento de la tabla decrementando su contador
         void deleteSymbol(const string& key);

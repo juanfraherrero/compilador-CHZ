@@ -365,7 +365,7 @@ void checkIntegerShortNegative(string lexeme){
         size_t pos = lexeme.find("_s");
         string value = lexeme.substr(0, pos);
         
-        tableSymbol->insert(lexeme, lexeme, value);
+        tableSymbol->insert(lexeme, lexeme, value, "short");
 }
 #line 371 "y.tab.c"
 #define YYABORT goto yyabort

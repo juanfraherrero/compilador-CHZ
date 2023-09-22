@@ -43,7 +43,7 @@ class AS3 : public AccionSemantica {
                     //insertamos en la tabla de símbolos el short int 
                         // con el lexema como key, el lexema, el valor
                         // el insert checkea la existencia de otro lexema igual 
-                    tableSymbol->insert(lexeme, lexeme, value);
+                    tableSymbol->insert(lexeme, lexeme, value, "short");
 
                     //definimos el token como short int
                     automaton->getToken()->token = id_CONSTANTE_ENTERO_CORTO;

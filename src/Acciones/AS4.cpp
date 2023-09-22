@@ -53,7 +53,7 @@ class AS4 : public AccionSemantica {
                     //insertamos en la tabla de símbolos el short int 
                         // con el lexema como key, el lexema, el valor
                         // el insert checkea la existencia de otro lexema igual 
-                    tableSymbol->insert(lexeme, lexeme, value);
+                    tableSymbol->insert(lexeme, lexeme, value, "unsigned int");
 
                     //definimos el token como short int
                     automaton->getToken()->token = id_CONSTANTE_ENTERO_SIN_SIGNO;
