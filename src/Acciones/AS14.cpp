@@ -32,7 +32,7 @@ class AS14 : public AccionSemantica {
                 value = std::stod(_str); //convertimos el string a double
 
                 // si se puede convertir checkeamos que esté en los límtes que nos indicaron
-                if(value > limitInf && value < limitSup){
+                if((value > limitInf && value < limitSup) || value == 0.0){
                     return true;
                 }
                 else{
