@@ -1,0 +1,18 @@
+{
+  *{ IDENTIFICADORES excediendo la longitud máxima }*
+  var = 127_s,                                              *{ correcto }*
+  variable1 = 127_s,                                        *{ correcto }*
+  variable2de23caracteres = 1_s,                            *{ Warning 22caracteres se trunca a 20 }*
+  variable3de32caracteresmasgrande = 1_s,                   *{ Warning 32caracteres se trunca a 20 }*
+  variable4de44caracteresmasgrandeaunmasgrande = 1_s,       *{ Warning 44caracteres se trunca a 20 }*
+  variable4de44caracteresmasgrandeaunmasgrande = 1_s,       *{ Warning 44caracteres se trunca a 20 }*
+  variab*le = 1_s,                                          *{ Detectaría "variab", "*", "le" como tokens}*
+  variable_3_de_17_ = 1_s,                                  *{ correcto }*
+  variable_4_de_48_caracteresmasgrandeaunmasgrande = 1_s,   *{ Warning 48caracteres se trunca a 20 }*
+
+}
+
+
+
+
+

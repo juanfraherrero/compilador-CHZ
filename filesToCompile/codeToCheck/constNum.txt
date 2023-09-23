@@ -1,0 +1,44 @@
+{
+  *{ ENTEROS CORTOS }*
+  var1 = 127_s,             *{ correcto }*
+  var2 = 128_s,             *{ correcto en léxico / el parsing levanta error }*
+  var3 = 129_s,             *{ excede rango }*
+  var4 = -127_s,            *{ correcto }*
+  var5 = -128_s,            *{ correcto }*
+  var6 = -129_s,            *{ excede rango }*
+  
+  *{ ENTEROS SIN SIGNO }*
+  var1 = 0_ui,              *{ correcto }*
+  var2 = 65535_ui,          *{ correcto }*
+  var3 = 65535_u,           *{ correcto con Warning }*
+  var4 = 65536_ui,          *{ excede rango }*
+  
+  *{ PUNTOS FLOTANTES }*
+  var0 = 0.0,               *{ correcto }*
+  var1 = 1.17549434E-38,    *{ excede rango }*
+  var2 = 1.17549435E-38,    *{ excede rango }*
+  var3 = 1.17549436E-38,    *{ correcto }*
+  var4 = 1.17549436E-39,    *{ excede rango }*
+
+  var5 = 3.40282348E+38,    *{ excede rango }*
+  var6 = 3.40282347E+38,    *{ excede rango }*
+  var7 = 3.40282346E+38,    *{ correcto }*
+  var8 = 3.40282346E+39,    *{ excede rango }*
+  
+  var9 = -3.40282347E+38,   *{ excede rango }*
+  var10 = -1.17549435E-38,  *{ excede rango }*
+
+  var11 = 1.e-20,           *{ correcto }*
+  var11 = 1.e+2,            *{ correcto }*
+  var12 = 1.,               *{ correcto }*
+  var13 = 1,                *{ error en constante numérica }*
+  var14 = .8e-10,           *{ correcto }*
+  var15 = .5567e+15,        *{ correcto }*
+  var16 = .0,               *{ correcto }*
+  var17 = .1,               *{ correcto }*
+}
+
+
+
+
+

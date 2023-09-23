@@ -1,0 +1,25 @@
+{
+  *{ PALABRAS RESERVADAS   }*
+  VAR,        *{ palara reservada desconocida }*
+  CONST,      *{ palara reservada desconocida }*
+  TsPE,       *{ palara reservada desconocida T y PE }*
+  T*PE,       *{ palara reservada desconocida T y PE }*
+  VOID,       *{ correcto }*
+  RETURN,     *{ correcto }*
+  IF,         *{ correcto }*      
+  ELSE,       *{ correcto }*
+  END_IF,     *{ correcto }*
+  PRINT,      *{ correcto }*
+  WHILE,      *{ correcto }*
+  DO,         *{ correcto }*
+  SHORT,      *{ correcto }*
+  UINT,       *{ correcto }*
+  FLOAT,      *{ correcto }*
+  TOF,        *{ correcto }*
+  CLASS,      *{ correcto }*
+}
+
+
+
+
+
