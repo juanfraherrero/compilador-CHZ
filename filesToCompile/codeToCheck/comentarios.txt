@@ -1,0 +1,17 @@
+{
+  *{ COMENTARIOS }*
+
+  *{ primer comentario clásico }*
+  *{ segundo comentario  )(#/$=)#/=)(/#!) con caracteres raros }*
+  *{ tercer comentario con llaves al final } }}*
+  *{ cuarto 
+        comentario 
+            con 
+                saltos y tabuladores }*
+
+  *{ comentario abierto
+}
+
+
+
+
