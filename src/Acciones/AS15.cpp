@@ -14,7 +14,7 @@ using namespace std;
     La acción semántica 15 ('!!') se encarga de:
         Verificar si es un '!'
             Si es un '!' se devuelve el identificador de token asociado a id_COMPARADOR_DISTINTO
-            sI NO es '!' se guarda el caracter leído y se devuelve el código ASCII del '!'
+            sI NO es '!' se guarda el caracter leído y se retorna un error de caracter no reconocido
 */
 class AS15 : public AccionSemantica {
     private:

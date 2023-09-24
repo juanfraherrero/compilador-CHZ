@@ -1,0 +1,13 @@
+{
+  *{ CADENA DE CARACTERES }*
+
+  var0 = # ¡Hola mundo! #,                                                *{ correcto }*
+  var1 = # comentario muy largo que se extiende lo suficiente  #,         *{ correcto }*
+  var2 = # comentario *$(/=?" con caracteres [¨_:;]}}$ raros #,           *{ correcto }*
+  var1 = # comentario con salto                                           *{ error por salto de línea cadena }*
+de linea   #,                                                             
+}
+
+
+
+

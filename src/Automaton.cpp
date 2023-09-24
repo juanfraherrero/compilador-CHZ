@@ -41,8 +41,6 @@ Automaton::Automaton(TableSymbol* tableSymbol, TableReservedWord* tableRWords, i
     this->tableSymbol = tableSymbol;
     this->tableRWords = tableRWords;
     this->ptrLineNumber = ptrLineNumber;
-    //esta línea es para ver la matriz cargada
-    this->printMatrix();
 }
 
 int Automaton::processCharacter(char character, int actual_state) {

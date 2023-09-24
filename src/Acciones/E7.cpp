@@ -23,7 +23,7 @@ class E7 : public AccionSemantica {
             // guarda el caracter en el buffer del automaton
             automaton->setBuffer(characterReaded);
 
-            std::cerr << "\033[31m" << "Linea: " << *(automaton->getPtrLineNumber()) << " -> Error encontrado en '!'. No es parte del lenguaje" << "\033[0m" <<endl;
+            std::cerr << "\033[31m" << "Linea: " << *(automaton->getPtrLineNumber()) << " -> Error: '!' no es parte del lenguaje" << "\033[0m" <<endl;
             
             // al ser un error forzamos volver al estado 0 y vaciamos el lexema
             automaton->getToken()->lexeme = "";

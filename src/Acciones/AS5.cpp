@@ -8,7 +8,7 @@
 using namespace std;
 
 /*
-    La acción semántica 5 ('-','/','.') se encarga de:
+    La acción semántica 5 ('-','/','.', '*') se encarga de:
         guarda el caracter en el buffer del automaton
         devolver el identificador de esos caracteres
 */

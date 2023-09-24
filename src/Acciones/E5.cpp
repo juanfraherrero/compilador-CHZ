@@ -20,7 +20,7 @@ class E5 : public AccionSemantica {
         E5(){};
         int execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
 
-            std::cerr << "\033[31m" << "Linea: " << *(automaton->getPtrLineNumber()) << "-> Error por palabra reservada mal formada"  << "\033[0m" << endl;
+            std::cerr << "\033[31m" << "Linea: " << *(automaton->getPtrLineNumber()) << "-> Error: Palabra reservada mal formada"  << "\033[0m" << endl;
 
             // al ser un error forzamos volver al estado 0 y vaciamos el lexema
             automaton->getToken()->lexeme = "";

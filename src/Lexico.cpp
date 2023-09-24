@@ -91,6 +91,9 @@ bool Lexico::endOfFile(){
     return this->eof;
 }
 
+void Lexico::printMatrix(){
+    this->automaton->printMatrix();
+}
 
 void Lexico::incrementLineNumber(){
     (*(this->lineNumber))++;

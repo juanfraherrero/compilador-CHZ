@@ -9,7 +9,7 @@
 using namespace std;
 
 /*
-    La acción semántica 6 ('.'. palabras reservadas) se encarga de:
+    La acción semántica 6 (palabras reservadas) se encarga de:
         guarda el caracter en el buffer del automaton
         setea el id de la palabra reservada en el token
 */
