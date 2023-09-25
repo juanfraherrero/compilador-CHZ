@@ -63,6 +63,7 @@ sentencias  :   sentencia sentencias
 sentencia   :   declarativa                                     { cout << "Se detectó una sentencia declarativa " << endl;}
             |   ejecutable                                      { cout << "Se detectó una sentencia ejecutable " << endl;}
             |   ','                                             { yyerror("Se detectó una sentencia vacía"); }
+            |   error ','                                       { yyerror("Se detectó una sentencia inválida"); }
             ;
 
 declarativa :   tipo lista_de_variables ','
@@ -92,6 +93,7 @@ declaracion_objeto  :   IDENTIFICADOR lista_de_objetos
 
 lista_de_objetos    :   IDENTIFICADOR ';' lista_de_objetos 
                     |   IDENTIFICADOR
+                    |   IDENTIFICADOR ';'                                     { yyerror("Falta identificador en la declaración de un objeto"); }
                     ;
 
 tipo    :   SHORT | UINT | FLOAT
