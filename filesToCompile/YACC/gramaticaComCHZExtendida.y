@@ -62,6 +62,7 @@ sentencias  :   sentencia sentencias
 
 sentencia   :   declarativa                                     { cout << "Se detectó una sentencia declarativa " << endl;}
             |   ejecutable                                      { cout << "Se detectó una sentencia ejecutable " << endl;}
+            |   ','                                             { yyerror("Se detectó una sentencia vacía"); }
             ;
 
 declarativa :   tipo lista_de_variables ','
@@ -86,7 +87,7 @@ lista_de_metodos    :   metodo lista_de_metodos
 metodo  :   VOID IDENTIFICADOR '(' parametro ')' '{' cuerpo_de_la_funcion '}' ','
         ;
 
-declaracion_objeto  :   IDENTIFICADOR lista_de_objetos ','
+declaracion_objeto  :   IDENTIFICADOR lista_de_objetos
                     ;
 
 lista_de_objetos    :   IDENTIFICADOR ';' lista_de_objetos 

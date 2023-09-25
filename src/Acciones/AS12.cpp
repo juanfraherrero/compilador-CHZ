@@ -11,7 +11,7 @@ using namespace std;
 /*
     La acción semántica 12 ('+' o '++') se encarga de:
         Verificar si se leyó un '+'
-            si es un '+' se devuelve el identificador de token asociado a OPERADOR_SUMA_SUMA
+            si es un '+' se devuelve el identificador de token asociado a OPERADOR_SUMA_SUMA y se concatena al lexema el '+'
             Si no es un '+' se guarda el caracter leído y se devuelve el código ASCII del '+'
 */
 class AS12 : public AccionSemantica {
@@ -23,7 +23,9 @@ class AS12 : public AccionSemantica {
         int execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
             
             if(characterReaded == '+'){
-                
+                // concatena el caracter al lexema
+                automaton->getToken()->lexeme += characterReaded;
+
                 automaton->getToken()->token = id_OPERADOR_SUMA_SUMA;
                 
             }
