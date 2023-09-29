@@ -164,10 +164,13 @@ condicion : expresion_aritmetica '>' expresion_aritmetica
 
 bloque_ejecutables  :   '{' sentencias_ejecutables '}'
                     |   ejecutable
+                    |   declarativa                     { yyerror("Se detectó una sentencia declarativa en bloque de control"); }
                     ;
 
-sentencias_ejecutables  :   ejecutable sentencias_ejecutables 
+sentencias_ejecutables  :   sentencias_ejecutables ejecutable 
                         |   ejecutable
+                        |   sentencias_ejecutables declarativa          { yyerror("Se detectó una sentencia declarativa en bloque de control"); }
+                        |   declarativa                                 { yyerror("Se detectó una sentencia declarativa en bloque de control"); }
                         ;
 factor : IDENTIFICADOR
        | IDENTIFICADOR OPERADOR_SUMA_SUMA
