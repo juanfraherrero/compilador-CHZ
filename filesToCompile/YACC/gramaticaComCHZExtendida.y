@@ -53,9 +53,10 @@ void yywarning(string s){
 
 %%
 
-programa    :   '{' sentencias '}'      /* es el programa que debe arrancar y terminar con '{' '}' */
-            |   '{' '}'                 /* podría ser un programa sin nada, hay que preguntar! */               { yywarning("Se está compilando un programa sin contenido");}
-
+programa    :   '{' sentencias '}'              /* es el programa que debe arrancar y terminar con '{' '}' */
+            |   '{' '}'                         /* podría ser un programa sin nada*/               { yywarning("Se está compilando un programa sin contenido");}
+            |   '{' sentencias '}' error                                                           { yyerror("Se detectó contenido luego de finalizado el programa");}             
+            |   '{' '}' error                       { yywarning("Se está compilando un programa sin contenido"); yyerror("Se detectó contenido luego de finalizado el programa");}             
 sentencias  :   sentencia sentencias
             |   sentencia
             ;

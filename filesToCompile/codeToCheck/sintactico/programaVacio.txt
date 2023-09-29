@@ -1,0 +1,4 @@
+{
+                    *{Warning de programa vacío}*
+}
+

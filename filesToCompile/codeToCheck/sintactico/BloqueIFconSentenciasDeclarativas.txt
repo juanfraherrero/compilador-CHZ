@@ -1,0 +1,10 @@
+{
+    IF (x < y) {
+        SHORT x,                        *{Error de syntaxis, absorbe hasta ',' para sincronizar}*
+        PRINT #x es menor que y#,       *{Sentencia declarativa en programa, no existe el IF}*
+    } ELSE {                            *{ '}' termina el programa y detecta más token -> error de syntaxis}*
+        SHORT y,
+        PRINT #x no es menor que y #,
+    } END_IF,                               *{Sentencia ejecutable}*
+}
+
