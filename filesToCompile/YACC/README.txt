@@ -21,3 +21,10 @@ Y probar
 
 Línea para debugging Parser
 printf("yydebug: state %d, char: %d shifting to state %d \n", yystate, yychar, yytable[yyn]);
+
+
+#Toma de desición:
+
+Respecto a absorber errores de falta de ',' al final de una sentencia, se intentó agregarlo pero genera errores de shift/reduce 
+    ya que al poder tener una sentencia vacía y absorberla no se sabe si reducir por falta de ',' a un error y luego una 
+    sentencia vacía o reducir con la coma aunas entencia válida

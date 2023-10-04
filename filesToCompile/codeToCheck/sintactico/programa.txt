@@ -1,5 +1,5 @@
 {
-    SHORT x; y, z,                          *{Sentencia declarativa}*
+    SHORT x; y,                             *{Sentencia declarativa}*
     x = 5_s,                                *{Sentencia ejecutable}*
     y = -3.14E-10,                          *{Sentencia ejecutable}*
     z = x + y,                              *{Sentencia ejecutable}*

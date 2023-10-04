@@ -68,9 +68,12 @@ sentencia   :   declarativa                                     { cout << "Se de
             ;
 
 declarativa :   tipo lista_de_variables ','
-            |   VOID IDENTIFICADOR '(' parametro ')' '{' cuerpo_de_la_funcion '}' ','
+            |   VOID IDENTIFICADOR '(' parametro ')' '{' cuerpo_de_la_funcion '}' ',' {cout << "\033[33mSe detectó una función\033[0m" << endl;}
             |   declaracion_clase ','
             |   declaracion_objeto ','
+            |   lista_de_variables ','                           { yyerror("Se detectó la falta de un tipo en la declaración de variables"); }
+            |   VOID '(' parametro ')' '{' cuerpo_de_la_funcion '}' ','     {cout << "\033[33mSe detectó una función\033[0m" << endl; yyerror("Se detectó la falta de un nombre en la función"); }
+            |   VOID IDENTIFICADOR '(' parametro ')' '{' '}' ',' {cout << "\033[33mSe detectó una función\033[0m" << endl; yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
             ;
 
 
@@ -108,10 +111,17 @@ parametro   :   tipo IDENTIFICADOR
             |   /* vacío */
             ;
 
-cuerpo_de_la_funcion    :   sentencia cuerpo_de_la_funcion
-                        |   RETURN ','
+cuerpo_de_la_funcion    :   cuerpo_de_la_funcion_sin_return                             {yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
+                        |   cuerpo_de_la_funcion_con_return
                         ;
-
+cuerpo_de_la_funcion_con_return    :   cuerpo_de_la_funcion_sin_return RETURN ','
+                                   |   RETURN ','
+                                   |   RETURN ',' cuerpo_de_la_funcion_sin_return       {yywarning("Se detectó código posterior a un rertun"); }
+                                   |   RETURN ',' cuerpo_de_la_funcion_con_return       {yywarning("Se detectó código posterior a un rertun"); }
+                                   ;
+cuerpo_de_la_funcion_sin_return    :   sentencia cuerpo_de_la_funcion_sin_return
+                                   |   sentencia
+                                   ;
 ejecutable  :    asignacion
             |    invocacion
             |    seleccion

@@ -1,0 +1,11 @@
+{
+    SHORT x,                                *{Sentencia declarativa}*
+    SHORT x; y; z,                          *{Sentencia declarativa}*
+    UINT x,                                 *{Sentencia declarativa}*
+    UINT x; z,                              *{Sentencia declarativa}*
+    FLOAT x,                                *{Sentencia declarativa}*
+    FLOAT x; y,                             *{Sentencia declarativa}*
+    INT x,                                  *{PR no reconocida (Lexico) / falta el tipo}*   
+    DOUBLE x; y,                            *{PR no reconocida (Lexico) / falta el tipo}*   
+}
+

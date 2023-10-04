@@ -1,0 +1,28 @@
+{
+    VOID func1 (SHORT y)        *{Funcion escrita correctamente}*
+    {
+        UINT x,
+        RETURN,
+    },  
+    VOID func2 ()               *{Funcion escrita correctamente}*
+    {
+        PRINT ,                 *{error falta de cadena de caracteres, función se detecta igual}*
+        RETURN,
+    },
+    VOID ()                     *{Error por falta de nombre en la función}*
+    {
+        RETURN,
+    },  
+    VOID func3 ()               *{Error por falta de return al final de la función}*
+    {
+        UINT x,
+    },                                       
+    VOID func4 ()               *{Warning por falta codigo posterior al return}*
+    {
+        RETURN,
+        UINT x,
+    },                          
+    VOID func5 ()               *{Error por falta de RETURN en la funcion}*
+    {
+    },                                               
+}

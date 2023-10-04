@@ -58,178 +58,191 @@ void yywarning(string s){
 #define YYERRCODE 256
 short yylhs[] = {                                        -1,
     0,    0,    0,    0,    1,    1,    2,    2,    2,    2,
-    3,    3,    3,    3,    9,    9,   11,   11,   12,   12,
-   13,   10,   14,   14,   14,    5,    5,    5,    6,    6,
-    7,    7,    8,    8,    4,    4,    4,    4,    4,    4,
-    4,   15,   15,   16,   16,   20,   20,   20,   20,   20,
-   20,   20,   21,   21,   21,   17,   17,   18,   23,   23,
-   23,   23,   23,   23,   24,   24,   24,   25,   25,   25,
-   25,   22,   22,   22,   22,   22,   26,   26,   27,   27,
-   27,   27,   27,   19,   19,   19,
+    3,    3,    3,    3,    3,    3,    3,    9,    9,   11,
+   11,   12,   12,   13,   10,   14,   14,   14,    5,    5,
+    5,    6,    6,    7,    7,    8,    8,   16,   16,   16,
+   16,   15,   15,    4,    4,    4,    4,    4,    4,    4,
+   17,   17,   18,   18,   22,   22,   22,   22,   22,   22,
+   22,   23,   23,   23,   19,   19,   20,   25,   25,   25,
+   25,   25,   25,   26,   26,   26,   27,   27,   27,   27,
+   24,   24,   24,   24,   24,   28,   28,   29,   29,   29,
+   29,   29,   21,   21,   21,
 };
 short yylen[] = {                                         2,
     3,    2,    4,    3,    2,    1,    1,    1,    1,    2,
-    3,    9,    2,    2,    6,    2,    4,    0,    2,    0,
-    9,    2,    3,    1,    2,    1,    1,    1,    3,    1,
-    2,    0,    2,    2,    1,    1,    1,    3,    1,    1,
-    2,    4,    3,    5,    4,    3,    3,    4,    4,    4,
-    4,    1,    3,    3,    1,    9,    7,    7,    3,    3,
-    3,    3,    3,    3,    3,    1,    1,    2,    1,    2,
-    1,    1,    2,    1,    1,    4,    1,    1,    1,    2,
-    1,    2,    1,    6,    8,    7,
+    3,    9,    2,    2,    2,    8,    8,    6,    2,    4,
+    0,    2,    0,    9,    2,    3,    1,    2,    1,    1,
+    1,    3,    1,    2,    0,    1,    1,    3,    2,    3,
+    3,    2,    1,    1,    1,    1,    3,    1,    1,    2,
+    4,    3,    5,    4,    3,    3,    4,    4,    4,    4,
+    1,    3,    3,    1,    9,    7,    7,    3,    3,    3,
+    3,    3,    3,    3,    1,    1,    2,    1,    2,    1,
+    1,    2,    1,    1,    4,    1,    1,    1,    2,    1,
+    2,    1,    6,    8,    7,
 };
 short yydefred[] = {                                      0,
-    0,    0,    0,    0,    0,    0,    0,    0,   26,   27,
-   28,    0,    0,    9,    0,    0,    7,    8,    0,    0,
-    0,   35,   36,   37,   39,   40,   10,    0,    0,    0,
-    0,   22,    0,    0,    0,   41,    0,    0,    4,    0,
-    5,   30,    0,   13,   14,    0,    0,   77,   79,   81,
-   78,    0,    0,    0,    0,    0,   55,   74,   75,   43,
-    0,    0,    0,    0,    0,   38,    0,    0,    3,   11,
-    0,   23,   73,    0,   45,   80,   82,    0,    0,    0,
-    0,    0,   42,    0,    0,    0,    0,    0,    0,    0,
-    0,    0,    0,    0,    0,    0,    0,   29,    0,   44,
-    0,    0,    0,    0,    0,    0,   53,   54,    0,    0,
-    0,   31,    0,    0,    0,    0,    0,    0,    0,    0,
-   67,   66,    0,    0,    0,    0,    0,    0,   76,    0,
-    0,    0,    0,    0,    0,   84,    0,   71,   69,    0,
-    0,    0,    0,    0,    0,   15,   19,   86,    0,    0,
-    0,    0,   65,   70,   68,    0,   57,   58,   17,    0,
-   85,   34,   33,    0,    0,    0,   12,   56,    0,    0,
-    0,    0,   21,
+    0,    0,    0,    0,    0,    0,    0,    0,   29,   30,
+   31,    0,    0,    9,    0,    0,    7,    8,    0,    0,
+    0,    0,   44,   45,   46,   48,   49,   10,    0,    0,
+    0,    0,   25,    0,    0,    0,    0,   50,    0,    0,
+    4,    0,    5,   33,    0,   15,    0,   13,   14,    0,
+    0,   86,   88,   90,   87,    0,    0,    0,    0,    0,
+   64,   83,   84,   52,    0,    0,    0,    0,    0,    0,
+    0,   47,    0,    0,    3,   11,   32,   26,   82,    0,
+   54,   89,   91,    0,    0,    0,    0,    0,   51,    0,
+    0,    0,   34,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,   53,    0,    0,    0,    0,
+    0,    0,   62,   63,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,   76,   75,    0,    0,
+    0,    0,    0,    0,   85,    0,    0,    0,    0,    0,
+    0,   93,    0,    0,    0,    0,    0,   37,   80,   78,
+    0,    0,    0,    0,    0,    0,   18,   22,   95,    0,
+    0,    0,    0,   42,    0,    0,   74,   79,   77,    0,
+   66,   67,   20,    0,   94,   17,    0,    0,   41,   16,
+   38,    0,    0,   12,   65,    0,    0,    0,    0,   24,
 };
 short yydgoto[] = {                                       2,
-   15,  151,   17,   18,   19,   43,   87,  152,   20,   21,
-   97,  127,  128,   32,   22,   23,   24,   25,   26,   64,
-   56,   57,   65,  123,  140,   58,   59,
+   15,  145,   17,   18,   19,   20,   69,  146,   21,   22,
+  104,  133,  134,   33,  147,  148,   23,   24,   25,   26,
+   27,   70,   60,   61,   71,  129,  151,   62,   63,
 };
-short yysindex[] = {                                    -92,
-  -23,    0,    5,  -21, -213,   20,  -22,   27,    0,    0,
-    0, -178, -176,    0,  -38,   15,    0,    0, -163,   53,
-   57,    0,    0,    0,    0,    0,    0,   74,  -41,    3,
- -143,    0,   81,   38,   90,    0,   38,   18,    0, -111,
-    0,    0,  -39,    0,    0, -104, -120,    0,    0,    0,
-    0,  114,  117, -203,   -2,  -14,    0,    0,    0,    0,
-   41,  -37,  -10,  119,  122,    0,  124,  -10,    0,    0,
-  -91,    0,    0,   38,    0,    0,    0,  126,  -36,  -30,
-   38,   38,    0,  -10,   43,  -72,  148,   38,   38,   38,
-   38,   38,   38,  -89,  -83,  -62,  -71,    0,   23,    0,
-   38,   38,  -14,   38,   38,  -14,    0,    0,  158,  -28,
-  262,    0,   83,   -7,   -7,   -7,   -7,   -7,   -7,  -64,
-    0,    0, -200,  -89,  163,  -47,   89,  -71,    0,  -14,
-  -14,  -14,  -14,  182,  -25,    0,    1,    0,    0,  -75,
-  -89,  191,  196,  -10,  201,    0,    0,    0,  199,  203,
-    1,  120,    0,    0,    0,  -20,    0,    0,    0,  -10,
-    0,    0,    0,  211,  215,  234,    0,    0,  156,    1,
-  160,  239,    0,
+short yysindex[] = {                                    -97,
+    1,    0,  -14,  -21,  -18,  -37,  -20,   39,    0,    0,
+    0, -175, -165,    0,  -24,   29,    0,    0, -148,  -15,
+   78,   80,    0,    0,    0,    0,    0,    0,   69,  -41,
+    3, -115,    0,  112, -177,   52,  110,    0,   52,   33,
+    0,  -98,    0,    0,  -13,    0,  -96,    0,    0,  -93,
+ -107,    0,    0,    0,    0,  123,  133, -217,   42,   34,
+    0,    0,    0,    0,  168,  -27, -177,  -76,  142,  139,
+  145,    0,  148, -177,    0,    0,    0,    0,    0,   52,
+    0,    0,    0,  147,  -36,  -30,   52,   52,    0, -177,
+   58,  152,    0,   71,   52,   52,   52,   52,   52,   52,
+  -69,  -78,  -55,  -62,   86,    0,   52,   52,   34,   52,
+   52,   34,    0,    0,  173,  -28,  222,   92,   15,   32,
+   32,   32,   32,   32,   32, -183,    0,    0, -215,  -69,
+  165,  -31,  107,  -62,    0,   34,   34,   34,   34,  191,
+  -17,    0,  -23,  199,   29,  122,   -9,    0,    0,    0,
+  150,  -69,  207,  211, -177,  229,    0,    0,    0,  235,
+  245,  170,   15,    0,  249,  253,    0,    0,    0,   28,
+    0,    0,    0, -177,    0,    0,  256,   -9,    0,    0,
+    0,  259,  266,    0,    0,  197,   15,  189,  277,    0,
 };
 short yyrindex[] = {                                      0,
+    0,    0,    0,   19,    0,    0,    0,    0,    0,    0,
+    0,    0,  322,    0,    0,  198,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,  280,    0,
+    0,    0,    0,    0,  288,    0,    0,    0,    0,  287,
+    0,  345,    0,    0,    0,    0,    0,    0,    0,  -14,
+   63,    0,    0,    0,    0,    0,    0,   70,    0,   75,
+    0,    0,    0,    0,    0,    0,  288,    0,    0,    0,
+    0,    0,    0, -120,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    0,    0,    0,  288,
     0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
-    0,    0,  286,    0,    0,  164,    0,    0,    0,    0,
-    0,    0,    0,    0,    0,    0,    0,  249,    0,    0,
-    0,    0,    0,    0,    0,    0,    0,  264,    0,  309,
-    0,    0,    0,    0,    0,  270,   48,    0,    0,    0,
-    0,    0,    0,   62,    0,   55,    0,    0,    0,    0,
-    0,    0,  274,    0,    0,    0,    0, -124,    0,    0,
+    0,    0,    0,  223,    0,    0,    0,    0,   95,    0,
+    0,  100,    0,    0,    0,  299,    0,    0,    0,  306,
+  308,  309,  310,  311,  312,    0,    0,    0,    0,    0,
+    0,    0,    0,  223,    0,  105,  125,  130,  135,    0,
+    0,    0,    0,    0, -117,    0,  230,    0,    0,    0,
+    0,    0,    0,    0, -120,    0,    0,    0,    0,    0,
+    0,    0,  231,    0,    0,    0,    0,    0,    0,    0,
+    0,    0,    0,  288,    0,    0,    0,  236,    0,    0,
     0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
-    0,    0,    0,  274,    0,    0,    0,    0,    0,    0,
-    0,    0,    0,    0,    0,    0,  197,    0,    0,    0,
-    0,    0,   75,    0,    0,   82,    0,    0,    0,  129,
-    0,    0,    0,  282,  287,  288,  289,  290,  291,    0,
-    0,    0,    0,    0,    0,    0,    0,  197,    0,   87,
-   95,  107,  115,    0,    0,    0,    0,    0,    0,    0,
-    0,    0,    0, -124,    0,    0,    0,    0,    0,    0,
-    0,    0,    0,    0,    0,    0,    0,    0,    0,  274,
-    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
-    0,    0,    0,
 };
 short yygindex[] = {                                      0,
-  317,    7,  -78,  -59,  -31,    0,  -82, -144,    0,    0,
-  190,  207,    0,  295,    0,    0,    0,    0,    0,  -16,
-  -50,   30,  299, -114,    0,    0,    0,
+  338,   79,  -94,  -91,   -2,  347,  -53, -123,    0,    0,
+  216,  238,    0,  323, -122,  212,    0,    0,    0,    0,
+    0,  -29,  -58,   46,  335, -114,    0,    0,    0,
 };
-#define YYTABLESIZE 384
-short yytable[] = {                                      53,
-   18,  109,   84,   54,   70,  101,  163,   16,   54,  143,
-  102,  104,   55,   61,   54,  121,  105,  135,   29,   71,
-   14,   36,   16,   85,   31,  171,  156,   81,  103,  106,
-    1,   86,   82,  120,  122,   79,   96,   80,   78,   30,
-   79,  138,   80,   33,   14,  121,   60,   54,   27,  153,
-  130,  131,   86,  132,  133,   76,   77,   99,   14,   34,
-  139,  154,  121,  129,  122,   79,   37,   80,  111,  141,
-  142,  114,  115,  116,  117,  118,  119,  166,   38,   39,
-  155,  122,   54,   79,   83,   80,   40,   54,   72,   72,
-   72,   72,   72,   42,   72,   52,   44,   52,   52,   52,
-   45,   13,   83,   83,   83,   83,   83,   72,   83,   72,
-  107,  108,   96,   62,   52,   46,   52,   46,   46,   46,
-   63,   83,   47,   83,   47,   47,   47,   49,   86,   49,
-   49,   49,   46,   66,   46,   51,   46,   51,   51,   51,
-   68,   47,   18,   47,   69,   73,   49,   48,   49,   48,
-   48,   48,   28,   74,   51,   50,   51,   50,   50,   50,
-   75,   79,   94,   80,   95,   98,   48,    4,   48,  100,
-   72,   72,   72,   72,   50,   72,   50,    5,   93,    6,
-   92,    4,    7,    8,  112,    9,   10,   11,  113,   12,
-  124,    5,    4,    6,  125,  126,    7,    8,  134,    9,
-   10,   11,    5,   12,    6,  137,  144,    7,    8,  145,
-    9,   10,   11,  146,   12,   47,   48,   49,   50,   51,
-   47,   48,   49,   50,   51,  148,   47,   48,   49,   50,
-   51,  149,    3,    4,  157,   28,   52,   73,   35,  158,
-  160,   52,  161,    5,  164,    6,  162,   52,    7,    8,
-  165,    9,   10,   11,  167,   12,    3,    4,  168,   47,
-   48,   49,   50,   51,    9,   10,   11,    5,  150,    6,
-    3,    4,    7,    8,  169,    9,   10,   11,  170,   12,
-   52,    5,  173,    6,  172,    2,    7,    8,    6,    9,
-   10,   11,   24,   12,   47,   48,   49,   50,   51,  110,
-   48,   49,   50,   51,   79,  136,   80,   16,    1,   72,
-   72,   72,   72,   25,   32,   52,   52,   52,   52,   52,
-   52,   20,   61,   83,   83,   83,   83,   62,   64,   63,
-   59,   60,   41,  159,  147,   67,   46,   46,   46,   46,
-   72,    0,    0,   47,   47,   47,   47,    0,   49,   49,
-   49,   49,    0,    0,    0,    0,   51,   51,   51,   51,
-    0,    0,    0,    0,    0,    0,    0,    0,   48,   48,
-   48,   48,    0,    0,    0,    0,   50,   50,   50,   50,
-   88,   89,   90,   91,
+#define YYTABLESIZE 429
+short yytable[] = {                                      57,
+   59,   65,   36,   58,   21,  107,  127,   43,   58,  128,
+  108,  110,   90,   92,   58,  154,  111,  141,   30,  162,
+   14,   35,  164,   38,   32,    1,  109,  112,   46,   28,
+   76,  149,   68,   91,  150,  127,  115,  170,  128,   31,
+  178,   82,   83,   47,   14,   47,   64,   58,  136,  137,
+  105,  138,  139,  126,  152,  153,  168,  127,   14,  169,
+  128,  117,   33,  188,   68,  120,  121,  122,  123,  124,
+  125,  103,   14,    4,   85,   87,   86,   33,   39,   16,
+   88,   40,   84,    5,   85,    6,   86,   68,    7,    8,
+   41,    9,   10,   11,   16,   12,   58,    9,   10,   11,
+   42,  161,   58,   81,   81,   81,   81,   81,   44,   81,
+   92,   92,   92,   92,   92,   61,   92,   61,   61,   61,
+  183,   48,   81,   49,   81,   13,  135,   50,   85,   92,
+   86,   92,  113,  114,   61,   55,   61,   55,   55,   55,
+   56,   66,   56,   56,   56,   58,   21,   58,   58,   58,
+   43,   67,  103,   72,   55,   74,   55,   75,   79,   56,
+   77,   56,   80,   29,   58,   60,   58,   60,   60,   60,
+   57,   68,   57,   57,   57,   59,   81,   59,   59,   59,
+   93,   85,   94,   86,   60,  101,   60,    4,  102,   57,
+  106,   57,  118,  119,   59,  130,   59,    5,  100,    6,
+   99,  131,    7,    8,  132,    9,   10,   11,  155,   12,
+   85,   89,   86,  140,  143,   51,   52,   53,   54,   55,
+   51,   52,   53,   54,   55,  156,   51,   52,   53,   54,
+   55,  157,    3,    4,  159,   29,   56,   79,   34,  160,
+   37,   56,  163,    5,  144,    6,  165,   56,    7,    8,
+  171,    9,   10,   11,  172,   12,    3,    4,  166,   51,
+   52,   53,   54,   55,   85,  142,   86,    5,  174,    6,
+    3,    4,    7,    8,  167,    9,   10,   11,  175,   12,
+   56,    5,  144,    6,    3,    4,    7,    8,  176,    9,
+   10,   11,  180,   12,  177,    5,  181,    6,  182,  184,
+    7,    8,  185,    9,   10,   11,  186,   12,   51,   52,
+   53,   54,   55,  189,  116,   52,   53,   54,   55,  187,
+  190,    2,    6,   27,   81,   81,   81,   81,   35,   56,
+   19,   92,   92,   92,   92,   56,   61,   61,   61,   61,
+   81,   81,   81,   81,    1,   81,   70,   23,   71,   73,
+   72,   68,   69,   43,   36,   39,   55,   55,   55,   55,
+   40,   56,   56,   56,   56,   45,   58,   58,   58,   58,
+  173,  158,   78,   73,  179,    0,    0,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,   60,   60,   60,   60,
+    0,   57,   57,   57,   57,    0,   59,   59,   59,   59,
+   95,   96,   97,   98,    0,    0,    4,    0,    0,    0,
+    0,    0,    0,    0,    0,    0,    5,    0,    6,    0,
+    0,    7,    8,    0,    9,   10,   11,    0,   12,
 };
 short yycheck[] = {                                      41,
-  125,   84,   40,   45,   44,   42,  151,    1,   45,  124,
-   47,   42,   29,   30,   45,   94,   47,   46,   40,   59,
-   44,   44,   16,   61,   46,  170,  141,   42,   79,   80,
-  123,   63,   47,  123,   94,   43,   68,   45,   41,   61,
-   43,  120,   45,  257,   44,  124,   44,   45,   44,  125,
-  101,  102,   84,  104,  105,  259,  260,   74,   44,   40,
-  120,  140,  141,   41,  124,   43,   40,   45,   85,  270,
-  271,   88,   89,   90,   91,   92,   93,  160,  257,  256,
-  140,  141,   45,   43,   44,   45,  125,   45,   41,   42,
-   43,   44,   45,  257,   47,   41,   44,   43,   44,   45,
-   44,  125,   41,   42,   43,   44,   45,   60,   47,   62,
-   81,   82,  144,  257,   60,   41,   62,   43,   44,   45,
-   40,   60,   41,   62,   43,   44,   45,   41,  160,   43,
-   44,   45,   59,   44,   60,   41,   62,   43,   44,   45,
-  123,   60,  267,   62,  256,  266,   60,   41,   62,   43,
-   44,   45,  257,   40,   60,   41,   62,   43,   44,   45,
-   44,   43,   41,   45,   41,  257,   60,  257,   62,   44,
-   42,   43,   44,   45,   60,   47,   62,  267,   60,  269,
-   62,  257,  272,  273,  257,  275,  276,  277,   41,  279,
-  274,  267,  257,  269,  257,  267,  272,  273,   41,  275,
-  276,  277,  267,  279,  269,  123,   44,  272,  273,  257,
-  275,  276,  277,  125,  279,  257,  258,  259,  260,  261,
-  257,  258,  259,  260,  261,   44,  257,  258,  259,  260,
-  261,  257,  256,  257,   44,  257,  278,  266,  261,   44,
-   40,  278,   44,  267,  125,  269,   44,  278,  272,  273,
-  271,  275,  276,  277,   44,  279,  256,  257,   44,  257,
-  258,  259,  260,  261,  275,  276,  277,  267,  268,  269,
-  256,  257,  272,  273,   41,  275,  276,  277,  123,  279,
-  278,  267,   44,  269,  125,    0,  272,  273,  125,  275,
-  276,  277,   44,  279,  257,  258,  259,  260,  261,  257,
-  258,  259,  260,  261,   43,   44,   45,   44,    0,  262,
-  263,  264,  265,   44,   41,  278,  262,  263,  264,  265,
-  278,  125,   41,  262,  263,  264,  265,   41,   41,   41,
-   41,   41,   16,  144,  128,   37,  262,  263,  264,  265,
-   46,   -1,   -1,  262,  263,  264,  265,   -1,  262,  263,
-  264,  265,   -1,   -1,   -1,   -1,  262,  263,  264,  265,
-   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,  262,  263,
-  264,  265,   -1,   -1,   -1,   -1,  262,  263,  264,  265,
-  262,  263,  264,  265,
+   30,   31,   40,   45,  125,   42,  101,  125,   45,  101,
+   47,   42,   40,   67,   45,  130,   47,   46,   40,  143,
+   44,   40,  145,   44,   46,  123,   85,   86,   44,   44,
+   44,  126,   35,   61,  126,  130,   90,  152,  130,   61,
+  163,  259,  260,   59,   44,   59,   44,   45,  107,  108,
+   80,  110,  111,  123,  270,  271,  151,  152,   44,  151,
+  152,   91,   44,  187,   67,   95,   96,   97,   98,   99,
+  100,   74,   44,  257,   43,   42,   45,   59,   40,    1,
+   47,  257,   41,  267,   43,  269,   45,   90,  272,  273,
+  256,  275,  276,  277,   16,  279,   45,  275,  276,  277,
+  125,  125,   45,   41,   42,   43,   44,   45,  257,   47,
+   41,   42,   43,   44,   45,   41,   47,   43,   44,   45,
+  174,   44,   60,   44,   62,  125,   41,   59,   43,   60,
+   45,   62,   87,   88,   60,   41,   62,   43,   44,   45,
+   41,  257,   43,   44,   45,   41,  267,   43,   44,   45,
+  268,   40,  155,   44,   60,  123,   62,  256,  266,   60,
+  257,   62,   40,  257,   60,   41,   62,   43,   44,   45,
+   41,  174,   43,   44,   45,   41,   44,   43,   44,   45,
+  257,   43,   41,   45,   60,   41,   62,  257,   41,   60,
+   44,   62,   41,  123,   60,  274,   62,  267,   60,  269,
+   62,  257,  272,  273,  267,  275,  276,  277,   44,  279,
+   43,   44,   45,   41,  123,  257,  258,  259,  260,  261,
+  257,  258,  259,  260,  261,  257,  257,  258,  259,  260,
+  261,  125,  256,  257,   44,  257,  278,  266,  257,  257,
+  261,  278,   44,  267,  268,  269,  125,  278,  272,  273,
+   44,  275,  276,  277,   44,  279,  256,  257,  268,  257,
+  258,  259,  260,  261,   43,   44,   45,  267,   40,  269,
+  256,  257,  272,  273,  125,  275,  276,  277,   44,  279,
+  278,  267,  268,  269,  256,  257,  272,  273,   44,  275,
+  276,  277,   44,  279,  125,  267,   44,  269,  271,   44,
+  272,  273,   44,  275,  276,  277,   41,  279,  257,  258,
+  259,  260,  261,  125,  257,  258,  259,  260,  261,  123,
+   44,    0,  125,   44,  262,  263,  264,  265,   41,  278,
+   44,  262,  263,  264,  265,  278,  262,  263,  264,  265,
+   42,   43,   44,   45,    0,   47,   41,  125,   41,   41,
+   41,   41,   41,   16,  125,  125,  262,  263,  264,  265,
+  125,  262,  263,  264,  265,   19,  262,  263,  264,  265,
+  155,  134,   50,   39,  163,   -1,   -1,   -1,   -1,   -1,
+   -1,   -1,   -1,   -1,   -1,   -1,  262,  263,  264,  265,
+   -1,  262,  263,  264,  265,   -1,  262,  263,  264,  265,
+  262,  263,  264,  265,   -1,   -1,  257,   -1,   -1,   -1,
+   -1,   -1,   -1,   -1,   -1,   -1,  267,   -1,  269,   -1,
+   -1,  272,  273,   -1,  275,  276,  277,   -1,  279,
 };
 #define YYFINAL 2
 #ifndef YYDEBUG
@@ -267,6 +280,9 @@ char *yyrule[] = {
 "declarativa : VOID IDENTIFICADOR '(' parametro ')' '{' cuerpo_de_la_funcion '}' ','",
 "declarativa : declaracion_clase ','",
 "declarativa : declaracion_objeto ','",
+"declarativa : lista_de_variables ','",
+"declarativa : VOID '(' parametro ')' '{' cuerpo_de_la_funcion '}' ','",
+"declarativa : VOID IDENTIFICADOR '(' parametro ')' '{' '}' ','",
 "declaracion_clase : CLASS IDENTIFICADOR '{' lista_de_atributos lista_de_metodos '}'",
 "declaracion_clase : CLASS IDENTIFICADOR",
 "lista_de_atributos : tipo IDENTIFICADOR ',' lista_de_atributos",
@@ -285,8 +301,14 @@ char *yyrule[] = {
 "lista_de_variables : IDENTIFICADOR",
 "parametro : tipo IDENTIFICADOR",
 "parametro :",
-"cuerpo_de_la_funcion : sentencia cuerpo_de_la_funcion",
-"cuerpo_de_la_funcion : RETURN ','",
+"cuerpo_de_la_funcion : cuerpo_de_la_funcion_sin_return",
+"cuerpo_de_la_funcion : cuerpo_de_la_funcion_con_return",
+"cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN ','",
+"cuerpo_de_la_funcion_con_return : RETURN ','",
+"cuerpo_de_la_funcion_con_return : RETURN ',' cuerpo_de_la_funcion_sin_return",
+"cuerpo_de_la_funcion_con_return : RETURN ',' cuerpo_de_la_funcion_con_return",
+"cuerpo_de_la_funcion_sin_return : sentencia cuerpo_de_la_funcion_sin_return",
+"cuerpo_de_la_funcion_sin_return : sentencia",
 "ejecutable : asignacion",
 "ejecutable : invocacion",
 "ejecutable : seleccion",
@@ -369,7 +391,7 @@ YYSTYPE yylval;
 short yyss[YYSTACKSIZE];
 YYSTYPE yyvs[YYSTACKSIZE];
 #define yystacksize YYSTACKSIZE
-#line 199 "gramaticaComCHZExtendida.y"
+#line 209 "gramaticaComCHZExtendida.y"
 void checkIntegerShort(string lexeme){
         symbol* sm = tableSymbol->getSymbol(lexeme);
         if(sm != nullptr ){
@@ -391,7 +413,7 @@ void checkIntegerShortNegative(string lexeme){
         
         tableSymbol->insert(lexeme, lexeme, value, "short");
 }
-#line 395 "y.tab.c"
+#line 417 "y.tab.c"
 #define YYABORT goto yyabort
 #define YYACCEPT goto yyaccept
 #define YYERROR goto yyerrlab
@@ -443,7 +465,6 @@ yyloop:
             printf("yydebug: state %d, shifting to state %d (%s)\n",
                     yystate, yytable[yyn],yyrule[yyn]);
 #endif
-        printf("yydebug: state %d, char: %d shifting to state %d \n", yystate, yychar, yytable[yyn]);
         if (yyssp >= yyss + yystacksize - 1)
         {
             goto yyoverflow;
@@ -560,75 +581,103 @@ case 10:
 #line 67 "gramaticaComCHZExtendida.y"
 { yyerror("Se detectó una sentencia inválida"); }
 break;
-case 25:
-#line 97 "gramaticaComCHZExtendida.y"
+case 12:
+#line 71 "gramaticaComCHZExtendida.y"
+{cout << "\033[33mSe detectó una función\033[0m" << endl;}
+break;
+case 15:
+#line 74 "gramaticaComCHZExtendida.y"
+{ yyerror("Se detectó la falta de un tipo en la declaración de variables"); }
+break;
+case 16:
+#line 75 "gramaticaComCHZExtendida.y"
+{cout << "\033[33mSe detectó una función\033[0m" << endl; yyerror("Se detectó la falta de un nombre en la función"); }
+break;
+case 17:
+#line 76 "gramaticaComCHZExtendida.y"
+{cout << "\033[33mSe detectó una función\033[0m" << endl; yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
+break;
+case 28:
+#line 100 "gramaticaComCHZExtendida.y"
 { yyerror("Falta identificador en la declaración de un objeto"); }
 break;
+case 36:
+#line 114 "gramaticaComCHZExtendida.y"
+{yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
+break;
+case 40:
+#line 119 "gramaticaComCHZExtendida.y"
+{yywarning("Se detectó código posterior a un return"); }
+break;
 case 41:
-#line 121 "gramaticaComCHZExtendida.y"
-{ yyerror("Se detectó la falta de una cadena de caracteres al querer imprimir");}
-break;
-case 43:
-#line 125 "gramaticaComCHZExtendida.y"
-{ yyerror("Se detectó la falta de una expresión arimética en la sentencia ejecutable");}
-break;
-case 48:
-#line 135 "gramaticaComCHZExtendida.y"
-{ yywarning("Se detectó un error en operador, quedará '-'");}
-break;
-case 49:
-#line 136 "gramaticaComCHZExtendida.y"
-{ yywarning("Se detectó un error en operador, quedará '+'");}
+#line 120 "gramaticaComCHZExtendida.y"
+{yywarning("Se detectó código posterior a un return"); }
 break;
 case 50:
-#line 137 "gramaticaComCHZExtendida.y"
+#line 131 "gramaticaComCHZExtendida.y"
+{ yyerror("Se detectó la falta de una cadena de caracteres al querer imprimir");}
+break;
+case 52:
+#line 135 "gramaticaComCHZExtendida.y"
+{ yyerror("Se detectó la falta de una expresión arimética en la sentencia ejecutable");}
+break;
+case 57:
+#line 145 "gramaticaComCHZExtendida.y"
 { yywarning("Se detectó un error en operador, quedará '-'");}
 break;
-case 51:
-#line 138 "gramaticaComCHZExtendida.y"
+case 58:
+#line 146 "gramaticaComCHZExtendida.y"
 { yywarning("Se detectó un error en operador, quedará '+'");}
 break;
-case 67:
-#line 167 "gramaticaComCHZExtendida.y"
+case 59:
+#line 147 "gramaticaComCHZExtendida.y"
+{ yywarning("Se detectó un error en operador, quedará '-'");}
+break;
+case 60:
+#line 148 "gramaticaComCHZExtendida.y"
+{ yywarning("Se detectó un error en operador, quedará '+'");}
+break;
+case 76:
+#line 177 "gramaticaComCHZExtendida.y"
 { yyerror("Se detectó una sentencia declarativa en bloque de control"); }
-break;
-case 70:
-#line 172 "gramaticaComCHZExtendida.y"
-{ yyerror("Se detectó una sentencia declarativa en bloque de control"); }
-break;
-case 71:
-#line 173 "gramaticaComCHZExtendida.y"
-{ yyerror("Se detectó una sentencia declarativa en bloque de control"); }
-break;
-case 77:
-#line 182 "gramaticaComCHZExtendida.y"
-{ cout << "Se detectó un entero sin signo: " << yyvsp[0] << endl;}
-break;
-case 78:
-#line 183 "gramaticaComCHZExtendida.y"
-{ cout << "Se detectó una cadena de caracteres: " << yyvsp[0] << endl;}
 break;
 case 79:
-#line 186 "gramaticaComCHZExtendida.y"
-{ checkIntegerShort(yyvsp[0]);}
+#line 182 "gramaticaComCHZExtendida.y"
+{ yyerror("Se detectó una sentencia declarativa en bloque de control"); }
 break;
 case 80:
-#line 187 "gramaticaComCHZExtendida.y"
+#line 183 "gramaticaComCHZExtendida.y"
+{ yyerror("Se detectó una sentencia declarativa en bloque de control"); }
+break;
+case 86:
+#line 192 "gramaticaComCHZExtendida.y"
+{ cout << "Se detectó un entero sin signo: " << yyvsp[0] << endl;}
+break;
+case 87:
+#line 193 "gramaticaComCHZExtendida.y"
+{ cout << "Se detectó una cadena de caracteres: " << yyvsp[0] << endl;}
+break;
+case 88:
+#line 196 "gramaticaComCHZExtendida.y"
+{ checkIntegerShort(yyvsp[0]);}
+break;
+case 89:
+#line 197 "gramaticaComCHZExtendida.y"
 { checkIntegerShortNegative(yyvsp[0]);}
 break;
-case 81:
-#line 188 "gramaticaComCHZExtendida.y"
+case 90:
+#line 198 "gramaticaComCHZExtendida.y"
 { cout << "Se detectó un punto flotante positivo: " << yyvsp[0] << endl;}
 break;
-case 82:
-#line 189 "gramaticaComCHZExtendida.y"
+case 91:
+#line 199 "gramaticaComCHZExtendida.y"
 { cout << "Se detectó un punto flotante negativo: " << yyvsp[0] << endl;}
 break;
-case 83:
-#line 190 "gramaticaComCHZExtendida.y"
+case 92:
+#line 200 "gramaticaComCHZExtendida.y"
 { yyerror("Falta constante numérica en la expresión"); }
 break;
-#line 631 "y.tab.c"
+#line 681 "y.tab.c"
     }
     yyssp -= yym;
     yystate = *yyssp;
