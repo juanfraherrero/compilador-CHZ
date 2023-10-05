@@ -1,0 +1,8 @@
+{
+    func1(),                                *{Sentencia ejecutable}*
+    func2(y),                               *{Sentencia ejecutable}*
+    func3(6_s),                             *{Sentencia ejecutable}*
+    func4(x + (y+6_s)),                     *{Error por anidación de paréntesis}*
+    func5(x + y),                           *{Sentencia ejecutable}*
+}
+

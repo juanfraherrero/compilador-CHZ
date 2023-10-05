@@ -1,0 +1,20 @@
+{
+    IF (x < y) {
+        PRINT #x es menor que y#,
+    } ELSE {
+        PRINT ,                             *{Error falta de cadena de carateres en impresión}*
+    } END_IF,                               *{Correcto}*
+
+    IF (4_s < 6_s + 13_ui)
+        PRINT #x es menor que y#,
+    END_IF,                                 *{Correcto}*
+
+    IF ()                                   
+        PRINT #x es menor que y#,
+    END_IF,                                 *{Error falta condición}*
+
+    IF (x >= y)
+        PRINT #x es menor que y#,
+    ,                                       *{Error falta END_IF}*
+}
+

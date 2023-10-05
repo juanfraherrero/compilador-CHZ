@@ -1,0 +1,18 @@
+{
+    CLASS cs,                           *{forward declaration correcta}*
+
+    CLASS cs {                          *{declaración de clase correcta}*
+        SHORT y;z,                             
+        VOID metodo1 ()                      
+        {
+            UINT x,
+            RETURN,
+        },
+        UINT x,
+        VOID metodo2 ()                      
+        {
+            RETURN,
+        },
+    },
+}
+

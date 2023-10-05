@@ -68,28 +68,28 @@ sentencia   :   declarativa                                     { cout << "Se de
             ;
 
 declarativa :   tipo lista_de_variables ','
-            |   VOID IDENTIFICADOR '(' parametro ')' '{' cuerpo_de_la_funcion '}' ',' {cout << "\033[33mSe detectó una función\033[0m" << endl;}
+            |   VOID IDENTIFICADOR '(' parametro ')' '{' cuerpo_de_la_funcion '}' ',' 
             |   declaracion_clase ','
             |   declaracion_objeto ','
-            |   lista_de_variables ','                           { yyerror("Se detectó la falta de un tipo en la declaración de variables"); }
-            |   VOID '(' parametro ')' '{' cuerpo_de_la_funcion '}' ','     {cout << "\033[33mSe detectó una función\033[0m" << endl; yyerror("Se detectó la falta de un nombre en la función"); }
-            |   VOID IDENTIFICADOR '(' parametro ')' '{' '}' ',' {cout << "\033[33mSe detectó una función\033[0m" << endl; yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
+            |   lista_de_variables ','                                          { yyerror("Se detectó la falta de un tipo en la declaración de variables"); }
+            |   VOID '(' parametro ')' '{' cuerpo_de_la_funcion '}' ','         {yyerror("Se detectó la falta de un nombre en la función"); }
+            |   VOID IDENTIFICADOR '(' parametro ')' '{' '}' ','                {yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
             ;
 
 
-declaracion_clase   :   CLASS IDENTIFICADOR '{' lista_de_atributos lista_de_metodos '}' /* primero van los atributos y luego los métodos */
+declaracion_clase   :   CLASS IDENTIFICADOR '{' lista_atributos_y_metodos '}'         /* primero van los atributos y luego los métodos */
                     |   CLASS IDENTIFICADOR /* fordward declaration*/
+                    |   CLASS IDENTIFICADOR '{' '}'                             {yywarning("Se detectó una declaración de clases vacía");}
                     ;
+lista_atributos_y_metodos       :       tipo lista_de_variables ',' lista_atributos_y_metodos
+                                |       metodo lista_atributos_y_metodos
+                                |       tipo lista_de_variables ','
+                                |       metodo
+                                ;
 
-lista_de_atributos  :    tipo IDENTIFICADOR ',' lista_de_atributos
-                    |    /* vacío */
-                    ;
-
-lista_de_metodos    :   metodo lista_de_metodos 
-                    |   /* vacío */
-                    ;
 
 metodo  :   VOID IDENTIFICADOR '(' parametro ')' '{' cuerpo_de_la_funcion '}' ','
+        |   VOID IDENTIFICADOR '(' parametro ')' '{' '}' ','            {yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
         ;
 
 declaracion_objeto  :   IDENTIFICADOR lista_de_objetos
@@ -159,6 +159,8 @@ termino : termino '*' factor
 
 seleccion : IF '(' condicion ')' bloque_ejecutables ELSE bloque_ejecutables END_IF ','
           | IF '(' condicion ')' bloque_ejecutables END_IF ','
+          | IF '(' condicion ')' bloque_ejecutables ','                 {yyerror("Falta de END_IF en el bloque de control IF");}
+          | IF '(' ')' bloque_ejecutables END_IF ','                    {yyerror("Falta de condición en el bloque de control IF");}
           ;
 
 ciclo_while : WHILE '(' condicion ')' DO bloque_ejecutables ','
@@ -189,14 +191,14 @@ factor : IDENTIFICADOR
        | TOF '(' expresion_aritmetica ')'       /* conversión de tipo */
        ;
 
-constanteSinSigno       :       ENTERO_SIN_SIGNO                        { cout << "Se detectó un entero sin signo: " << $1 << endl;}
-                        |       CADENA_CARACTERES                       { cout << "Se detectó una cadena de caracteres: " << $1 << endl;}
+constanteSinSigno       :       ENTERO_SIN_SIGNO                        
+                        |       CADENA_CARACTERES                       
                         ;
 
 constanteConSigno       :       ENTERO_CORTO                            { checkIntegerShort($1);}
                         |       '-' ENTERO_CORTO                        { checkIntegerShortNegative($2);}
-                        |       PUNTO_FLOTANTE                          { cout << "Se detectó un punto flotante positivo: " << $1 << endl;}
-                        |       '-' PUNTO_FLOTANTE                      { cout << "Se detectó un punto flotante negativo: " << $2 << endl;}
+                        |       PUNTO_FLOTANTE                          
+                        |       '-' PUNTO_FLOTANTE                      
                         |       '-'                                     { yyerror("Falta constante numérica en la expresión"); }
                         ;
 

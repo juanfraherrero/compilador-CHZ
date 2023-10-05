@@ -1,0 +1,16 @@
+{
+    CLASS cs {                       *{declaración de clase correcta}*
+        SHORT y;z,                             
+        VOID metodo1 ()                      
+        {
+            RETURN,
+        },
+        UINT x,
+        VOID metodo2 ()                      
+        {
+            UINT x,
+            RETURN,
+        },                             
+    },
+}
+

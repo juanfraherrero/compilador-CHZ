@@ -1,0 +1,13 @@
+{
+    WHILE (x < y) 
+    DO 
+        PRINT #x es menor que y#, 
+    ,                                   *{Sentencia ejecutable}*
+
+    WHILE (4_s < 7_ui) 
+    DO {
+        PRINT #x es menor que y#,
+        PRINT #segund impresion#,
+    },                                  *{Sentencia ejecutable}*
+}
+
