@@ -22,16 +22,19 @@ TableSymbol* tableSymbol = new TableSymbol();
 TableReservedWord* tableRWords = new TableReservedWord();
 
 int lineNumber = 1;
-
+bool isErrorInParsing = false;
 
 void yyerror(string s){
+    isErrorInParsing = true;    
     cerr << "\033[31m" << "Linea: " << lineNumber << "-> Error: " << s <<"\033[0m"<< endl;
 };
 void yywarning(string s){
     cerr << "\033[33m" << "Linea: " << lineNumber << "-> Warning: " << s <<"\033[0m"<< endl;
 };
-
-#line 35 "y.tab.c"
+void yyPrintInLine(string s){
+    cout << "Linea: " << lineNumber << "-> " << s << endl;
+};
+#line 38 "y.tab.c"
 #define IDENTIFICADOR 257
 #define ENTERO_SIN_SIGNO 258
 #define ENTERO_CORTO 259
@@ -452,7 +455,7 @@ void checkIntegerShortNegative(string lexeme){
         
         tableSymbol->insert(lexeme, lexeme, value, "short");
 }
-#line 456 "y.tab.c"
+#line 459 "y.tab.c"
 #define YYABORT goto yyabort
 #define YYACCEPT goto yyaccept
 #define YYERROR goto yyerrlab
@@ -592,93 +595,121 @@ yyreduce:
     yyval = yyvsp[1-yym];
     switch (yyn)
     {
+case 1:
+#line 59 "gramaticaComCHZExtendida.y"
+{ yyPrintInLine("Se detectó un programa");}
+break;
 case 2:
-#line 57 "gramaticaComCHZExtendida.y"
+#line 60 "gramaticaComCHZExtendida.y"
 { yywarning("Se está compilando un programa sin contenido");}
 break;
 case 3:
-#line 58 "gramaticaComCHZExtendida.y"
+#line 61 "gramaticaComCHZExtendida.y"
 { yyerror("Se detectó contenido luego de finalizado el programa");}
 break;
 case 4:
-#line 59 "gramaticaComCHZExtendida.y"
+#line 62 "gramaticaComCHZExtendida.y"
 { yywarning("Se está compilando un programa sin contenido"); yyerror("Se detectó contenido luego de finalizado el programa");}
 break;
-case 7:
-#line 64 "gramaticaComCHZExtendida.y"
-{ cout << "Se detectó una sentencia declarativa " << endl;}
-break;
-case 8:
-#line 65 "gramaticaComCHZExtendida.y"
-{ cout << "Se detectó una sentencia ejecutable " << endl;}
-break;
 case 9:
-#line 66 "gramaticaComCHZExtendida.y"
+#line 69 "gramaticaComCHZExtendida.y"
 { yyerror("Se detectó una sentencia vacía"); }
 break;
 case 10:
-#line 67 "gramaticaComCHZExtendida.y"
+#line 70 "gramaticaComCHZExtendida.y"
 { yyerror("Se detectó una sentencia inválida"); }
 break;
-case 15:
+case 11:
+#line 73 "gramaticaComCHZExtendida.y"
+{ yyPrintInLine("Se detectó declaración de variable");}
+break;
+case 12:
 #line 74 "gramaticaComCHZExtendida.y"
+{ yyPrintInLine("Se detectó declaración de función");}
+break;
+case 13:
+#line 75 "gramaticaComCHZExtendida.y"
+{ yyPrintInLine("Se detectó declaración de clase");}
+break;
+case 14:
+#line 76 "gramaticaComCHZExtendida.y"
+{ yyPrintInLine("Se detectó declaración de objeto");}
+break;
+case 15:
+#line 77 "gramaticaComCHZExtendida.y"
 { yyerror("Se detectó la falta de un tipo en la declaración de variables"); }
 break;
 case 16:
-#line 75 "gramaticaComCHZExtendida.y"
+#line 78 "gramaticaComCHZExtendida.y"
 {yyerror("Se detectó la falta de un nombre en la función"); }
 break;
 case 17:
-#line 76 "gramaticaComCHZExtendida.y"
+#line 79 "gramaticaComCHZExtendida.y"
 {yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
 break;
 case 20:
-#line 82 "gramaticaComCHZExtendida.y"
+#line 85 "gramaticaComCHZExtendida.y"
 {yywarning("Se detectó una declaración de clases vacía");}
 break;
 case 26:
-#line 92 "gramaticaComCHZExtendida.y"
+#line 95 "gramaticaComCHZExtendida.y"
 {yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
 break;
 case 30:
-#line 100 "gramaticaComCHZExtendida.y"
+#line 103 "gramaticaComCHZExtendida.y"
 { yyerror("Falta identificador en la declaración de un objeto"); }
 break;
 case 38:
-#line 114 "gramaticaComCHZExtendida.y"
+#line 117 "gramaticaComCHZExtendida.y"
 {yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
 break;
 case 42:
-#line 119 "gramaticaComCHZExtendida.y"
-{yywarning("Se detectó código posterior a un rertun"); }
+#line 122 "gramaticaComCHZExtendida.y"
+{yywarning("Se detectó código posterior a un return"); }
 break;
 case 43:
-#line 120 "gramaticaComCHZExtendida.y"
-{yywarning("Se detectó código posterior a un rertun"); }
+#line 123 "gramaticaComCHZExtendida.y"
+{yywarning("Se detectó código posterior a un return"); }
+break;
+case 47:
+#line 129 "gramaticaComCHZExtendida.y"
+{ yyPrintInLine("Se detectó invación a función");}
 break;
 case 52:
-#line 131 "gramaticaComCHZExtendida.y"
+#line 134 "gramaticaComCHZExtendida.y"
 { yyerror("Se detectó la falta de una cadena de caracteres al querer imprimir");}
 break;
+case 53:
+#line 137 "gramaticaComCHZExtendida.y"
+{ yyPrintInLine("Se detectó asignación");}
+break;
 case 54:
-#line 135 "gramaticaComCHZExtendida.y"
+#line 138 "gramaticaComCHZExtendida.y"
 { yyerror("Se detectó la falta de una expresión arimética en la sentencia ejecutable");}
 break;
 case 59:
-#line 145 "gramaticaComCHZExtendida.y"
+#line 148 "gramaticaComCHZExtendida.y"
 { yywarning("Se detectó un error en operador, quedará '-'");}
 break;
 case 60:
-#line 146 "gramaticaComCHZExtendida.y"
+#line 149 "gramaticaComCHZExtendida.y"
 { yywarning("Se detectó un error en operador, quedará '+'");}
 break;
 case 61:
-#line 147 "gramaticaComCHZExtendida.y"
+#line 150 "gramaticaComCHZExtendida.y"
 { yywarning("Se detectó un error en operador, quedará '-'");}
 break;
 case 62:
-#line 148 "gramaticaComCHZExtendida.y"
+#line 151 "gramaticaComCHZExtendida.y"
 { yywarning("Se detectó un error en operador, quedará '+'");}
+break;
+case 67:
+#line 160 "gramaticaComCHZExtendida.y"
+{ yyPrintInLine("Se detectó un bloque de control IF-ELSE");}
+break;
+case 68:
+#line 161 "gramaticaComCHZExtendida.y"
+{ yyPrintInLine("Se detectó un bloque de control IF");}
 break;
 case 69:
 #line 162 "gramaticaComCHZExtendida.y"
@@ -687,6 +718,10 @@ break;
 case 70:
 #line 163 "gramaticaComCHZExtendida.y"
 {yyerror("Falta de condición en el bloque de control IF");}
+break;
+case 71:
+#line 166 "gramaticaComCHZExtendida.y"
+{ yyPrintInLine("Se detectó un WHILE-DO");}
 break;
 case 80:
 #line 179 "gramaticaComCHZExtendida.y"
@@ -712,7 +747,19 @@ case 96:
 #line 202 "gramaticaComCHZExtendida.y"
 { yyerror("Falta constante numérica en la expresión"); }
 break;
-#line 716 "y.tab.c"
+case 97:
+#line 205 "gramaticaComCHZExtendida.y"
+{ yyPrintInLine("Se detectó un acceso a un objeto");}
+break;
+case 98:
+#line 206 "gramaticaComCHZExtendida.y"
+{ yyPrintInLine("Se detectó un acceso a un objeto");}
+break;
+case 99:
+#line 207 "gramaticaComCHZExtendida.y"
+{ yyPrintInLine("Se detectó un acceso a un objeto");}
+break;
+#line 763 "y.tab.c"
     }
     yyssp -= yym;
     yystate = *yyssp;

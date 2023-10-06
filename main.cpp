@@ -43,6 +43,7 @@ int main(int arg_count, char *arg_list[]) {
     // INICIAR EL LEXICO 
 
     extern int lineNumber;
+    extern bool isErrorInParsing;
 
     extern TableSymbol* tableSymbol;
     extern TableReservedWord* tableRWords;
@@ -55,9 +56,15 @@ int main(int arg_count, char *arg_list[]) {
     cout << "\n\n EJECUCIÓN \n\n";
 
     int resultParsing = yyparse(lexico);
+    
     if(resultParsing == 0){
-        cout << "\n\n --------------- \n\n";
-        cout << "Parsing succed" << endl;
+        if(isErrorInParsing){
+            cout << "\n\n --------------- \n\n";
+            cout << "Parsing succed but errors in code" << endl;            
+        }else{
+            cout << "\n\n --------------- \n\n";
+            cout << "Parsing succed" << endl;
+        }
     }else{
         cout << "\n\n --------------- \n\n";
         cout << "Parsing failed" << endl;

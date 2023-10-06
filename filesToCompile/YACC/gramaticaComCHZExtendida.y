@@ -18,15 +18,18 @@ TableSymbol* tableSymbol = new TableSymbol();
 TableReservedWord* tableRWords = new TableReservedWord();
 
 int lineNumber = 1;
-
+bool isErrorInParsing = false;
 
 void yyerror(string s){
+    isErrorInParsing = true;    
     cerr << "\033[31m" << "Linea: " << lineNumber << "-> Error: " << s <<"\033[0m"<< endl;
 };
 void yywarning(string s){
     cerr << "\033[33m" << "Linea: " << lineNumber << "-> Warning: " << s <<"\033[0m"<< endl;
 };
-
+void yyPrintInLine(string s){
+    cout << "Linea: " << lineNumber << "-> " << s << endl;
+};
 %}
 
 
@@ -53,7 +56,7 @@ void yywarning(string s){
 
 %%
 
-programa    :   '{' sentencias '}'              /* es el programa que debe arrancar y terminar con '{' '}' */
+programa    :   '{' sentencias '}'              /* es el programa que debe arrancar y terminar con '{' '}' */ { yyPrintInLine("Se detectó un programa");}
             |   '{' '}'                         /* podría ser un programa sin nada*/               { yywarning("Se está compilando un programa sin contenido");}
             |   '{' sentencias '}' error                                                           { yyerror("Se detectó contenido luego de finalizado el programa");}             
             |   '{' '}' error                       { yywarning("Se está compilando un programa sin contenido"); yyerror("Se detectó contenido luego de finalizado el programa");}             
@@ -61,16 +64,16 @@ sentencias  :   sentencia sentencias
             |   sentencia
             ;
 
-sentencia   :   declarativa                                     { cout << "Se detectó una sentencia declarativa " << endl;}
-            |   ejecutable                                      { cout << "Se detectó una sentencia ejecutable " << endl;}
-            |   ','                                             { yyerror("Se detectó una sentencia vacía"); }
+sentencia   :   declarativa                                     
+            |   ejecutable                                      
+            |   ','                                              { yyerror("Se detectó una sentencia vacía"); }
             |   error ','                                       { yyerror("Se detectó una sentencia inválida"); }
             ;
 
-declarativa :   tipo lista_de_variables ','
-            |   VOID IDENTIFICADOR '(' parametro ')' '{' cuerpo_de_la_funcion '}' ',' 
-            |   declaracion_clase ','
-            |   declaracion_objeto ','
+declarativa :   tipo lista_de_variables ','                                             { yyPrintInLine("Se detectó declaración de variable");}
+            |   VOID IDENTIFICADOR '(' parametro ')' '{' cuerpo_de_la_funcion '}' ','   { yyPrintInLine("Se detectó declaración de función");}
+            |   declaracion_clase ','                                                   { yyPrintInLine("Se detectó declaración de clase");}
+            |   declaracion_objeto ','                                                  { yyPrintInLine("Se detectó declaración de objeto");}
             |   lista_de_variables ','                                          { yyerror("Se detectó la falta de un tipo en la declaración de variables"); }
             |   VOID '(' parametro ')' '{' cuerpo_de_la_funcion '}' ','         {yyerror("Se detectó la falta de un nombre en la función"); }
             |   VOID IDENTIFICADOR '(' parametro ')' '{' '}' ','                {yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
@@ -116,14 +119,14 @@ cuerpo_de_la_funcion    :   cuerpo_de_la_funcion_sin_return                     
                         ;
 cuerpo_de_la_funcion_con_return    :   cuerpo_de_la_funcion_sin_return RETURN ','
                                    |   RETURN ','
-                                   |   RETURN ',' cuerpo_de_la_funcion_sin_return       {yywarning("Se detectó código posterior a un rertun"); }
-                                   |   RETURN ',' cuerpo_de_la_funcion_con_return       {yywarning("Se detectó código posterior a un rertun"); }
+                                   |   RETURN ',' cuerpo_de_la_funcion_sin_return       {yywarning("Se detectó código posterior a un return"); }
+                                   |   RETURN ',' cuerpo_de_la_funcion_con_return       {yywarning("Se detectó código posterior a un return"); }
                                    ;
 cuerpo_de_la_funcion_sin_return    :   sentencia cuerpo_de_la_funcion_sin_return
                                    |   sentencia
                                    ;
 ejecutable  :    asignacion
-            |    invocacion
+            |    invocacion                                     { yyPrintInLine("Se detectó invación a función");}
             |    seleccion
             |    PRINT CADENA_CARACTERES ','
             |    ciclo_while
@@ -131,12 +134,12 @@ ejecutable  :    asignacion
             |    PRINT ','                                      { yyerror("Se detectó la falta de una cadena de caracteres al querer imprimir");}
             ;
 
-asignacion : IDENTIFICADOR '=' expresion_aritmetica ','
+asignacion : IDENTIFICADOR '=' expresion_aritmetica ','         { yyPrintInLine("Se detectó asignación");}
            | IDENTIFICADOR '=' ','                              { yyerror("Se detectó la falta de una expresión arimética en la sentencia ejecutable");}
            ;
 
-invocacion : IDENTIFICADOR '(' expresion_aritmetica ')' ','
-           | IDENTIFICADOR '(' ')' ','
+invocacion : IDENTIFICADOR '(' expresion_aritmetica ')' ','     
+           | IDENTIFICADOR '(' ')' ','                          
            ;
 
 
@@ -154,16 +157,13 @@ termino : termino '*' factor
         | factor
         ;
 
-
-
-
-seleccion : IF '(' condicion ')' bloque_ejecutables ELSE bloque_ejecutables END_IF ','
-          | IF '(' condicion ')' bloque_ejecutables END_IF ','
+seleccion : IF '(' condicion ')' bloque_ejecutables ELSE bloque_ejecutables END_IF ','  { yyPrintInLine("Se detectó un bloque de control IF-ELSE");}
+          | IF '(' condicion ')' bloque_ejecutables END_IF ','                          { yyPrintInLine("Se detectó un bloque de control IF");}
           | IF '(' condicion ')' bloque_ejecutables ','                 {yyerror("Falta de END_IF en el bloque de control IF");}
           | IF '(' ')' bloque_ejecutables END_IF ','                    {yyerror("Falta de condición en el bloque de control IF");}
           ;
 
-ciclo_while : WHILE '(' condicion ')' DO bloque_ejecutables ','
+ciclo_while : WHILE '(' condicion ')' DO bloque_ejecutables ','         { yyPrintInLine("Se detectó un WHILE-DO");}
             ;
 
 condicion : expresion_aritmetica '>' expresion_aritmetica
@@ -202,9 +202,9 @@ constanteConSigno       :       ENTERO_CORTO                            { checkI
                         |       '-'                                     { yyerror("Falta constante numérica en la expresión"); }
                         ;
 
-acceso_objeto   :   IDENTIFICADOR '.' IDENTIFICADOR '=' expresion_aritmetica ','
-                |   IDENTIFICADOR '.' IDENTIFICADOR '=' IDENTIFICADOR '.' IDENTIFICADOR ','
-                |   IDENTIFICADOR '.' IDENTIFICADOR '(' parametro ')' ','
+acceso_objeto   :   IDENTIFICADOR '.' IDENTIFICADOR '=' expresion_aritmetica ','                { yyPrintInLine("Se detectó un acceso a un objeto");}
+                |   IDENTIFICADOR '.' IDENTIFICADOR '=' IDENTIFICADOR '.' IDENTIFICADOR ','     { yyPrintInLine("Se detectó un acceso a un objeto");}
+                |   IDENTIFICADOR '.' IDENTIFICADOR '(' parametro ')' ','                       { yyPrintInLine("Se detectó un acceso a un objeto");}
                 ;
 
 %%
