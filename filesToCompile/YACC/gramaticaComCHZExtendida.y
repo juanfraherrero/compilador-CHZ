@@ -204,7 +204,8 @@ constanteConSigno       :       ENTERO_CORTO                            { checkI
 
 acceso_objeto   :   IDENTIFICADOR '.' IDENTIFICADOR '=' expresion_aritmetica ','                { yyPrintInLine("Se detectó un acceso a un objeto");}
                 |   IDENTIFICADOR '.' IDENTIFICADOR '=' IDENTIFICADOR '.' IDENTIFICADOR ','     { yyPrintInLine("Se detectó un acceso a un objeto");}
-                |   IDENTIFICADOR '.' IDENTIFICADOR '(' parametro ')' ','                       { yyPrintInLine("Se detectó un acceso a un objeto");}
+                |   IDENTIFICADOR '.' IDENTIFICADOR '(' expresion_aritmetica ')' ','            { yyPrintInLine("Se detectó un acceso a un objeto");}
+                |   IDENTIFICADOR '.' IDENTIFICADOR '(' ')' ','                                 { yyPrintInLine("Se detectó un acceso a un objeto");}
                 ;
 
 %%

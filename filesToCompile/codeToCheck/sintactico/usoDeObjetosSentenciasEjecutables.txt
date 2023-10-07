@@ -1,0 +1,7 @@
+{
+    a1.a = 3_ui,        *{ Correcta }*
+    b1.b.c = 1.2,       *{ Error sintáctico, absorbe hasta ',' }*
+    b2.b = b1.a,        *{ Correcta }*
+    b1.m(),             *{ Correcta }*
+    b1.n(x),            *{ Correcta }*
+}
