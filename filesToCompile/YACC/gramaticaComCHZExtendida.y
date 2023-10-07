@@ -84,14 +84,14 @@ declaracion_clase   :   CLASS IDENTIFICADOR '{' lista_atributos_y_metodos '}'   
                     |   CLASS IDENTIFICADOR /* fordward declaration*/
                     |   CLASS IDENTIFICADOR '{' '}'                             {yywarning("Se detectó una declaración de clases vacía");}
                     ;
-lista_atributos_y_metodos       :       tipo lista_de_variables ',' lista_atributos_y_metodos
-                                |       metodo lista_atributos_y_metodos
-                                |       tipo lista_de_variables ','
+lista_atributos_y_metodos       :       lista_atributos_y_metodos tipo lista_de_variables ','            { yyPrintInLine("Se detectó declaración de variable en clase");}
+                                |       lista_atributos_y_metodos metodo                                 
+                                |       tipo lista_de_variables ','                                     { yyPrintInLine("Se detectó declaración de variable en clase");}
                                 |       metodo
                                 ;
 
 
-metodo  :   VOID IDENTIFICADOR '(' parametro ')' '{' cuerpo_de_la_funcion '}' ','
+metodo  :   VOID IDENTIFICADOR '(' parametro ')' '{' cuerpo_de_la_funcion '}' ','       { yyPrintInLine("Se detectó declaración de método de clase");}
         |   VOID IDENTIFICADOR '(' parametro ')' '{' '}' ','            {yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
         ;
 

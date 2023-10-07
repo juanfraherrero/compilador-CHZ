@@ -1,0 +1,22 @@
+{
+    CLASS cs {                          *{declaración de clase correcta}*
+        SHORT a;b,                      *{declaración de variables de clase}*
+        VOID metodo1 ()                 *{declaración de método de clase}*
+        {
+            UINT x,                     *{declaración de variable}*
+            VOID func1 ()               *{declaración de función}*
+            {
+                UINT y,                 *{declaración de variable}*
+                VOID func2 ()           *{declaración de función}*
+                {
+                    UINT z,             *{declaración de variable}*
+                    RETURN,
+                },
+                RETURN,
+            },                             
+            RETURN,
+        },
+        UINT c,                         *{declaración de variables de clase}*
+    },
+}
+
