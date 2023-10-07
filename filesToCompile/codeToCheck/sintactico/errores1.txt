@@ -1,0 +1,16 @@
+{
+    VOID func3()                    *{falta ',' al final de la declraración}*
+    {
+        UINT x,
+        RETURN,
+    } 
+    VOID func3 ()                   *{Absorbida}*
+    {
+        UINT x,                     
+    },                              *{Termina func3}*
+    VOID func4 ()                   *{Función detectada correctamente}*
+    {
+        UINT x,
+        RETURN,
+    }                                 
+}
