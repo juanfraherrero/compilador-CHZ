@@ -1,13 +1,13 @@
 {
-    WHILE (x < y) 
-    DO 
-        PRINT #x es menor que y#, 
-    ,                                   *{Sentencia ejecutable}*
+    WHILE (x < y)                       *{ sentencia WHILE-DO }*
+    DO  
+        PRINT #x es menor que y#,           *{ impresión }*
+    ,                                   
 
     WHILE (4_s < 7_ui) 
     DO {
-        PRINT #x es menor que y#,
-        PRINT #segund impresion#,
-    },                                  *{Sentencia ejecutable}*
+        PRINT #x es menor que y#,           *{ impresión }*
+        PRINT #segund impresion#,           *{ impresión }*
+    },                                  *{ sentencia WHILE-DO }*
 }
 

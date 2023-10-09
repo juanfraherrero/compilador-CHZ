@@ -1,10 +1,22 @@
 {
     IF (x < y) {
-        SHORT x,                        *{Error sentencia declarativa en bloque de control}*
-        PRINT #x es menor que y#,       
+        SHORT x,                            *{ Error sentencia declarativa en bloque de control }*
+        PRINT #x es menor que y#,               *{ impresión }*
     } ELSE {                            
-        PRINT #x no es menor que y #,
-        SHORT y,                        *{Error sentencia declarativa en bloque de control}*
-    } END_IF,                           *{Sentencia ejecutable}*
+        PRINT #x no es menor que y #,           *{ impresión }*
+        SHORT y,                            *{ Error sentencia declarativa en bloque de control }*
+    } END_IF,                               *{ bloque de control IF-ELSE }*
+
+    IF (4_s < 6_s + 13_ui)
+        PRINT # verdadero #,                    *{ impresión }*
+    END_IF,                                 *{ Correcto }*
+
+    IF ()                                   *{ Error por falta condición }*
+        PRINT #x es menor que y#,               *{ impresión }*
+    END_IF,                                 
+
+    IF (x >= y)                             *{ Error falta END_IF }*
+        PRINT #x es menor que y#,               *{ impresión }*
+    , 
 }
 

@@ -72,7 +72,7 @@ sentencia   :   declarativa
 
 declarativa :   tipo lista_de_variables ','                                             { yyPrintInLine("Se detectó declaración de variable");}
             |   VOID IDENTIFICADOR '(' parametro ')' '{' cuerpo_de_la_funcion '}' ','   { yyPrintInLine("Se detectó declaración de función");}
-            |   declaracion_clase ','                                                   { yyPrintInLine("Se detectó declaración de clase");}
+            |   declaracion_clase ','                                                   
             |   declaracion_objeto ','                                                  { yyPrintInLine("Se detectó declaración de objeto");}
             |   lista_de_variables ','                                          { yyerror("Se detectó la falta de un tipo en la declaración de variables"); }
             |   VOID '(' parametro ')' '{' cuerpo_de_la_funcion '}' ','         {yyerror("Se detectó la falta de un nombre en la función"); }
@@ -80,8 +80,8 @@ declarativa :   tipo lista_de_variables ','                                     
             ;
 
 
-declaracion_clase   :   CLASS IDENTIFICADOR '{' lista_atributos_y_metodos '}'         /* primero van los atributos y luego los métodos */
-                    |   CLASS IDENTIFICADOR /* fordward declaration*/
+declaracion_clase   :   CLASS IDENTIFICADOR '{' lista_atributos_y_metodos '}'         /* Los atributos y métodos van en desorden */ { yyPrintInLine("Se detectó declaración de clase");}
+                    |   CLASS IDENTIFICADOR /* fordward declaration*/           { yyPrintInLine("Se detectó declaración de clase adelantada");}
                     |   CLASS IDENTIFICADOR '{' '}'                             {yywarning("Se detectó una declaración de clases vacía");}
                     ;
 lista_atributos_y_metodos       :       lista_atributos_y_metodos tipo lista_de_variables ','            { yyPrintInLine("Se detectó declaración de variable en clase");}
@@ -128,7 +128,7 @@ cuerpo_de_la_funcion_sin_return    :   sentencia cuerpo_de_la_funcion_sin_return
 ejecutable  :    asignacion
             |    invocacion                                     { yyPrintInLine("Se detectó invación a función");}
             |    seleccion
-            |    PRINT CADENA_CARACTERES ','
+            |    PRINT CADENA_CARACTERES ','                    { yyPrintInLine("Se detectó una impresión");}
             |    ciclo_while
             |    acceso_objeto
             |    PRINT ','                                      { yyerror("Se detectó la falta de una cadena de caracteres al querer imprimir");}
@@ -158,6 +158,8 @@ termino : termino '*' factor
         ;
 
 seleccion : IF '(' condicion ')' bloque_ejecutables ELSE bloque_ejecutables END_IF ','  { yyPrintInLine("Se detectó un bloque de control IF-ELSE");}
+          | IF '(' condicion ')' bloque_ejecutables bloque_ejecutables END_IF ','  { yyerror(" Falta de ELSE en bloque de control IF-ELSE");}
+          | IF '(' condicion ')' bloque_ejecutables ELSE bloque_ejecutables ','  { yyerror("Falta de END_IF en el bloque de control IF-ELSE");}
           | IF '(' condicion ')' bloque_ejecutables END_IF ','                          { yyPrintInLine("Se detectó un bloque de control IF");}
           | IF '(' condicion ')' bloque_ejecutables ','                 {yyerror("Falta de END_IF en el bloque de control IF");}
           | IF '(' ')' bloque_ejecutables END_IF ','                    {yyerror("Falta de condición en el bloque de control IF");}

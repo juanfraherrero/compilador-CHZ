@@ -1,10 +1,10 @@
 {
-    SHORT x,                                *{Sentencia declarativa}*
-    SHORT x; y; z,                          *{Sentencia declarativa}*
-    UINT x,                                 *{Sentencia declarativa}*
-    UINT x; z,                              *{Sentencia declarativa}*
-    FLOAT x,                                *{Sentencia declarativa}*
-    FLOAT x; y,                             *{Sentencia declarativa}*
+    SHORT x,                                *{declaración de variables}*
+    SHORT x; y; z,                          *{declaración de variables}*
+    UINT x,                                 *{declaración de variables}*
+    UINT x; z,                              *{declaración de variables}*
+    FLOAT x,                                *{declaración de variables}*
+    FLOAT x; y,                             *{declaración de variables}*
     INT x,                                  *{PR no reconocida (Lexico) / falta el tipo}*   
     DOUBLE x; y,                            *{PR no reconocida (Lexico) / falta el tipo}*   
 }

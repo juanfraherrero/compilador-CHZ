@@ -1,0 +1,21 @@
+{
+    CLASS cs,                           *{ forward declaration }*
+
+    CLASS cs {                          *{ declaración de clase }*
+        SHORT y;z,                      *{ declaración de variable en clase }*      
+        VOID metodo1 ()                 *{ declaración de método de clase }* 
+        {
+            UINT x,                     *{ declaración de variable }*      
+            RETURN,
+        },
+        UINT x,                         *{ declaración de variable en clase }*      
+        VOID metodo2 ()                 *{ declaración de método de clase }* 
+        {
+            RETURN,
+        },
+    },
+    
+    CLASS cs {                          *{ Warning declaración de clase vacía }*
+    },
+}
+

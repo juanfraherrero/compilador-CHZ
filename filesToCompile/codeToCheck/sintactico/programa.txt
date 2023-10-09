@@ -1,14 +1,14 @@
 {
-    SHORT x; y,                             *{Sentencia declarativa}*
-    x = 5_s,                                *{Sentencia ejecutable}*
-    y = -3.14E-10,                          *{Sentencia ejecutable}*
-    z = x + y,                              *{Sentencia ejecutable}*
-    PRINT #El resultado es: z#,             *{Sentencia ejecutable}*
+    SHORT x; y,                             *{declaración de variables}*
+    x = 5_s,                                *{asignación}*
+    y = -3.14E-10,                          *{asignación}*
+    z = x + y,                              *{asignación}*
+    PRINT #El resultado es: z#,             *{impresión}*
 
     IF (x < y) {
-        PRINT #x es menor que y#,
+        PRINT #x es menor que y#,           
     } ELSE {
-        PRINT #x no es menor que y #,
-    } END_IF,                               *{Sentencia ejecutable}*
+        PRINT #x no es menor que y #,       
+    } END_IF,                               *{bloque de control IF-ELSE}*
 }
 

@@ -1,0 +1,13 @@
+{
+    SHORT x; y,                             *{declaración de variable}*
+    x = 5_s,                                *{asignación}*
+    IF (x < y) {
+        PRINT #x es menor que y#,
+    } ELSE {
+        PRINT #x no es menor que y #,
+    } END_IF,                               *{bloque IF}*
+    y = -3.14E-10,                          *{asignación}*
+    z = x + y,                              *{asignación}*
+    PRINT #El resultado es: z#              *{Error sintáctico}*
+}
+

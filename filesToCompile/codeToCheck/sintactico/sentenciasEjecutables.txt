@@ -1,7 +1,8 @@
 {
-    x = 5_s,                                *{Sentencia ejecutable}*
-    z = x + 6_ui * y,                       *{Sentencia ejecutable}*
-    z = (x + 6_ui),                         *{Error sintático, absorbe hasta ','}*
-    PRINT #El resultado es: z#,             *{Sentencia ejecutable}*
+    x = 5_s,                                *{ asignación }*
+    z = x + 6_ui * y,                       *{ asignación }*
+    z = (x + 6_ui),                         *{ asignación }*
+    PRINT #El resultado es: z#,             *{ impresión }*
 }
+
 

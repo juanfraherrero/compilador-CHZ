@@ -1,10 +1,10 @@
 {
-    x = TOF(y++),                           *{Sentencia ejecutable}*
-    z = x++ + TOF(y),                       *{Sentencia ejecutable}*
-    y = TOF(4_s),                           *{Sentencia ejecutable}*
+    x = TOF(y++),                           *{ asignación }*
+    z = x++ + TOF(y),                       *{ asignación }*
+    y = TOF(4_s),                           *{ asignación }*
 
     IF (x++ < TOF(y))
-        PRINT #x es menor que y#,
-    END_IF,                                 *{Sentencia ejecutable}*
+        PRINT #x es menor que y#,               *{ impresión }*
+    END_IF,                                 *{ bloque de control IF}*
 }
 

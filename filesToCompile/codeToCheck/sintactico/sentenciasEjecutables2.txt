@@ -1,8 +1,8 @@
 {
-    func1(),                                *{Sentencia ejecutable}*
-    func2(y),                               *{Sentencia ejecutable}*
-    func3(6_s),                             *{Sentencia ejecutable}*
-    func4(x + (y+6_s)),                     *{Error por anidación de paréntesis}*
-    func5(x + y),                           *{Sentencia ejecutable}*
+    func1(),                                *{ invocación a función }*
+    func2(y),                               *{ invocación a función }*
+    func3(6_s),                             *{ invocación a función }*
+    func4(x + (y+6_s)),                     *{ Error sintáctico (uso de paréntesis) }*
+    func5(x + y),                           *{ invocación a función }*
 }
 

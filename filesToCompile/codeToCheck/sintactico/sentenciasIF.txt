@@ -1,20 +1,28 @@
 {
-    IF (x < y) {
-        PRINT #x es menor que y#,
-    } ELSE {
-        PRINT ,                             *{Error falta de cadena de carateres en impresión}*
-    } END_IF,                               *{Correcto}*
+    IF (x < y) {                            *{ bloque de control IF-ELSE }*
+        SHORT x,                            *{ Error sentencia declarativa en bloque de control }*
+        PRINT #x es menor que y#,               *{ impresión }*
+    } ELSE {                            
+        PRINT ,                                 *{ Error falta de cadena de caracteres en impresión }*
+        SHORT y,                            *{ Error sentencia declarativa en bloque de control }*
+    } END_IF,                               
+
+    IF (x < y) {                            *{ Error por falta de ELSE en bloque de control IF-ELSE}*
+        PRINT #x es menor que y#,               *{ impresión }*
+    } {                            
+        PRINT # imprimir # ,                    *{ impresión }*
+    } END_IF,                               
 
     IF (4_s < 6_s + 13_ui)
-        PRINT #x es menor que y#,
-    END_IF,                                 *{Correcto}*
+        PRINT # verdadero #,                    *{ impresión }*
+    END_IF,                                 *{ Correcto }*
 
-    IF ()                                   
-        PRINT #x es menor que y#,
-    END_IF,                                 *{Error falta condición}*
+    IF ()                                   *{ Error por falta condición }*
+        PRINT #x es menor que y#,               *{ impresión }*
+    END_IF,                                 
 
-    IF (x >= y)
-        PRINT #x es menor que y#,
-    ,                                       *{Error falta END_IF}*
+    IF (x >= y)                             *{ Error falta END_IF }*
+        PRINT #x es menor que y#,               *{ impresión }*
+    , 
 }
 
