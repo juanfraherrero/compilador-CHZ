@@ -32,6 +32,13 @@ int main(int arg_count, char *arg_list[]) {
     // Crea una cadena para almacenar el contenido del archivo, esto es porque acelera la lectura del archivo al ya tenerlo en ram
     std::string contenido;
     std::ifstream archivo(file_name);
+
+    // Verifica que el archivo exista y se pueda abrir
+    if (!archivo.is_open()) {
+        std::cerr << "El archivo no existe o no se pudo abrir." << std::endl;
+        return 1; // Sale del programa con un código de error
+    }
+
     // Lee el contenido del archivo línea por línea y lo agrega a la cadena
     std::string linea;
     while (std::getline(archivo, linea)) {
