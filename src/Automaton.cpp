@@ -34,8 +34,8 @@ Automaton::Automaton(TableSymbol* tableSymbol, TableReservedWord* tableRWords, i
     
     // cargamos la tabla de estados y acciones semanticas
     // debe coincidir el path y además checkear que los límtes de la matriz en el .hpp sean correctos
-    this->loadStateTable("src/files/TablaProximoEstado.csv");
-    this->loadActionsTable("src/files/TablaAccionesSemanticas.csv");
+    this->loadStateTable("TablaProximoEstado.csv");
+    this->loadActionsTable("TablaAccionesSemanticas.csv");
     this->isCommentActive = isCommentActive;
     // guardamos las tablas
     this->tableSymbol = tableSymbol;
