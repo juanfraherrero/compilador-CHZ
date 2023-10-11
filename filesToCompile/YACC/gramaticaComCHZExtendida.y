@@ -18,10 +18,10 @@ TableSymbol* tableSymbol = new TableSymbol();
 TableReservedWord* tableRWords = new TableReservedWord();
 
 int lineNumber = 1;
-bool isErrorInParsing = false;
+bool isErrorInCode = false;
 
 void yyerror(string s){
-    isErrorInParsing = true;    
+    isErrorInCode = true;    
     cerr << "\033[31m" << "Linea: " << lineNumber << "-> Error: " << s <<"\033[0m"<< endl;
 };
 void yywarning(string s){
@@ -92,7 +92,8 @@ lista_atributos_y_metodos       :       lista_atributos_y_metodos tipo lista_de_
 
 
 metodo  :   VOID IDENTIFICADOR '(' parametro ')' '{' cuerpo_de_la_funcion '}' ','       { yyPrintInLine("Se detectó declaración de método de clase");}
-        |   VOID IDENTIFICADOR '(' parametro ')' '{' '}' ','            {yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
+        |   VOID IDENTIFICADOR '(' parametro ')' '{' cuerpo_de_la_funcion '}' ','       { yyPrintInLine("Se detectó declaración de método de clase");}
+        |   VOID IDENTIFICADOR '(' parametro ')' '{' '}' ','                            {yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
         ;
 
 declaracion_objeto  :   IDENTIFICADOR lista_de_objetos

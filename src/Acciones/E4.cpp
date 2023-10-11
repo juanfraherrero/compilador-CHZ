@@ -6,7 +6,7 @@
 #include <string>
 
 using namespace std;
-
+extern bool isErrorInCode;
 /*
     La acción semántica de ERROR 4 (deteccion de entero corto fuera de rango) se encarga de:
         Indicar un error por pantalla de entero fuera de rango
@@ -21,6 +21,9 @@ class E4 : public AccionSemantica {
         int execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
 
             std::cerr << "\033[31m" << "Linea: " << *(automaton->getPtrLineNumber()) << "-> Error por entero corto fuera de rango { -128, 127 }"  << "\033[0m"<< endl;
+            
+            //define that code have an error
+            isErrorInCode = true;
 
             // al ser un error forzamos volver al estado 0 y vaciamos el lexema
             automaton->getToken()->lexeme = "";

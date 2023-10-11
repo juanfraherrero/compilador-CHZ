@@ -6,7 +6,7 @@
 #include <string>
 
 using namespace std;
-
+extern bool isErrorInCode;
 /*
     La acción semántica de ERROR 3 (detección de un salto de línea en cadena de texto) se encarga de:
         Indicar un error por pantalla de salto de línea inválido 
@@ -22,6 +22,9 @@ class E3 : public AccionSemantica {
         int execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
             // indicar un error por pantalla de caracter no válido detectado
             cerr << "\033[31m" << "Linea: " << *(automaton->getPtrLineNumber()) << "-> Error: salto de línea en cadena de texo " << "\033[0m"<< endl;
+            
+            //define that code have an error
+            isErrorInCode = true;
 
             // guarda el caracter en el buffer del automaton
             automaton->setBuffer(characterReaded);

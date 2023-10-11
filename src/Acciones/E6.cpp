@@ -6,7 +6,7 @@
 #include <string>
 
 using namespace std;
-
+extern bool isErrorInCode;
 /*
     La acción semántica de ERROR 6 (deteccion constante de punto flotante fuera de rango) se encarga de:
         Indicar un error por pantalla de constante de punto flotante fuera de rango
@@ -22,6 +22,9 @@ class E6 : public AccionSemantica {
 
             std::cerr << "\033[31m" <<"Linea: " << *(automaton->getPtrLineNumber()) << " -> Error: Error en constante de punto flotante fuera de rango " << "\033[0m" << endl;
             
+            //define that code have an error
+            isErrorInCode = true;
+
             // al ser un error forzamos volver al estado 0 y vaciamos el lexema
             automaton->getToken()->lexeme = "";
             return 0;

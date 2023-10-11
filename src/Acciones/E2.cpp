@@ -6,7 +6,7 @@
 #include <string>
 
 using namespace std;
-
+extern bool isErrorInCode;
 /*
     La acción semántica de ERROR 2 (detección de un caracter no válido en una constante numérica) se encarga de:
         Indicar un error por pantalla de caracter no válido detectado 
@@ -21,6 +21,9 @@ class E2 : public AccionSemantica {
         int execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
             // indicar un error por pantalla de caracter no válido detectado
             cerr << "\033[31m" << "Linea: " << *(automaton->getPtrLineNumber()) << "-> Error: Error en constante numérica " << "\033[0m"<< endl;
+            
+            //define that code have an error
+            isErrorInCode = true;
 
             // guarda el caracter en el buffer del automaton
             automaton->setBuffer(characterReaded);

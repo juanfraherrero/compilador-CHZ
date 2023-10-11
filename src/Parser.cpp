@@ -22,10 +22,10 @@ TableSymbol* tableSymbol = new TableSymbol();
 TableReservedWord* tableRWords = new TableReservedWord();
 
 int lineNumber = 1;
-bool isErrorInParsing = false;
+bool isErrorInCode = false;
 
 void yyerror(string s){
-    isErrorInParsing = true;    
+    isErrorInCode = true;    
     cerr << "\033[31m" << "Linea: " << lineNumber << "-> Error: " << s <<"\033[0m"<< endl;
 };
 void yywarning(string s){
