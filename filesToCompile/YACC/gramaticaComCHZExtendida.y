@@ -92,7 +92,6 @@ lista_atributos_y_metodos       :       lista_atributos_y_metodos tipo lista_de_
 
 
 metodo  :   VOID IDENTIFICADOR '(' parametro ')' '{' cuerpo_de_la_funcion '}' ','       { yyPrintInLine("Se detectó declaración de método de clase");}
-        |   VOID IDENTIFICADOR '(' parametro ')' '{' cuerpo_de_la_funcion '}' ','       { yyPrintInLine("Se detectó declaración de método de clase");}
         |   VOID IDENTIFICADOR '(' parametro ')' '{' '}' ','                            {yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
         ;
 
