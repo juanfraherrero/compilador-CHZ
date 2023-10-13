@@ -2,13 +2,12 @@
     SHORT x; y,                             *{declaración de variables}*
     x = 5_s,                                *{asignación}*
     y = -3.14E-10,                          *{asignación}*
-    z = x + y,                              *{asignación}*
+    z = x + y                               *{asignación, falta de coma}*
     PRINT #El resultado es: z#,             *{impresión}*
 
     IF (x < y) {
         PRINT #x es menor que y#,           
     } ELSE {
         PRINT #x no es menor que y #,       
-    } END_IF,                               *{bloque de control IF-ELSE}*
+    } END_IF                               *{bloque de control IF-ELSE, falta de coma}*
 }
-

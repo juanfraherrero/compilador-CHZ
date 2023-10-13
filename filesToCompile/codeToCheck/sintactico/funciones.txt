@@ -1,21 +1,21 @@
 {
-    VOID ()                         *{ Error por falta de nombre en la función }*
+    VOID ()                       
     {
         UINT x,                     *{ declaración de variables }*
-        PRINT ,                     *{ impresión sin cadena de caracteres }*
+        PRINT ,                     *{ error impresión sin cadena de caracteres }*
         RETURN,
-    },
-    VOID func3 ()                   *{ Error por falta de return al final de la función }*
+    },                              *{ Error por falta de nombre en la función }*
+    VOID func3 ()                   
     {
         UINT x,                     *{ declaración de variables }*
-    },                                       
-    VOID func4 ()                   *{ Warning por codigo posterior al return }*
+    },                              *{ Error por falta de return al final de la función }*               
+    VOID func4 ()                   
     {
         RETURN,
         UINT x,                     *{ declaración de variables }*
-    },                          
-    VOID func5 ()                   *{ Error por falta de RETURN en la funcion }*
+    },                              *{ Warning por codigo posterior al return }*
+    VOID func5 ()                  
     {
-    },                                               
+    },                              *{ Error por falta de RETURN en la funcion }*       
 }
 

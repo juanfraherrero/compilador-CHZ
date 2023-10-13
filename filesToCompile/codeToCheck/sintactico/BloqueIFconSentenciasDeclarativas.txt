@@ -9,14 +9,14 @@
 
     IF (4_s < 6_s + 13_ui)
         PRINT # verdadero #,                    *{ impresión }*
-    END_IF,                                 *{ Correcto }*
+    END_IF,                                 *{ bloque de control IF }*
 
-    IF ()                                   *{ Error por falta condición }*
+    IF ()                                   
         PRINT #x es menor que y#,               *{ impresión }*
-    END_IF,                                 
+    END_IF,                                 *{ Error por falta condición }*
 
-    IF (x >= y)                             *{ Error falta END_IF }*
+    IF (x >= y)                            
         PRINT #x es menor que y#,               *{ impresión }*
-    , 
+    ,                                       *{ Error falta END_IF }*
 }
 
