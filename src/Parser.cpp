@@ -605,8 +605,8 @@ yyloop:
 #ifdef lint
     goto yynewerror;
 #endif
-// yynewerror:
-//     yyerror("syntax error");
+yynewerror:
+    yyerror("syntax error");
 #ifdef lint
     goto yyerrlab;
 #endif
