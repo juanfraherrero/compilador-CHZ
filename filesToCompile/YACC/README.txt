@@ -21,7 +21,8 @@ Y probar
 
 Línea para debugging Parser
 printf("yydebug: state %d, char: %d shifting to state %d \n", yystate, yychar, yytable[yyn]);
-
+printf("yydebug: state %d, reducing by rule %d \n", yystate, yyn);
+printf("yydebug: after reduction, shifting from state %d to state %d\n", *yyssp, yystate);
 
 #Toma de desición:
 

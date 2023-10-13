@@ -23,6 +23,6 @@
 
     IF (x >= y)                             *{ Error falta END_IF }*
         PRINT #x es menor que y#,               *{ impresión }*
-    , 
+    END_IF 
 }
 

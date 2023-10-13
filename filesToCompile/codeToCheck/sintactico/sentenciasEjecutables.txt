@@ -1,7 +1,7 @@
 {
     x = 5_s,                                *{ asignación }*
     z = x + 6_ui * y,                       *{ asignación }*
-    z = (x + 6_ui),                         *{ asignación }*
+    z = (x + 6_ui),                         *{ Error por paréntesis }*
     PRINT #El resultado es: z#,             *{ impresión }*
 }
 

@@ -60,47 +60,48 @@ programa    :   '{' sentencias '}'              /* es el programa que debe arran
             |   '{' '}'                         /* podría ser un programa sin nada*/               { yywarning("Se está compilando un programa sin contenido");}
             |   '{' sentencias '}' error                                                           { yyerror("Se detectó contenido luego de finalizado el programa");}             
             |   '{' '}' error                       { yywarning("Se está compilando un programa sin contenido"); yyerror("Se detectó contenido luego de finalizado el programa");}             
-sentencias  :   sentencia sentencias
+sentencias  :   sentencias sentencia
             |   sentencia
             ;
 
-sentencia   :   declarativa                                     
-            |   ejecutable                                      
-            |   ','                                              { yyerror("Se detectó una sentencia vacía"); }
-            |   error ','                                       { yyerror("Se detectó una sentencia inválida"); }
+sentencia   :   declarativa ','                                    
+            |   ejecutable ','    
+            |   declarativa                                      { yyerror("Se detectó una falta de coma"); }                                 
+            |   ejecutable                                       { yyerror("Se detectó una falta de coma"); }
+            |   error ','                                        { yyerror("Se detectó una sentencia inválida"); }
             ;
 
-declarativa :   tipo lista_de_variables ','                                             { yyPrintInLine("Se detectó declaración de variable");}
-            |   VOID IDENTIFICADOR '(' parametro ')' '{' cuerpo_de_la_funcion '}' ','   { yyPrintInLine("Se detectó declaración de función");}
-            |   declaracion_clase ','                                                   
-            |   declaracion_objeto ','                                                  { yyPrintInLine("Se detectó declaración de objeto");}
-            |   lista_de_variables ','                                          { yyerror("Se detectó la falta de un tipo en la declaración de variables"); }
-            |   VOID '(' parametro ')' '{' cuerpo_de_la_funcion '}' ','         {yyerror("Se detectó la falta de un nombre en la función"); }
-            |   VOID IDENTIFICADOR '(' parametro ')' '{' '}' ','                {yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
+declarativa :   tipo lista_de_variables                                             { yyPrintInLine("Se detectó declaración de variable");}
+            |   declaracion_clase                                                    
+            |   declaracion_objeto                                                  { yyPrintInLine("Se detectó declaración de objeto");}
+            |   declaracion_funcion                                                 { yyPrintInLine("Se detectó declaración de función");}
             ;
 
+declaracion_funcion     :       VOID IDENTIFICADOR '(' parametro ')' '{' cuerpo_de_la_funcion '}'  
+                        |       VOID '(' parametro ')' '{' cuerpo_de_la_funcion '}'                     {yyerror("Se detectó la falta de un nombre en la función"); }
+                        |       VOID IDENTIFICADOR '(' parametro ')' '{' '}'                            {yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
+                        ;
 
 declaracion_clase   :   CLASS IDENTIFICADOR '{' lista_atributos_y_metodos '}'         /* Los atributos y métodos van en desorden */ { yyPrintInLine("Se detectó declaración de clase");}
                     |   CLASS IDENTIFICADOR /* fordward declaration*/           { yyPrintInLine("Se detectó declaración de clase adelantada");}
                     |   CLASS IDENTIFICADOR '{' '}'                             {yywarning("Se detectó una declaración de clases vacía");}
                     ;
-lista_atributos_y_metodos       :       lista_atributos_y_metodos tipo lista_de_variables ','            { yyPrintInLine("Se detectó declaración de variable en clase");}
-                                |       lista_atributos_y_metodos metodo                                 
-                                |       tipo lista_de_variables ','                                     { yyPrintInLine("Se detectó declaración de variable en clase");}
-                                |       metodo
+lista_atributos_y_metodos       :       lista_atributos_y_metodos tipo lista_de_variables ','           { yyPrintInLine("Se detectó declaración de variable en clase");}
+                                |       lista_atributos_y_metodos metodo ','                                 
+                                |       tipo lista_de_variables ','                                    { yyPrintInLine("Se detectó declaración de variable en clase");}
+                                |       metodo ','
                                 ;
 
 
-metodo  :   VOID IDENTIFICADOR '(' parametro ')' '{' cuerpo_de_la_funcion '}' ','       { yyPrintInLine("Se detectó declaración de método de clase");}
-        |   VOID IDENTIFICADOR '(' parametro ')' '{' '}' ','                            {yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
+metodo  :   VOID IDENTIFICADOR '(' parametro ')' '{' cuerpo_de_la_funcion '}'       { yyPrintInLine("Se detectó declaración de método de clase");}
+        |   VOID IDENTIFICADOR '(' parametro ')' '{' '}'                            {yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
         ;
 
 declaracion_objeto  :   IDENTIFICADOR lista_de_objetos
                     ;
 
-lista_de_objetos    :   IDENTIFICADOR ';' lista_de_objetos 
+lista_de_objetos    :   lista_de_objetos ';' IDENTIFICADOR  
                     |   IDENTIFICADOR
-                    |   IDENTIFICADOR ';'                                     { yyerror("Falta identificador en la declaración de un objeto"); }
                     ;
 
 tipo    :   SHORT | UINT | FLOAT
@@ -122,24 +123,23 @@ cuerpo_de_la_funcion_con_return    :   cuerpo_de_la_funcion_sin_return RETURN ',
                                    |   RETURN ',' cuerpo_de_la_funcion_sin_return       {yywarning("Se detectó código posterior a un return"); }
                                    |   RETURN ',' cuerpo_de_la_funcion_con_return       {yywarning("Se detectó código posterior a un return"); }
                                    ;
-cuerpo_de_la_funcion_sin_return    :   sentencia cuerpo_de_la_funcion_sin_return
+cuerpo_de_la_funcion_sin_return    :   cuerpo_de_la_funcion_sin_return sentencia 
                                    |   sentencia
                                    ;
 ejecutable  :    asignacion
             |    invocacion                                     { yyPrintInLine("Se detectó invación a función");}
             |    seleccion
-            |    PRINT CADENA_CARACTERES ','                    { yyPrintInLine("Se detectó una impresión");}
+            |    PRINT CADENA_CARACTERES                    { yyPrintInLine("Se detectó una impresión");}
             |    ciclo_while
             |    acceso_objeto
-            |    PRINT ','                                      { yyerror("Se detectó la falta de una cadena de caracteres al querer imprimir");}
+            |    PRINT                                      { yyerror("Se detectó la falta de una cadena de caracteres al querer imprimir");}
             ;
 
-asignacion : IDENTIFICADOR '=' expresion_aritmetica ','         { yyPrintInLine("Se detectó asignación");}
-           | IDENTIFICADOR '=' ','                              { yyerror("Se detectó la falta de una expresión arimética en la sentencia ejecutable");}
+asignacion : IDENTIFICADOR '=' expresion_aritmetica          { yyPrintInLine("Se detectó asignación");}
            ;
 
-invocacion : IDENTIFICADOR '(' expresion_aritmetica ')' ','     
-           | IDENTIFICADOR '(' ')' ','                          
+invocacion : IDENTIFICADOR '(' expresion_aritmetica ')'      
+           | IDENTIFICADOR '(' ')'                           
            ;
 
 
@@ -157,15 +157,13 @@ termino : termino '*' factor
         | factor
         ;
 
-seleccion : IF '(' condicion ')' bloque_ejecutables ELSE bloque_ejecutables END_IF ','  { yyPrintInLine("Se detectó un bloque de control IF-ELSE");}
-          | IF '(' condicion ')' bloque_ejecutables bloque_ejecutables END_IF ','  { yyerror(" Falta de ELSE en bloque de control IF-ELSE");}
-          | IF '(' condicion ')' bloque_ejecutables ELSE bloque_ejecutables ','  { yyerror("Falta de END_IF en el bloque de control IF-ELSE");}
-          | IF '(' condicion ')' bloque_ejecutables END_IF ','                          { yyPrintInLine("Se detectó un bloque de control IF");}
-          | IF '(' condicion ')' bloque_ejecutables ','                 {yyerror("Falta de END_IF en el bloque de control IF");}
-          | IF '(' ')' bloque_ejecutables END_IF ','                    {yyerror("Falta de condición en el bloque de control IF");}
+seleccion : IF '(' condicion ')' bloque_ejecutables ELSE bloque_ejecutables END_IF   { yyPrintInLine("Se detectó un bloque de control IF-ELSE");}
+          | IF '(' condicion ')' bloque_ejecutables bloque_ejecutables END_IF   { yyerror(" Falta de ELSE en bloque de control IF-ELSE");}
+          | IF '(' condicion ')' bloque_ejecutables END_IF                           { yyPrintInLine("Se detectó un bloque de control IF");}
+          | IF '(' ')' bloque_ejecutables END_IF                     {yyerror("Falta de condición en el bloque de control IF");}
           ;
 
-ciclo_while : WHILE '(' condicion ')' DO bloque_ejecutables ','         { yyPrintInLine("Se detectó un WHILE-DO");}
+ciclo_while : WHILE '(' condicion ')' DO bloque_ejecutables          { yyPrintInLine("Se detectó un WHILE-DO");}
             ;
 
 condicion : expresion_aritmetica '>' expresion_aritmetica
@@ -177,14 +175,20 @@ condicion : expresion_aritmetica '>' expresion_aritmetica
           ;
 
 bloque_ejecutables  :   '{' sentencias_ejecutables '}'
-                    |   ejecutable
-                    |   declarativa                     { yyerror("Se detectó una sentencia declarativa en bloque de control"); }
+                    |   ejecutable ','
+                    |   declarativa  ','                  { yyerror("Se detectó una sentencia declarativa en bloque de control"); }
                     ;
 
-sentencias_ejecutables  :   sentencias_ejecutables ejecutable 
-                        |   ejecutable
-                        |   sentencias_ejecutables declarativa          { yyerror("Se detectó una sentencia declarativa en bloque de control"); }
-                        |   declarativa                                 { yyerror("Se detectó una sentencia declarativa en bloque de control"); }
+sentencias_ejecutables  :   sentencias_ejecutables ejecutable ','
+                        |   sentencias_ejecutables ejecutable                   { yyerror("Se detectó una falta de coma"); }
+                        |   ejecutable ','
+                        |   ejecutable                                          { yyerror("Se detectó una falta de coma"); }
+                        |   sentencias_ejecutables declarativa ','              { yyerror("Se detectó una sentencia declarativa en bloque de control"); }
+                        |   sentencias_ejecutables declarativa                  { yyerror("Se detectó una sentencia declarativa en bloque de control y la falta de coma"); }
+                        |   declarativa ','                                     { yyerror("Se detectó una sentencia declarativa en bloque de control"); }
+                        |   declarativa                                         { yyerror("Se detectó una falta de coma"); }
+                        |   ','                                                 { yywarning("Se detectó una sentencia vacía dentro del bloque de sentencias ejecutables"); }
+                        |   error ','                                           { yyerror("Se detectó una sentencia inválida dentro del bloque de sentencias ejecutables"); }
                         ;
 factor : IDENTIFICADOR
        | IDENTIFICADOR OPERADOR_SUMA_SUMA
@@ -204,10 +208,10 @@ constanteConSigno       :       ENTERO_CORTO                            { checkI
                         |       '-'                                     { yyerror("Falta constante numérica en la expresión"); }
                         ;
 
-acceso_objeto   :   IDENTIFICADOR '.' IDENTIFICADOR '=' expresion_aritmetica ','                { yyPrintInLine("Se detectó un acceso a un objeto");}
-                |   IDENTIFICADOR '.' IDENTIFICADOR '=' IDENTIFICADOR '.' IDENTIFICADOR ','     { yyPrintInLine("Se detectó un acceso a un objeto");}
-                |   IDENTIFICADOR '.' IDENTIFICADOR '(' expresion_aritmetica ')' ','            { yyPrintInLine("Se detectó un acceso a un objeto");}
-                |   IDENTIFICADOR '.' IDENTIFICADOR '(' ')' ','                                 { yyPrintInLine("Se detectó un acceso a un objeto");}
+acceso_objeto   :   IDENTIFICADOR '.' IDENTIFICADOR '=' expresion_aritmetica                 { yyPrintInLine("Se detectó un acceso a un objeto");}
+                |   IDENTIFICADOR '.' IDENTIFICADOR '=' IDENTIFICADOR '.' IDENTIFICADOR      { yyPrintInLine("Se detectó un acceso a un objeto");}
+                |   IDENTIFICADOR '.' IDENTIFICADOR '(' expresion_aritmetica ')'             { yyPrintInLine("Se detectó un acceso a un objeto");}
+                |   IDENTIFICADOR '.' IDENTIFICADOR '(' ')'                                  { yyPrintInLine("Se detectó un acceso a un objeto");}
                 ;
 
 %%
