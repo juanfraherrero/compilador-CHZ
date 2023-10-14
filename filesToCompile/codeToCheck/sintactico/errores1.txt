@@ -1,16 +1,13 @@
 {
-    VOID func3()                    *{falta ',' al final de la declraración}*
-    {
-        UINT x,                     *{ declaración de variable }*   
-        RETURN,
-    }                               *{Función detectada correctamente}*
-    VOID func3 ()                   *{falta de coma}*
-    {
-        UINT x,                     *{ declaración de variable }*  
-    },                              *{falta de RETURN en el cuerpo de la funcion, se detecta una funcion}*
-    VOID func4 ()                   *{Función detectada correctamente}*
-    {
-        UINT x,                     *{ declaración de variable }*   
-        RETURN,
-    }                               *{Función detectada}*                      
-}                                   *{falta de coma}*
+    SHORT x; y,                             *{declaración de variables}*
+    x = 5_s,                                *{asignación}*
+    y = -3.14E-10,                          *{asignación}*
+    z = x + y,                              *{asignación}*
+    PRINT #El resultado es: z#,             *{impresión}*
+
+    IF (x < y) {
+        PRINT #x es menor que y#,           
+    } ELSE {
+        PRINT #x no es menor que y #,       
+    } END_IF,                              *{bloque de control IF-ELSE}*
+                                           *{ Error de syntaxis }*

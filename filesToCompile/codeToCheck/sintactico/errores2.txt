@@ -1,13 +1,8 @@
 {
-    SHORT x; y,                             *{declaración de variable}*
-    x = 5_s,                                *{asignación}*
     IF (x < y) {
-        PRINT #x es menor que y#,           *{detecto una impresion}*
+        PRINT #x es menor que y#,           
     } ELSE {
-        PRINT #x no es menor que y #,       *{detecto una impresion}*
-    } END_IF,                               *{bloque IF-ELSE}*
-    y = -3.14E-10,                          *{asignación}*
-    z = x + y,                              *{asignación}*
-    PRINT #El resultado es: z#              *{detecto una impresion}*
-}                                           *{falta coma}*
-
+        PRINT #x no es menor que y #,       
+    } END_IF,                               *{bloque de control IF-ELSE}*
+}
+}                                           *{ Error de syntaxis y se detecta contenido luego del programa  }*
