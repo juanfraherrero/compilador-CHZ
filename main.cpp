@@ -77,6 +77,19 @@ int main(int arg_count, char *arg_list[]) {
         cout << "Parsing failed" << endl;
     }
 
+    // FOR ONLY READ TOKENS COMMENT THE ABOVE CODE (Line 65 to 78)
+    // UNCOMMENT THE NEXT CODE
+
+    // while (!lexico->endOfFile()){
+    //     tokenWithLexeme * token = lexico->getToken(); // esto queda guardado en el heap // checkear cuando hay que eliminarlo
+        
+    //     if(token != nullptr){
+    //         cout <<  "El token es: " << token->token << " con lexema: " << token->lexeme << endl;
+    //         delete token;
+    //     };
+    // }
+        
+
     cout << "\n\n --------------- \n\n";
 
     tableSymbol->imprimirTabla();
