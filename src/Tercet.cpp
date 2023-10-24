@@ -21,7 +21,15 @@ string Tercet::getArg1() const{
 
 string Tercet::getArg2() const{
     return this->arg2;
+}  
+
+void Tercet::setArg1(string arg1){
+    this->arg1 = arg1;
 }   
+
+void Tercet::setArg2(string arg2){
+    this->arg2 = arg2;
+}
 
 void Tercet::print(){
     cout << "(" + this->op + ", " + this->arg1 + ", " + this->arg2  + ")" << endl;
