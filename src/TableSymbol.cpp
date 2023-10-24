@@ -59,9 +59,121 @@ void TableSymbol::deleteSymbol(const string& key){
     }
 }
 
+void TableSymbol::setUso(const string& uso, const string& key){
+    // buscamos si ya existe ese símbolo en la tabla
+    auto it = symbolTable.find(key);
+    if (it != symbolTable.end()){
+        it->second->uso = uso;
+    }
+}
+
+string TableSymbol::returnUso(const string& key){
+    // buscamos si ya existe ese símbolo en la tabla
+    auto it = symbolTable.find(key);
+    if (it != symbolTable.end()){
+        return it->second->uso;
+    }
+}
+
+bool TableSymbol::returnCantParam(const string& key){
+    // buscamos si ya existe ese símbolo en la tabla
+    auto it = symbolTable.find(key);
+    if (it != symbolTable.end()){
+        if(it->second->cantParam == "0"){
+            return false;
+        }else{
+            return true;
+        }
+    }
+}
+
+void TableSymbol::setCantParam(const string& key, const string& cant){
+    // buscamos si ya existe ese símbolo en la tabla
+    auto it = symbolTable.find(key);
+    if (it != symbolTable.end()){
+        it->second->cantParam = cant;
+    }
+}
+
+void TableSymbol::setTypeParam(const string& key, const string& type){
+    // buscamos si ya existe ese símbolo en la tabla
+    auto it = symbolTable.find(key);
+    if (it != symbolTable.end()){
+        it->second->typeParam = type;
+    }
+}
+
+string TableSymbol::returnTypeParam(const string& key){
+    // buscamos si ya existe ese símbolo en la tabla
+    auto it = symbolTable.find(key);
+    if (it != symbolTable.end()){
+        return it->second->typeParam;
+    }
+}
+
+void TableSymbol::addScope(const string& ambito){
+    //suponemos uno le pasa por la variable "key" el ambito actual y se busca
+    //añadir al scope, para ello se entiende que es concatenar el ambito actual
+    //junto con el valor actual de la variable scope
+    scope = scope + ":"+ ambito;
+}
+
+void TableSymbol::deleteScope(){
+    // se busca eliminar el ultimo ambito de la variable scope
+    //scope = scope - ultimo valor;
+    size_t lastColonPos = scope.find_last_of(':');
+    scope = scope.substr(0, lastColonPos);
+}
+
+string TableSymbol::getScope(){
+    return scope;
+}
+
+int TableSymbol::getDiffOffScope(const string& ambito) {
+    // Suponemos que uno le pasa por la variable "ambito" el ámbito al que queremos calcular la diferencia de niveles.
+    int diff = 0;
+
+    if((isSubset(scope, ambito)) || isSubset(ambito, scope)){
+        string ambitoActual = ambito;  // Creamos una copia de ambito para no modificar el original
+        size_t lastColonPosAmbito = ambitoActual.find_last_of(':'); // Buscamos la última aparición de ':' en el ámbito
+
+        //comparamos el ambito actual con el scope
+        while (ambitoActual != scope && lastColonPosAmbito != string::npos) {
+            diff++;
+            ambitoActual = ambitoActual.substr(0, lastColonPosAmbito);
+            cout<<ambitoActual<<endl;
+            lastColonPosAmbito = ambitoActual.find_last_of(':');
+        }
+        //devolvemos la distancia entre el scope y el ambito pasado por parametro
+        return diff;
+        }
+    else{
+        //si no son subconjuntos devolvemos -1
+        return -1;
+    }
+}
+bool TableSymbol::isSubset(const string text, const string subset){
+    size_t textLength = text.length();
+    size_t subsetLength = subset.length();
+
+    if (subsetLength > textLength) 
+        return false; // El conjunto no puede ser un subconjunto si su longitud es mayor
+    
+
+    for (size_t i = 0; i <= textLength - subsetLength; ++i) {
+        if (text.substr(i, subsetLength) == subset) {
+            return true; // Se encontró el subconjunto
+        }
+    }
+
+    return false; // No se encontró el subconjunto
+}
+
+
 // Destructor para liberar la memoria de los símbolos
 TableSymbol::~TableSymbol() {
     for (auto& pair : symbolTable) {
         delete pair.second;
     }
 }
+
