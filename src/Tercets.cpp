@@ -1,4 +1,5 @@
 #include "include/Tercets.hpp"
+#include "Tercet.cpp"
 
 Tercets::Tercets(){
     
@@ -19,7 +20,19 @@ void Tercets::replace(int index, Tercet* t){
 
 void Tercets::print(){
     for (int i = 0; i < this->tercets.size(); i++){
+        cout << i << " - ";
         this->tercets[i]->print();
+    }
+}
+
+void Tercets::printStack(){
+    // Crear una copia temporal del stack original
+    stack<Tercet*> tempStack = this->tercetsStack;
+
+    // Desapilar y mostrar los elementos de la copia temporal
+    while (!tempStack.empty()) {
+        tempStack.top()->print();
+        tempStack.pop();
     }
 }
 

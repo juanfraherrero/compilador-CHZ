@@ -22,7 +22,7 @@ class TableSymbol{
         symbol* getSymbol(const string& key);
 
         // insertar un elemento en la tabla
-        void insert(const string& key, const string& lexema, const string& value,const string& type, string& ambit); 
+        void insert(const string& key, const string& lexema, const string& value,const string& type); 
 
         // eliminar un elemento de la tabla decrementando su contador
         void deleteSymbol(const string& key);
@@ -31,7 +31,7 @@ class TableSymbol{
         //funcion para devolver el valor de la variable cantParam, 
         // si te devuelve false es por que no tiene parametros
         // si te devuelve 1 tiene parametros
-        bool returnCantParam(const string& key);
+        int getCantParam(const string& key);
         //funcion para devolver el valor de la variable cantParam
         void setTypeParam(const string& key, const string& type);
         //funcion para devolver el valor de la variable cantParam
@@ -41,7 +41,7 @@ class TableSymbol{
         //funcion para setear un valor a la variable uso
         void setUso(const string& uso, const string& key);
         //funcion para devolver el valor de la variable uso
-        string returnUso(const string& key);
+        string getUso(const string& key);
         //Funcion que busca añadir el nuevo scope a la variable 
         void addScope(const string& ambito);
         //Funcion que busca eliminar el ultimo scope a la variable

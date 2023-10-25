@@ -54,7 +54,7 @@ int main(int arg_count, char *arg_list[]) {
 
     extern TableSymbol* tableSymbol;
     extern TableReservedWord* tableRWords;
-
+    extern Tercets* tableTercets;
 
     // cargamos nuestra fase de analisis léxico
     Lexico * lexico = new Lexico(tableSymbol, tableRWords, &contenido, &lineNumber); // la dejamos en la pila porque tiene un tamaño pequeño y su tamaño no es dinámico
@@ -94,7 +94,7 @@ int main(int arg_count, char *arg_list[]) {
 
     tableSymbol->imprimirTabla();
     tableRWords->imprimirTabla();
-
+    tableTercets->print();
 
     delete tableSymbol;
     delete tableRWords;

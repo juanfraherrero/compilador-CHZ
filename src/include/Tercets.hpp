@@ -1,10 +1,11 @@
 #ifndef _TERCETS_HPP_
 #define _TERCETS_HPP_
 
+#include "Tercet.hpp"
+
 #include <string>
 #include <vector>
 #include <stack>
-#include "Tercet.hpp"
 
 using namespace std;
 
@@ -20,6 +21,7 @@ public:
     void print(); //Imprime todos los tercetos de la estructura.
     void push(Tercet* tercet); //Añade un terceto a la pila de tercetos.
     Tercet* pop(); //Devuelve el ultimo terceto de la pila de tercetos.
+    void printStack(); //Imprime todos los tercetos de la estructura.
 
     ~Tercets();
 

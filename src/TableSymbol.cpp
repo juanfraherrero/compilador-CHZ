@@ -67,23 +67,27 @@ void TableSymbol::setUso(const string& uso, const string& key){
     }
 }
 
-string TableSymbol::returnUso(const string& key){
+string TableSymbol::getUso(const string& key){
     // buscamos si ya existe ese símbolo en la tabla
     auto it = symbolTable.find(key);
     if (it != symbolTable.end()){
         return it->second->uso;
+    }else{
+        return "";
     }
 }
 
-bool TableSymbol::returnCantParam(const string& key){
+int TableSymbol::getCantParam(const string& key){
     // buscamos si ya existe ese símbolo en la tabla
     auto it = symbolTable.find(key);
     if (it != symbolTable.end()){
         if(it->second->cantParam == "0"){
-            return false;
+            return 0;
         }else{
-            return true;
+            return 1;
         }
+    }else{
+        return -1;
     }
 }
 
@@ -108,6 +112,8 @@ string TableSymbol::returnTypeParam(const string& key){
     auto it = symbolTable.find(key);
     if (it != symbolTable.end()){
         return it->second->typeParam;
+    }else{
+        return "";
     }
 }
 
