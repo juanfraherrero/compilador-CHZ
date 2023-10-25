@@ -1,8 +1,9 @@
-// #include "src/include/types.hpp"
-// #include "src/include/TableSymbol.hpp"
-// #include "src/include/TableReservedWord.hpp"
-#include "src/Lexico.cpp"
-#include "src/Parser.cpp"
+// #include "include/types.hpp"
+// #include "include/TableSymbol.hpp"
+// #include "include/TableReservedWord.hpp"
+#include "include/Tercets.hpp"
+#include "include/Lexico.hpp"
+
 
 #include <iostream>
 #include <fstream>
@@ -49,6 +50,8 @@ int main(int arg_count, char *arg_list[]) {
 
     // INICIAR EL LEXICO 
 
+    extern int yyparse(Lexico* lexico);
+    
     extern int lineNumber;
     extern bool isErrorInCode;
 

@@ -1,3 +1,6 @@
+#ifndef _PARSER_CPP_
+#define _PARSER_CPP_
+
 #ifndef lint
 static char yysccsid[] = "@(#)yaccpar	1.8 (Berkeley) 01/20/90";
 #endif
@@ -5,7 +8,6 @@ static char yysccsid[] = "@(#)yaccpar	1.8 (Berkeley) 01/20/90";
 #line 2 "./gramaticaComCHZGenerativa.y"
 
 
-#include "Tercets.cpp"
 #include "include/types.hpp"
 #include "include/TableSymbol.hpp"
 #include "include/TableReservedWord.hpp"
@@ -1047,3 +1049,5 @@ yyabort:
 yyaccept:
     return (0);
 }
+
+#endif

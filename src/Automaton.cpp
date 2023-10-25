@@ -19,8 +19,8 @@
 #include "Acciones/E2.cpp"
 #include "Acciones/E3.cpp"
 
-#include "TableSymbol.cpp"
-#include "TableReservedWord.cpp"
+#include "include/TableSymbol.hpp"
+#include "include/TableReservedWord.hpp"
 
 #include <iostream>
 #include <fstream>

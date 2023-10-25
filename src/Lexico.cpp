@@ -1,5 +1,5 @@
 #include "include/Lexico.hpp"
-#include "Automaton.cpp"
+#include "include/Automaton.hpp"
 #include "include/TableSymbol.hpp"
 #include "include/TableReservedWord.hpp"
 // #include "include/TableSymbol.hpp"
