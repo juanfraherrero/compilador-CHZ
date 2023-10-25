@@ -1,5 +1,6 @@
 %{
 
+#include "Tercets.cpp"
 #include "include/types.hpp"
 #include "include/TableSymbol.hpp"
 #include "include/TableReservedWord.hpp"
@@ -20,7 +21,7 @@ TableReservedWord* tableRWords = new TableReservedWord();
 
 int lineNumber = 1;
 bool isErrorInCode = false;
-Tercets *tercets = new Tercets();
+Tercets *tableTercets = new Tercets();
 char charTercetoId = '%';
 
 void yyerror(string s){
@@ -59,10 +60,10 @@ void yyPrintInLine(string s){
 
 %%
 
-programa    :   '{' sentencias '}'              /* es el programa que debe arrancar y terminar con '{' '}' */ { yyPrintInLine("Se detectó un programa");}
-            |   '{' '}'                         /* podría ser un programa sin nada*/               { yywarning("Se está compilando un programa sin contenido");}
-            |   '{' sentencias '}' error                                                           { yyerror("Se detectó contenido luego de finalizado el programa");}             
-            |   '{' '}' error                       { yywarning("Se está compilando un programa sin contenido"); yyerror("Se detectó contenido luego de finalizado el programa");}             
+programa    :   '{' sentencias '}'              { Tercet *t = new Tercet("FIN", "-", "-"); int number = tableTercets->add(t);}
+            |   '{' '}'                         { yywarning("Se está compilando un programa sin contenido"); Tercet *t = new Tercet("FIN", "-", "-"); int number = tableTercets->add(t); }
+            |   '{' sentencias '}' error        { yyerror("Se detectó contenido luego de finalizado el programa");}             
+            |   '{' '}' error                   { yywarning("Se está compilando un programa sin contenido"); yyerror("Se detectó contenido luego de finalizado el programa");}             
 sentencias  :   sentencias sentencia
             |   sentencia
             ;
@@ -132,13 +133,13 @@ cuerpo_de_la_funcion_sin_return    :   cuerpo_de_la_funcion_sin_return sentencia
 ejecutable  :    asignacion
             |    invocacion                                 
             |    seleccion
-            |    PRINT CADENA_CARACTERES                    { Tercet *t = new Tercet("print", $2, ""); int number = tercets->add(t); $$ = charTercetoId + to_string(number); }
+            |    PRINT CADENA_CARACTERES                    { Tercet *t = new Tercet("print", tableSymbol->getSymbol($2)->value, ""); int number = tableTercets->add(t); $$ = charTercetoId + to_string(number); }
             |    ciclo_while
             |    acceso_objeto
             |    PRINT                                      { yyerror("Se detectó la falta de una cadena de caracteres al querer imprimir");}
             ;
 
-asignacion : IDENTIFICADOR '=' expresion_aritmetica          { Tercet *t = new Tercet("=", $1, $3); int number = tercets->add(t); $$ = charTercetoId + to_string(number); }
+asignacion : IDENTIFICADOR '=' expresion_aritmetica          { Tercet *t = new Tercet("=", $1, $3); int number = tableTercets->add(t); $$ = charTercetoId + to_string(number); }
            ;
 
 invocacion : IDENTIFICADOR '(' expresion_aritmetica ')'      
@@ -146,25 +147,25 @@ invocacion : IDENTIFICADOR '(' expresion_aritmetica ')'
            ;
 
 
-expresion_aritmetica : expresion_aritmetica '+' termino         { Tercet *t = new Tercet("+", $1, $3); int number = tercets->add(t); $$ = charTercetoId + to_string(number); }
-                    | expresion_aritmetica '-' termino          { Tercet *t = new Tercet("-", $1, $3); int number = tercets->add(t); $$ = charTercetoId + to_string(number); }
-                    | expresion_aritmetica '-' '*' termino      { yywarning("Se detectó un error en operador, quedará '-'"); Tercet *t = new Tercet("-", $1, $3); int number = tercets->add(t); $$ = charTercetoId + to_string(number); }
-                    | expresion_aritmetica '+' '*' termino      { yywarning("Se detectó un error en operador, quedará '+'"); Tercet *t = new Tercet("+", $1, $3); int number = tercets->add(t); $$ = charTercetoId + to_string(number); }
-                    | expresion_aritmetica '-' '/' termino      { yywarning("Se detectó un error en operador, quedará '-'"); Tercet *t = new Tercet("-", $1, $3); int number = tercets->add(t); $$ = charTercetoId + to_string(number); }
-                    | expresion_aritmetica '+' '/' termino      { yywarning("Se detectó un error en operador, quedará '+'"); Tercet *t = new Tercet("+", $1, $3); int number = tercets->add(t); $$ = charTercetoId + to_string(number); }
+expresion_aritmetica : expresion_aritmetica '+' termino         { Tercet *t = new Tercet("+", $1, $3); int number = tableTercets->add(t); $$ = charTercetoId + to_string(number); }
+                    | expresion_aritmetica '-' termino          { Tercet *t = new Tercet("-", $1, $3); int number = tableTercets->add(t); $$ = charTercetoId + to_string(number); }
+                    | expresion_aritmetica '-' '*' termino      { yywarning("Se detectó un error en operador, quedará '-'"); Tercet *t = new Tercet("-", $1, $3); int number = tableTercets->add(t); $$ = charTercetoId + to_string(number); }
+                    | expresion_aritmetica '+' '*' termino      { yywarning("Se detectó un error en operador, quedará '+'"); Tercet *t = new Tercet("+", $1, $3); int number = tableTercets->add(t); $$ = charTercetoId + to_string(number); }
+                    | expresion_aritmetica '-' '/' termino      { yywarning("Se detectó un error en operador, quedará '-'"); Tercet *t = new Tercet("-", $1, $3); int number = tableTercets->add(t); $$ = charTercetoId + to_string(number); }
+                    | expresion_aritmetica '+' '/' termino      { yywarning("Se detectó un error en operador, quedará '+'"); Tercet *t = new Tercet("+", $1, $3); int number = tableTercets->add(t); $$ = charTercetoId + to_string(number); }
                     | termino                                   { $$ = $1; }
                     ;
 
-termino : termino '*' factor                                    { Tercet *t = new Tercet("*", $1, $3); int number = tercets->add(t); $$ = charTercetoId + to_string(number); }
-        | termino '/' factor                                    { Tercet *t = new Tercet("/", $1, $3); int number = tercets->add(t); $$ = charTercetoId + to_string(number); }
+termino : termino '*' factor                                    { Tercet *t = new Tercet("*", $1, $3); int number = tableTercets->add(t); $$ = charTercetoId + to_string(number); }
+        | termino '/' factor                                    { Tercet *t = new Tercet("/", $1, $3); int number = tableTercets->add(t); $$ = charTercetoId + to_string(number); }
         | factor                                                { $$ = $1; }
         ;
 
-seleccion : IF bloque_condicion cuerpo_if                       { Tercet *t = tercets.pop(); t->setSecondArg( charTercetoId + to_string(tercets.numberOfLastTercet() + 1) );}                     
+seleccion : IF bloque_condicion cuerpo_if                       { Tercet *t = tableTercets->pop(); t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1) );}                     
           | IF '(' ')' cuerpo_if                                { yyerror("Falta de condición en el bloque de control IF");}
           ;
 
-bloque_condicion : '(' condicion ')'                            { Tercet * t = new Tercet("BF", charTercetoId + to_string(tercets.numberOfLastTercet()), ""); int number = tercets->add(t); tercets.push(t); $$ = charTercetoId + to_string(number); }
+bloque_condicion : '(' condicion ')'                            { Tercet * t = new Tercet("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); int number = tableTercets->add(t); tableTercets->push(t); $$ = charTercetoId + to_string(number); }
                  ;
 
 cuerpo_if : cuerpo_then ELSE cuerpo_else END_IF
@@ -172,29 +173,29 @@ cuerpo_if : cuerpo_then ELSE cuerpo_else END_IF
           | cuerpo_then END_IF                                  
           ; 
 
-cuerpo_then : bloque_ejecutables                                { Tercet * t = tercets.pop();  t->setThirdArg( charTercetoId + to_string(tercets.numberOfLastTercet() + 2)); Tercet * t = Tercet("BI", "", ""); int number = tercets->add(t); $$ = charTercetoId + to_string(number);}
+cuerpo_then : bloque_ejecutables                                { Tercet * t = tableTercets->pop();  t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2)); Tercet * t2 = new Tercet("BI", "", ""); int number = tableTercets->add(t2); tableTercets->push(t2); $$ = charTercetoId + to_string(number);}
             ;
 cuerpo_else : bloque_ejecutables
             ;
 
-ciclo_while : inicio_while bloque_condicion_while DO cuerpo_while               { Tercet *t = tercets.pop(); t->setThirdArg( charTercetoId + to_string(tercets.numberOfLastTercet() + 2) ); Tercet *t2 = tercets.pop(); Tercet * t3 = Tercet("BI", t2->getArg2(), ""); int number = tercets->add(t3); $$ = charTercetoId + to_string(number);}                     
+ciclo_while : inicio_while bloque_condicion_while DO cuerpo_while               { Tercet *t = tableTercets->pop(); t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2) ); Tercet *t2 = tableTercets->pop(); Tercet * t3 = new Tercet("BI", t2->getArg1(), ""); int number = tableTercets->add(t3); $$ = charTercetoId + to_string(number);}                     
             ;
 
-inicio_while    : WHILE                                                         { Tercet * t = new Tercet("incioCondicionWhile", charTercetoId + to_string(tercets.numberOfLastTercet() + 1), ""); tercets.push(t); }
+inicio_while    : WHILE                                                         { Tercet * t = new Tercet("incioCondicionWhile", charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1), ""); tableTercets->push(t); }
                 ;
 
-bloque_condicion_while: '(' condicion ')'                                       { Tercet * t = new Tercet("BF", charTercetoId + to_string(tercets.numberOfLastTercet()), ""); int number = tercets->add(t); tercets.push(t); $$ = charTercetoId + to_string(number); }
+bloque_condicion_while: '(' condicion ')'                                       { Tercet * t = new Tercet("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); int number = tableTercets->add(t); tableTercets->push(t); $$ = charTercetoId + to_string(number); }
                 ;
 
 cuerpo_while : bloque_ejecutables                                       
             ;   
 
-condicion : expresion_aritmetica '>' expresion_aritmetica                       { Tercet *t = new Tercet(">", $1, $3); int number = tercets->add(t); $$ = charTercetoId + to_string(number); }
-          | expresion_aritmetica '<' expresion_aritmetica                       { Tercet *t = new Tercet("<", $1, $3); int number = tercets->add(t); $$ = charTercetoId + to_string(number); }
-          | expresion_aritmetica COMPARADOR_IGUAL_IGUAL expresion_aritmetica    { Tercet *t = new Tercet("==", $1, $3); int number = tercets->add(t); $$ = charTercetoId + to_string(number); }
-          | expresion_aritmetica COMPARADOR_DISTINTO expresion_aritmetica       { Tercet *t = new Tercet("!!", $1, $3); int number = tercets->add(t); $$ = charTercetoId + to_string(number); }
-          | expresion_aritmetica COMPARADOR_MAYOR_IGUAL expresion_aritmetica    { Tercet *t = new Tercet(">=", $1, $3); int number = tercets->add(t); $$ = charTercetoId + to_string(number); }
-          | expresion_aritmetica COMPARADOR_MENOR_IGUAL expresion_aritmetica    { Tercet *t = new Tercet("<=", $1, $3); int number = tercets->add(t); $$ = charTercetoId + to_string(number); }
+condicion : expresion_aritmetica '>' expresion_aritmetica                       { Tercet *t = new Tercet(">", $1, $3); int number = tableTercets->add(t); $$ = charTercetoId + to_string(number); }
+          | expresion_aritmetica '<' expresion_aritmetica                       { Tercet *t = new Tercet("<", $1, $3); int number = tableTercets->add(t); $$ = charTercetoId + to_string(number); }
+          | expresion_aritmetica COMPARADOR_IGUAL_IGUAL expresion_aritmetica    { Tercet *t = new Tercet("==", $1, $3); int number = tableTercets->add(t); $$ = charTercetoId + to_string(number); }
+          | expresion_aritmetica COMPARADOR_DISTINTO expresion_aritmetica       { Tercet *t = new Tercet("!!", $1, $3); int number = tableTercets->add(t); $$ = charTercetoId + to_string(number); }
+          | expresion_aritmetica COMPARADOR_MAYOR_IGUAL expresion_aritmetica    { Tercet *t = new Tercet(">=", $1, $3); int number = tableTercets->add(t); $$ = charTercetoId + to_string(number); }
+          | expresion_aritmetica COMPARADOR_MENOR_IGUAL expresion_aritmetica    { Tercet *t = new Tercet("<=", $1, $3); int number = tableTercets->add(t); $$ = charTercetoId + to_string(number); }
           ;
 
 bloque_ejecutables  :   '{' sentencias_ejecutables '}'
@@ -215,7 +216,7 @@ sentencias_ejecutables  :   sentencias_ejecutables ejecutable ','
                         ;
 
 factor : IDENTIFICADOR                                                  { $$ = $1; }
-       | IDENTIFICADOR OPERADOR_SUMA_SUMA                               { Tercet * t = new Tercet("+", $1, $1); int number = tercets->add(t); $$ = charTercetoId + to_string(number); }
+       | IDENTIFICADOR OPERADOR_SUMA_SUMA                               { Tercet * t = new Tercet("+", $1, $1); int number = tableTercets->add(t); $$ = charTercetoId + to_string(number); }
        | constanteSinSigno                                              { $$ = $1; }
        | constanteConSigno                                              { $$ = $1; }
        | TOF '(' expresion_aritmetica ')'                               { $$ = $3; } 

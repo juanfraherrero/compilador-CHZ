@@ -10,6 +10,7 @@ static char yysccsid[] = "@(#)yaccpar	1.8 (Berkeley) 01/20/90";
 #include "include/TableSymbol.hpp"
 #include "include/TableReservedWord.hpp"
 #include "include/Lexico.hpp"
+#include "include/Tercets.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -605,7 +606,6 @@ yyloop:
             printf("yydebug: state %d, shifting to state %d (%s)\n",
                     yystate, yytable[yyn],yyrule[yyn]);
 #endif
-printf("yydebug: state %d, char: %d shifting to state %d \n", yystate, yychar, yytable[yyn]);
         if (yyssp >= yyss + yystacksize - 1)
         {
             goto yyoverflow;
@@ -696,11 +696,11 @@ yyreduce:
     {
 case 1:
 #line 62 "./gramaticaComCHZGenerativa.y"
-{ yyPrintInLine("Se detectó un programa");}
+{ Tercet *t = new Tercet("FIN", "-", "-"); int number = tableTercets->add(t);}
 break;
 case 2:
 #line 63 "./gramaticaComCHZGenerativa.y"
-{ yywarning("Se está compilando un programa sin contenido");}
+{ yywarning("Se está compilando un programa sin contenido"); Tercet *t = new Tercet("FIN", "-", "-"); int number = tableTercets->add(t); }
 break;
 case 3:
 #line 64 "./gramaticaComCHZGenerativa.y"
@@ -836,7 +836,7 @@ case 65:
 break;
 case 66:
 #line 163 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = tableTercets->pop(); t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1) ); cout << "detección de selección" << endl; tableTercets->print(); tableTercets->printStack();}
+{ Tercet *t = tableTercets->pop(); t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1) );}
 break;
 case 67:
 #line 164 "./gramaticaComCHZGenerativa.y"
@@ -844,7 +844,7 @@ case 67:
 break;
 case 68:
 #line 167 "./gramaticaComCHZGenerativa.y"
-{ Tercet * t = new Tercet("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); int number = tableTercets->add(t); tableTercets->push(t); yyval = charTercetoId + to_string(number); cout << "detección de bloque condición" << endl; tableTercets->print(); tableTercets->printStack(); }
+{ Tercet * t = new Tercet("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); int number = tableTercets->add(t); tableTercets->push(t); yyval = charTercetoId + to_string(number); }
 break;
 case 70:
 #line 171 "./gramaticaComCHZGenerativa.y"
@@ -852,43 +852,43 @@ case 70:
 break;
 case 72:
 #line 175 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = tableTercets->pop();  t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2)); Tercet *t2 = new Tercet("BI", "", ""); int number = tableTercets->add(t2); tableTercets->push(t2); yyval = charTercetoId + to_string(number); cout << "detección de cuerpo then" << endl; tableTercets->print(); tableTercets->printStack();}
+{ Tercet * t = tableTercets->pop();  t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2)); Tercet * t2 = new Tercet("BI", "", ""); int number = tableTercets->add(t2); tableTercets->push(t2); yyval = charTercetoId + to_string(number);}
 break;
 case 74:
 #line 180 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = tableTercets->pop(); t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2) ); Tercet *t2 = tableTercets->pop(); Tercet * t3 = new Tercet("BI", "", t2->getArg1()); int number = tableTercets->add(t3); yyval = charTercetoId + to_string(number);}
+{ Tercet *t = tableTercets->pop(); t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2) ); Tercet *t2 = tableTercets->pop(); Tercet * t3 = new Tercet("BI", t2->getArg1(), ""); int number = tableTercets->add(t3); yyval = charTercetoId + to_string(number);}
 break;
 case 75:
 #line 183 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = new Tercet("incioCondicionWhile", charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1), ""); tableTercets->push(t); }
+{ Tercet * t = new Tercet("incioCondicionWhile", charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1), ""); tableTercets->push(t); }
 break;
 case 76:
 #line 186 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = new Tercet("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); int number = tableTercets->add(t); tableTercets->push(t); yyval = charTercetoId + to_string(number); }
+{ Tercet * t = new Tercet("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); int number = tableTercets->add(t); tableTercets->push(t); yyval = charTercetoId + to_string(number); }
 break;
 case 78:
 #line 192 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = new Tercet(">", yyvsp[-2], yyvsp[0]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); cout << "detección de condición" << endl; tableTercets->print(); }
+{ Tercet *t = new Tercet(">", yyvsp[-2], yyvsp[0]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); }
 break;
 case 79:
 #line 193 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = new Tercet("<", yyvsp[-2], yyvsp[0]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); cout << "detección de condición" << endl; tableTercets->print();}
+{ Tercet *t = new Tercet("<", yyvsp[-2], yyvsp[0]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); }
 break;
 case 80:
 #line 194 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = new Tercet("==", yyvsp[-2], yyvsp[0]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); cout << "detección de condición" << endl; tableTercets->print();}
+{ Tercet *t = new Tercet("==", yyvsp[-2], yyvsp[0]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); }
 break;
 case 81:
 #line 195 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = new Tercet("!!", yyvsp[-2], yyvsp[0]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number);cout << "detección de condición" << endl; tableTercets->print(); }
+{ Tercet *t = new Tercet("!!", yyvsp[-2], yyvsp[0]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); }
 break;
 case 82:
 #line 196 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = new Tercet(">=", yyvsp[-2], yyvsp[0]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); cout << "detección de condición" << endl; tableTercets->print();}
+{ Tercet *t = new Tercet(">=", yyvsp[-2], yyvsp[0]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); }
 break;
 case 83:
 #line 197 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = new Tercet("<=", yyvsp[-2], yyvsp[0]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); cout << "detección de condición" << endl; tableTercets->print();}
+{ Tercet *t = new Tercet("<=", yyvsp[-2], yyvsp[0]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); }
 break;
 case 86:
 #line 202 "./gramaticaComCHZGenerativa.y"
@@ -944,7 +944,7 @@ case 100:
 break;
 case 101:
 #line 221 "./gramaticaComCHZGenerativa.y"
-{ yyval = yyvsp[-1]; cout << "detección de TOF" << endl; tableTercets->print(); }
+{ yyval = yyvsp[-1]; }
 break;
 case 102:
 #line 224 "./gramaticaComCHZGenerativa.y"
