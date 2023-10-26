@@ -63,7 +63,8 @@ class AS14 : public AccionSemantica {
 
                 // encontramos una constante de punto flotante y definimos el token como constante
                 automaton->getToken()->token = id_CONSTANTE_PUNTO_FLOTANTE;
-
+                automaton->getToken()->type = "float";
+                
                 // desde la acción no modificamos el siguiente estado
                 return -1;
             }

@@ -183,7 +183,8 @@ tokenWithLexeme* Automaton::getCopyOfToken(){
     // copiamos el token con su lexema
     token->token = this->tokenToreturn->token;
     token->lexeme = this->tokenToreturn->lexeme;
-    
+    token->type = this->tokenToreturn->type;
+
     // // limpiamos el token usado como buffer para guardar el token a devolver
     // this->tokenToreturn->token = 0;
     // this->tokenToreturn->lexeme = "";
@@ -198,10 +199,12 @@ tokenWithLexeme* Automaton::getCopyOfTokenAndResetToken(){
     // copiamos el token con su lexema
     token->token = this->tokenToreturn->token;
     token->lexeme = this->tokenToreturn->lexeme;
+    token->type = this->tokenToreturn->type;
     
     // limpiamos el token usado como buffer para guardar el token a devolver
     this->tokenToreturn->token = 0;
     this->tokenToreturn->lexeme = "";
+    this->tokenToreturn->type = "";
 
     return token;
 }

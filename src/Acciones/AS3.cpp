@@ -47,6 +47,7 @@ class AS3 : public AccionSemantica {
 
                     //definimos el token como short int
                     automaton->getToken()->token = id_CONSTANTE_ENTERO_CORTO;
+                    automaton->getToken()->type = "short";
                 }else{
                     throw std::out_of_range("El número está fuera del rango permitido");
                 }

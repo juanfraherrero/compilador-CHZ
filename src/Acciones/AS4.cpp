@@ -57,6 +57,7 @@ class AS4 : public AccionSemantica {
 
                     //definimos el token como short int
                     automaton->getToken()->token = id_CONSTANTE_ENTERO_SIN_SIGNO;
+                    automaton->getToken()->type = "unsigned int";
 
                 }else{
                     throw std::out_of_range("El número está fuera del rango permitido");

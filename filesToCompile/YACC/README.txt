@@ -9,7 +9,7 @@ dentro del Parser.cpp, hay que ir a la función yyparse() y cambiar la declaraci
 
 Luego en los dos lugares donde se llama " yylex() " dentro de yyparse se debe reemplazar por " lexico->yylex() "
 
-Además se debe cambiar el typedef de TYPEDEF por string
+Además se debe cambiar el typedef de TYPEDEF por myTypeYYLVAL*
 
 Con estos pasos ya se puede usar, los warnings que te tira son porque no se usan algunas variables
 

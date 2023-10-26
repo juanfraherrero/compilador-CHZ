@@ -62,9 +62,6 @@ int main(int arg_count, char *arg_list[]) {
     // cargamos nuestra fase de analisis léxico
     Lexico * lexico = new Lexico(tableSymbol, tableRWords, &contenido, &lineNumber); // la dejamos en la pila porque tiene un tamaño pequeño y su tamaño no es dinámico
 
-    
-    cout << "\n\n EJECUCIÓN \n\n";
-
     int resultParsing = yyparse(lexico);
     
     if(resultParsing == 0){
@@ -96,7 +93,7 @@ int main(int arg_count, char *arg_list[]) {
     cout << "\n\n --------------- \n\n";
 
     tableSymbol->imprimirTabla();
-    tableRWords->imprimirTabla();
+    // tableRWords->imprimirTabla();
     tableTercets->print();
 
     delete tableSymbol;

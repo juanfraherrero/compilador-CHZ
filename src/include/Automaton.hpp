@@ -20,7 +20,7 @@ class Automaton {
         TableReservedWord* tableRWords;
         int* ptrLineNumber;                     // ptr a número de línea actual
         bool* isCommentActive;                  // booleano para identificar si un comentario está activo o no
-        tokenWithLexeme * tokenToreturn = new tokenWithLexeme{0, " "};      // token a devolver
+        tokenWithLexeme * tokenToreturn = new tokenWithLexeme{0, " ", " "};      // token a devolver
         valueOfMatrix * getValueOfMatrix (char character, int actual_state);// devuelve dado el caracter y el estado actual
                                                                             // cual es el siguiente estado y acción a ejecutar
         int getSubconjunto(char character);                                 // retorna el subconjunto al que pertenece el caracter

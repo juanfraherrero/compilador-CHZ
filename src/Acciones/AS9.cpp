@@ -36,7 +36,7 @@ class AS9 : public AccionSemantica {
             //insertamos en la tabla de símbolos el short int 
                 // con el lexema como key, el lexema y el valor que es el lexema
                 // el insert checkea la existencia de otro lexema igual 
-            tableSymbol->insert(lexeme, lexeme, lexeme, "identifier");
+            tableSymbol->insert(lexeme, lexeme, "-", "identifier");
             
             //definimos el token como un identificador
             automaton->getToken()->token = id_IDENTIFICADOR;

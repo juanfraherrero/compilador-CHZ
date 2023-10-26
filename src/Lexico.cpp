@@ -1,3 +1,4 @@
+#include "include/types.hpp"
 #include "include/Lexico.hpp"
 #include "include/Automaton.hpp"
 #include "include/TableSymbol.hpp"
@@ -9,7 +10,7 @@
 #include <fstream>
 
 // ACÁ DEFNIR EL TIPO QUE ESTÁ EN EL PARSER.CPP
-extern string yylval;
+extern myTypeYYLVAL* yylval;
 
 Lexico::Lexico(TableSymbol* tableSymbol, TableReservedWord* tableRWords, string * content, int* lineNumber) {
     // definimos que archivo va a usar y las variables para hacer el conteo de lineas y caracteres leídos   
@@ -29,7 +30,7 @@ int Lexico::yylex(){
     
     // cout <<  "El token es: " << token->token << " con lexema: " << token->lexeme << endl;
 
-    yylval = token->lexeme;
+    yylval = new myTypeYYLVAL(token->lexeme, token->type);
     return token->token;
 
 }

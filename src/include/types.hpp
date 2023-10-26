@@ -11,6 +11,7 @@ using namespace std;
 struct tokenWithLexeme {
     int token;
     string lexeme;
+    string type;
 };
 
 // struct para los valores que contiene la matriz del autómata
@@ -34,6 +35,13 @@ struct symbol {
     symbol(const string& _lexema, string _value) : lexema(_lexema), value(_value), count(1) {};
     symbol(const string& _lexema, string _value, string _type) : lexema(_lexema), value(_value), type(_type), count(1) {};
     symbol(const string& _lexema, string _value, string _type, string _uso) : lexema(_lexema), value(_value), type(_type), uso(_uso), count(1) {};
+};
+
+struct myTypeYYLVAL {
+    string ptr;
+    string type;
+
+    myTypeYYLVAL(string _ptr, string _type) : ptr(_ptr), type(_type) {};
 };
 
 #endif

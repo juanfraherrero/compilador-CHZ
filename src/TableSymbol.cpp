@@ -40,7 +40,7 @@ void TableSymbol::imprimirTabla() {
     cout << "\n\nTabla de símbolos:\n\n" << endl;
     for (const auto& pair : symbolTable) {
         const symbol* symbol = pair.second;
-        cout << "Clave: " << pair.first << "\t Lexema: " << symbol->lexema << "\t Valor: " << symbol->value << "\t Tipo: " << symbol->type << endl;
+        cout << "Clave: " << pair.first << "\t Lexema: " << symbol->lexema << "\t Valor: " << symbol->value << "\t Tipo: " << symbol->type << "\t Uso: " << symbol->uso << endl;
     }
 }
 

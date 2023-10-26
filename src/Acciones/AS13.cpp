@@ -37,7 +37,7 @@ class AS13 : public AccionSemantica {
 
             //definimos el token como cadena de caracteres
             automaton->getToken()->token = id_CONSTANTE_CADENA_CARACTERES;
-
+            automaton->getToken()->type = "string";
             // desde la acción no modificamos el siguiente estado
             return -1;
         };

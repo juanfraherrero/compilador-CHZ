@@ -1,12 +1,8 @@
-#ifndef _PARSER_CPP_
-#define _PARSER_CPP_
-
 #ifndef lint
 static char yysccsid[] = "@(#)yaccpar	1.8 (Berkeley) 01/20/90";
 #endif
 #define YYBYACC 1
 #line 2 "./gramaticaComCHZGenerativa.y"
-
 
 #include "include/types.hpp"
 #include "include/TableSymbol.hpp"
@@ -31,6 +27,8 @@ bool isErrorInCode = false;
 Tercets *tableTercets = new Tercets();
 char charTercetoId = '%';
 
+string typeAux = "";
+
 void yyerror(string s){
     isErrorInCode = true;    
     cerr << "\033[31m" << "Linea: " << lineNumber << "-> Error: " << s <<"\033[0m"<< endl;
@@ -41,7 +39,7 @@ void yywarning(string s){
 void yyPrintInLine(string s){
     cout << "Linea: " << lineNumber << "-> " << s << endl;
 };
-#line 41 "y.tab.c"
+#line 43 "y.tab.c"
 #define IDENTIFICADOR 257
 #define ENTERO_SIN_SIGNO 258
 #define ENTERO_CORTO 259
@@ -498,7 +496,7 @@ char *yyrule[] = {
 };
 #endif
 #ifndef YYSTYPE
-typedef string YYSTYPE;
+typedef myTypeYYLVAL* YYSTYPE;
 #endif
 #define yyclearin (yychar=(-1))
 #define yyerrok (yyerrflag=0)
@@ -525,7 +523,7 @@ YYSTYPE yylval;
 short yyss[YYSTACKSIZE];
 YYSTYPE yyvs[YYSTACKSIZE];
 #define yystacksize YYSTACKSIZE
-#line 242 "./gramaticaComCHZGenerativa.y"
+#line 246 "./gramaticaComCHZGenerativa.y"
 void checkIntegerShort(string lexeme){
         symbol* sm = tableSymbol->getSymbol(lexeme);
         if(sm != nullptr ){
@@ -556,7 +554,24 @@ string setFloatNegative(string lexeme){
         tableSymbol->insert(lexeme, lexeme, lexeme, "float");
         return lexeme;
 }
-#line 556 "y.tab.c"
+void checkTypesCompare(string type1, string type2){
+        if(type1 != type2 && type1 != "error" && type2 != "error"){
+                yyerror("Incompatibilidad de tipos al comparar entre "+ type1 + " y " + type2);
+        }
+}
+bool checkTypesOperation(string type1, string type2){
+        if(type1 != type2 && type1 != "error" && type2 != "error"){
+                yyerror("Incompatibilidad de tipos al operar entre "+ type1 + " y " + type2);
+                return false;
+        }
+        return true;
+}
+void checkTypesAsignation(string type1, string type2){
+        if(type1 != type2 && type1 != "error" && type2 != "error"){
+                yyerror("Incompatibilidad de tipos al asignar "+ type2 + " a " + type1);
+        }
+}
+#line 575 "y.tab.c"
 #define YYABORT goto yyabort
 #define YYACCEPT goto yyaccept
 #define YYERROR goto yyerrlab
@@ -697,302 +712,326 @@ yyreduce:
     switch (yyn)
     {
 case 1:
-#line 62 "./gramaticaComCHZGenerativa.y"
+#line 64 "./gramaticaComCHZGenerativa.y"
 { Tercet *t = new Tercet("FIN", "-", "-"); int number = tableTercets->add(t);}
 break;
 case 2:
-#line 63 "./gramaticaComCHZGenerativa.y"
+#line 65 "./gramaticaComCHZGenerativa.y"
 { yywarning("Se está compilando un programa sin contenido"); Tercet *t = new Tercet("FIN", "-", "-"); int number = tableTercets->add(t); }
 break;
 case 3:
-#line 64 "./gramaticaComCHZGenerativa.y"
+#line 66 "./gramaticaComCHZGenerativa.y"
 { yyerror("Se detectó contenido luego de finalizado el programa");}
 break;
 case 4:
-#line 65 "./gramaticaComCHZGenerativa.y"
+#line 67 "./gramaticaComCHZGenerativa.y"
 { yywarning("Se está compilando un programa sin contenido"); yyerror("Se detectó contenido luego de finalizado el programa");}
 break;
 case 9:
-#line 72 "./gramaticaComCHZGenerativa.y"
+#line 74 "./gramaticaComCHZGenerativa.y"
 { yyerror("Se detectó una falta de coma"); }
 break;
 case 10:
-#line 73 "./gramaticaComCHZGenerativa.y"
+#line 75 "./gramaticaComCHZGenerativa.y"
 { yyerror("Se detectó una falta de coma"); }
 break;
 case 11:
-#line 74 "./gramaticaComCHZGenerativa.y"
+#line 76 "./gramaticaComCHZGenerativa.y"
 { yyerror("Se detectó una sentencia inválida"); }
 break;
 case 12:
-#line 77 "./gramaticaComCHZGenerativa.y"
+#line 79 "./gramaticaComCHZGenerativa.y"
 { yyPrintInLine("Se detectó declaración de variable");}
 break;
 case 14:
-#line 79 "./gramaticaComCHZGenerativa.y"
+#line 81 "./gramaticaComCHZGenerativa.y"
 { yyPrintInLine("Se detectó declaración de objeto");}
 break;
 case 15:
-#line 80 "./gramaticaComCHZGenerativa.y"
+#line 82 "./gramaticaComCHZGenerativa.y"
 { yyPrintInLine("Se detectó declaración de función");}
 break;
 case 17:
-#line 84 "./gramaticaComCHZGenerativa.y"
+#line 86 "./gramaticaComCHZGenerativa.y"
 {yyerror("Se detectó la falta de un nombre en la función"); }
 break;
 case 18:
-#line 85 "./gramaticaComCHZGenerativa.y"
+#line 87 "./gramaticaComCHZGenerativa.y"
 {yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
 break;
 case 19:
-#line 88 "./gramaticaComCHZGenerativa.y"
+#line 90 "./gramaticaComCHZGenerativa.y"
 { yyPrintInLine("Se detectó declaración de clase");}
 break;
 case 20:
-#line 89 "./gramaticaComCHZGenerativa.y"
+#line 91 "./gramaticaComCHZGenerativa.y"
 { yyPrintInLine("Se detectó declaración de clase adelantada");}
 break;
 case 21:
-#line 90 "./gramaticaComCHZGenerativa.y"
+#line 92 "./gramaticaComCHZGenerativa.y"
 {yywarning("Se detectó una declaración de clases vacía");}
 break;
 case 22:
-#line 92 "./gramaticaComCHZGenerativa.y"
-{ yyPrintInLine("Se detectó declaración de variable en clase");}
-break;
-case 24:
 #line 94 "./gramaticaComCHZGenerativa.y"
 { yyPrintInLine("Se detectó declaración de variable en clase");}
 break;
+case 24:
+#line 96 "./gramaticaComCHZGenerativa.y"
+{ yyPrintInLine("Se detectó declaración de variable en clase");}
+break;
 case 26:
-#line 99 "./gramaticaComCHZGenerativa.y"
+#line 101 "./gramaticaComCHZGenerativa.y"
 { yyPrintInLine("Se detectó declaración de método de clase");}
 break;
 case 27:
-#line 100 "./gramaticaComCHZGenerativa.y"
+#line 102 "./gramaticaComCHZGenerativa.y"
 {yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
 break;
-case 38:
+case 31:
+#line 112 "./gramaticaComCHZGenerativa.y"
+{ typeAux = "short"; yyval->type ="short" ;}
+break;
+case 32:
+#line 113 "./gramaticaComCHZGenerativa.y"
+{ typeAux = "unsigned int"; yyval->type = "unsigned int";}
+break;
+case 33:
+#line 114 "./gramaticaComCHZGenerativa.y"
+{ typeAux = "float"; yyval->type = "float";}
+break;
+case 34:
+#line 117 "./gramaticaComCHZGenerativa.y"
+{ tableSymbol->getSymbol(yyvsp[0]->ptr)->type = typeAux; }
+break;
+case 35:
+#line 118 "./gramaticaComCHZGenerativa.y"
+{ tableSymbol->getSymbol(yyvsp[0]->ptr)->type = typeAux; }
+break;
+case 36:
 #line 121 "./gramaticaComCHZGenerativa.y"
+{ tableSymbol->getSymbol(yyvsp[0]->ptr)->type = yyvsp[-1]->type; tableSymbol->getSymbol(yyvsp[0]->ptr)->uso = "parametro"; yyval->ptr = yyvsp[0]->ptr; yyval->type = yyvsp[-1]->type;}
+break;
+case 38:
+#line 125 "./gramaticaComCHZGenerativa.y"
 {yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
 break;
 case 42:
-#line 126 "./gramaticaComCHZGenerativa.y"
+#line 130 "./gramaticaComCHZGenerativa.y"
 {yywarning("Se detectó código posterior a un return"); }
 break;
 case 43:
-#line 127 "./gramaticaComCHZGenerativa.y"
+#line 131 "./gramaticaComCHZGenerativa.y"
 {yywarning("Se detectó código posterior a un return"); }
 break;
 case 49:
-#line 135 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = new Tercet("print", tableSymbol->getSymbol(yyvsp[0])->value, ""); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); }
+#line 139 "./gramaticaComCHZGenerativa.y"
+{ Tercet *t = new Tercet("print", tableSymbol->getSymbol(yyvsp[0]->ptr)->value, ""); int number = tableTercets->add(t); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 52:
-#line 138 "./gramaticaComCHZGenerativa.y"
+#line 142 "./gramaticaComCHZGenerativa.y"
 { yyerror("Se detectó la falta de una cadena de caracteres al querer imprimir");}
 break;
 case 53:
-#line 141 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = new Tercet("=", yyvsp[-2], yyvsp[0]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); }
+#line 145 "./gramaticaComCHZGenerativa.y"
+{ checkTypesAsignation(tableSymbol->getSymbol(yyvsp[-2]->ptr)->type, yyvsp[0]->type); Tercet *t = new Tercet("=", yyvsp[-2]->ptr, yyvsp[0]->ptr); int number = tableTercets->add(t); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 56:
-#line 149 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = new Tercet("+", yyvsp[-2], yyvsp[0]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); }
+#line 153 "./gramaticaComCHZGenerativa.y"
+{ if(checkTypesOperation(yyvsp[-2]->type, yyvsp[0]->type)){yyval->type=yyvsp[-2]->type;}else{yyval->type="error";}; Tercet *t = new Tercet("+", yyvsp[-2]->ptr, yyvsp[0]->ptr); int number = tableTercets->add(t); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 57:
-#line 150 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = new Tercet("-", yyvsp[-2], yyvsp[0]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); }
+#line 154 "./gramaticaComCHZGenerativa.y"
+{ if(checkTypesOperation(yyvsp[-2]->type, yyvsp[0]->type)){yyval->type=yyvsp[-2]->type;}else{yyval->type="error";}; Tercet *t = new Tercet("-", yyvsp[-2]->ptr, yyvsp[0]->ptr); int number = tableTercets->add(t); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 58:
-#line 151 "./gramaticaComCHZGenerativa.y"
-{ yywarning("Se detectó un error en operador, quedará '-'"); Tercet *t = new Tercet("-", yyvsp[-3], yyvsp[-1]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); }
+#line 155 "./gramaticaComCHZGenerativa.y"
+{ if(checkTypesOperation(yyvsp[-3]->type, yyvsp[0]->type)){yyval->type=yyvsp[-3]->type;}else{yyval->type="error";}; yywarning("Se detectó un error en operador, quedará '-'"); Tercet *t = new Tercet("-", yyvsp[-3]->ptr, yyvsp[-1]->ptr); int number = tableTercets->add(t); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 59:
-#line 152 "./gramaticaComCHZGenerativa.y"
-{ yywarning("Se detectó un error en operador, quedará '+'"); Tercet *t = new Tercet("+", yyvsp[-3], yyvsp[-1]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); }
+#line 156 "./gramaticaComCHZGenerativa.y"
+{ if(checkTypesOperation(yyvsp[-3]->type, yyvsp[0]->type)){yyval->type=yyvsp[-3]->type;}else{yyval->type="error";}; yywarning("Se detectó un error en operador, quedará '+'"); Tercet *t = new Tercet("+", yyvsp[-3]->ptr, yyvsp[-1]->ptr); int number = tableTercets->add(t); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 60:
-#line 153 "./gramaticaComCHZGenerativa.y"
-{ yywarning("Se detectó un error en operador, quedará '-'"); Tercet *t = new Tercet("-", yyvsp[-3], yyvsp[-1]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); }
+#line 157 "./gramaticaComCHZGenerativa.y"
+{ if(checkTypesOperation(yyvsp[-3]->type, yyvsp[0]->type)){yyval->type=yyvsp[-3]->type;}else{yyval->type="error";}; yywarning("Se detectó un error en operador, quedará '-'"); Tercet *t = new Tercet("-", yyvsp[-3]->ptr, yyvsp[-1]->ptr); int number = tableTercets->add(t); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 61:
-#line 154 "./gramaticaComCHZGenerativa.y"
-{ yywarning("Se detectó un error en operador, quedará '+'"); Tercet *t = new Tercet("+", yyvsp[-3], yyvsp[-1]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); }
+#line 158 "./gramaticaComCHZGenerativa.y"
+{ if(checkTypesOperation(yyvsp[-3]->type, yyvsp[0]->type)){yyval->type=yyvsp[-3]->type;}else{yyval->type="error";}; yywarning("Se detectó un error en operador, quedará '+'"); Tercet *t = new Tercet("+", yyvsp[-3]->ptr, yyvsp[-1]->ptr); int number = tableTercets->add(t); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 62:
-#line 155 "./gramaticaComCHZGenerativa.y"
-{ yyval = yyvsp[0]; }
+#line 159 "./gramaticaComCHZGenerativa.y"
+{ yyval->type = yyvsp[0]->type; yyval->ptr = yyvsp[0]->ptr; }
 break;
 case 63:
-#line 158 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = new Tercet("*", yyvsp[-2], yyvsp[0]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); }
+#line 162 "./gramaticaComCHZGenerativa.y"
+{ if(checkTypesOperation(yyvsp[-2]->type, yyvsp[0]->type)){yyval->type=yyvsp[-2]->type;}else{yyval->type="error";}; Tercet *t = new Tercet("*", yyvsp[-2]->ptr, yyvsp[0]->ptr); int number = tableTercets->add(t); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 64:
-#line 159 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = new Tercet("/", yyvsp[-2], yyvsp[0]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); }
+#line 163 "./gramaticaComCHZGenerativa.y"
+{ if(checkTypesOperation(yyvsp[-2]->type, yyvsp[0]->type)){yyval->type=yyvsp[-2]->type;}else{yyval->type="error";}; Tercet *t = new Tercet("/", yyvsp[-2]->ptr, yyvsp[0]->ptr); int number = tableTercets->add(t); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 65:
-#line 160 "./gramaticaComCHZGenerativa.y"
-{ yyval = yyvsp[0]; }
+#line 164 "./gramaticaComCHZGenerativa.y"
+{ yyval->ptr = yyvsp[0]->ptr; yyval->type = yyvsp[0]->type;}
 break;
 case 66:
-#line 163 "./gramaticaComCHZGenerativa.y"
+#line 167 "./gramaticaComCHZGenerativa.y"
 { Tercet *t = tableTercets->pop(); t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1) );}
 break;
 case 67:
-#line 164 "./gramaticaComCHZGenerativa.y"
+#line 168 "./gramaticaComCHZGenerativa.y"
 { yyerror("Falta de condición en el bloque de control IF");}
 break;
 case 68:
-#line 167 "./gramaticaComCHZGenerativa.y"
-{ Tercet * t = new Tercet("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); int number = tableTercets->add(t); tableTercets->push(t); yyval = charTercetoId + to_string(number); }
+#line 171 "./gramaticaComCHZGenerativa.y"
+{ Tercet * t = new Tercet("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); int number = tableTercets->add(t); tableTercets->push(t); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 70:
-#line 171 "./gramaticaComCHZGenerativa.y"
+#line 175 "./gramaticaComCHZGenerativa.y"
 { yyerror(" Falta de ELSE en bloque de control IF-ELSE");}
 break;
 case 72:
-#line 175 "./gramaticaComCHZGenerativa.y"
-{ Tercet * t = tableTercets->pop();  t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2)); Tercet * t2 = new Tercet("BI", "", ""); int number = tableTercets->add(t2); tableTercets->push(t2); yyval = charTercetoId + to_string(number);}
+#line 179 "./gramaticaComCHZGenerativa.y"
+{ Tercet * t = tableTercets->pop();  t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2)); Tercet * t2 = new Tercet("BI", "", ""); int number = tableTercets->add(t2); tableTercets->push(t2); yyval->ptr = charTercetoId + to_string(number);}
 break;
 case 74:
-#line 180 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = tableTercets->pop(); t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2) ); Tercet *t2 = tableTercets->pop(); Tercet * t3 = new Tercet("BI", t2->getArg1(), ""); int number = tableTercets->add(t3); yyval = charTercetoId + to_string(number);}
+#line 184 "./gramaticaComCHZGenerativa.y"
+{ Tercet *t = tableTercets->pop(); t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2) ); Tercet *t2 = tableTercets->pop(); Tercet * t3 = new Tercet("BI", t2->getArg1(), ""); int number = tableTercets->add(t3); yyval->ptr = charTercetoId + to_string(number);}
 break;
 case 75:
-#line 183 "./gramaticaComCHZGenerativa.y"
+#line 187 "./gramaticaComCHZGenerativa.y"
 { Tercet * t = new Tercet("incioCondicionWhile", charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1), ""); tableTercets->push(t); }
 break;
 case 76:
-#line 186 "./gramaticaComCHZGenerativa.y"
-{ Tercet * t = new Tercet("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); int number = tableTercets->add(t); tableTercets->push(t); yyval = charTercetoId + to_string(number); }
+#line 190 "./gramaticaComCHZGenerativa.y"
+{ Tercet * t = new Tercet("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); int number = tableTercets->add(t); tableTercets->push(t); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 78:
-#line 192 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = new Tercet(">", yyvsp[-2], yyvsp[0]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); }
+#line 196 "./gramaticaComCHZGenerativa.y"
+{ checkTypesCompare(yyvsp[-2]->type, yyvsp[0]->type); Tercet *t = new Tercet(">", yyvsp[-2]->ptr, yyvsp[0]->ptr); int number = tableTercets->add(t); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 79:
-#line 193 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = new Tercet("<", yyvsp[-2], yyvsp[0]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); }
+#line 197 "./gramaticaComCHZGenerativa.y"
+{ checkTypesCompare(yyvsp[-2]->type, yyvsp[0]->type); Tercet *t = new Tercet("<", yyvsp[-2]->ptr, yyvsp[0]->ptr); int number = tableTercets->add(t); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 80:
-#line 194 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = new Tercet("==", yyvsp[-2], yyvsp[0]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); }
+#line 198 "./gramaticaComCHZGenerativa.y"
+{ checkTypesCompare(yyvsp[-2]->type, yyvsp[0]->type); Tercet *t = new Tercet("==", yyvsp[-2]->ptr, yyvsp[0]->ptr); int number = tableTercets->add(t); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 81:
-#line 195 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = new Tercet("!!", yyvsp[-2], yyvsp[0]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); }
+#line 199 "./gramaticaComCHZGenerativa.y"
+{ checkTypesCompare(yyvsp[-2]->type, yyvsp[0]->type); Tercet *t = new Tercet("!!", yyvsp[-2]->ptr, yyvsp[0]->ptr); int number = tableTercets->add(t); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 82:
-#line 196 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = new Tercet(">=", yyvsp[-2], yyvsp[0]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); }
+#line 200 "./gramaticaComCHZGenerativa.y"
+{ checkTypesCompare(yyvsp[-2]->type, yyvsp[0]->type); Tercet *t = new Tercet(">=", yyvsp[-2]->ptr, yyvsp[0]->ptr); int number = tableTercets->add(t); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 83:
-#line 197 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = new Tercet("<=", yyvsp[-2], yyvsp[0]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); }
+#line 201 "./gramaticaComCHZGenerativa.y"
+{ checkTypesCompare(yyvsp[-2]->type, yyvsp[0]->type); Tercet *t = new Tercet("<=", yyvsp[-2]->ptr, yyvsp[0]->ptr); int number = tableTercets->add(t); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 86:
-#line 202 "./gramaticaComCHZGenerativa.y"
+#line 206 "./gramaticaComCHZGenerativa.y"
 { yyerror("Se detectó una sentencia declarativa en bloque de control"); }
 break;
 case 88:
-#line 206 "./gramaticaComCHZGenerativa.y"
+#line 210 "./gramaticaComCHZGenerativa.y"
 { yyerror("Se detectó una falta de coma"); }
 break;
 case 90:
-#line 208 "./gramaticaComCHZGenerativa.y"
-{ yyerror("Se detectó una falta de coma"); }
-break;
-case 91:
-#line 209 "./gramaticaComCHZGenerativa.y"
-{ yyerror("Se detectó una sentencia declarativa en bloque de control"); }
-break;
-case 92:
-#line 210 "./gramaticaComCHZGenerativa.y"
-{ yyerror("Se detectó una sentencia declarativa en bloque de control y la falta de coma"); }
-break;
-case 93:
-#line 211 "./gramaticaComCHZGenerativa.y"
-{ yyerror("Se detectó una sentencia declarativa en bloque de control"); }
-break;
-case 94:
 #line 212 "./gramaticaComCHZGenerativa.y"
 { yyerror("Se detectó una falta de coma"); }
 break;
-case 95:
+case 91:
 #line 213 "./gramaticaComCHZGenerativa.y"
+{ yyerror("Se detectó una sentencia declarativa en bloque de control"); }
+break;
+case 92:
+#line 214 "./gramaticaComCHZGenerativa.y"
+{ yyerror("Se detectó una sentencia declarativa en bloque de control y la falta de coma"); }
+break;
+case 93:
+#line 215 "./gramaticaComCHZGenerativa.y"
+{ yyerror("Se detectó una sentencia declarativa en bloque de control"); }
+break;
+case 94:
+#line 216 "./gramaticaComCHZGenerativa.y"
+{ yyerror("Se detectó una falta de coma"); }
+break;
+case 95:
+#line 217 "./gramaticaComCHZGenerativa.y"
 { yywarning("Se detectó una sentencia vacía dentro del bloque de sentencias ejecutables"); }
 break;
 case 96:
-#line 214 "./gramaticaComCHZGenerativa.y"
+#line 218 "./gramaticaComCHZGenerativa.y"
 { yyerror("Se detectó una sentencia inválida dentro del bloque de sentencias ejecutables"); }
 break;
 case 97:
-#line 217 "./gramaticaComCHZGenerativa.y"
-{ yyval = yyvsp[0]; }
+#line 221 "./gramaticaComCHZGenerativa.y"
+{ yyval->ptr = yyvsp[0]->ptr; yyval->type = tableSymbol->getSymbol(yyvsp[0]->ptr)->type;}
 break;
 case 98:
-#line 218 "./gramaticaComCHZGenerativa.y"
-{ Tercet * t = new Tercet("+", yyvsp[-1], yyvsp[-1]); int number = tableTercets->add(t); yyval = charTercetoId + to_string(number); }
+#line 222 "./gramaticaComCHZGenerativa.y"
+{ Tercet * t = new Tercet("+", yyvsp[-1]->ptr, yyvsp[-1]->ptr); int number = tableTercets->add(t); yyval->ptr = charTercetoId + to_string(number);yyval->type = tableSymbol->getSymbol(yyvsp[-1]->ptr)->type;}
 break;
 case 99:
-#line 219 "./gramaticaComCHZGenerativa.y"
-{ yyval = yyvsp[0]; }
+#line 223 "./gramaticaComCHZGenerativa.y"
+{ yyval->ptr = yyvsp[0]->ptr; yyval->type = yyvsp[0]->type;}
 break;
 case 100:
-#line 220 "./gramaticaComCHZGenerativa.y"
-{ yyval = yyvsp[0]; }
+#line 224 "./gramaticaComCHZGenerativa.y"
+{ yyval->ptr = yyvsp[0]->ptr; yyval->type = yyvsp[0]->type;}
 break;
 case 101:
-#line 221 "./gramaticaComCHZGenerativa.y"
-{ yyval = yyvsp[-1]; }
+#line 225 "./gramaticaComCHZGenerativa.y"
+{ Tercet *t = new Tercet("tof", " ", yyvsp[-1]->ptr); int number = tableTercets->add(t); yyval->ptr = charTercetoId + to_string(number); yyval->type = "float"; }
 break;
 case 102:
-#line 224 "./gramaticaComCHZGenerativa.y"
-{ yyval = yyvsp[0]; }
+#line 228 "./gramaticaComCHZGenerativa.y"
+{ yyval->ptr = yyvsp[0]->ptr; yyval->type = yyvsp[0]->type;}
 break;
 case 103:
-#line 225 "./gramaticaComCHZGenerativa.y"
-{ yyval = yyvsp[0]; }
+#line 229 "./gramaticaComCHZGenerativa.y"
+{ yyval->ptr = yyvsp[0]->ptr; yyval->type = yyvsp[0]->type;}
 break;
 case 104:
-#line 228 "./gramaticaComCHZGenerativa.y"
-{ checkIntegerShort(yyvsp[0]); yyval = yyvsp[0];}
+#line 232 "./gramaticaComCHZGenerativa.y"
+{ checkIntegerShort(yyvsp[0]->ptr); yyval->ptr = yyvsp[0]->ptr; yyval->type = yyvsp[0]->type;}
 break;
 case 105:
-#line 229 "./gramaticaComCHZGenerativa.y"
-{ string newLexema = checkIntegerShortNegative(yyvsp[0]); yyval = newLexema;}
+#line 233 "./gramaticaComCHZGenerativa.y"
+{ string newLexema = checkIntegerShortNegative(yyvsp[0]->ptr); yyval->ptr = newLexema; yyval->type = yyvsp[0]->type;}
 break;
 case 106:
-#line 230 "./gramaticaComCHZGenerativa.y"
-{ yyval = yyvsp[0]; }
+#line 234 "./gramaticaComCHZGenerativa.y"
+{ yyval->ptr = yyvsp[0]->ptr; yyval->type = yyvsp[0]->type;}
 break;
 case 107:
-#line 231 "./gramaticaComCHZGenerativa.y"
-{ string newLexema = setFloatNegative(yyvsp[0]); yyval = newLexema; }
+#line 235 "./gramaticaComCHZGenerativa.y"
+{ string newLexema = setFloatNegative(yyvsp[0]->ptr); yyval->ptr = newLexema; yyval->type = yyvsp[0]->type;}
 break;
 case 108:
-#line 232 "./gramaticaComCHZGenerativa.y"
+#line 236 "./gramaticaComCHZGenerativa.y"
 { yyerror("Falta constante numérica en la expresión"); }
 break;
 case 109:
-#line 235 "./gramaticaComCHZGenerativa.y"
+#line 239 "./gramaticaComCHZGenerativa.y"
 { yyPrintInLine("Se detectó un acceso a un objeto");}
 break;
 case 110:
-#line 236 "./gramaticaComCHZGenerativa.y"
+#line 240 "./gramaticaComCHZGenerativa.y"
 { yyPrintInLine("Se detectó un acceso a un objeto");}
 break;
 case 111:
-#line 237 "./gramaticaComCHZGenerativa.y"
+#line 241 "./gramaticaComCHZGenerativa.y"
 { yyPrintInLine("Se detectó un acceso a un objeto");}
 break;
 case 112:
-#line 238 "./gramaticaComCHZGenerativa.y"
+#line 242 "./gramaticaComCHZGenerativa.y"
 { yyPrintInLine("Se detectó un acceso a un objeto");}
 break;
-#line 992 "y.tab.c"
+#line 1035 "y.tab.c"
     }
     yyssp -= yym;
     yystate = *yyssp;
@@ -1049,5 +1088,3 @@ yyabort:
 yyaccept:
     return (0);
 }
-
-#endif
