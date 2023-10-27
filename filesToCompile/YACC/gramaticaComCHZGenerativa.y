@@ -82,10 +82,13 @@ declarativa :   tipo lista_de_variables                                         
             |   declaracion_funcion                                                 { yyPrintInLine("Se detectó declaración de función");}
             ;
 
-declaracion_funcion     :       VOID IDENTIFICADOR '(' parametro ')' '{' cuerpo_de_la_funcion '}'  
-                        |       VOID '(' parametro ')' '{' cuerpo_de_la_funcion '}'                     {yyerror("Se detectó la falta de un nombre en la función"); }
-                        |       VOID IDENTIFICADOR '(' parametro ')' '{' '}'                            {yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
+declaracion_funcion     :       funcion_name '(' parametro ')' '{' cuerpo_de_la_funcion '}'             { tableSymbol->deleteScope();}
+                        |       VOID '(' parametro ')' '{' cuerpo_de_la_funcion '}'                     { yyerror("Se detectó la falta de un nombre en la función"); }
+                        |       funcion_name '(' parametro ')' '{' '}'                                  { tableSymbol->deleteScope(); yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
                         ;
+
+funcion_name    :       VOID IDENTIFICADOR              { symbol* newIdentificador = setNewScope($2->ptr, "void", tableSymbol->getScope(), "funcion"); tableSymbol->addScope($2->ptr); }
+                ;
 
 declaracion_clase   :   CLASS IDENTIFICADOR '{' lista_atributos_y_metodos '}'         /* Los atributos y métodos van en desorden */ { yyPrintInLine("Se detectó declaración de clase");}
                     |   CLASS IDENTIFICADOR /* fordward declaration*/           { yyPrintInLine("Se detectó declaración de clase adelantada");}
@@ -98,9 +101,12 @@ lista_atributos_y_metodos       :       lista_atributos_y_metodos tipo lista_de_
                                 ;
 
 
-metodo  :   VOID IDENTIFICADOR '(' parametro ')' '{' cuerpo_de_la_funcion '}'       { yyPrintInLine("Se detectó declaración de método de clase");}
-        |   VOID IDENTIFICADOR '(' parametro ')' '{' '}'                            {yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
+metodo  :   metodo_name '(' parametro ')' '{' cuerpo_de_la_funcion '}'                 { tableSymbol->deleteScope(); }
+        |   metodo_name '(' parametro ')' '{' '}'                                      { tableSymbol->deleteScope(); yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
         ;
+
+metodo_name     :       VOID IDENTIFICADOR              { symbol* newIdentificador = setNewScope($2->ptr, "void", tableSymbol->getScope(), "metodo"); tableSymbol->addScope($2->ptr);}
+                ;
 
 declaracion_objeto  :   IDENTIFICADOR lista_de_objetos
                     ;
@@ -114,11 +120,11 @@ tipo    :       SHORT   { typeAux = "short"; $$->type ="short";}
         |       FLOAT   { typeAux = "float"; $$->type = "float";}
         ;
 
-lista_de_variables  :   lista_de_variables ';' IDENTIFICADOR    { tableSymbol->getSymbol($3->ptr)->type = typeAux; }
-                    |   IDENTIFICADOR                           { tableSymbol->getSymbol($1->ptr)->type = typeAux; }
+lista_de_variables  :   lista_de_variables ';' IDENTIFICADOR    { symbol* newIdentificador = setNewScope($3->ptr, typeAux, tableSymbol->getScope(),""); }
+                    |   IDENTIFICADOR                           { symbol* newIdentificador = setNewScope($1->ptr, typeAux, tableSymbol->getScope(),""); }
                     ;
 
-parametro   :   tipo IDENTIFICADOR              { tableSymbol->getSymbol($2->ptr)->type = $1->type; tableSymbol->getSymbol($2->ptr)->uso = "parametro"; $$->ptr = $2->ptr; $$->type = $1->type;}
+parametro   :   tipo IDENTIFICADOR              { symbol* newIdentificador = setNewScope($2->ptr, $1->type, tableSymbol->getScope(), "parametro"); $$->ptr = newIdentificador->lexema; $$->type = $1->type;}
             |   /* vacío */
             ;
 
@@ -289,4 +295,23 @@ void checkTypesAsignation(string type1, string type2){
         if(type1 != type2 && type1 != "error" && type2 != "error"){
                 yyerror("Incompatibilidad de tipos al asignar "+ type2 + " a " + type1);
         }
+}
+// Esta función dado el acceso a un elemento de la tabla de símbolos elimina el simbolo y lo actualiza con el scope y el tipo de esa variable.
+symbol* setNewScope(string key, string type, string scope, string uso){
+        
+        symbol* identificador = tableSymbol->getSymbol(key);// obtenemos el símbolo
+        symbol* newIdentificador = new symbol(*identificador);  // copiamos el símbolo
+        tableSymbol->deleteSymbol(identificador->lexema);       // eliminamos el simbolo (usa el contador)
+        
+        if(type != ""){
+                newIdentificador->type = type;                          // actualizamos el tipo
+        }
+        if(scope != ""){
+                newIdentificador->lexema += scope;                      // actualizamos el scope
+        }
+        if(uso != ""){
+                newIdentificador->uso = uso;                            // actualizamos el uso
+        }
+
+        tableSymbol->insert(newIdentificador);                  // insertamos el nuevo símbolo
 }

@@ -34,6 +34,21 @@ void TableSymbol::insert(const string& key, const string& lexema, const string& 
     
 
 }
+// insertar un simbolo en la tabla, inserta el puntero (NO HACE UNA COPIA DEL SIMBOLO)
+void TableSymbol::insert(symbol * symbol) {
+    // buscamos si ya existe ese símbolo en la tabla
+    auto it = symbolTable.find(symbol->lexema);
+    if (it != symbolTable.end()) {
+        // encontró un símbolo con esa clave
+        // incrementamos el contador de ese símbolo
+        it->second->count++;
+    }else{
+        //no encontró un símbolo con esa clave
+        symbolTable[symbol->lexema] = symbol;
+    }
+    
+
+}
 
 // Función para imprimir la tabla completa
 void TableSymbol::imprimirTabla() {

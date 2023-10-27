@@ -14,7 +14,7 @@ class TableSymbol{
     private:
         // Unordered map con clave de string y valor de puntero a symbol (estrcutura definida en types.hpp)
         unordered_map<string, symbol*> symbolTable;
-        string scope; 
+        string scope = ":main"; 
 
     public:
 
@@ -24,8 +24,21 @@ class TableSymbol{
         // insertar un elemento en la tabla
         void insert(const string& key, const string& lexema, const string& value,const string& type); 
 
+        // inserta un simbolo en la tabla
+        void insert(symbol * symbol);
+
         // eliminar un elemento de la tabla decrementando su contador
         void deleteSymbol(const string& key);
+        
+        //Funcion que busca añadir el nuevo scope a la variable 
+        void addScope(const string& ambito);
+        
+        //Funcion que busca eliminar el ultimo scope a la variable
+        void deleteScope();
+        
+        //Funcion que devuelve el valor del la variable scope actual
+        string getScope();
+
         //funcion para setear un valor a la variable cantParam
         void setCantParam(const string& key, const string& cant);
         //funcion para devolver el valor de la variable cantParam, 
@@ -42,12 +55,6 @@ class TableSymbol{
         void setUso(const string& uso, const string& key);
         //funcion para devolver el valor de la variable uso
         string getUso(const string& key);
-        //Funcion que busca añadir el nuevo scope a la variable 
-        void addScope(const string& ambito);
-        //Funcion que busca eliminar el ultimo scope a la variable
-        void deleteScope();
-        //Funcion que devuelve el valor del la variable scope actual
-        string getScope();
         int getDiffOffScope(const string& ambito);
         // Destructor para liberar la memoria de los símbolos
         ~TableSymbol();
