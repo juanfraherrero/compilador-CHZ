@@ -1,6 +1,6 @@
 # COMPILADOR-CHZ
 
-# Instalación
+## Requerimientos para desarrollar
 
 Hay que bajarse el vscode
 
@@ -9,21 +9,26 @@ instalarse la extensión:
 - c/c++ Makefile Project
 - Code Runner
 
-Luego checkear tener instalado make en la máquina, https://sourceforge.net/projects/mingw/ 
+### Compilación
 
-Cuando lo tengan todo instalado, si no tocaron nada en el código.   
+Instalar make en la máquina, https://sourceforge.net/projects/mingw/ 
 
-En el archivo Makefile en la línea 13, en la variable src deben poner la carpeta raíz de donde esté su proyecto
+En el archivo Makefile en la línea 13, en la variable src deben poner el path completo hacia la carpeta src. Ejemplo - "C:\Escritorio\compilador-CHZ\src"
 
-desde la carpeta raiz le dan:
+Desde la carpeta raiz (donde está el Makefile) le dan al siguiente comando para compilar el código:
 
 ```make
 make all
 ```
 
-y con eso compilan todo. ya tienen el binario y ahr lo ejecutan
+## Ejecución
+Una vez tenemos compilado el código, solo resta ejecutarlo:
 
 ```
 /compilador-CHZ filesToCompile/text.txt 
 ```
-el primer parámetro es el binario, y el segundo el archivo de texto ode código a leer.
+
+El primer parámetro es el binario (tiene el nombre definido en el Makefile), y el segundo el archivo de texto de código a compilar.
+
+# Consideraciones
+Dentro de la carpeta ejecutables se encuentras los ejecutables de windows de 32 y 64 bits para usos directos sin necesidad de instalar nada.
