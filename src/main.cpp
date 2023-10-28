@@ -3,7 +3,7 @@
 // #include "include/TableReservedWord.hpp"
 #include "include/Tercets.hpp"
 #include "include/Lexico.hpp"
-
+#include "include/AssemblerGenerator.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -96,8 +96,12 @@ int main(int arg_count, char *arg_list[]) {
     // tableRWords->imprimirTabla();
     tableTercets->print();
 
+    // generamos el código assembler
+    // AssemblerGenerator * assemblerGenerator = new AssemblerGenerator("output.asm");
+    // assemblerGenerator->generateAssembler(tableTercets);
+
     delete tableSymbol;
     delete tableRWords;
-
+    delete tableTercets;
     return 0;
 }
