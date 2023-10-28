@@ -149,48 +149,64 @@ void TableSymbol::deleteScope(){
 string TableSymbol::getScope(){
     return scope;
 }
+// x:main:b:c   symbolWithScope
+// x            nameVar
+// :maih:b:c    scope
 
-int TableSymbol::getDiffOffScope(const string& ambito) {
+// nameVar+scope
+// symbolWithScope
+int TableSymbol::getDiffOffScope(const string& ambito,const string& uso) {
     // Suponemos que uno le pasa por la variable "ambito" el ámbito al que queremos calcular la diferencia de niveles.
+    size_t firstColonPos = ambito.find(':');
+    string nameVar = ambito.substr(0, firstColonPos);
+    string scopeAux = nameVar + scope;
     int diff = 0;
+    string ambitoActual = ambito;  // Creamos una copia de ambito para no modificar el original
+    size_t lastColonPosAmbito = ambitoActual.find_last_of(':'); // Buscamos la última aparición de ':' en el ámbito
 
-    if((isSubset(scope, ambito)) || isSubset(ambito, scope)){
-        string ambitoActual = ambito;  // Creamos una copia de ambito para no modificar el original
-        size_t lastColonPosAmbito = ambitoActual.find_last_of(':'); // Buscamos la última aparición de ':' en el ámbito
-
-        //comparamos el ambito actual con el scope
-        while (ambitoActual != scope && lastColonPosAmbito != string::npos) {
+    //comparamos el ambito actual con el scope
+    while (lastColonPosAmbito != string::npos) {
+        if (ambitoActual != scopeAux){
             diff++;
-            ambitoActual = ambitoActual.substr(0, lastColonPosAmbito);
-            cout<<ambitoActual<<endl;
-            lastColonPosAmbito = ambitoActual.find_last_of(':');
         }
-        //devolvemos la distancia entre el scope y el ambito pasado por parametro
-        return diff;
+        else{ 
+            if (CompareUse(ambitoActual,uso))
+            {   
+                return diff;
+            }
         }
-    else{
-        //si no son subconjuntos devolvemos -1
-        return -1;
+        ambitoActual = ambitoActual.substr(0, lastColonPosAmbito);
+        lastColonPosAmbito = ambitoActual.find_last_of(':');
     }
-}
-bool TableSymbol::isSubset(const string text, const string subset){
-    size_t textLength = text.length();
-    size_t subsetLength = subset.length();
-
-    if (subsetLength > textLength) 
-        return false; // El conjunto no puede ser un subconjunto si su longitud es mayor
-    
-
-    for (size_t i = 0; i <= textLength - subsetLength; ++i) {
-        if (text.substr(i, subsetLength) == subset) {
-            return true; // Se encontró el subconjunto
-        }
-    }
-
-    return false; // No se encontró el subconjunto
+    return -1;
 }
 
+bool TableSymbol::CompareUse(const string& ambito, const string& uso){
+    auto it = symbolTable.find(ambito);
+    if (it != symbolTable.end()) {
+        if(it->second->uso == uso){
+            cout<<"es el mismo uso"<<endl;
+            return true;
+        }
+    }
+    return false;
+}
 
+symbol* TableSymbol:: getFirstSymbolMatching(const string& ambito,const string& uso)
+{
+    int diffScope = getDiffOffScope(ambito,uso);
+    string ambitoAux = ambito + scope;
+    for (size_t i = 0; i <= diffScope; ++i) {
+        size_t lastColonPos = ambitoAux.find_last_of(':');
+        ambitoAux= ambitoAux.substr(0, lastColonPos);
+       }
+    cout<<"El ambito es" + ambitoAux << endl;
+    auto it = symbolTable.find(ambitoAux);
+    if (it != symbolTable.end()) {
+        return it->second; // Devolver el puntero al símbolo si se encuentra
+    }
+    return nullptr;
+}
 // Destructor para liberar la memoria de los símbolos
 TableSymbol::~TableSymbol() {
     for (auto& pair : symbolTable) {

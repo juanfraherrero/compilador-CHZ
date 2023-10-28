@@ -576,9 +576,9 @@ void checkTypesAsignation(string type1, string type2){
 // Esta función dado el acceso a un elemento de la tabla de símbolos elimina el simbolo y lo actualiza con el scope y el tipo de esa variable.
 symbol* setNewScope(string key, string type, string scope, string uso){
         
-        symbol* identificador = tableSymbol->getSymbol(key);// obtenemos el símbolo
+        symbol* identificador = tableSymbol->getSymbol(key);    // obtenemos el símbolo
         symbol* newIdentificador = new symbol(*identificador);  // copiamos el símbolo
-        tableSymbol->deleteSymbol(key);       // eliminamos el simbolo (usa el contador)
+        tableSymbol->deleteSymbol(key);                         // eliminamos el simbolo (usa el contador)
         
         if(type != ""){
                 newIdentificador->type = type;                          // actualizamos el tipo
@@ -590,7 +590,7 @@ symbol* setNewScope(string key, string type, string scope, string uso){
                 newIdentificador->uso = uso;                            // actualizamos el uso
         }
 
-        tableSymbol->insert(newIdentificador);                  // insertamos el nuevo símbolo
+        tableSymbol->insert(newIdentificador);                          // insertamos el nuevo símbolo
         return newIdentificador;
 }
 // Crea un terceto y lo agrega a la tabla de tercetos.
@@ -620,7 +620,7 @@ void addTercetOnlyStack(string argumento, string operando1, string operando2){
 Tercet* popTercet(){
         return tableTercets->pop();
 }
-#line 623 "y.tab.c"
+#line 624 "y.tab.c"
 #define YYABORT goto yyabort
 #define YYACCEPT goto yyaccept
 #define YYERROR goto yyerrlab
@@ -810,11 +810,11 @@ case 17:
 break;
 case 18:
 #line 87 "./gramaticaComCHZGenerativa.y"
-{ tableSymbol->deleteScope(); yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
+{ tableSymbol->deleteScope(); yywarning("Se detectó la falta de RETURN en el cuerpo de la función");}
 break;
 case 19:
 #line 90 "./gramaticaComCHZGenerativa.y"
-{ symbol* newIdentificador = setNewScope(yyvsp[0]->ptr, "void", tableSymbol->getScope(), "funcion"); tableSymbol->addScope(yyvsp[0]->ptr); }
+{ int diff = tableSymbol->getDiffOffScope(yyvsp[0]->ptr+tableSymbol->getScope(), "funcion"); if(diff == 0){yyerror("Redeclaración de función en el mismo ámbito");}else{symbol* newIdentificador = setNewScope(yyvsp[0]->ptr, "void", tableSymbol->getScope(), "funcion");} tableSymbol->addScope(yyvsp[0]->ptr); }
 break;
 case 20:
 #line 93 "./gramaticaComCHZGenerativa.y"
@@ -862,11 +862,11 @@ case 35:
 break;
 case 36:
 #line 123 "./gramaticaComCHZGenerativa.y"
-{ symbol* newIdentificador = setNewScope(yyvsp[0]->ptr, typeAux, tableSymbol->getScope(),""); }
+{ int diff = tableSymbol->getDiffOffScope(yyvsp[0]->ptr+tableSymbol->getScope(), "var"); if(diff == 0){yyerror("Redeclaración de variable en el mismo ámbito");}else{symbol* newIdentificador = setNewScope(yyvsp[0]->ptr, typeAux, tableSymbol->getScope(),"var");}}
 break;
 case 37:
 #line 124 "./gramaticaComCHZGenerativa.y"
-{ symbol* newIdentificador = setNewScope(yyvsp[0]->ptr, typeAux, tableSymbol->getScope(),""); }
+{ int diff = tableSymbol->getDiffOffScope(yyvsp[0]->ptr+tableSymbol->getScope(), "var"); if(diff == 0){yyerror("Redeclaración de variable en el mismo ámbito");}else{symbol* newIdentificador = setNewScope(yyvsp[0]->ptr, typeAux, tableSymbol->getScope(),"var");}}
 break;
 case 38:
 #line 127 "./gramaticaComCHZGenerativa.y"
@@ -894,7 +894,7 @@ case 54:
 break;
 case 55:
 #line 151 "./gramaticaComCHZGenerativa.y"
-{ checkTypesAsignation(tableSymbol->getSymbol(yyvsp[-2]->ptr)->type, yyvsp[0]->type); Tercet *t = new Tercet("=", yyvsp[-2]->ptr, yyvsp[0]->ptr); int number = tableTercets->add(t); yyval->ptr = charTercetoId + to_string(number); }
+{ tableSymbol->deleteSymbol(yyvsp[-2]->ptr); symbol* symbolFinded = tableSymbol->getFirstSymbolMatching(yyvsp[-2]->ptr+tableSymbol->getScope(), "var"); if(symbolFinded == nullptr){yyerror("No se encontró declaración previa de la variable "+ yyvsp[-2]->ptr);}else{checkTypesAsignation(symbolFinded->type, yyvsp[0]->type); int number = addTercet("=", symbolFinded->lexema, yyvsp[0]->ptr); yyval->ptr = charTercetoId + to_string(number);}}
 break;
 case 58:
 #line 159 "./gramaticaComCHZGenerativa.y"
@@ -1092,7 +1092,7 @@ case 114:
 #line 248 "./gramaticaComCHZGenerativa.y"
 { yyPrintInLine("Se detectó un acceso a un objeto");}
 break;
-#line 1095 "y.tab.c"
+#line 1096 "y.tab.c"
     }
     yyssp -= yym;
     yystate = *yyssp;

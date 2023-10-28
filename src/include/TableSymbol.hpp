@@ -55,14 +55,16 @@ class TableSymbol{
         void setUso(const string& uso, const string& key);
         //funcion para devolver el valor de la variable uso
         string getUso(const string& key);
-        int getDiffOffScope(const string& ambito);
+
+        symbol* getFirstSymbolMatching(const string& ambito,const string& uso);
+        int getDiffOffScope(const string& ambito, const string& uso);
         // Destructor para liberar la memoria de los símbolos
         ~TableSymbol();
 
-
+        
         //funciones auxiliares
 
-        bool isSubset(const string text, const string subset);
+        bool CompareUse(const string& ambito, const string& uso);
 };
 
 #endif

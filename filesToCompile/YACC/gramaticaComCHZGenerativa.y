@@ -84,10 +84,10 @@ declarativa :   tipo lista_de_variables                                         
 
 declaracion_funcion     :       funcion_name '(' parametro ')' '{' cuerpo_de_la_funcion '}'             { tableSymbol->deleteScope();}
                         |       VOID '(' parametro ')' '{' cuerpo_de_la_funcion '}'                     { yyerror("Se detectó la falta de un nombre en la función"); }
-                        |       funcion_name '(' parametro ')' '{' '}'                                  { tableSymbol->deleteScope(); yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
+                        |       funcion_name '(' parametro ')' '{' '}'                                  { tableSymbol->deleteScope(); yywarning("Se detectó la falta de RETURN en el cuerpo de la función");}
                         ;
 
-funcion_name    :       VOID IDENTIFICADOR              { symbol* newIdentificador = setNewScope($2->ptr, "void", tableSymbol->getScope(), "funcion"); tableSymbol->addScope($2->ptr); }
+funcion_name    :       VOID IDENTIFICADOR              { int diff = tableSymbol->getDiffOffScope($2->ptr+tableSymbol->getScope(), "funcion"); if(diff == 0){yyerror("Redeclaración de función en el mismo ámbito");}else{symbol* newIdentificador = setNewScope($2->ptr, "void", tableSymbol->getScope(), "funcion");} tableSymbol->addScope($2->ptr); }
                 ;
 
 declaracion_clase   :   CLASS IDENTIFICADOR '{' lista_atributos_y_metodos '}'         /* Los atributos y métodos van en desorden */ { yyPrintInLine("Se detectó declaración de clase");}
@@ -120,8 +120,8 @@ tipo    :       SHORT   { typeAux = "short"; $$->type ="short";}
         |       FLOAT   { typeAux = "float"; $$->type = "float";}
         ;
 
-lista_de_variables  :   lista_de_variables ';' IDENTIFICADOR    { symbol* newIdentificador = setNewScope($3->ptr, typeAux, tableSymbol->getScope(),""); }
-                    |   IDENTIFICADOR                           { symbol* newIdentificador = setNewScope($1->ptr, typeAux, tableSymbol->getScope(),""); }
+lista_de_variables  :   lista_de_variables ';' IDENTIFICADOR    { int diff = tableSymbol->getDiffOffScope($3->ptr+tableSymbol->getScope(), "var"); if(diff == 0){yyerror("Redeclaración de variable en el mismo ámbito");}else{symbol* newIdentificador = setNewScope($3->ptr, typeAux, tableSymbol->getScope(),"var");} }
+                    |   IDENTIFICADOR                           { int diff = tableSymbol->getDiffOffScope($1->ptr+tableSymbol->getScope(), "var"); if(diff == 0){yyerror("Redeclaración de variable en el mismo ámbito");}else{symbol* newIdentificador = setNewScope($1->ptr, typeAux, tableSymbol->getScope(),"var");} }
                     ;
 
 parametro   :   tipo IDENTIFICADOR              { symbol* newIdentificador = setNewScope($2->ptr, $1->type, tableSymbol->getScope(), "parametro"); $$->ptr = newIdentificador->lexema; $$->type = $1->type;}
@@ -148,7 +148,7 @@ ejecutable  :    asignacion
             |    PRINT                                      { yyerror("Se detectó la falta de una cadena de caracteres al querer imprimir");}
             ;
 
-asignacion : IDENTIFICADOR '=' expresion_aritmetica          { checkTypesAsignation(tableSymbol->getSymbol($1->ptr)->type, $3->type); Tercet *t = new Tercet("=", $1->ptr, $3->ptr); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number); }
+asignacion : IDENTIFICADOR '=' expresion_aritmetica          { tableSymbol->deleteSymbol($1->ptr); symbol* symbolFinded = tableSymbol->getFirstSymbolMatching($1->ptr, "var"); if(symbolFinded == nullptr){yyerror("No se encontró declaración previa de la variable "+ $1->ptr);}else{checkTypesAsignation(symbolFinded->type, $3->type); int number = addTercet("=", symbolFinded->lexema, $3->ptr); $$->ptr = charTercetoId + to_string(number);} }
            ;
 
 invocacion : IDENTIFICADOR '(' expresion_aritmetica ')'      
