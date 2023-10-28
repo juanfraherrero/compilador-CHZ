@@ -53,6 +53,16 @@ int Tercets::numberOfLastTercet(){
     return this->tercets.size() - 1;
 }
 
-Tercets::~Tercets(){
+Tercets::~Tercets() {
+    // Eliminar objetos apuntados en el vector 'tercets'
+    for (Tercet* tercet : tercets) {
+        delete tercet;
+    }
+    tercets.clear();
 
+    // Eliminar objetos apuntados en la stack 'tercetsStack'
+    while (!tercetsStack.empty()) {
+        delete tercetsStack.top();
+        tercetsStack.pop();
+    }
 }
