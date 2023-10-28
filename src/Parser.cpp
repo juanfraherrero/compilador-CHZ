@@ -578,7 +578,7 @@ symbol* setNewScope(string key, string type, string scope, string uso){
         
         symbol* identificador = tableSymbol->getSymbol(key);// obtenemos el símbolo
         symbol* newIdentificador = new symbol(*identificador);  // copiamos el símbolo
-        tableSymbol->deleteSymbol(identificador->lexema);       // eliminamos el simbolo (usa el contador)
+        tableSymbol->deleteSymbol(key);       // eliminamos el simbolo (usa el contador)
         
         if(type != ""){
                 newIdentificador->type = type;                          // actualizamos el tipo
@@ -591,8 +591,36 @@ symbol* setNewScope(string key, string type, string scope, string uso){
         }
 
         tableSymbol->insert(newIdentificador);                  // insertamos el nuevo símbolo
+        return newIdentificador;
 }
-#line 596 "y.tab.c"
+// Crea un terceto y lo agrega a la tabla de tercetos.
+// Los parámtros son argumento, operador1, y operador2
+int addTercet(string argumento, string operando1, string operando2){
+        Tercet *t = new Tercet(argumento, operando1, operando2); 
+        int number = tableTercets->add(t);
+        return number;
+}
+// Crea un terceto y lo agrega a la tabla de tercetos y lo apila.
+// Los parámtros son argumento, operador1, y operador2
+int addTercetAndStack(string argumento, string operando1, string operando2){
+        Tercet *t = new Tercet(argumento, operando1, operando2); 
+        int number = tableTercets->add(t);
+        tableTercets->push(t);
+        return number;
+}
+// Crea un terceto y lo apila.
+// Los parámtros son argumento, operador1, y operador2
+void addTercetOnlyStack(string argumento, string operando1, string operando2){
+        Tercet *t = new Tercet(argumento, operando1, operando2); 
+        tableTercets->push(t);
+        return ;
+}
+
+// desapila un terceto de la stack de tercetos y la retorna
+Tercet* popTercet(){
+        return tableTercets->pop();
+}
+#line 623 "y.tab.c"
 #define YYABORT goto yyabort
 #define YYACCEPT goto yyaccept
 #define YYERROR goto yyerrlab
@@ -734,7 +762,7 @@ yyreduce:
     {
 case 1:
 #line 64 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = new Tercet("FIN", "-", "-"); int number = tableTercets->add(t);}
+{ int number = addTercet("FIN", "-", "-");}
 break;
 case 2:
 #line 65 "./gramaticaComCHZGenerativa.y"
@@ -818,7 +846,7 @@ case 28:
 break;
 case 29:
 #line 108 "./gramaticaComCHZGenerativa.y"
-{  symbol* newIdentificador = setNewScope(yyvsp[0]->ptr, "void", tableSymbol->getScope(), "metodo"); tableSymbol->addScope(yyvsp[0]->ptr);}
+{ symbol* newIdentificador = setNewScope(yyvsp[0]->ptr, "void", tableSymbol->getScope(), "metodo"); tableSymbol->addScope(yyvsp[0]->ptr);}
 break;
 case 33:
 #line 118 "./gramaticaComCHZGenerativa.y"
@@ -858,7 +886,7 @@ case 45:
 break;
 case 51:
 #line 145 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = new Tercet("print", tableSymbol->getSymbol(yyvsp[0]->ptr)->value, ""); int number = tableTercets->add(t); yyval->ptr = charTercetoId + to_string(number); }
+{ int number = addTercet("print", tableSymbol->getSymbol(yyvsp[0]->ptr)->value, ""); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 54:
 #line 148 "./gramaticaComCHZGenerativa.y"
@@ -910,7 +938,7 @@ case 67:
 break;
 case 68:
 #line 173 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = tableTercets->pop(); t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1) );}
+{ Tercet *t = popTercet(); t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1) );}
 break;
 case 69:
 #line 174 "./gramaticaComCHZGenerativa.y"
@@ -918,7 +946,7 @@ case 69:
 break;
 case 70:
 #line 177 "./gramaticaComCHZGenerativa.y"
-{ Tercet * t = new Tercet("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); int number = tableTercets->add(t); tableTercets->push(t); yyval->ptr = charTercetoId + to_string(number); }
+{ int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 72:
 #line 181 "./gramaticaComCHZGenerativa.y"
@@ -926,43 +954,43 @@ case 72:
 break;
 case 74:
 #line 185 "./gramaticaComCHZGenerativa.y"
-{ Tercet * t = tableTercets->pop();  t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2)); Tercet * t2 = new Tercet("BI", "", ""); int number = tableTercets->add(t2); tableTercets->push(t2); yyval->ptr = charTercetoId + to_string(number);}
+{ Tercet * t = popTercet();  t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2)); int number =  addTercetAndStack("BI", "", ""); yyval->ptr = charTercetoId + to_string(number);}
 break;
 case 76:
 #line 190 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = tableTercets->pop(); t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2) ); Tercet *t2 = tableTercets->pop(); Tercet * t3 = new Tercet("BI", t2->getArg1(), ""); int number = tableTercets->add(t3); yyval->ptr = charTercetoId + to_string(number);}
+{ Tercet *t = popTercet(); t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2) ); Tercet *t2 = popTercet(); int number = addTercet("BI", t2->getArg1(), ""); yyval->ptr = charTercetoId + to_string(number);}
 break;
 case 77:
 #line 193 "./gramaticaComCHZGenerativa.y"
-{ Tercet * t = new Tercet("incioCondicionWhile", charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1), ""); tableTercets->push(t); }
+{ addTercetOnlyStack("incioCondicionWhile", charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1), ""); }
 break;
 case 78:
 #line 196 "./gramaticaComCHZGenerativa.y"
-{ Tercet * t = new Tercet("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); int number = tableTercets->add(t); tableTercets->push(t); yyval->ptr = charTercetoId + to_string(number); }
+{ int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 80:
 #line 202 "./gramaticaComCHZGenerativa.y"
-{ checkTypesCompare(yyvsp[-2]->type, yyvsp[0]->type); Tercet *t = new Tercet(">", yyvsp[-2]->ptr, yyvsp[0]->ptr); int number = tableTercets->add(t); yyval->ptr = charTercetoId + to_string(number); }
+{ checkTypesCompare(yyvsp[-2]->type, yyvsp[0]->type); int number = addTercet(">", yyvsp[-2]->ptr, yyvsp[0]->ptr); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 81:
 #line 203 "./gramaticaComCHZGenerativa.y"
-{ checkTypesCompare(yyvsp[-2]->type, yyvsp[0]->type); Tercet *t = new Tercet("<", yyvsp[-2]->ptr, yyvsp[0]->ptr); int number = tableTercets->add(t); yyval->ptr = charTercetoId + to_string(number); }
+{ checkTypesCompare(yyvsp[-2]->type, yyvsp[0]->type); int number = addTercet("<", yyvsp[-2]->ptr, yyvsp[0]->ptr); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 82:
 #line 204 "./gramaticaComCHZGenerativa.y"
-{ checkTypesCompare(yyvsp[-2]->type, yyvsp[0]->type); Tercet *t = new Tercet("==", yyvsp[-2]->ptr, yyvsp[0]->ptr); int number = tableTercets->add(t); yyval->ptr = charTercetoId + to_string(number); }
+{ checkTypesCompare(yyvsp[-2]->type, yyvsp[0]->type); int number = addTercet("==", yyvsp[-2]->ptr, yyvsp[0]->ptr); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 83:
 #line 205 "./gramaticaComCHZGenerativa.y"
-{ checkTypesCompare(yyvsp[-2]->type, yyvsp[0]->type); Tercet *t = new Tercet("!!", yyvsp[-2]->ptr, yyvsp[0]->ptr); int number = tableTercets->add(t); yyval->ptr = charTercetoId + to_string(number); }
+{ checkTypesCompare(yyvsp[-2]->type, yyvsp[0]->type); int number = addTercet("!!", yyvsp[-2]->ptr, yyvsp[0]->ptr); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 84:
 #line 206 "./gramaticaComCHZGenerativa.y"
-{ checkTypesCompare(yyvsp[-2]->type, yyvsp[0]->type); Tercet *t = new Tercet(">=", yyvsp[-2]->ptr, yyvsp[0]->ptr); int number = tableTercets->add(t); yyval->ptr = charTercetoId + to_string(number); }
+{ checkTypesCompare(yyvsp[-2]->type, yyvsp[0]->type); int number = addTercet(">=", yyvsp[-2]->ptr, yyvsp[0]->ptr); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 85:
 #line 207 "./gramaticaComCHZGenerativa.y"
-{ checkTypesCompare(yyvsp[-2]->type, yyvsp[0]->type); Tercet *t = new Tercet("<=", yyvsp[-2]->ptr, yyvsp[0]->ptr); int number = tableTercets->add(t); yyval->ptr = charTercetoId + to_string(number); }
+{ checkTypesCompare(yyvsp[-2]->type, yyvsp[0]->type); int number = addTercet("<=", yyvsp[-2]->ptr, yyvsp[0]->ptr); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 88:
 #line 212 "./gramaticaComCHZGenerativa.y"
@@ -1018,7 +1046,7 @@ case 102:
 break;
 case 103:
 #line 231 "./gramaticaComCHZGenerativa.y"
-{ Tercet *t = new Tercet("tof", " ", yyvsp[-1]->ptr); int number = tableTercets->add(t); yyval->ptr = charTercetoId + to_string(number); yyval->type = "float"; }
+{ int number = addTercet("tof", " ", yyvsp[-1]->ptr); yyval->ptr = charTercetoId + to_string(number); yyval->type = "float"; }
 break;
 case 104:
 #line 234 "./gramaticaComCHZGenerativa.y"
@@ -1064,7 +1092,7 @@ case 114:
 #line 248 "./gramaticaComCHZGenerativa.y"
 { yyPrintInLine("Se detectó un acceso a un objeto");}
 break;
-#line 1068 "y.tab.c"
+#line 1095 "y.tab.c"
     }
     yyssp -= yym;
     yystate = *yyssp;

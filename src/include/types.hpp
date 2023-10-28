@@ -35,6 +35,11 @@ struct symbol {
     symbol(const string& _lexema, string _value) : lexema(_lexema), value(_value), count(1) {};
     symbol(const string& _lexema, string _value, string _type) : lexema(_lexema), value(_value), type(_type), count(1) {};
     symbol(const string& _lexema, string _value, string _type, string _uso) : lexema(_lexema), value(_value), type(_type), uso(_uso), count(1) {};
+    
+    // Función para obtener una representación en forma de cadena
+    string ToString() const {
+        return "Lexema: " + lexema + "\t Valor:| " + value + "\t Tipo: " + type + "\t Uso: " + uso;
+    }
 };
 
 struct myTypeYYLVAL {

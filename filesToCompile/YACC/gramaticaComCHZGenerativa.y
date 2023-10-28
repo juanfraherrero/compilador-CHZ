@@ -61,7 +61,7 @@ void yyPrintInLine(string s){
 
 %%
 
-programa    :   '{' sentencias '}'              { Tercet *t = new Tercet("FIN", "-", "-"); int number = tableTercets->add(t);}
+programa    :   '{' sentencias '}'              { int number = addTercet("FIN", "-", "-");}
             |   '{' '}'                         { yywarning("Se está compilando un programa sin contenido"); Tercet *t = new Tercet("FIN", "-", "-"); int number = tableTercets->add(t); }
             |   '{' sentencias '}' error        { yyerror("Se detectó contenido luego de finalizado el programa");}             
             |   '{' '}' error                   { yywarning("Se está compilando un programa sin contenido"); yyerror("Se detectó contenido luego de finalizado el programa");}             
@@ -142,7 +142,7 @@ cuerpo_de_la_funcion_sin_return    :   cuerpo_de_la_funcion_sin_return sentencia
 ejecutable  :    asignacion
             |    invocacion                                 
             |    seleccion
-            |    PRINT CADENA_CARACTERES                    { Tercet *t = new Tercet("print", tableSymbol->getSymbol($2->ptr)->value, ""); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number); }
+            |    PRINT CADENA_CARACTERES                    { int number = addTercet("print", tableSymbol->getSymbol($2->ptr)->value, ""); $$->ptr = charTercetoId + to_string(number); }
             |    ciclo_while
             |    acceso_objeto
             |    PRINT                                      { yyerror("Se detectó la falta de una cadena de caracteres al querer imprimir");}
@@ -170,11 +170,11 @@ termino : termino '*' factor                                    { if(checkTypesO
         | factor                                                { $$->ptr = $1->ptr; $$->type = $1->type;}
         ;
 
-seleccion : IF bloque_condicion cuerpo_if                       { Tercet *t = tableTercets->pop(); t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1) );}                     
+seleccion : IF bloque_condicion cuerpo_if                       { Tercet *t = popTercet(); t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1) );}                     
           | IF '(' ')' cuerpo_if                                { yyerror("Falta de condición en el bloque de control IF");}
           ;
 
-bloque_condicion : '(' condicion ')'                            { Tercet * t = new Tercet("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); int number = tableTercets->add(t); tableTercets->push(t); $$->ptr = charTercetoId + to_string(number); }
+bloque_condicion : '(' condicion ')'                            { int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); $$->ptr = charTercetoId + to_string(number); }
                  ;
 
 cuerpo_if : cuerpo_then ELSE cuerpo_else END_IF
@@ -182,29 +182,29 @@ cuerpo_if : cuerpo_then ELSE cuerpo_else END_IF
           | cuerpo_then END_IF                                  
           ; 
 
-cuerpo_then : bloque_ejecutables                                { Tercet * t = tableTercets->pop();  t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2)); Tercet * t2 = new Tercet("BI", "", ""); int number = tableTercets->add(t2); tableTercets->push(t2); $$->ptr = charTercetoId + to_string(number);}
+cuerpo_then : bloque_ejecutables                                { Tercet * t = popTercet();  t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2)); int number =  addTercetAndStack("BI", "", ""); $$->ptr = charTercetoId + to_string(number);}
             ;
 cuerpo_else : bloque_ejecutables
             ;
 
-ciclo_while : inicio_while bloque_condicion_while DO cuerpo_while               { Tercet *t = tableTercets->pop(); t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2) ); Tercet *t2 = tableTercets->pop(); Tercet * t3 = new Tercet("BI", t2->getArg1(), ""); int number = tableTercets->add(t3); $$->ptr = charTercetoId + to_string(number);}                     
+ciclo_while : inicio_while bloque_condicion_while DO cuerpo_while               { Tercet *t = popTercet(); t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2) ); Tercet *t2 = popTercet(); int number = addTercet("BI", t2->getArg1(), ""); $$->ptr = charTercetoId + to_string(number);}                     
             ;
 
-inicio_while    : WHILE                                                         { Tercet * t = new Tercet("incioCondicionWhile", charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1), ""); tableTercets->push(t); }
+inicio_while    : WHILE                                                         { addTercetOnlyStack("incioCondicionWhile", charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1), ""); }
                 ;
 
-bloque_condicion_while: '(' condicion ')'                                       { Tercet * t = new Tercet("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); int number = tableTercets->add(t); tableTercets->push(t); $$->ptr = charTercetoId + to_string(number); }
+bloque_condicion_while: '(' condicion ')'                                       { int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); $$->ptr = charTercetoId + to_string(number); }
                 ;
 
 cuerpo_while : bloque_ejecutables                                       
             ;   
 
-condicion : expresion_aritmetica '>' expresion_aritmetica                       { checkTypesCompare($1->type, $3->type); Tercet *t = new Tercet(">", $1->ptr, $3->ptr); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number); }
-          | expresion_aritmetica '<' expresion_aritmetica                       { checkTypesCompare($1->type, $3->type); Tercet *t = new Tercet("<", $1->ptr, $3->ptr); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number); }
-          | expresion_aritmetica COMPARADOR_IGUAL_IGUAL expresion_aritmetica    { checkTypesCompare($1->type, $3->type); Tercet *t = new Tercet("==", $1->ptr, $3->ptr); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number); }
-          | expresion_aritmetica COMPARADOR_DISTINTO expresion_aritmetica       { checkTypesCompare($1->type, $3->type); Tercet *t = new Tercet("!!", $1->ptr, $3->ptr); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number); }
-          | expresion_aritmetica COMPARADOR_MAYOR_IGUAL expresion_aritmetica    { checkTypesCompare($1->type, $3->type); Tercet *t = new Tercet(">=", $1->ptr, $3->ptr); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number); }
-          | expresion_aritmetica COMPARADOR_MENOR_IGUAL expresion_aritmetica    { checkTypesCompare($1->type, $3->type); Tercet *t = new Tercet("<=", $1->ptr, $3->ptr); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number); }
+condicion : expresion_aritmetica '>' expresion_aritmetica                       { checkTypesCompare($1->type, $3->type); int number = addTercet(">", $1->ptr, $3->ptr); $$->ptr = charTercetoId + to_string(number); }
+          | expresion_aritmetica '<' expresion_aritmetica                       { checkTypesCompare($1->type, $3->type); int number = addTercet("<", $1->ptr, $3->ptr); $$->ptr = charTercetoId + to_string(number); }
+          | expresion_aritmetica COMPARADOR_IGUAL_IGUAL expresion_aritmetica    { checkTypesCompare($1->type, $3->type); int number = addTercet("==", $1->ptr, $3->ptr); $$->ptr = charTercetoId + to_string(number); }
+          | expresion_aritmetica COMPARADOR_DISTINTO expresion_aritmetica       { checkTypesCompare($1->type, $3->type); int number = addTercet("!!", $1->ptr, $3->ptr); $$->ptr = charTercetoId + to_string(number); }
+          | expresion_aritmetica COMPARADOR_MAYOR_IGUAL expresion_aritmetica    { checkTypesCompare($1->type, $3->type); int number = addTercet(">=", $1->ptr, $3->ptr); $$->ptr = charTercetoId + to_string(number); }
+          | expresion_aritmetica COMPARADOR_MENOR_IGUAL expresion_aritmetica    { checkTypesCompare($1->type, $3->type); int number = addTercet("<=", $1->ptr, $3->ptr); $$->ptr = charTercetoId + to_string(number); }
           ;
 
 bloque_ejecutables  :   '{' sentencias_ejecutables '}'
@@ -228,7 +228,7 @@ factor : IDENTIFICADOR                                                  { $$->pt
        | IDENTIFICADOR OPERADOR_SUMA_SUMA                               { Tercet * t = new Tercet("+", $1->ptr, $1->ptr); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number);$$->type = tableSymbol->getSymbol($1->ptr)->type;}
        | constanteSinSigno                                              { $$->ptr = $1->ptr; $$->type = $1->type;}
        | constanteConSigno                                              { $$->ptr = $1->ptr; $$->type = $1->type;}
-       | TOF '(' expresion_aritmetica ')'                               { Tercet *t = new Tercet("tof", " ", $3->ptr); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number); $$->type = "float"; } 
+       | TOF '(' expresion_aritmetica ')'                               { int number = addTercet("tof", " ", $3->ptr); $$->ptr = charTercetoId + to_string(number); $$->type = "float"; } 
        ;
 
 constanteSinSigno       :       ENTERO_SIN_SIGNO                        { $$->ptr = $1->ptr; $$->type = $1->type;}               
@@ -299,9 +299,9 @@ void checkTypesAsignation(string type1, string type2){
 // Esta función dado el acceso a un elemento de la tabla de símbolos elimina el simbolo y lo actualiza con el scope y el tipo de esa variable.
 symbol* setNewScope(string key, string type, string scope, string uso){
         
-        symbol* identificador = tableSymbol->getSymbol(key);// obtenemos el símbolo
+        symbol* identificador = tableSymbol->getSymbol(key);    // obtenemos el símbolo
         symbol* newIdentificador = new symbol(*identificador);  // copiamos el símbolo
-        tableSymbol->deleteSymbol(identificador->lexema);       // eliminamos el simbolo (usa el contador)
+        tableSymbol->deleteSymbol(key);                         // eliminamos el simbolo (usa el contador)
         
         if(type != ""){
                 newIdentificador->type = type;                          // actualizamos el tipo
@@ -313,5 +313,33 @@ symbol* setNewScope(string key, string type, string scope, string uso){
                 newIdentificador->uso = uso;                            // actualizamos el uso
         }
 
-        tableSymbol->insert(newIdentificador);                  // insertamos el nuevo símbolo
+        tableSymbol->insert(newIdentificador);                          // insertamos el nuevo símbolo
+        return newIdentificador;
+}
+// Crea un terceto y lo agrega a la tabla de tercetos.
+// Los parámtros son argumento, operador1, y operador2
+int addTercet(string argumento, string operando1, string operando2){
+        Tercet *t = new Tercet(argumento, operando1, operando2); 
+        int number = tableTercets->add(t);
+        return number;
+}
+// Crea un terceto y lo agrega a la tabla de tercetos y lo apila.
+// Los parámtros son argumento, operador1, y operador2
+int addTercetAndStack(string argumento, string operando1, string operando2){
+        Tercet *t = new Tercet(argumento, operando1, operando2); 
+        int number = tableTercets->add(t);
+        tableTercets->push(t);
+        return number;
+}
+// Crea un terceto y lo apila.
+// Los parámtros son argumento, operador1, y operador2
+void addTercetOnlyStack(string argumento, string operando1, string operando2){
+        Tercet *t = new Tercet(argumento, operando1, operando2); 
+        tableTercets->push(t);
+        return ;
+}
+
+// desapila un terceto de la stack de tercetos y la retorna
+Tercet* popTercet(){
+        return tableTercets->pop();
 }
