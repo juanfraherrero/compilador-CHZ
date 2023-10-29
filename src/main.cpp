@@ -67,14 +67,20 @@ int main(int arg_count, char *arg_list[]) {
     if(resultParsing == 0){
         if(isErrorInCode){
             cout << "\n\n --------------- \n\n";
-            cout << "Parsing succed but errors in code" << endl;            
+            cout << "Parsing succed but errors in code" << endl;
+            cout << "Solve them to generate the Assembler" << endl;            
         }else{
             cout << "\n\n --------------- \n\n";
             cout << "Parsing succed" << endl;
+            cout << "Generating the Assembler" << endl;
+            // generamos el código assembler
+            // AssemblerGenerator * assemblerGenerator = new AssemblerGenerator("output.asm");
+            // assemblerGenerator->generateAssembler(tableTercets);
         }
     }else{
         cout << "\n\n --------------- \n\n";
         cout << "Parsing failed" << endl;
+        cout << "Solve it to generate the Assembler" << endl;
     }
 
     // FOR ONLY READ TOKENS COMMENT THE ABOVE CODE (Line 65 to 78)
@@ -96,9 +102,6 @@ int main(int arg_count, char *arg_list[]) {
     // tableRWords->imprimirTabla();
     tableTercets->print();
 
-    // generamos el código assembler
-    // AssemblerGenerator * assemblerGenerator = new AssemblerGenerator("output.asm");
-    // assemblerGenerator->generateAssembler(tableTercets);
 
     delete tableSymbol;
     delete tableRWords;

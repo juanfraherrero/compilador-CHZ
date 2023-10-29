@@ -8,6 +8,7 @@ instalarse la extensión:
 - c/c++ de microsoft
 - c/c++ Makefile Project
 - Code Runner
+- Yash
 
 ### Compilación
 
