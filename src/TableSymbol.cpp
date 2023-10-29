@@ -185,7 +185,6 @@ bool TableSymbol::CompareUse(const string& ambito, const string& uso){
     auto it = symbolTable.find(ambito);
     if (it != symbolTable.end()) {
         if(it->second->uso == uso){
-            cout<<"es el mismo uso"<<endl;
             return true;
         }
     }
@@ -195,12 +194,15 @@ bool TableSymbol::CompareUse(const string& ambito, const string& uso){
 symbol* TableSymbol:: getFirstSymbolMatching(const string& ambito,const string& uso)
 {
     int diffScope = getDiffOffScope(ambito,uso);
+    
+    if(diffScope == -1){ // sino encontramos coincidencia retornamos nullptr
+        return nullptr;
+    }
     string ambitoAux = ambito + scope;
     for (size_t i = 0; i <= diffScope; ++i) {
         size_t lastColonPos = ambitoAux.find_last_of(':');
         ambitoAux= ambitoAux.substr(0, lastColonPos);
        }
-    cout<<"El ambito es" + ambitoAux << endl;
     auto it = symbolTable.find(ambitoAux);
     if (it != symbolTable.end()) {
         return it->second; // Devolver el puntero al símbolo si se encuentra
