@@ -148,7 +148,7 @@ ejecutable  :    asignacion
             |    PRINT                                      { yyerror("Se detectó la falta de una cadena de caracteres al querer imprimir");}
             ;
 
-asignacion : IDENTIFICADOR '=' expresion_aritmetica          { tableSymbol->deleteSymbol($1->ptr); symbol* symbolFinded = tableSymbol->getFirstSymbolMatching($1->ptr, "var"); if(symbolFinded == nullptr){yyerror("No se encontró declaración previa de la variable "+ $1->ptr);}else{checkTypesAsignation(symbolFinded->type, $3->type); int number = addTercet("=", symbolFinded->lexema, $3->ptr); $$->ptr = charTercetoId + to_string(number);} }
+asignacion : IDENTIFICADOR '=' expresion_aritmetica          { tableSymbol->deleteSymbol($1->ptr); symbol* symbolFinded = tableSymbol->getFirstSymbolMatching($1->ptr+tableSymbol->getScope(), "var"); if(symbolFinded == nullptr){yyerror("No se encontró declaración previa de la variable "+ $1->ptr);}else{checkTypesAsignation(symbolFinded->type, $3->type); int number = addTercet("=", symbolFinded->lexema, $3->ptr); $$->ptr = charTercetoId + to_string(number);} }
            ;
 
 invocacion : IDENTIFICADOR '(' expresion_aritmetica ')'      
@@ -177,16 +177,17 @@ seleccion : IF bloque_condicion cuerpo_if                       { Tercet *t = po
 bloque_condicion : '(' condicion ')'                            { int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); $$->ptr = charTercetoId + to_string(number); }
                  ;
 
-cuerpo_if : cuerpo_then ELSE cuerpo_else END_IF
+cuerpo_if : cuerpo_then else_if cuerpo_else END_IF
           | cuerpo_then cuerpo_else END_IF                      { yyerror(" Falta de ELSE en bloque de control IF-ELSE");}
           | cuerpo_then END_IF                                  
           ; 
 
-cuerpo_then : bloque_ejecutables                                { Tercet * t = popTercet();  t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2)); int number =  addTercetAndStack("BI", "", ""); $$->ptr = charTercetoId + to_string(number);}
+cuerpo_then : bloque_ejecutables                                
             ;
 cuerpo_else : bloque_ejecutables
             ;
-
+else_if :       ELSE                                            { Tercet * t = popTercet();  t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2)); int number =  addTercetAndStack("BI", "", ""); $$->ptr = charTercetoId + to_string(number); }
+        ;
 ciclo_while : inicio_while bloque_condicion_while DO cuerpo_while               { Tercet *t = popTercet(); t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2) ); Tercet *t2 = popTercet(); int number = addTercet("BI", t2->getArg1(), ""); $$->ptr = charTercetoId + to_string(number);}                     
             ;
 
