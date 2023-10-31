@@ -25,9 +25,21 @@ class E4 : public AccionSemantica {
             //define that code have an error
             isErrorInCode = true;
 
-            // al ser un error forzamos volver al estado 0 y vaciamos el lexema
-            automaton->getToken()->lexeme = "";
-            return 0;    
+            
+
+            // al ser un error deberíamos forzamos volver al estado 0 
+            // pero como se gfue de rango mejor devolver 0 dando un aviso de que se cambió y que el parsing no falle
+
+            //insertamos en la tabla de símbolos el short int con valor 0
+                // con el lexema como key, el lexema, el valor
+                // el insert checkea la existencia de otro lexema igual 
+            tableSymbol->insert("0_s", "0_s", "0", "short");
+
+            //definimos el token como short int y además le modificamos el lexema a 0_s
+            automaton->getToken()->lexeme = "0_s";
+            automaton->getToken()->token = id_CONSTANTE_ENTERO_CORTO;
+            automaton->getToken()->type = "short";
+            return 19;    
         } ;
         string name() override {
             return "E4";
