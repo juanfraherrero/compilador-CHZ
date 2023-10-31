@@ -1,6 +1,7 @@
 #include "../include/AccionSemantica.hpp"
 #include "../include/Automaton.hpp"
 #include "../include/types.hpp"
+#include "../include/ID_YACC.hpp"
 
 #include <iostream>
 #include <string>
@@ -29,9 +30,25 @@ class E3 : public AccionSemantica {
             // guarda el caracter en el buffer del automaton
             automaton->setBuffer(characterReaded);
 
-            // al ser un error forzamos volver al estado 0 y vaciamos el lexema
-            automaton->getToken()->lexeme = "";
-            return 0;    
+            // obtenemos el lexema hasta el salto de línea
+            string lexeme = automaton->getToken()->lexeme;
+
+            // obtenemos el valor del entero sin el primer #
+            string value = lexeme.substr(1, lexeme.length() - 1);
+
+            //insertamos en la tabla de símbolos la cadena de caracteres 
+                // con el lexema como key, el lexema, el valor es el lexema sin el primer #
+                // el insert checkea la existencia de otro lexema igual 
+            tableSymbol->insert(lexeme, lexeme, value, "string");
+
+            //definimos el token como cadena de caracteres
+            automaton->getToken()->token = id_CONSTANTE_CADENA_CARACTERES;
+            automaton->getToken()->type = "string";
+            
+            // al ser un error deberíamos forzar volver al estado 0
+            // pero como devolvemos igualmente una cadena forzamos a ir al estado 19 o final para obtener esa cadena.
+
+            return 19;    
         } ;
         string name() override {
             return "E3";
