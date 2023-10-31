@@ -18,6 +18,8 @@
 #include "Acciones/E1.cpp"
 #include "Acciones/E2.cpp"
 #include "Acciones/E3.cpp"
+#include "Acciones/E9.cpp"
+#include "Acciones/E10.cpp"
 
 #include "include/TableSymbol.hpp"
 #include "include/TableReservedWord.hpp"
@@ -264,7 +266,9 @@ AccionSemantica* Automaton::getAccionSemantica(string accionStr){
         {"AS16", new AS16()},
         {"E1", new E1()},
         {"E2", new E2()},
-        {"E3", new E3()}
+        {"E3", new E3()},
+        {"E9", new E9()},
+        {"E10", new E10()}
         };
 
     auto it = actionMap.find(accionStr);
