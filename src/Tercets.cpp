@@ -44,8 +44,11 @@ void Tercets::push(Tercet* t){
 }
 
 Tercet* Tercets::pop(){
-    Tercet* t = this->tercetsStack.top();
-    this->tercetsStack.pop();
+    Tercet* t = nullptr; // Inicializa con nullptr para evitar problemas
+    if (!this->tercetsStack.empty()) {
+        t = this->tercetsStack.top();
+        this->tercetsStack.pop();
+    }
     return t;
 }
 

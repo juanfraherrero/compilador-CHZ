@@ -179,11 +179,14 @@ termino : termino '*' factor                                    { if(checkTypesO
         | factor                                                { $$->ptr = $1->ptr; $$->type = $1->type;}
         ;
 
-seleccion : IF bloque_condicion cuerpo_if                       { Tercet *t = popTercet(); t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1) );}                     
-          | IF '(' ')' cuerpo_if                                { yyerror("Falta de condición en el bloque de control IF");}
+seleccion : IF bloque_condicion cuerpo_if                       { Tercet *t = popTercet(); if (t!=nullptr){t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1) );}}                     
           ;
 
 bloque_condicion : '(' condicion ')'                            { int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); $$->ptr = charTercetoId + to_string(number); }
+                 | '(' condicion                                { yywarning("Falta de ultimo paréntesis en condición"); int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); $$->ptr = charTercetoId + to_string(number);}
+                 |  condicion ')'                               { yywarning("Falta de primer paréntesis en condición"); int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); $$->ptr = charTercetoId + to_string(number);}
+                 |  condicion                                   { yywarning("Falta de parantesis en condición"); int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); $$->ptr = charTercetoId + to_string(number);}
+                 |  '(' ')'                                     { yyerror("Falta de condición en el bloque de control IF"); int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); $$->ptr = charTercetoId + to_string(number);}
                  ;
 
 cuerpo_if : cuerpo_then else_if cuerpo_else END_IF
@@ -195,9 +198,9 @@ cuerpo_then : bloque_ejecutables
             ;
 cuerpo_else : bloque_ejecutables
             ;
-else_if :       ELSE                                            { Tercet * t = popTercet();  t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2)); int number =  addTercetAndStack("BI", "", ""); $$->ptr = charTercetoId + to_string(number); }
+else_if :       ELSE                                            { Tercet * t = popTercet();  if (t!=nullptr){t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2));} int number =  addTercetAndStack("BI", "", ""); $$->ptr = charTercetoId + to_string(number); }
         ;
-ciclo_while : inicio_while bloque_condicion_while DO cuerpo_while               { Tercet *t = popTercet(); t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2) ); Tercet *t2 = popTercet(); int number = addTercet("BI", t2->getArg1(), ""); $$->ptr = charTercetoId + to_string(number);}                     
+ciclo_while : inicio_while bloque_condicion_while DO cuerpo_while               { Tercet *t = popTercet(); if (t!=nullptr){t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2) );} Tercet *t2 = popTercet();int number; if(t2!=nullptr){int number = addTercet("BI", t2->getArg1(), "");} $$->ptr = charTercetoId + to_string(number);}                     
             ;
 
 inicio_while    : WHILE                                                         { addTercetOnlyStack("incioCondicionWhile", charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1), ""); }
