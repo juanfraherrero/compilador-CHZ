@@ -68,18 +68,30 @@ programa    :   '{' sentencias '}'              { int number = addTercet("FIN", 
             |   sentencias                      { yywarning("Se detectó la falta de llaves en el programa"); }
             |   '{' sentencias                  { yywarning("Se detectó la falta de la ultima llave del programa"); }
             |   sentencias '}'                  { yywarning("Se detectó la falta de la primera llave del programa"); }
+            |   '{' comas sentencias '}'              
+            |   '{' comas '}'                         
+            |   comas                           { yywarning("Se detectó la falta de llaves en el programa"); }
+            |   '{' comas                       { yywarning("Se detectó la falta de la ultima llave del programa"); }
+            |   comas '}'                       { yywarning("Se detectó la falta de la primera llave del programa"); }
+            |   '{' comas sentencias            { yywarning("Se detectó la falta de la ultima llave del programa"); }
+            |    comas sentencias '}'           { yywarning("Se detectó la falta de la primera llave del programa"); }
+            |    comas sentencias               { yywarning("Se detectó la falta de llaves en el programa"); }
             ;
             
 sentencias  :   sentencias sentencia
             |   sentencia 
             ;
 
-sentencia   :   declarativa ','                                    
-            |   ejecutable ','    
+sentencia   :   declarativa comas                                    
+            |   ejecutable comas    
             |   declarativa                                      { yyerror("Se detectó una falta de coma"); }                                 
             |   ejecutable                                       { yyerror("Se detectó una falta de coma"); }
             |   error ','                                        { }
             ;
+
+comas : ',' comas
+      | ',' 
+      ;
 
 declarativa :   tipo lista_de_variables                                             { yyPrintInLine("Se detectó declaración de variable");}
             |   declaracion_clase                                                    
