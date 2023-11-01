@@ -165,15 +165,17 @@ ejecutable  :    asignacion
             |    seleccion
             |    PRINT CADENA_CARACTERES                    { int number = addTercet("print", tableSymbol->getSymbol($2->ptr)->value, ""); $$->ptr = charTercetoId + to_string(number); }
             |    ciclo_while
-            |    acceso_objeto
             |    PRINT                                      { yyerror("Se detectó la falta de una cadena de caracteres al querer imprimir");}
             ;
 
-asignacion : IDENTIFICADOR '=' expresion_aritmetica          { tableSymbol->deleteSymbol($1->ptr); symbol* symbolFinded = tableSymbol->getFirstSymbolMatching($1->ptr+tableSymbol->getScope(), "var"); if(symbolFinded == nullptr){yyerror("No se encontró declaración previa de la variable "+ $1->ptr);}else{checkTypesAsignation(symbolFinded->type, $3->type); int number = addTercet("=", symbolFinded->lexema, $3->ptr); $$->ptr = charTercetoId + to_string(number);} }
+asignacion : IDENTIFICADOR '=' expresion_aritmetica                     { tableSymbol->deleteSymbol($1->ptr); symbol* symbolFinded = tableSymbol->getFirstSymbolMatching($1->ptr+tableSymbol->getScope(), "var"); if(symbolFinded == nullptr){yyerror("No se encontró declaración previa de la variable "+ $1->ptr);}else{checkTypesAsignation(symbolFinded->type, $3->type); int number = addTercet("=", symbolFinded->lexema, $3->ptr); $$->ptr = charTercetoId + to_string(number);} }
+           | IDENTIFICADOR '.' IDENTIFICADOR '=' expresion_aritmetica
            ;
 
 invocacion : IDENTIFICADOR '(' expresion_aritmetica ')'      
-           | IDENTIFICADOR '(' ')'                           
+           | IDENTIFICADOR '(' ')' 
+           | IDENTIFICADOR '.' IDENTIFICADOR '(' expresion_aritmetica ')'      
+           | IDENTIFICADOR '.' IDENTIFICADOR '(' ')'                           
            ;
 
 
@@ -262,6 +264,7 @@ factor : IDENTIFICADOR                                                  { $$->pt
        | constanteSinSigno                                              { $$->ptr = $1->ptr; $$->type = $1->type;}
        | constanteConSigno                                              { $$->ptr = $1->ptr; $$->type = $1->type;}
        | TOF '(' expresion_aritmetica ')'                               { int number = addTercet("tof", " ", $3->ptr); $$->ptr = charTercetoId + to_string(number); $$->type = "float"; } 
+       | IDENTIFICADOR '.' IDENTIFICADOR 
        ;
 
 constanteSinSigno       :       ENTERO_SIN_SIGNO                        { $$->ptr = $1->ptr; $$->type = $1->type;}               
@@ -274,12 +277,6 @@ constanteConSigno       :       ENTERO_CORTO                            { checkI
                         |       '-' PUNTO_FLOTANTE                      { string newLexema = setFloatNegative($2->ptr); $$->ptr = newLexema; $$->type = $2->type;}
                         |       '-'                                     { yyerror("Falta constante numérica en la expresión"); }
                         ;
-
-acceso_objeto   :   IDENTIFICADOR '.' IDENTIFICADOR '=' expresion_aritmetica                 { yyPrintInLine("Se detectó un acceso a un objeto");}
-                |   IDENTIFICADOR '.' IDENTIFICADOR '=' IDENTIFICADOR '.' IDENTIFICADOR      { yyPrintInLine("Se detectó un acceso a un objeto");}
-                |   IDENTIFICADOR '.' IDENTIFICADOR '(' expresion_aritmetica ')'             { yyPrintInLine("Se detectó un acceso a un objeto");}
-                |   IDENTIFICADOR '.' IDENTIFICADOR '(' ')'                                  { yyPrintInLine("Se detectó un acceso a un objeto");}
-                ;
 
 %%
 void checkIntegerShort(string lexeme){
