@@ -15,7 +15,7 @@ using namespace std;
         Verificar si el caracter leído es 'i'
             Si es Concatenarmos el caracter al string
             Si no es al strig le agregamos la i, y guardamos el caracter en el buffer, luego informamos un warning de que se agregó una 'i'
-        checkear que el lexema no se pase de rango, si se pasa de rango se informa un error y sele devuelve al sintático un 0_ui para que no falle
+        checkear que el lexema no se pase de rango, si se pasa de rango se informa un error y se le devuelve al sintático un 0_ui para que no falle
         verifcar si está en la tabla de símbolos sino agregarlo
 */
 
