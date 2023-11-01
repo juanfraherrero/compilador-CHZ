@@ -8,10 +8,10 @@
 using namespace std;
 extern bool isErrorInCode;
 /*
-    La acción semántica de ERROR 2 (detección de un caracter no válido en una constante numérica) se encarga de:
-        Indicar un error por pantalla de caracter no válido detectado 
+    La acción semántica de ERROR 9 (detección de un caracter no válido en una constante numérica de tipo float) se encarga de:
+        Indicar un error en la constante numérica
         Guardar el caracter en el buffer 
-        Vaciar el string del buffer 
+        devolvemos al sintáctico un 0 para que no falle el parsing 
 */
 class E9 : public AccionSemantica {
     private:
