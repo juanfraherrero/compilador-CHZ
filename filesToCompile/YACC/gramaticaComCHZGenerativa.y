@@ -69,7 +69,7 @@ programa    :   '{' sentencias '}'              { int number = addTercet("FIN", 
             ;
             
 sentencias  :   sentencias sentencia
-            |   sentencia
+            |   sentencia 
             ;
 
 sentencia   :   declarativa ','                                    
@@ -109,6 +109,7 @@ metodo  :   metodo_name '(' parametro ')' '{' cuerpo_de_la_funcion '}'          
         ;
 
 metodo_name     :       VOID IDENTIFICADOR              { symbol* newIdentificador = setNewScope($2->ptr, "void", tableSymbol->getScope(), "metodo"); tableSymbol->addScope($2->ptr);}
+                |       VOID                            { yyerror("Falta de nombre de método"); }
                 ;
 
 declaracion_objeto  :   IDENTIFICADOR lista_de_objetos
@@ -124,6 +125,7 @@ tipo    :       SHORT   { typeAux = "short"; $$->type ="short";}
         ;
 
 lista_de_variables  :   lista_de_variables ';' IDENTIFICADOR    { int diff = tableSymbol->getDiffOffScope($3->ptr+tableSymbol->getScope(), "var"); if(diff == 0){yyerror("Redeclaración de variable en el mismo ámbito");}else{symbol* newIdentificador = setNewScope($3->ptr, typeAux, tableSymbol->getScope(),"var");} }
+                    /* |   lista_de_variables IDENTIFICADOR        { yywarning("Se detecto falta de separador ';' entre identificadores."); int diff = tableSymbol->getDiffOffScope($2->ptr+tableSymbol->getScope(), "var"); if(diff == 0){yyerror("Redeclaración de variable en el mismo ámbito");}else{symbol* newIdentificador = setNewScope($2->ptr, typeAux, tableSymbol->getScope(),"var");}} */
                     |   IDENTIFICADOR                           { int diff = tableSymbol->getDiffOffScope($1->ptr+tableSymbol->getScope(), "var"); if(diff == 0){yyerror("Redeclaración de variable en el mismo ámbito");}else{symbol* newIdentificador = setNewScope($1->ptr, typeAux, tableSymbol->getScope(),"var");} }
                     ;
 
