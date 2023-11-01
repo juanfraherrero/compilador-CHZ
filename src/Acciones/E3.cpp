@@ -12,7 +12,7 @@ extern bool isErrorInCode;
     La acción semántica de ERROR 3 (detección de un salto de línea en cadena de texto) se encarga de:
         Indicar un error por pantalla de salto de línea inválido 
         Guardar el caracter en el buffer  
-        volver al estado 19 devolviendo la cadena detectada previa al salto de línea
+        Volver al estado 19 devolviendo la cadena detectada previa al salto de línea
 */
 class E3 : public AccionSemantica {
     private:

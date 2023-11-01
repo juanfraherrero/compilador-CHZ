@@ -8,8 +8,8 @@
 using namespace std;
 extern bool isErrorInCode;
 /*
-    La acción semántica de ERROR 5 (deteccion de palabra reservada mal formada) se encarga de:
-        Indicar un error por pantalla de palabra reservada mal formada
+    La acción semántica de ERROR 5 (deteccion de palabra reservada desconocida) se encarga de:
+        Indicar un error por pantalla de Palabra reservada desconocida por el lenguaje
         Vaciar el string del buffer 
         Volver al estado 0
 */
@@ -20,7 +20,7 @@ class E5 : public AccionSemantica {
         E5(){};
         int execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
 
-            std::cerr << "\033[31m" << "Linea: " << *(automaton->getPtrLineNumber()) << "-> Error: Palabra reservada mal formada"  << "\033[0m" << endl;
+            std::cerr << "\033[31m" << "Linea: " << *(automaton->getPtrLineNumber()) << "-> Error: Palabra reservada desconocida por el lenguaje"  << "\033[0m" << endl;
             
             //define that code have an error
             isErrorInCode = true;
