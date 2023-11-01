@@ -13,7 +13,7 @@ using namespace std;
 /*
     La acción semántica 14 (Punto Flotante) se encarga de:
         guarda el caracter en el buffer del automaton
-        checkea el rango de la constante de Punto Flotante (sino está en rango avisa del error y vuelve al estado 0)
+        checkea el rango de la constante de Punto Flotante (sino está en rango avisa del error y devuelve un 0.0 y va al estado final)
         guardar en la tabla de símbolos la constante de Punto Flotante
 
 */

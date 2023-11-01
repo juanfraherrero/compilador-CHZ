@@ -16,7 +16,8 @@ using namespace std;
         verifcar si está en la tabla de símbolos
 
     Al definir los límites del rango usamos de 0 a 128
-        realmente es de -128 a 127 pero no podemos saber si es negativo o positivo
+        realmente es de -128 a 127 pero no podemos saber si es negativo o positivo 
+        si se pasa de rango se informa un error y se le devuelve al sintático un 0_s para que no falle
 */
 class AS3 : public AccionSemantica {
     private:
