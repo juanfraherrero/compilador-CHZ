@@ -20,7 +20,7 @@ class E9 : public AccionSemantica {
         E9(){};
         int execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
             // indicar un error por pantalla de caracter no válido detectado
-            cerr << "\033[31m" << "Linea: " << *(automaton->getPtrLineNumber()) << "-> Error: Error en constante numérica flotante por caracter: " << characterReaded << " debe coincidir con el formato 1.40327E+38 " << "\033[0m"<< endl;
+            cerr << "\033[31m" << "Linea: " << *(automaton->getPtrLineNumber()) << "-> Error: Error en constante numérica flotante por caracter " << characterReaded << ". Debe coincidir con el formato 1.40327E+38. Verificar documentación. Se convierte en 0 de tipo flotante" << "\033[0m"<< endl;
             
             //define that code have an error
             isErrorInCode = true;

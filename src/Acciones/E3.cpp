@@ -11,9 +11,8 @@ extern bool isErrorInCode;
 /*
     La acción semántica de ERROR 3 (detección de un salto de línea en cadena de texto) se encarga de:
         Indicar un error por pantalla de salto de línea inválido 
-        Guardar el caracter en el buffer 
-        Vaciar el string del buffer 
-        volver al estado 0
+        Guardar el caracter en el buffer  
+        volver al estado 19 devolviendo la cadena detectada previa al salto de línea
 */
 class E3 : public AccionSemantica {
     private:
@@ -22,7 +21,7 @@ class E3 : public AccionSemantica {
         E3(){};
         int execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
             // indicar un error por pantalla de caracter no válido detectado
-            cerr << "\033[31m" << "Linea: " << *(automaton->getPtrLineNumber()) << "-> Error: salto de línea en cadena de texo " << "\033[0m"<< endl;
+            cerr << "\033[31m" << "Linea: " << *(automaton->getPtrLineNumber()) << "-> Error: salto de línea en cadena de texto " << "\033[0m"<< endl;
             
             //define that code have an error
             isErrorInCode = true;

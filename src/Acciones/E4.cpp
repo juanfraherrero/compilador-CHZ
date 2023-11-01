@@ -10,8 +10,8 @@ extern bool isErrorInCode;
 /*
     La acción semántica de ERROR 4 (deteccion de entero corto fuera de rango) se encarga de:
         Indicar un error por pantalla de entero fuera de rango
-        Vaciar el string del buffer 
-        Volver al estado 0
+        Guarda el caracter en el buffer
+        devolver un 0 de tipo short para que no haya error en parsing
 */
 class E4 : public AccionSemantica {
     private:
@@ -28,7 +28,7 @@ class E4 : public AccionSemantica {
             
 
             // al ser un error deberíamos forzamos volver al estado 0 
-            // pero como se gfue de rango mejor devolver 0 dando un aviso de que se cambió y que el parsing no falle
+            // pero como se fue de rango mejor devolver 0 dando un aviso de que se cambió y que el parsing no falle
 
             //insertamos en la tabla de símbolos el short int con valor 0
                 // con el lexema como key, el lexema, el valor
