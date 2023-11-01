@@ -65,7 +65,9 @@ programa    :   '{' sentencias '}'              { int number = addTercet("FIN", 
             |   '{' '}'                         { yywarning("Se está compilando un programa sin contenido"); Tercet *t = new Tercet("FIN", "-", "-"); int number = tableTercets->add(t); }
             |   '{' sentencias '}' error        { yyerror("Se detectó contenido luego de finalizado el programa");}             
             |   '{' '}' error                   { yywarning("Se está compilando un programa sin contenido"); yyerror("Se detectó contenido luego de finalizado el programa");}             
-            |   sentencias                      { yywarning("Se detectó falta de llaves en el programa"); }
+            |   sentencias                      { yywarning("Se detectó la falta de llaves en el programa"); }
+            |   '{' sentencias                  { yywarning("Se detectó la falta de la ultima llave del programa"); }
+            |   sentencias '}'                  { yywarning("Se detectó la falta de la primera llave del programa"); }
             ;
             
 sentencias  :   sentencias sentencia
@@ -130,6 +132,8 @@ lista_de_variables  :   lista_de_variables ';' IDENTIFICADOR    { int diff = tab
                     ;
 
 parametro   :   tipo IDENTIFICADOR              { symbol* newIdentificador = setNewScope($2->ptr, $1->type, tableSymbol->getScope(), "parametro"); $$->ptr = newIdentificador->lexema; $$->type = $1->type;}
+            |   tipo                            { yyerror("Falta de nombre de parámetro"); }            
+            |   IDENTIFICADOR                   { yyerror("Falta de tipo de parámetro"); } 
             |   /* vacío */
             ;
 
