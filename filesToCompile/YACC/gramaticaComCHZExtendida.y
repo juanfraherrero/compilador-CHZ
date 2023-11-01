@@ -68,7 +68,7 @@ sentencia   :   declarativa ','
             |   ejecutable ','    
             |   declarativa                                      { yyerror("Se detectó una falta de coma"); }                                 
             |   ejecutable                                       { yyerror("Se detectó una falta de coma"); }
-            |   error ','                                        { yyerror("Se detectó una sentencia inválida"); }
+            |   error ','                                        {  }
             ;
 
 declarativa :   tipo lista_de_variables                                             { yyPrintInLine("Se detectó declaración de variable");}
@@ -177,6 +177,7 @@ condicion : expresion_aritmetica '>' expresion_aritmetica
 bloque_ejecutables  :   '{' sentencias_ejecutables '}'
                     |   ejecutable ','
                     |   declarativa  ','                  { yyerror("Se detectó una sentencia declarativa en bloque de control"); }
+                    |   RETURN ','
                     ;
 
 sentencias_ejecutables  :   sentencias_ejecutables ejecutable ','

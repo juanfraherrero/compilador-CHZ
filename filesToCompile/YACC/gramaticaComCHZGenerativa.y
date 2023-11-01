@@ -65,6 +65,9 @@ programa    :   '{' sentencias '}'              { int number = addTercet("FIN", 
             |   '{' '}'                         { yywarning("Se está compilando un programa sin contenido"); Tercet *t = new Tercet("FIN", "-", "-"); int number = tableTercets->add(t); }
             |   '{' sentencias '}' error        { yyerror("Se detectó contenido luego de finalizado el programa");}             
             |   '{' '}' error                   { yywarning("Se está compilando un programa sin contenido"); yyerror("Se detectó contenido luego de finalizado el programa");}             
+            |   sentencias                      { yywarning("Se detectó falta de llaves en el programa"); }
+            ;
+            
 sentencias  :   sentencias sentencia
             |   sentencia
             ;
@@ -73,7 +76,7 @@ sentencia   :   declarativa ','
             |   ejecutable ','    
             |   declarativa                                      { yyerror("Se detectó una falta de coma"); }                                 
             |   ejecutable                                       { yyerror("Se detectó una falta de coma"); }
-            |   error ','                                        { yyerror("Se detectó una sentencia inválida"); }
+            |   error ','                                        { }
             ;
 
 declarativa :   tipo lista_de_variables                                             { yyPrintInLine("Se detectó declaración de variable");}
@@ -209,8 +212,11 @@ condicion : expresion_aritmetica '>' expresion_aritmetica                       
           ;
 
 bloque_ejecutables  :   '{' sentencias_ejecutables '}'
+                    |   '{' sentencias_ejecutables RETURN ',' '}'              
                     |   ejecutable ','
                     |   declarativa  ','                  { yyerror("Se detectó una sentencia declarativa en bloque de control"); }
+                    |   '{' RETURN ',' '}'
+                    |    RETURN ','
                     ;
 
 sentencias_ejecutables  :   sentencias_ejecutables ejecutable ','
