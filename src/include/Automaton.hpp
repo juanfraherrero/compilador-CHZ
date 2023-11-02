@@ -10,11 +10,11 @@
 #include <fstream>
 
 using namespace std;
-
+const int sizeColumnMatrix = 29;
 class Automaton {
     private:
         //Esto hay que setearlo
-        valueOfMatrix matrix[21][28];           // matriz de estados y acciones
+        valueOfMatrix matrix[21][sizeColumnMatrix];           // matriz de estados y acciones
         char bufferForCharacter = '\0';         // buffer para guardar el caracter leído 
         TableSymbol* tableSymbol;                                       
         TableReservedWord* tableRWords;

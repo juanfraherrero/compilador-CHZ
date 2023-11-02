@@ -218,7 +218,7 @@ void Automaton::printMatrix(){
     //imprimimos la matriz de estados
     for (int i = 0; i < 20; i++)
     {
-        for (int j = 0; j < 28; j++)
+        for (int j = 0; j < sizeColumnMatrix; j++)
         {
             cout << this->matrix[i][j].next_state << " ";
         }
@@ -228,7 +228,7 @@ void Automaton::printMatrix(){
     //imprimimos la matriz de acciones
     for (int i = 0; i < 20; i++)
     {
-        for (int j = 0; j < 28; j++)
+        for (int j = 0; j < sizeColumnMatrix; j++)
         {
             AccionSemantica* accion = this->matrix[i][j].accionp;
             if (accion != NULL)
@@ -308,7 +308,7 @@ void Automaton::loadStateTable(string pathFile){
 
             str = "";
             column++;
-            if (column == 28){        
+            if (column == sizeColumnMatrix){        
                 column = 0;
                 row++;
             }
@@ -373,7 +373,7 @@ void Automaton::loadActionsTable(string pathFle){
             
             str = "";
             column++;
-            if (column == 28){        
+            if (column == sizeColumnMatrix){        
                 column = 0;
                 row++;
             
