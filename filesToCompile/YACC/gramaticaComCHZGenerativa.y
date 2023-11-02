@@ -61,21 +61,24 @@ void yyPrintInLine(string s){
 
 %%
 
-programa    :   '{' sentencias '}'              { int number = addTercet("FIN", "-", "-");}
-            |   '{' '}'                         { yywarning("Se está compilando un programa sin contenido"); Tercet *t = new Tercet("FIN", "-", "-"); int number = tableTercets->add(t); }
+programa    :   '{' sentencias '}'              {  yyPrintInLine("Se detectó un programa");}
+            |   '{' '}'                         { yywarning("Se está compilando un programa sin contenido"); }
+            |   '{'                             { yywarning("Se está compilando un programa sin contenido y falta la última llave"); }
+            |   '}'                             { yywarning("Se está compilando un programa sin contenido y falta la primer llave"); }
             |   '{' sentencias '}' error        { yyerror("Se detectó contenido luego de finalizado el programa");}             
             |   '{' '}' error                   { yywarning("Se está compilando un programa sin contenido"); yyerror("Se detectó contenido luego de finalizado el programa");}             
             |   sentencias                      { yywarning("Se detectó la falta de llaves en el programa"); }
             |   '{' sentencias                  { yywarning("Se detectó la falta de la ultima llave del programa"); }
             |   sentencias '}'                  { yywarning("Se detectó la falta de la primera llave del programa"); }
-            |   '{' comas sentencias '}'              
-            |   '{' comas '}'                         
+            |   '{' comas sentencias '}'        {  yyPrintInLine("Se detectó un programa"); }
+            |   '{' comas '}'                   {  yyPrintInLine("Se detectó un programa"); }
             |   comas                           { yywarning("Se detectó la falta de llaves en el programa"); }
             |   '{' comas                       { yywarning("Se detectó la falta de la ultima llave del programa"); }
             |   comas '}'                       { yywarning("Se detectó la falta de la primera llave del programa"); }
             |   '{' comas sentencias            { yywarning("Se detectó la falta de la ultima llave del programa"); }
             |    comas sentencias '}'           { yywarning("Se detectó la falta de la primera llave del programa"); }
             |    comas sentencias               { yywarning("Se detectó la falta de llaves en el programa"); }
+            |                                   { yyerror("No hay programa"); }
             ;
             
 sentencias  :   sentencias sentencia
@@ -84,9 +87,9 @@ sentencias  :   sentencias sentencia
 
 sentencia   :   declarativa comas                                    
             |   ejecutable comas    
-            |   declarativa                                      { yyerror("Se detectó una falta de coma"); }                                 
-            |   ejecutable                                       { yyerror("Se detectó una falta de coma"); }
-            |   error ','                                        { }
+            |   declarativa                                      { yywarning("Se detectó una falta de coma"); }                                 
+            |   ejecutable                                       { yywarning("Se detectó una falta de coma"); }
+            |   error ','                                        { yyerror("Se detectó una sentencia invalida");}
             ;
 
 comas : ',' comas
@@ -99,12 +102,12 @@ declarativa :   tipo lista_de_variables                                         
             |   declaracion_funcion                                                 { yyPrintInLine("Se detectó declaración de función");}
             ;
 
-declaracion_funcion     :       funcion_name '(' parametro ')' '{' cuerpo_de_la_funcion '}'             { tableSymbol->deleteScope();}
+declaracion_funcion     :       funcion_name '(' parametro ')' '{' cuerpo_de_la_funcion '}'             { yyPrintInLine("Se detectó declaración de función");}
                         |       VOID '(' parametro ')' '{' cuerpo_de_la_funcion '}'                     { yyerror("Se detectó la falta de un nombre en la función"); }
-                        |       funcion_name '(' parametro ')' '{' '}'                                  { tableSymbol->deleteScope(); yywarning("Se detectó la falta de RETURN en el cuerpo de la función");}
+                        |       funcion_name '(' parametro ')' '{' '}'                                  { yywarning("Se detectó la falta de RETURN en el cuerpo de la función");}
                         ;
 
-funcion_name    :       VOID IDENTIFICADOR              { int diff = tableSymbol->getDiffOffScope($2->ptr+tableSymbol->getScope(), "funcion"); if(diff == 0){yyerror("Redeclaración de función en el mismo ámbito");}else{symbol* newIdentificador = setNewScope($2->ptr, "void", tableSymbol->getScope(), "funcion");} tableSymbol->addScope($2->ptr); }
+funcion_name    :       VOID IDENTIFICADOR              {  }
                 ;
 
 declaracion_clase   :   CLASS IDENTIFICADOR '{' lista_atributos_y_metodos '}'         /* Los atributos y métodos van en desorden */ { yyPrintInLine("Se detectó declaración de clase");}
@@ -118,19 +121,19 @@ lista_atributos_y_metodos       :       lista_atributos_y_metodos tipo lista_de_
                                 ;
 
 
-metodo  :   metodo_name '(' parametro ')' '{' cuerpo_de_la_funcion '}'                 { tableSymbol->deleteScope(); }
-        |   metodo_name '(' parametro ')' '{' '}'                                      { tableSymbol->deleteScope(); yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
+metodo  :   metodo_name '(' parametro ')' '{' cuerpo_de_la_funcion '}'                 {  yyPrintInLine("Se detectó declaración de metodo en clase");} 
+        |   metodo_name '(' parametro ')' '{' '}'                                      {  yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
         ;
 
-metodo_name     :       VOID IDENTIFICADOR              { symbol* newIdentificador = setNewScope($2->ptr, "void", tableSymbol->getScope(), "metodo"); tableSymbol->addScope($2->ptr);}
+metodo_name     :       VOID IDENTIFICADOR              { }
                 |       VOID                            { yyerror("Falta de nombre de método"); }
                 ;
 
-declaracion_objeto  :   IDENTIFICADOR lista_de_objetos
+declaracion_objeto  :   IDENTIFICADOR lista_de_objetos  
                     ;
 
 lista_de_objetos    :   lista_de_objetos ';' IDENTIFICADOR  
-                    |   IDENTIFICADOR
+                    |   IDENTIFICADOR                           
                     ;
 
 tipo    :       SHORT   { typeAux = "short"; $$->type ="short";}
@@ -138,12 +141,12 @@ tipo    :       SHORT   { typeAux = "short"; $$->type ="short";}
         |       FLOAT   { typeAux = "float"; $$->type = "float";}
         ;
 
-lista_de_variables  :   lista_de_variables ';' IDENTIFICADOR    { int diff = tableSymbol->getDiffOffScope($3->ptr+tableSymbol->getScope(), "var"); if(diff == 0){yyerror("Redeclaración de variable en el mismo ámbito");}else{symbol* newIdentificador = setNewScope($3->ptr, typeAux, tableSymbol->getScope(),"var");} }
+lista_de_variables  :   lista_de_variables ';' IDENTIFICADOR    {  }
                     /* |   lista_de_variables IDENTIFICADOR        { yywarning("Se detecto falta de separador ';' entre identificadores."); int diff = tableSymbol->getDiffOffScope($2->ptr+tableSymbol->getScope(), "var"); if(diff == 0){yyerror("Redeclaración de variable en el mismo ámbito");}else{symbol* newIdentificador = setNewScope($2->ptr, typeAux, tableSymbol->getScope(),"var");}} */
-                    |   IDENTIFICADOR                           { int diff = tableSymbol->getDiffOffScope($1->ptr+tableSymbol->getScope(), "var"); if(diff == 0){yyerror("Redeclaración de variable en el mismo ámbito");}else{symbol* newIdentificador = setNewScope($1->ptr, typeAux, tableSymbol->getScope(),"var");} }
+                    |   IDENTIFICADOR                           {  }
                     ;
 
-parametro   :   tipo IDENTIFICADOR              { symbol* newIdentificador = setNewScope($2->ptr, $1->type, tableSymbol->getScope(), "parametro"); $$->ptr = newIdentificador->lexema; $$->type = $1->type;}
+parametro   :   tipo IDENTIFICADOR              { }
             |   tipo                            { yyerror("Falta de nombre de parámetro"); }            
             |   IDENTIFICADOR                   { yyerror("Falta de tipo de parámetro"); } 
             |   /* vacío */
@@ -160,15 +163,15 @@ cuerpo_de_la_funcion_con_return    :   cuerpo_de_la_funcion_sin_return RETURN ',
 cuerpo_de_la_funcion_sin_return    :   cuerpo_de_la_funcion_sin_return sentencia 
                                    |   sentencia
                                    ;
-ejecutable  :    asignacion
-            |    invocacion                                 
-            |    seleccion
-            |    PRINT CADENA_CARACTERES                    { int number = addTercet("print", tableSymbol->getSymbol($2->ptr)->value, ""); $$->ptr = charTercetoId + to_string(number); }
-            |    ciclo_while
+ejecutable  :    asignacion                             {yyPrintInLine("Se detectó asignación");}
+            |    invocacion                             {yyPrintInLine("Se detectó invocación");}
+            |    seleccion                              {yyPrintInLine("Se detectó un if-else");}
+            |    PRINT CADENA_CARACTERES                    { {yyPrintInLine("Se detectó una impresión");} }
+            |    ciclo_while                            {yyPrintInLine("Se detectó un while");}
             |    PRINT                                      { yyerror("Se detectó la falta de una cadena de caracteres al querer imprimir");}
             ;
 
-asignacion : IDENTIFICADOR '=' expresion_aritmetica                     { tableSymbol->deleteSymbol($1->ptr); symbol* symbolFinded = tableSymbol->getFirstSymbolMatching($1->ptr+tableSymbol->getScope(), "var"); if(symbolFinded == nullptr){yyerror("No se encontró declaración previa de la variable "+ $1->ptr);}else{checkTypesAsignation(symbolFinded->type, $3->type); int number = addTercet("=", symbolFinded->lexema, $3->ptr); $$->ptr = charTercetoId + to_string(number);} }
+asignacion : IDENTIFICADOR '=' expresion_aritmetica                     { }
            | IDENTIFICADOR '.' IDENTIFICADOR '=' expresion_aritmetica
            ;
 
@@ -179,28 +182,28 @@ invocacion : IDENTIFICADOR '(' expresion_aritmetica ')'
            ;
 
 
-expresion_aritmetica : expresion_aritmetica '+' termino         { if(checkTypesOperation($1->type, $3->type)){$$->type=$1->type;}else{$$->type="error";}; Tercet *t = new Tercet("+", $1->ptr, $3->ptr); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number); }
-                    | expresion_aritmetica '-' termino          { if(checkTypesOperation($1->type, $3->type)){$$->type=$1->type;}else{$$->type="error";}; Tercet *t = new Tercet("-", $1->ptr, $3->ptr); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number); }
-                    | expresion_aritmetica '-' '*' termino      { if(checkTypesOperation($1->type, $4->type)){$$->type=$1->type;}else{$$->type="error";}; yywarning("Se detectó un error en operador, quedará '-'"); Tercet *t = new Tercet("-", $1->ptr, $3->ptr); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number); }
-                    | expresion_aritmetica '+' '*' termino      { if(checkTypesOperation($1->type, $4->type)){$$->type=$1->type;}else{$$->type="error";}; yywarning("Se detectó un error en operador, quedará '+'"); Tercet *t = new Tercet("+", $1->ptr, $3->ptr); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number); }
-                    | expresion_aritmetica '-' '/' termino      { if(checkTypesOperation($1->type, $4->type)){$$->type=$1->type;}else{$$->type="error";}; yywarning("Se detectó un error en operador, quedará '-'"); Tercet *t = new Tercet("-", $1->ptr, $3->ptr); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number); }
-                    | expresion_aritmetica '+' '/' termino      { if(checkTypesOperation($1->type, $4->type)){$$->type=$1->type;}else{$$->type="error";}; yywarning("Se detectó un error en operador, quedará '+'"); Tercet *t = new Tercet("+", $1->ptr, $3->ptr); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number); }
-                    | termino                                   { $$->type = $1->type; $$->ptr = $1->ptr; }
+expresion_aritmetica : expresion_aritmetica '+' termino         
+                    | expresion_aritmetica '-' termino          
+                    | expresion_aritmetica '-' '*' termino      
+                    | expresion_aritmetica '+' '*' termino      
+                    | expresion_aritmetica '-' '/' termino      
+                    | expresion_aritmetica '+' '/' termino   
+                    | termino                                   
                     ;
 
-termino : termino '*' factor                                    { if(checkTypesOperation($1->type, $3->type)){$$->type=$1->type;}else{$$->type="error";}; Tercet *t = new Tercet("*", $1->ptr, $3->ptr); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number); }
-        | termino '/' factor                                    { if(checkTypesOperation($1->type, $3->type)){$$->type=$1->type;}else{$$->type="error";}; Tercet *t = new Tercet("/", $1->ptr, $3->ptr); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number); }
-        | factor                                                { $$->ptr = $1->ptr; $$->type = $1->type;}
+termino : termino '*' factor                                    
+        | termino '/' factor                                    
+        | factor                                                
         ;
 
-seleccion : IF bloque_condicion cuerpo_if                       { Tercet *t = popTercet(); if (t!=nullptr){t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1) );}}                     
+seleccion : IF bloque_condicion cuerpo_if                       { }                     
           ;
 
-bloque_condicion : '(' condicion ')'                            { int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); $$->ptr = charTercetoId + to_string(number); }
-                 | '(' condicion                                { yywarning("Falta de ultimo paréntesis en condición"); int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); $$->ptr = charTercetoId + to_string(number);}
-                 |  condicion ')'                               { yywarning("Falta de primer paréntesis en condición"); int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); $$->ptr = charTercetoId + to_string(number);}
-                 |  condicion                                   { yywarning("Falta de parantesis en condición"); int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); $$->ptr = charTercetoId + to_string(number);}
-                 |  '(' ')'                                     { yyerror("Falta de condición en el bloque de control IF"); int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); $$->ptr = charTercetoId + to_string(number);}
+bloque_condicion : '(' condicion ')'                            {  }
+                 | '(' condicion                                { yywarning("Falta de ultimo paréntesis en condición"); }
+                 |  condicion ')'                               { yywarning("Falta de primer paréntesis en condición"); }
+                 |  condicion                                   { yywarning("Falta de parantesis en condición"); }
+                 |  '(' ')'                                     { yyerror("Falta de condición en el bloque de control IF");}
                  ;
 
 cuerpo_if : cuerpo_then else_if cuerpo_else END_IF
@@ -212,13 +215,13 @@ cuerpo_then : bloque_ejecutables
             ;
 cuerpo_else : bloque_ejecutables
             ;
-else_if :       ELSE                                            { Tercet * t = popTercet();  if (t!=nullptr){t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2));} int number =  addTercetAndStack("BI", "", ""); $$->ptr = charTercetoId + to_string(number); }
+else_if :       ELSE                                            { }
         ;
-ciclo_while : inicio_while bloque_condicion DO cuerpo_while               { Tercet *t = popTercet(); if (t!=nullptr){t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2) );} Tercet *t2 = popTercet(); int number; if(t2!=nullptr){int number = addTercet("BI", t2->getArg1(), "");} $$->ptr = charTercetoId + to_string(number);}                     
-            | inicio_while bloque_condicion cuerpo_while                  { yywarning("Falta de DO en WHILE-DO"); Tercet *t = popTercet(); if (t!=nullptr){t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2) );} Tercet *t2 = popTercet();int number; if(t2!=nullptr){int number = addTercet("BI", t2->getArg1(), "");} $$->ptr = charTercetoId + to_string(number);}                     
+ciclo_while : inicio_while bloque_condicion DO cuerpo_while               { }                     
+            | inicio_while bloque_condicion cuerpo_while                  { yywarning("Falta de DO en WHILE-DO"); }                     
             ;
 
-inicio_while    : WHILE                                                         { addTercetOnlyStack("incioCondicionWhile", charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1), ""); }
+inicio_while    : WHILE                                                         {  }
                 ;
 
 /* bloque_condicion_while: '(' condicion ')'                                       { int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); $$->ptr = charTercetoId + to_string(number); }
@@ -231,12 +234,12 @@ inicio_while    : WHILE                                                         
 cuerpo_while : bloque_ejecutables                                       
             ;   
 
-condicion : expresion_aritmetica '>' expresion_aritmetica                       { checkTypesCompare($1->type, $3->type); int number = addTercet(">", $1->ptr, $3->ptr); $$->ptr = charTercetoId + to_string(number); }
-          | expresion_aritmetica '<' expresion_aritmetica                       { checkTypesCompare($1->type, $3->type); int number = addTercet("<", $1->ptr, $3->ptr); $$->ptr = charTercetoId + to_string(number); }
-          | expresion_aritmetica COMPARADOR_IGUAL_IGUAL expresion_aritmetica    { checkTypesCompare($1->type, $3->type); int number = addTercet("==", $1->ptr, $3->ptr); $$->ptr = charTercetoId + to_string(number); }
-          | expresion_aritmetica COMPARADOR_DISTINTO expresion_aritmetica       { checkTypesCompare($1->type, $3->type); int number = addTercet("!!", $1->ptr, $3->ptr); $$->ptr = charTercetoId + to_string(number); }
-          | expresion_aritmetica COMPARADOR_MAYOR_IGUAL expresion_aritmetica    { checkTypesCompare($1->type, $3->type); int number = addTercet(">=", $1->ptr, $3->ptr); $$->ptr = charTercetoId + to_string(number); }
-          | expresion_aritmetica COMPARADOR_MENOR_IGUAL expresion_aritmetica    { checkTypesCompare($1->type, $3->type); int number = addTercet("<=", $1->ptr, $3->ptr); $$->ptr = charTercetoId + to_string(number); }
+condicion : expresion_aritmetica '>' expresion_aritmetica                       
+          | expresion_aritmetica '<' expresion_aritmetica                       
+          | expresion_aritmetica COMPARADOR_IGUAL_IGUAL expresion_aritmetica    
+          | expresion_aritmetica COMPARADOR_DISTINTO expresion_aritmetica       
+          | expresion_aritmetica COMPARADOR_MAYOR_IGUAL expresion_aritmetica    
+          | expresion_aritmetica COMPARADOR_MENOR_IGUAL expresion_aritmetica    
           ;
 
 bloque_ejecutables  :   '{' sentencias_ejecutables '}'
@@ -259,22 +262,22 @@ sentencias_ejecutables  :   sentencias_ejecutables ejecutable ','
                         |   error ','                                           { yyerror("Se detectó una sentencia inválida dentro del bloque de sentencias ejecutables"); }
                         ;
 
-factor : IDENTIFICADOR                                                  { $$->ptr = $1->ptr; $$->type = tableSymbol->getSymbol($1->ptr)->type;}
-       | IDENTIFICADOR OPERADOR_SUMA_SUMA                               { Tercet * t = new Tercet("+", $1->ptr, $1->ptr); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number);$$->type = tableSymbol->getSymbol($1->ptr)->type;}
-       | constanteSinSigno                                              { $$->ptr = $1->ptr; $$->type = $1->type;}
-       | constanteConSigno                                              { $$->ptr = $1->ptr; $$->type = $1->type;}
-       | TOF '(' expresion_aritmetica ')'                               { int number = addTercet("tof", " ", $3->ptr); $$->ptr = charTercetoId + to_string(number); $$->type = "float"; } 
+factor : IDENTIFICADOR                                                  
+       | IDENTIFICADOR OPERADOR_SUMA_SUMA                               
+       | constanteSinSigno                                              
+       | constanteConSigno                                              
+       | TOF '(' expresion_aritmetica ')'                               
        | IDENTIFICADOR '.' IDENTIFICADOR 
        ;
 
-constanteSinSigno       :       ENTERO_SIN_SIGNO                        { $$->ptr = $1->ptr; $$->type = $1->type;}               
-                        |       CADENA_CARACTERES                       { $$->ptr = $1->ptr; $$->type = $1->type;}
+constanteSinSigno       :       ENTERO_SIN_SIGNO                        
+                        |       CADENA_CARACTERES                       
                         ;
 
-constanteConSigno       :       ENTERO_CORTO                            { checkIntegerShort($1->ptr); $$->ptr = $1->ptr; $$->type = $1->type;}
-                        |       '-' ENTERO_CORTO                        { string newLexema = checkIntegerShortNegative($2->ptr); $$->ptr = newLexema; $$->type = $2->type;}
-                        |       PUNTO_FLOTANTE                          { $$->ptr = $1->ptr; $$->type = $1->type;}
-                        |       '-' PUNTO_FLOTANTE                      { string newLexema = setFloatNegative($2->ptr); $$->ptr = newLexema; $$->type = $2->type;}
+constanteConSigno       :       ENTERO_CORTO                            
+                        |       '-' ENTERO_CORTO                        
+                        |       PUNTO_FLOTANTE                          
+                        |       '-' PUNTO_FLOTANTE                      
                         |       '-'                                     { yyerror("Falta constante numérica en la expresión"); }
                         ;
 
