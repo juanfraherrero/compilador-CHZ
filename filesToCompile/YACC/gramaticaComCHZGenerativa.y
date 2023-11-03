@@ -142,7 +142,6 @@ tipo    :       SHORT   { typeAux = "short"; $$->type ="short";}
         ;
 
 lista_de_variables  :   lista_de_variables ';' IDENTIFICADOR    {  }
-                    /* |   lista_de_variables IDENTIFICADOR        { yywarning("Se detecto falta de separador ';' entre identificadores."); int diff = tableSymbol->getDiffOffScope($2->ptr+tableSymbol->getScope(), "var"); if(diff == 0){yyerror("Redeclaración de variable en el mismo ámbito");}else{symbol* newIdentificador = setNewScope($2->ptr, typeAux, tableSymbol->getScope(),"var");}} */
                     |   IDENTIFICADOR                           {  }
                     ;
 
@@ -163,12 +162,14 @@ cuerpo_de_la_funcion_con_return    :   cuerpo_de_la_funcion_sin_return RETURN ',
 cuerpo_de_la_funcion_sin_return    :   cuerpo_de_la_funcion_sin_return sentencia 
                                    |   sentencia
                                    ;
-ejecutable  :    asignacion                             {yyPrintInLine("Se detectó asignación");}
-            |    invocacion                             {yyPrintInLine("Se detectó invocación");}
-            |    seleccion                              {yyPrintInLine("Se detectó un if-else");}
-            |    PRINT CADENA_CARACTERES                    { {yyPrintInLine("Se detectó una impresión");} }
-            |    ciclo_while                            {yyPrintInLine("Se detectó un while");}
-            |    PRINT                                      { yyerror("Se detectó la falta de una cadena de caracteres al querer imprimir");}
+ejecutable  :    asignacion                             { yyPrintInLine("Se detectó asignación"); }
+            |    invocacion                             { yyPrintInLine("Se detectó invocación"); }
+            |    seleccion                              { yyPrintInLine("Se detectó un if-else"); }
+            |    PRINT CADENA_CARACTERES                { yyPrintInLine("Se detectó una impresión de una cadena"); }
+            |    PRINT IDENTIFICADOR                    { yyPrintInLine("Se detectó una impresión de identificador"); }
+            |    PRINT constanteConSigno                { yyPrintInLine("Se detectó una impresión de constante"); }
+            |    PRINT constanteSinSigno                { yyPrintInLine("Se detectó una impresión de constante"); }
+            |    ciclo_while                            { yyPrintInLine("Se detectó un while"); }
             ;
 
 asignacion : IDENTIFICADOR '=' expresion_aritmetica                     { }
@@ -268,10 +269,10 @@ factor : IDENTIFICADOR
        | constanteConSigno                                              
        | TOF '(' expresion_aritmetica ')'                               
        | IDENTIFICADOR '.' IDENTIFICADOR 
+       | CADENA_CARACTERES                      { yyerror("No se puede operar con cadena de caracteres"); }
        ;
 
-constanteSinSigno       :       ENTERO_SIN_SIGNO                        
-                        |       CADENA_CARACTERES                       
+constanteSinSigno       :       ENTERO_SIN_SIGNO                                              
                         ;
 
 constanteConSigno       :       ENTERO_CORTO                            
