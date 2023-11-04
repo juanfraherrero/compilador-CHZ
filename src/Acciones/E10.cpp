@@ -21,7 +21,7 @@ class E10 : public AccionSemantica {
         E10(){};
         int execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
             // indicar un error por pantalla de caracter no válido detectado
-            cerr << "\033[31m" << "Linea: " << *(automaton->getPtrLineNumber()) << "-> Error: Error en constante numérica, se detecó la falta de 's' o 'ui' (short y unsigned int respectivamente). Verificar documentación. Se convierte en 0 de tipo short" << "\033[0m"<< endl;
+            cerr << "\033[31m" << "Linea: " << *(automaton->getPtrLineNumber()) << "-> Error: Error en constante numerica, se deteco la falta de 's' o 'ui' (short y unsigned int respectivamente). Verificar documentacion. Se convierte en 0 de tipo short" << "\033[0m"<< endl;
             
             //define that code have an error
             isErrorInCode = true;

@@ -28,7 +28,7 @@
 programa    :   '{' sentencias '}' /* es el programa que debe arrancar y terminar con '{' '}' */
 
 sentencias  :   sentencia sentencias 
-            |   /* podría ser un programa sin nada, hay que preguntar! */
+            |   /* podria ser un programa sin nada, hay que preguntar! */
             ;
 
 sentencia   :   declarativa
@@ -47,7 +47,7 @@ lista_de_variables  :   lista_de_variables ';' IDENTIFICADOR
                     ;
 
 parametro   :   tipo IDENTIFICADOR
-            |   /* vacío */
+            |   /* vacio */
             ;
 
 cuerpo_de_la_funcion    :   sentencia cuerpo_de_la_funcion
@@ -121,6 +121,6 @@ int main() {
 }
 
 int yyerror(const char* s) {
-    cout << "Error sintáctico: " << s << endl;
+    cout << "Error sintactico: " << s << endl;
     return 0;
 }

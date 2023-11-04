@@ -8,17 +8,19 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+// // // #include <locale.h> // Libreria que contiene la funcion setlocale
 
 using namespace std;
 
 
 
 /*
-    Este es el main, y en la práctica se indico que el sintáctico era el main y este es quien pide los tokens al léxico
+    Este es el main, y en la practica se indico que el sintactico era el main y este es quien pide los tokens al lexico
 */
 
 int main(int arg_count, char *arg_list[]) {
     
+    // // // setlocale(LC_CTYPE, "Spanish");   
     // checkeo que se haya pasado el archivo a compilar
     if (arg_count < 2) {
         cout << "Se requiere el archivo a compilar" << endl;
@@ -37,13 +39,13 @@ int main(int arg_count, char *arg_list[]) {
     // Verifica que el archivo exista y se pueda abrir
     if (!archivo.is_open()) {
         std::cerr << "El archivo no existe o no se pudo abrir." << std::endl;
-        return 1; // Sale del programa con un código de error
+        return 1; // Sale del programa con un codigo de error
     }
 
-    // Lee el contenido del archivo línea por línea y lo agrega a la cadena
+    // Lee el contenido del archivo linea por linea y lo agrega a la cadena
     std::string linea;
     while (std::getline(archivo, linea)) {
-        contenido += linea + '\n'; // Añade una nueva línea después de cada línea leída
+        contenido += linea + '\n'; // Añade una nueva linea despues de cada linea leida
     }
     // Cierra el archivo
     archivo.close();
@@ -54,12 +56,13 @@ int main(int arg_count, char *arg_list[]) {
     
     extern int lineNumber;
     extern bool isErrorInCode;
+    extern void yyerror(string s);
 
     extern TableSymbol* tableSymbol;
     extern TableReservedWord* tableRWords;
     extern Tercets* tableTercets;
 
-    // cargamos nuestra fase de analisis léxico
+    // cargamos nuestra fase de analisis lexico
     Lexico * lexico = new Lexico(tableSymbol, tableRWords, &contenido, &lineNumber); // la dejamos en la pila porque tiene un tamaño pequeño y su tamaño no es dinámico
 
     int resultParsing = yyparse(lexico);
@@ -67,20 +70,21 @@ int main(int arg_count, char *arg_list[]) {
     if(resultParsing == 0){
         if(isErrorInCode){
             cout << "\n\n --------------- \n\n";
-            cout << "Parsing succed but errors in code" << endl;
-            cout << "Solve them to generate the Assembler" << endl;            
+            cout << "Parsing exitoso pero errores en codigo" << endl;
+            cout << "Soluciona los errores para generar el assembler" << endl;            
         }else{
             cout << "\n\n --------------- \n\n";
-            cout << "Parsing succed" << endl;
-            cout << "Generating the Assembler" << endl;
-            // generamos el código assembler
+            cout << "Parsing exitoso" << endl;
+            cout << "Generando el assembler" << endl;
+            // generamos el codigo assembler
             // AssemblerGenerator * assemblerGenerator = new AssemblerGenerator("output.asm");
             // assemblerGenerator->generateAssembler(tableTercets);
         }
     }else{
+        yyerror("Se detecto una sentencia invalida");
         cout << "\n\n --------------- \n\n";
-        cout << "Parsing failed" << endl;
-        cout << "Solve it to generate the Assembler" << endl;
+        cout << "Parsing fallo" << endl;
+        cout << "No se puede generar el assembler" << endl;
     }
 
     // FOR ONLY READ TOKENS COMMENT THE ABOVE CODE (Line 65 to 78)
@@ -97,7 +101,6 @@ int main(int arg_count, char *arg_list[]) {
         
 
     cout << "\n\n --------------- \n\n";
-
     tableSymbol->imprimirTabla();
     // tableRWords->imprimirTabla();
     tableTercets->print();

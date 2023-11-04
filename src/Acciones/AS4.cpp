@@ -60,7 +60,7 @@ class AS4 : public AccionSemantica {
                     automaton->getToken()->type = "unsigned int";
 
                 }else{
-                    throw std::out_of_range("El número está fuera del rango permitido");
+                    throw std::out_of_range("El numero esta fuera del rango permitido");
                 }
             } catch (const std::out_of_range& e) {
                 //Fuera de rango

@@ -36,7 +36,7 @@ class AS14 : public AccionSemantica {
                     return true;
                 }
                 else{
-                    throw std::out_of_range("El número está fuera del rango permitido");
+                    throw std::out_of_range("El numero esta fuera del rango permitido");
                 }
 
             } catch (const std::out_of_range& e) {

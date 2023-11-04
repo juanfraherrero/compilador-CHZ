@@ -12,7 +12,7 @@
 
 using namespace std;
 
-// generamos la tabla de símbolos
+// generamos la tabla de simbolos
 TableSymbol* tableSymbol = new TableSymbol();
 
 // generamos la tabla de palabras reservadas
@@ -61,23 +61,23 @@ void yyPrintInLine(string s){
 
 %%
 
-programa    :   '{' sentencias '}'              {  yyPrintInLine("Se detectó un programa");}
-            |   '{' '}'                         { yywarning("Se está compilando un programa sin contenido"); }
-            |   '{'                             { yywarning("Se está compilando un programa sin contenido y falta la última llave"); }
-            |   '}'                             { yywarning("Se está compilando un programa sin contenido y falta la primer llave"); }
-            |   '{' sentencias '}' error        { yyerror("Se detectó contenido luego de finalizado el programa");}             
-            |   '{' '}' error                   { yywarning("Se está compilando un programa sin contenido"); yyerror("Se detectó contenido luego de finalizado el programa");}             
-            |   sentencias                      { yywarning("Se detectó la falta de llaves en el programa"); }
-            |   '{' sentencias                  { yywarning("Se detectó la falta de la ultima llave del programa"); }
-            |   sentencias '}'                  { yywarning("Se detectó la falta de la primera llave del programa"); }
-            |   '{' comas sentencias '}'        {  yyPrintInLine("Se detectó un programa"); }
-            |   '{' comas '}'                   {  yyPrintInLine("Se detectó un programa"); }
-            |   comas                           { yywarning("Se detectó la falta de llaves en el programa"); }
-            |   '{' comas                       { yywarning("Se detectó la falta de la ultima llave del programa"); }
-            |   comas '}'                       { yywarning("Se detectó la falta de la primera llave del programa"); }
-            |   '{' comas sentencias            { yywarning("Se detectó la falta de la ultima llave del programa"); }
-            |    comas sentencias '}'           { yywarning("Se detectó la falta de la primera llave del programa"); }
-            |    comas sentencias               { yywarning("Se detectó la falta de llaves en el programa"); }
+programa    :   '{' sentencias '}'              {  yyPrintInLine("Se detecto un programa");}
+            |   '{' '}'                         { yywarning("Se esta compilando un programa sin contenido"); }
+            |   '{'                             { yywarning("Se esta compilando un programa sin contenido y falta la ultima llave"); }
+            |   '}'                             { yywarning("Se esta compilando un programa sin contenido y falta la primer llave"); }
+            |   '{' sentencias '}' error        { yyerror("Se detecto contenido luego de finalizado el programa");}             
+            |   '{' '}' error                   { yywarning("Se esta compilando un programa sin contenido"); yyerror("Se detecto contenido luego de finalizado el programa");}             
+            |   sentencias                      { yywarning("Se detecto la falta de llaves en el programa"); }
+            |   '{' sentencias                  { yywarning("Se detecto la falta de la ultima llave del programa"); }
+            |   sentencias '}'                  { yywarning("Se detecto la falta de la primera llave del programa"); }
+            |   '{' comas sentencias '}'        {  yyPrintInLine("Se detecto un programa"); }
+            |   '{' comas '}'                   {  yyPrintInLine("Se detecto un programa"); }
+            |   comas                           { yywarning("Se detecto la falta de llaves en el programa"); }
+            |   '{' comas                       { yywarning("Se detecto la falta de la ultima llave del programa"); }
+            |   comas '}'                       { yywarning("Se detecto la falta de la primera llave del programa"); }
+            |   '{' comas sentencias            { yywarning("Se detecto la falta de la ultima llave del programa"); }
+            |    comas sentencias '}'           { yywarning("Se detecto la falta de la primera llave del programa"); }
+            |    comas sentencias               { yywarning("Se detecto la falta de llaves en el programa"); }
             |                                   { yyerror("No hay programa"); }
             ;
             
@@ -87,46 +87,46 @@ sentencias  :   sentencias sentencia
 
 sentencia   :   declarativa comas                                    
             |   ejecutable comas    
-            |   declarativa                                      { yywarning("Se detectó una falta de coma"); }                                 
-            |   ejecutable                                       { yywarning("Se detectó una falta de coma"); }
-            |   error ','                                        { yyerror("Se detectó una sentencia invalida");}
+            |   declarativa                                      { yywarning("Se detecto una falta de coma"); }                                 
+            |   ejecutable                                       { yywarning("Se detecto una falta de coma"); }
+            |   error ','                                        { yyerror("Se detecto una sentencia invalida");}
             ;
 
 comas : ',' comas
       | ',' 
       ;
 
-declarativa :   tipo lista_de_variables                                             { yyPrintInLine("Se detectó declaración de variable");}
+declarativa :   tipo lista_de_variables                                             { yyPrintInLine("Se detecto declaracion de variable");}
             |   declaracion_clase                                                    
-            |   declaracion_objeto                                                  { yyPrintInLine("Se detectó declaración de objeto");}
-            |   declaracion_funcion                                                 { yyPrintInLine("Se detectó declaración de función");}
+            |   declaracion_objeto                                                  { yyPrintInLine("Se detecto declaracion de objeto");}
+            |   declaracion_funcion                                                 { yyPrintInLine("Se detecto declaracion de funcion");}
             ;
 
-declaracion_funcion     :       funcion_name '(' parametro ')' '{' cuerpo_de_la_funcion '}'             { yyPrintInLine("Se detectó declaración de función");}
-                        |       VOID '(' parametro ')' '{' cuerpo_de_la_funcion '}'                     { yyerror("Se detectó la falta de un nombre en la función"); }
-                        |       funcion_name '(' parametro ')' '{' '}'                                  { yywarning("Se detectó la falta de RETURN en el cuerpo de la función");}
+declaracion_funcion     :       funcion_name '(' parametro ')' '{' cuerpo_de_la_funcion '}'             { yyPrintInLine("Se detecto declaracion de funcion");}
+                        |       VOID '(' parametro ')' '{' cuerpo_de_la_funcion '}'                     { yyerror("Se detecto la falta de un nombre en la funcion"); }
+                        |       funcion_name '(' parametro ')' '{' '}'                                  { yywarning("Se detecto la falta de RETURN en el cuerpo de la funcion");}
                         ;
 
 funcion_name    :       VOID IDENTIFICADOR              {  }
                 ;
 
-declaracion_clase   :   CLASS IDENTIFICADOR '{' lista_atributos_y_metodos '}'         /* Los atributos y métodos van en desorden */ { yyPrintInLine("Se detectó declaración de clase");}
-                    |   CLASS IDENTIFICADOR /* fordward declaration*/           { yyPrintInLine("Se detectó declaración de clase adelantada");}
-                    |   CLASS IDENTIFICADOR '{' '}'                             {yywarning("Se detectó una declaración de clases vacía");}
+declaracion_clase   :   CLASS IDENTIFICADOR '{' lista_atributos_y_metodos '}'         /* Los atributos y metodos van en desorden */ { yyPrintInLine("Se detecto declaracion de clase");}
+                    |   CLASS IDENTIFICADOR /* fordward declaration*/           { yyPrintInLine("Se detecto declaracion de clase adelantada");}
+                    |   CLASS IDENTIFICADOR '{' '}'                             {yywarning("Se detecto una declaracion de clases vacia");}
                     ;
-lista_atributos_y_metodos       :       lista_atributos_y_metodos tipo lista_de_variables ','           { yyPrintInLine("Se detectó declaración de variable en clase");}
+lista_atributos_y_metodos       :       lista_atributos_y_metodos tipo lista_de_variables ','           { yyPrintInLine("Se detecto declaracion de variable en clase");}
                                 |       lista_atributos_y_metodos metodo ','                                 
-                                |       tipo lista_de_variables ','                                    { yyPrintInLine("Se detectó declaración de variable en clase");}
+                                |       tipo lista_de_variables ','                                    { yyPrintInLine("Se detecto declaracion de variable en clase");}
                                 |       metodo ','
                                 ;
 
 
-metodo  :   metodo_name '(' parametro ')' '{' cuerpo_de_la_funcion '}'                 {  yyPrintInLine("Se detectó declaración de metodo en clase");} 
-        |   metodo_name '(' parametro ')' '{' '}'                                      {  yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
+metodo  :   metodo_name '(' parametro ')' '{' cuerpo_de_la_funcion '}'                 {  yyPrintInLine("Se detecto declaracion de metodo en clase");} 
+        |   metodo_name '(' parametro ')' '{' '}'                                      {  yyerror("Se detecto la falta de RETURN en el cuerpo de la funcion");}
         ;
 
 metodo_name     :       VOID IDENTIFICADOR              { }
-                |       VOID                            { yyerror("Falta de nombre de método"); }
+                |       VOID                            { yyerror("Falta de nombre de metodo"); }
                 ;
 
 declaracion_objeto  :   IDENTIFICADOR lista_de_objetos  
@@ -146,30 +146,30 @@ lista_de_variables  :   lista_de_variables ';' IDENTIFICADOR    {  }
                     ;
 
 parametro   :   tipo IDENTIFICADOR              { }
-            |   tipo                            { yyerror("Falta de nombre de parámetro"); }            
-            |   IDENTIFICADOR                   { yyerror("Falta de tipo de parámetro"); } 
-            |   /* vacío */
+            |   tipo                            { yyerror("Falta de nombre de parametro"); }            
+            |   IDENTIFICADOR                   { yyerror("Falta de tipo de parametro"); } 
+            |   /* vacio */
             ;
 
-cuerpo_de_la_funcion    :   cuerpo_de_la_funcion_sin_return                             {yyerror("Se detectó la falta de RETURN en el cuerpo de la función");}
+cuerpo_de_la_funcion    :   cuerpo_de_la_funcion_sin_return                             {yyerror("Se detecto la falta de RETURN en el cuerpo de la funcion");}
                         |   cuerpo_de_la_funcion_con_return
                         ;
 cuerpo_de_la_funcion_con_return    :   cuerpo_de_la_funcion_sin_return RETURN ','
                                    |   RETURN ','
-                                   |   RETURN ',' cuerpo_de_la_funcion_sin_return       {yywarning("Se detectó código posterior a un return"); }
-                                   |   RETURN ',' cuerpo_de_la_funcion_con_return       {yywarning("Se detectó código posterior a un return"); }
+                                   |   RETURN ',' cuerpo_de_la_funcion_sin_return       {yywarning("Se detecto codigo posterior a un return"); }
+                                   |   RETURN ',' cuerpo_de_la_funcion_con_return       {yywarning("Se detecto codigo posterior a un return"); }
                                    ;
 cuerpo_de_la_funcion_sin_return    :   cuerpo_de_la_funcion_sin_return sentencia 
                                    |   sentencia
                                    ;
-ejecutable  :    asignacion                             { yyPrintInLine("Se detectó asignación"); }
-            |    invocacion                             { yyPrintInLine("Se detectó invocación"); }
-            |    seleccion                              { yyPrintInLine("Se detectó un if-else"); }
-            |    PRINT CADENA_CARACTERES                { yyPrintInLine("Se detectó una impresión de una cadena"); }
-            |    PRINT IDENTIFICADOR                    { yyPrintInLine("Se detectó una impresión de identificador"); }
-            |    PRINT constanteConSigno                { yyPrintInLine("Se detectó una impresión de constante"); }
-            |    PRINT constanteSinSigno                { yyPrintInLine("Se detectó una impresión de constante"); }
-            |    ciclo_while                            { yyPrintInLine("Se detectó un while"); }
+ejecutable  :    asignacion                             { yyPrintInLine("Se detecto asignacion"); }
+            |    invocacion                             { yyPrintInLine("Se detecto invocacion"); }
+            |    seleccion                              { yyPrintInLine("Se detecto un if-else"); }
+            |    PRINT CADENA_CARACTERES                { yyPrintInLine("Se detecto una impresion de una cadena"); }
+            |    PRINT IDENTIFICADOR                    { yyPrintInLine("Se detecto una impresion de identificador"); }
+            |    PRINT constanteConSigno                { yyPrintInLine("Se detecto una impresion de constante"); }
+            |    PRINT constanteSinSigno                { yyPrintInLine("Se detecto una impresion de constante"); }
+            |    ciclo_while                            { yyPrintInLine("Se detecto un while"); }
             ;
 
 asignacion : IDENTIFICADOR '=' expresion_aritmetica                     { }
@@ -185,10 +185,11 @@ invocacion : IDENTIFICADOR '(' expresion_aritmetica ')'
 
 expresion_aritmetica : expresion_aritmetica '+' termino         
                     | expresion_aritmetica '-' termino          
-                    | expresion_aritmetica '-' '*' termino      
-                    | expresion_aritmetica '+' '*' termino      
-                    | expresion_aritmetica '-' '/' termino      
-                    | expresion_aritmetica '+' '/' termino   
+                    | expresion_aritmetica '-' '*' termino      { yywarning("Se detectaron multiples operadores '-' '*', quedara '-'");}
+                    | expresion_aritmetica '+' '*' termino      { yywarning("Se detectaron multiples operadores '+' '*', quedara '+'");}
+                    | expresion_aritmetica '-' '/' termino      { yywarning("Se detectaron multiples operadores '-' '/', quedara '-'");}
+                    | expresion_aritmetica '+' '/' termino      { yywarning("Se detectaron multiples operadores '+' '/', quedara '+'");}   
+                    | expresion_aritmetica termino      { yywarning("Se detectaron multiples operadores '+' '/', quedara '+'");}
                     | termino                                   
                     ;
 
@@ -197,19 +198,21 @@ termino : termino '*' factor
         | factor                                                
         ;
 
-seleccion : IF bloque_condicion cuerpo_if                       { }                     
+seleccion : IF bloque_condicion cuerpo_if                       { }                    
           ;
 
 bloque_condicion : '(' condicion ')'                            {  }
-                 | '(' condicion                                { yywarning("Falta de ultimo paréntesis en condición"); }
-                 |  condicion ')'                               { yywarning("Falta de primer paréntesis en condición"); }
-                 |  condicion                                   { yywarning("Falta de parantesis en condición"); }
-                 |  '(' ')'                                     { yyerror("Falta de condición en el bloque de control IF");}
+                 | '(' condicion                                { yywarning("Falta de ultimo parentesis en condicion"); }
+                 |  condicion ')'                               { yywarning("Falta de primer parentesis en condicion"); }
+                 |  condicion                                   { yywarning("Falta de parantesis en condicion"); }
+                 |  '(' ')'                                     { yyerror("Falta de condicion en el bloque de control IF");}
                  ;
 
 cuerpo_if : cuerpo_then else_if cuerpo_else END_IF
+          | cuerpo_then else_if cuerpo_else                     { yyerror(" Falta de END_IF en bloque de control IF-ELSE"); }
           | cuerpo_then cuerpo_else END_IF                      { yyerror(" Falta de ELSE en bloque de control IF-ELSE");}
-          | cuerpo_then END_IF                                  
+          | cuerpo_then END_IF    
+          | cuerpo_then else_if END_IF                         { yyerror(" Falta contenido dentro del ELSE en bloque de control IF-ELSE");}                                        
           ; 
 
 cuerpo_then : bloque_ejecutables                                
@@ -245,22 +248,22 @@ condicion : expresion_aritmetica '>' expresion_aritmetica
 
 bloque_ejecutables  :   '{' sentencias_ejecutables '}'
                     |   '{' sentencias_ejecutables RETURN ',' '}'              
-                    |   ejecutable ','
-                    |   declarativa  ','                  { yyerror("Se detectó una sentencia declarativa en bloque de control"); }
+                    |   ejecutable ',' 
+                    |   declarativa  ','                  { yyerror("Se detecto una sentencia declarativa en bloque de control"); }
                     |   '{' RETURN ',' '}'
                     |    RETURN ','
                     ;
 
 sentencias_ejecutables  :   sentencias_ejecutables ejecutable ','
-                        |   sentencias_ejecutables ejecutable                   { yyerror("Se detectó una falta de coma"); }
+                        |   sentencias_ejecutables ejecutable                   { yyerror("Se detecto una falta de coma"); }
                         |   ejecutable ','
-                        |   ejecutable                                          { yyerror("Se detectó una falta de coma"); }
-                        |   sentencias_ejecutables declarativa ','              { yyerror("Se detectó una sentencia declarativa en bloque de control"); }
-                        |   sentencias_ejecutables declarativa                  { yyerror("Se detectó una sentencia declarativa en bloque de control y la falta de coma"); }
-                        |   declarativa ','                                     { yyerror("Se detectó una sentencia declarativa en bloque de control"); }
-                        |   declarativa                                         { yyerror("Se detectó una falta de coma"); }
-                        |   ','                                                 { yywarning("Se detectó una sentencia vacía dentro del bloque de sentencias ejecutables"); }
-                        |   error ','                                           { yyerror("Se detectó una sentencia inválida dentro del bloque de sentencias ejecutables"); }
+                        |   ejecutable                                          { yyerror("Se detecto una falta de coma"); }
+                        |   sentencias_ejecutables declarativa ','              { yyerror("Se detecto una sentencia declarativa en bloque de control"); }
+                        |   sentencias_ejecutables declarativa                  { yyerror("Se detecto una sentencia declarativa en bloque de control y la falta de coma"); }
+                        |   declarativa ','                                     { yyerror("Se detecto una sentencia declarativa en bloque de control"); }
+                        |   declarativa                                         { yyerror("Se detecto una falta de coma"); }
+                        |   ','                                                 { yywarning("Se detecto una sentencia vacia dentro del bloque de sentencias ejecutables"); }
+                        |   error ','                                           { yyerror("Se detecto una sentencia invalida dentro del bloque de sentencias ejecutables"); }
                         ;
 
 factor : IDENTIFICADOR                                                  
@@ -279,7 +282,6 @@ constanteConSigno       :       ENTERO_CORTO
                         |       '-' ENTERO_CORTO                        
                         |       PUNTO_FLOTANTE                          
                         |       '-' PUNTO_FLOTANTE                      
-                        |       '-'                                     { yyerror("Falta constante numérica en la expresión"); }
                         ;
 
 %%
@@ -291,7 +293,7 @@ void checkIntegerShort(string lexeme){
             }
         }
         else{
-                yyerror("No se encuentra el token en la tabla de símbolo");
+                yyerror("No se encuentra el token en la tabla de simbolo");
         }
 }
 string checkIntegerShortNegative(string lexeme){
@@ -330,11 +332,11 @@ void checkTypesAsignation(string type1, string type2){
                 yyerror("Incompatibilidad de tipos al asignar "+ type2 + " a " + type1);
         }
 }
-// Esta función dado el acceso a un elemento de la tabla de símbolos elimina el simbolo y lo actualiza con el scope y el tipo de esa variable.
+// Esta funcion dado el acceso a un elemento de la tabla de simbolos elimina el simbolo y lo actualiza con el scope y el tipo de esa variable.
 symbol* setNewScope(string key, string type, string scope, string uso){
         
-        symbol* identificador = tableSymbol->getSymbol(key);    // obtenemos el símbolo
-        symbol* newIdentificador = new symbol(*identificador);  // copiamos el símbolo
+        symbol* identificador = tableSymbol->getSymbol(key);    // obtenemos el simbolo
+        symbol* newIdentificador = new symbol(*identificador);  // copiamos el simbolo
         tableSymbol->deleteSymbol(key);                         // eliminamos el simbolo (usa el contador)
         
         if(type != ""){
@@ -347,18 +349,18 @@ symbol* setNewScope(string key, string type, string scope, string uso){
                 newIdentificador->uso = uso;                            // actualizamos el uso
         }
 
-        tableSymbol->insert(newIdentificador);                          // insertamos el nuevo símbolo
+        tableSymbol->insert(newIdentificador);                          // insertamos el nuevo simbolo
         return newIdentificador;
 }
 // Crea un terceto y lo agrega a la tabla de tercetos.
-// Los parámtros son argumento, operador1, y operador2
+// Los paramtros son argumento, operador1, y operador2
 int addTercet(string argumento, string operando1, string operando2){
         Tercet *t = new Tercet(argumento, operando1, operando2); 
         int number = tableTercets->add(t);
         return number;
 }
 // Crea un terceto y lo agrega a la tabla de tercetos y lo apila.
-// Los parámtros son argumento, operador1, y operador2
+// Los paramtros son argumento, operador1, y operador2
 int addTercetAndStack(string argumento, string operando1, string operando2){
         Tercet *t = new Tercet(argumento, operando1, operando2); 
         int number = tableTercets->add(t);
@@ -366,7 +368,7 @@ int addTercetAndStack(string argumento, string operando1, string operando2){
         return number;
 }
 // Crea un terceto y lo apila.
-// Los parámtros son argumento, operador1, y operador2
+// Los paramtros son argumento, operador1, y operador2
 void addTercetOnlyStack(string argumento, string operando1, string operando2){
         Tercet *t = new Tercet(argumento, operando1, operando2); 
         tableTercets->push(t);

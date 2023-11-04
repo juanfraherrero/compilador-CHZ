@@ -9,11 +9,11 @@
 #include <iostream>
 #include <fstream>
 
-// ACÁ DEFNIR EL TIPO QUE ESTÁ EN EL PARSER.CPP
+// ACa DEFNIR EL TIPO QUE ESTa EN EL PARSER.CPP
 extern myTypeYYLVAL* yylval;
 
 Lexico::Lexico(TableSymbol* tableSymbol, TableReservedWord* tableRWords, string * content, int* lineNumber) {
-    // definimos que archivo va a usar y las variables para hacer el conteo de lineas y caracteres leídos   
+    // definimos que archivo va a usar y las variables para hacer el conteo de lineas y caracteres leidos   
     this->content = *content;
     this->lineNumber = lineNumber;
     this->automaton = new Automaton(tableSymbol, tableRWords, this->lineNumber, &(this->isCommentActive));
@@ -25,7 +25,7 @@ int Lexico::yylex(){
     tokenWithLexeme * token = this->getToken(); // esto queda guardado en el heap // checkear cuando hay que eliminarlo
     
     if(token == nullptr){
-        return 0; //segun documentación el token final es un 0
+        return 0; //segun documentacion el token final es un 0
     };
     
     // cout <<  "El token es: " << token->token << " con lexema: " << token->lexeme << endl;
@@ -38,11 +38,11 @@ int Lexico::yylex(){
 tokenWithLexeme *Lexico::getToken(){
 
     if(this->content.empty()){
-        //ya no tenemos más que caracteres que leer
+        //ya no tenemos mas que caracteres que leer
         this->eof = true;
         return nullptr;
     }
-    // seteamos el estado del autómata en 0
+    // seteamos el estado del automata en 0
     int stateAutomaton = 0;
 
     // obtenemos un token       
@@ -61,18 +61,18 @@ tokenWithLexeme *Lexico::getToken(){
             return nullptr;
         }
         char firstCharacter;
-        // si el buffer del autómata está vacío le mandamos otro sino el mismo que tiene
+        // si el buffer del automata esta vacio le mandamos otro sino el mismo que tiene
         if(this->automaton->isBufferEmpty()){        
-            // obtenemos el primer caracter de la línea
+            // obtenemos el primer caracter de la linea
             if(!this->content.empty()){
                 firstCharacter = this->content[0]; 
-                // eliminamos ese caracter de la línea
+                // eliminamos ese caracter de la linea
                 this->content.erase(0, 1); 
             }else{
                 this->eof = true; //seteamos que termianmos de leer el archivo
                 
-                // si no hay más caracteres le mandamos un espacio que no afecta en ningun caso,
-                    // esto es para que termine de leer un posible token que no terminó
+                // si no hay mas caracteres le mandamos un espacio que no afecta en ningun caso,
+                    // esto es para que termine de leer un posible token que no termino
                 firstCharacter = ' ';
             }
         }
@@ -80,7 +80,7 @@ tokenWithLexeme *Lexico::getToken(){
             firstCharacter = this->automaton->getAndClearBuffer(); 
         }
         
-        // procesamos el caracter por el autómata esperando el estado siguiente
+        // procesamos el caracter por el automata esperando el estado siguiente
         stateAutomaton = this->automaton->processCharacter(firstCharacter, stateAutomaton);
     }
 

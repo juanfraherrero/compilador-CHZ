@@ -20,7 +20,7 @@ class E2 : public AccionSemantica {
         E2(){};
         int execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
             // indicar un error por pantalla de caracter no válido detectado
-            cerr << "\033[31m" << "Linea: " << *(automaton->getPtrLineNumber()) << "-> Error: Error en constante numérica, no se logra identificar el tipo. Verificar documentación. Se convierte en 0 de tipo short" << "\033[0m"<< endl;
+            cerr << "\033[31m" << "Linea: " << *(automaton->getPtrLineNumber()) << "-> Error: Error en constante numerica, no se logra identificar el tipo. Verificar documentacion. Se convierte en 0 de tipo short" << "\033[0m"<< endl;
             
             //define that code have an error
             isErrorInCode = true;

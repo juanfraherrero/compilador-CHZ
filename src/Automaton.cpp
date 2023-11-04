@@ -35,7 +35,7 @@ using namespace std;
 Automaton::Automaton(TableSymbol* tableSymbol, TableReservedWord* tableRWords, int* ptrLineNumber, bool * isCommentActive) {
     
     // cargamos la tabla de estados y acciones semanticas
-    // debe coincidir el path y además checkear que los límtes de la matriz en el .hpp sean correctos
+    // debe coincidir el path y ademas checkear que los limtes de la matriz en el .hpp sean correctos
     this->loadStateTable("TablaProximoEstado.csv");
     this->loadActionsTable("TablaAccionesSemanticas.csv");
     this->isCommentActive = isCommentActive;
@@ -63,14 +63,14 @@ int Automaton::processCharacter(char character, int actual_state) {
     // // }
     // // std::cout << std::endl;
     // // cout << "character: " << character << " state: " << actual_state << " next state: " << value->next_state << "x" << endl;
-    // // cout << "la acción ejecutada es: " << prb << endl;
+    // // cout << "la accion ejecutada es: " << prb << endl;
     
 
     if(next_state == -1){ 
-        //si es -1 entonces la acción no modificó el siguiente estado y usamos la tabla
+        //si es -1 entonces la accion no modifico el siguiente estado y usamos la tabla
         return value->next_state;
     }else{
-        // la acción modifico el siguiente estado
+        // la accion modifico el siguiente estado
         return next_state;
     }
 }
@@ -193,7 +193,7 @@ tokenWithLexeme* Automaton::getCopyOfToken(){
 
     return token;
 }
-// devuelve el token con su lexema y resetea el token del autómata
+// devuelve el token con su lexema y resetea el token del automata
 tokenWithLexeme* Automaton::getCopyOfTokenAndResetToken(){
 
     tokenWithLexeme *token = new tokenWithLexeme();
@@ -210,7 +210,7 @@ tokenWithLexeme* Automaton::getCopyOfTokenAndResetToken(){
 
     return token;
 }
-// imprime la matriz pasada por parámetro
+// imprime la matriz pasada por parametro
 void Automaton::printMatrix(){
     cout <<endl << endl;
 
@@ -246,7 +246,7 @@ void Automaton::printMatrix(){
 // checkear si esto no te los crea en cada llamada y nunca desaparecen
 AccionSemantica* Automaton::getAccionSemantica(string accionStr){
     // mapa de acciones semanticas
-    // Acá se deben agregar
+    // Aca se deben agregar
     static std::map<string, AccionSemantica*> actionMap = {
         {"AS1", new AS1()},
         {"AS2", new AS2()},
@@ -279,7 +279,7 @@ AccionSemantica* Automaton::getAccionSemantica(string accionStr){
     }
 };
 
-//cargar una tabla desde un .csv pasada por parámetro
+//cargar una tabla desde un .csv pasada por parametro
 void Automaton::loadStateTable(string pathFile){
     
     //Abrir archivo
@@ -296,7 +296,7 @@ void Automaton::loadStateTable(string pathFile){
         {
             str += character;
         }
-        // si es un salto de línea oun tab ontentamos obtener un entero del string y lo guardamos en la matriz
+        // si es un salto de linea oun tab ontentamos obtener un entero del string y lo guardamos en la matriz
         else 
         {
             try{
@@ -314,7 +314,7 @@ void Automaton::loadStateTable(string pathFile){
             }
         };
     }
-    //esto es para el último elemento de la matriz que siempre falta por propiedades del ifstream
+    //esto es para el ultimo elemento de la matriz que siempre falta por propiedades del ifstream
     try{
         int num = std::stoi(str);
         this->matrix[row][column] = valueOfMatrix{num, NULL};
@@ -323,7 +323,7 @@ void Automaton::loadStateTable(string pathFile){
     }
 };
 
-//cargar una tabla desde un .csv pasada por parámetro
+//cargar una tabla desde un .csv pasada por parametro
 void Automaton::loadActionsTable(string pathFle){
 
     //Abrir archivo
@@ -339,7 +339,7 @@ void Automaton::loadActionsTable(string pathFle){
         {
             str += character;
         }
-        // si es un salto de línea oun tab ontentamos obtener un entero del string y lo guardamos en la matriz
+        // si es un salto de linea oun tab ontentamos obtener un entero del string y lo guardamos en la matriz
         else 
         {
             string type = str.substr(0, 1);
@@ -380,7 +380,7 @@ void Automaton::loadActionsTable(string pathFle){
             }
         };
     }
-    //esto es para el último elemento de la matriz que siempre falta por propiedades del ifstream    
+    //esto es para el ultimo elemento de la matriz que siempre falta por propiedades del ifstream    
     AccionSemantica* accion = this->getAccionSemantica(str);
     this->matrix[row][column].accionp = accion;
 };
