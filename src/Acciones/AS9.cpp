@@ -24,19 +24,31 @@ class AS9 : public AccionSemantica {
             // guarda el caracter en el buffer del automaton
             automaton->setBuffer(characterReaded);
 
+            string fullLexeme = automaton->getToken()->lexeme;
 
             // si el lexema tiene más de 20 caracteres lo trunca
-            if(automaton->getToken()->lexeme.length() > 20){
+            if(fullLexeme.length() > 20){
                 this->warning.execute(automaton, characterReaded, tableSymbol, tableRWords);
+                
+                string shortLexeme = automaton->getToken()->lexeme; // obtenemos el lexema truncado
+                
+                //insertamos en la tabla de símbolos el identificador 
+                    // con el lexema como key, el lexema y el valor que es el lexema
+                    // el insert checkea la existencia de otro lexema igual 
+                    // la clave y el lexema seran cambiados a una variable interna
+                string newLexeme = tableSymbol->insertIdentifierTruncated(shortLexeme, shortLexeme, "-", "identifier", fullLexeme);
+                automaton->getToken()->lexeme = newLexeme; // seteamos el nuevo lexema para que le pase al parsing
+            
+            }else{
+                //insertamos en la tabla de símbolos el identificador
+                    // con el lexema como key, el lexema y el valor que es el lexema
+                    // el insert checkea la existencia de otro lexema igual 
+                    // la clave y el lexema seran cambiados a una variable interna
+                tableSymbol->insert(fullLexeme, fullLexeme, "-", "identifier");
             }
 
-            string lexeme = automaton->getToken()->lexeme;
 
             
-            //insertamos en la tabla de símbolos el short int 
-                // con el lexema como key, el lexema y el valor que es el lexema
-                // el insert checkea la existencia de otro lexema igual 
-            tableSymbol->insert(lexeme, lexeme, "-", "identifier");
             
             //definimos el token como un identificador
             automaton->getToken()->token = id_IDENTIFICADOR;

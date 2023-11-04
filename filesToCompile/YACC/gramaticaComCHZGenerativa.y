@@ -189,7 +189,6 @@ expresion_aritmetica : expresion_aritmetica '+' termino
                     | expresion_aritmetica '+' '*' termino      { yywarning("Se detectaron multiples operadores '+' '*', quedara '+'");}
                     | expresion_aritmetica '-' '/' termino      { yywarning("Se detectaron multiples operadores '-' '/', quedara '-'");}
                     | expresion_aritmetica '+' '/' termino      { yywarning("Se detectaron multiples operadores '+' '/', quedara '+'");}   
-                    | expresion_aritmetica termino      { yywarning("Se detectaron multiples operadores '+' '/', quedara '+'");}
                     | termino                                   
                     ;
 
@@ -281,7 +280,8 @@ constanteSinSigno       :       ENTERO_SIN_SIGNO
 constanteConSigno       :       ENTERO_CORTO                            
                         |       '-' ENTERO_CORTO                        
                         |       PUNTO_FLOTANTE                          
-                        |       '-' PUNTO_FLOTANTE                      
+                        |       '-' PUNTO_FLOTANTE    
+                        |       '-'                                     { yyerror("Falta constante numérica en la expresión"); }                  
                         ;
 
 %%

@@ -34,6 +34,38 @@ void TableSymbol::insert(const string& key, const string& lexema, const string& 
     
 
 }
+// insertar un elemento en la tabla
+string TableSymbol::insertIdentifierTruncated(const string& key, const string& lexema, const string& value, const string& type, string _fullIdentifier) {
+    // buscamos si ya existe ese fullIdentifier en la tabla
+    // si existe sumamos uno al contador
+    // sino existe lo creamos y lo agregamos a la tabla
+    
+    bool finded = false;
+    // recorremos uno por uno los simbolos de la tabla
+    for (const auto& par : symbolTable) {
+        symbol* simbolo = par.second; // Obtenemos el el puntero al simbolo
+
+        // Verificamos el atributo 'fullIdentifier' coincide con el pasado por parámetro
+        if (simbolo->fullIdentifier == _fullIdentifier) {
+            // encontró un símbolo con esa clave
+            // incrementamos el contador de ese símbolo
+            simbolo->count++;
+            finded = true;
+            break;
+        }
+    }
+
+    if(!finded){
+        //no encontró un símbolo con esa clave
+        // Crear un nuevo simbolo y almacenarlo en la tabla
+        string lexemeTruncated = "var$"+to_string(this->cantVartruncated);
+        symbol* newSymbol = new symbol(lexemeTruncated, lexemeTruncated, type, "", _fullIdentifier);
+        symbolTable[lexemeTruncated] = newSymbol;
+        this->cantVartruncated++;
+        return lexemeTruncated;
+    }
+    return "";
+}
 // insertar un simbolo en la tabla, inserta el puntero (NO HACE UNA COPIA DEL SIMBOLO)
 void TableSymbol::insert(symbol * symbol) {
     // buscamos si ya existe ese símbolo en la tabla
@@ -55,7 +87,7 @@ void TableSymbol::imprimirTabla() {
     cout << "\n\nTabla de símbolos:\n\n" << endl;
     for (const auto& pair : symbolTable) {
         const symbol* symbol = pair.second;
-        cout << "Clave: " << pair.first << "\t Lexema: " << symbol->lexema << "\t Valor: " << symbol->value << "\t Tipo: " << symbol->type << "\t Uso: " << symbol->uso << endl;
+        cout << "Clave: " << pair.first << "\t Lexema: " << symbol->lexema << "\t Valor: " << symbol->value << "\t Tipo: " << symbol->type << "\t Uso: " << symbol->uso << "\t fullIdentifier: " << symbol->fullIdentifier <<endl;
     }
 }
 

@@ -15,7 +15,7 @@ class TableSymbol{
         // Unordered map con clave de string y valor de puntero a symbol (estrcutura definida en types.hpp)
         unordered_map<string, symbol*> symbolTable;
         string scope = ":main"; 
-
+        unsigned short int cantVartruncated = 0;
     public:
 
         // devuelve un puntero al simbolo buscado
@@ -26,6 +26,9 @@ class TableSymbol{
 
         // inserta un simbolo en la tabla
         void insert(symbol * symbol);
+
+        // inserta un identificardor a la tabla checkeando el fullIdentifier
+        string insertIdentifierTruncated(const string& key, const string& lexema, const string& value, const string& type, string fullIdentifier);
 
         // eliminar un elemento de la tabla decrementando su contador
         void deleteSymbol(const string& key);
