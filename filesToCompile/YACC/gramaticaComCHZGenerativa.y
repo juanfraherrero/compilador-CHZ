@@ -89,7 +89,7 @@ sentencia   :   declarativa comas
             |   ejecutable comas    
             |   declarativa                                      { yywarning("Se detecto una falta de coma"); }                                 
             |   ejecutable                                       { yywarning("Se detecto una falta de coma"); }
-            |   error ','                                        { yyerror("Se detecto una sentencia invalida");}
+            |   error ','                                        { yyerror("Se detecto una sentencia invalida"); }
             ;
 
 comas : ',' comas
@@ -102,9 +102,13 @@ declarativa :   tipo lista_de_variables                                         
             |   declaracion_funcion                                                 { yyPrintInLine("Se detecto declaracion de funcion");}
             ;
 
-declaracion_funcion     :       funcion_name '(' parametro ')' '{' cuerpo_de_la_funcion '}'             { yyPrintInLine("Se detecto declaracion de funcion");}
+declaracion_funcion     :       funcion_name '(' parametro ')' '{' cuerpo_de_la_funcion '}'             
                         |       VOID '(' parametro ')' '{' cuerpo_de_la_funcion '}'                     { yyerror("Se detecto la falta de un nombre en la funcion"); }
                         |       funcion_name '(' parametro ')' '{' '}'                                  { yywarning("Se detecto la falta de RETURN en el cuerpo de la funcion");}
+                        
+                        |       funcion_name '(' parametro ')' '{' comas cuerpo_de_la_funcion '}'             
+                        |       VOID '(' parametro ')' '{' comas cuerpo_de_la_funcion '}'                     { yyerror("Se detecto la falta de un nombre en la funcion"); }
+                        |       funcion_name '(' parametro ')' '{' comas '}'                                  { yywarning("Se detecto la falta de RETURN en el cuerpo de la funcion");}
                         ;
 
 funcion_name    :       VOID IDENTIFICADOR              {  }
@@ -118,11 +122,13 @@ lista_atributos_y_metodos       :       lista_atributos_y_metodos tipo lista_de_
                                 |       lista_atributos_y_metodos metodo ','                                 
                                 |       tipo lista_de_variables ','                                    { yyPrintInLine("Se detecto declaracion de variable en clase");}
                                 |       metodo ','
+                                |       error ','                                           { yyerror("Se detecto una sentencia invalida dentro de clase"); }
                                 ;
 
 
 metodo  :   metodo_name '(' parametro ')' '{' cuerpo_de_la_funcion '}'                 {  yyPrintInLine("Se detecto declaracion de metodo en clase");} 
         |   metodo_name '(' parametro ')' '{' '}'                                      {  yyerror("Se detecto la falta de RETURN en el cuerpo de la funcion");}
+        |   metodo_name '(' parametro ')' '{' comas cuerpo_de_la_funcion '}'           {  yyPrintInLine("Se detecto declaracion de metodo en clase"); }
         ;
 
 metodo_name     :       VOID IDENTIFICADOR              { }
@@ -149,15 +155,24 @@ parametro   :   tipo IDENTIFICADOR              { }
             |   tipo                            { yyerror("Falta de nombre de parametro"); }            
             |   IDENTIFICADOR                   { yyerror("Falta de tipo de parametro"); } 
             |   /* vacio */
+            |   parametro ';' tipo IDENTIFICADOR  { yyerror("Exceso de parametros"); }
             ;
 
 cuerpo_de_la_funcion    :   cuerpo_de_la_funcion_sin_return                             {yyerror("Se detecto la falta de RETURN en el cuerpo de la funcion");}
                         |   cuerpo_de_la_funcion_con_return
                         ;
 cuerpo_de_la_funcion_con_return    :   cuerpo_de_la_funcion_sin_return RETURN ','
+                                   |   cuerpo_de_la_funcion_sin_return RETURN                                           { yywarning("Se detecto una falta de coma"); }
+                                   |   cuerpo_de_la_funcion_sin_return RETURN ',' cuerpo_de_la_funcion_sin_return       { yywarning("Se detecto codigo posterior a un return"); }
+                                   |   cuerpo_de_la_funcion_sin_return RETURN cuerpo_de_la_funcion_sin_return           { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
+                                   |   cuerpo_de_la_funcion_sin_return RETURN ',' cuerpo_de_la_funcion_con_return       { yywarning("Se detecto codigo posterior a un return"); }
+                                   |   cuerpo_de_la_funcion_sin_return RETURN cuerpo_de_la_funcion_con_return           { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
                                    |   RETURN ','
+                                   |   RETURN                                           {yywarning("Se detecto una falta de coma"); }        
                                    |   RETURN ',' cuerpo_de_la_funcion_sin_return       {yywarning("Se detecto codigo posterior a un return"); }
+                                   |   RETURN cuerpo_de_la_funcion_sin_return       { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
                                    |   RETURN ',' cuerpo_de_la_funcion_con_return       {yywarning("Se detecto codigo posterior a un return"); }
+                                   |   RETURN cuerpo_de_la_funcion_con_return       { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
                                    ;
 cuerpo_de_la_funcion_sin_return    :   cuerpo_de_la_funcion_sin_return sentencia 
                                    |   sentencia
@@ -227,13 +242,6 @@ ciclo_while : inicio_while bloque_condicion DO cuerpo_while               { }
 inicio_while    : WHILE                                                         {  }
                 ;
 
-/* bloque_condicion_while: '(' condicion ')'                                       { int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); $$->ptr = charTercetoId + to_string(number); }
-                | '(' condicion                                { }
-                |  condicion ')'                               { }
-                |  condicion                                   { }
-                |  '(' ')'                                     { }
-                ; */
-
 cuerpo_while : bloque_ejecutables                                       
             ;   
 
@@ -246,23 +254,43 @@ condicion : expresion_aritmetica '>' expresion_aritmetica
           ;
 
 bloque_ejecutables  :   '{' sentencias_ejecutables '}'
-                    |   '{' sentencias_ejecutables RETURN ',' '}'              
+                    |   '{' sentencias_ejecutables RETURN ',' '}'        
+                    |   '{' sentencias_ejecutables RETURN ',' sentencias_ejecutables '}'        { yywarning("Se detecto codigo posterior a un return"); }
+                    |   '{' sentencias_ejecutables RETURN sentencias_ejecutables '}'            { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
+                    |   '{' sentencias_ejecutables RETURN '}'                                   { yywarning("Se detecto una falta de coma"); }
                     |   ejecutable ',' 
-                    |   declarativa  ','                  { yyerror("Se detecto una sentencia declarativa en bloque de control"); }
+                    |   declarativa  ','                                                        { yyerror("Se detecto una sentencia declarativa en bloque de control"); }
                     |   '{' RETURN ',' '}'
+                    |   '{' RETURN '}'                                                          { yywarning("Se detecto una falta de coma"); }
                     |    RETURN ','
+                    
+                    |   '{' sentencias_ejecutables RETURN ',' comas '}'        
+                    |   '{' sentencias_ejecutables RETURN ',' comas sentencias_ejecutables '}'        { yywarning("Se detecto codigo posterior a un return"); }
+
+
+                    |   '{' comas sentencias_ejecutables '}'      
+                    |   '{' comas sentencias_ejecutables RETURN ',' '}'              
+                    |   '{' comas sentencias_ejecutables RETURN ',' sentencias_ejecutables '}'  { yywarning("Se detecto codigo posterior a un return"); }
+                    |   '{' comas sentencias_ejecutables RETURN sentencias_ejecutables '}'      { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
+                    |   '{' comas sentencias_ejecutables RETURN '}'                             { yywarning("Se detecto una falta de coma"); }
+                    |   comas ejecutable ',' 
+                    |   comas declarativa  ','                                                  { yyerror("Se detecto una sentencia declarativa en bloque de control"); }
+                    |   '{' comas RETURN ',' '}'
+                    |   '{' comas RETURN '}'                                                    { yywarning("Se detecto una falta de coma"); }
+                    |    comas RETURN ','
+                    |   error ','                                                               { yyerror("Se detecto un bloque invalido"); }
                     ;
 
-sentencias_ejecutables  :   sentencias_ejecutables ejecutable ','
-                        |   sentencias_ejecutables ejecutable                   { yyerror("Se detecto una falta de coma"); }
-                        |   ejecutable ','
-                        |   ejecutable                                          { yyerror("Se detecto una falta de coma"); }
-                        |   sentencias_ejecutables declarativa ','              { yyerror("Se detecto una sentencia declarativa en bloque de control"); }
+sentencias_ejecutables  :   sentencias_ejecutables ejecutable comas
+                        |   sentencias_ejecutables ejecutable                   { yywarning("Se detecto una falta de coma"); }
+                        |   ejecutable comas
+                        |   ejecutable                                          { yywarning("Se detecto una falta de coma"); }
+                        |   sentencias_ejecutables declarativa comas              { yyerror("Se detecto una sentencia declarativa en bloque de control"); }
                         |   sentencias_ejecutables declarativa                  { yyerror("Se detecto una sentencia declarativa en bloque de control y la falta de coma"); }
                         |   declarativa ','                                     { yyerror("Se detecto una sentencia declarativa en bloque de control"); }
-                        |   declarativa                                         { yyerror("Se detecto una falta de coma"); }
-                        |   ','                                                 { yywarning("Se detecto una sentencia vacia dentro del bloque de sentencias ejecutables"); }
-                        |   error ','                                           { yyerror("Se detecto una sentencia invalida dentro del bloque de sentencias ejecutables"); }
+                        |   declarativa                                         { yywarning("Se detecto una falta de coma"); }
+                        |   sentencias_ejecutables error ','                    { yyerror("Se detecto una sentencia invalida dentro del bloque de sentencias ejecutables"); }
+                        |   error ','                                           { yyerror("Se detecto una sentencia invalida en el bloque de sentencias ejecutables"); }
                         ;
 
 factor : IDENTIFICADOR                                                  
