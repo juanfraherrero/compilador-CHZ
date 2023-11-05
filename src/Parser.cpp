@@ -942,7 +942,7 @@ yyloop:
     if (yyn = yydefred[yystate]) goto yyreduce;
     if (yychar < 0)
     {
-        if ((yychar = lexico->yylex()) < 0) yychar = 0;
+        if ((yychar = yylex()) < 0) yychar = 0;
 #if YYDEBUG
         if (yydebug)
         {

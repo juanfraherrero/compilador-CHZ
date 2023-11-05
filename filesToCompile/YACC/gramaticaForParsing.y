@@ -309,7 +309,7 @@ constanteConSigno       :       ENTERO_CORTO
                         |       '-' ENTERO_CORTO                        
                         |       PUNTO_FLOTANTE                          
                         |       '-' PUNTO_FLOTANTE    
-                        |       '-'                                     { yyerror("Falta constante numérica en la expresión"); }                  
+                        |       '-'                                     { yyerror("Falta constante numerica en la expresion"); }                  
                         ;
 
 %%
