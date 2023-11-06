@@ -1080,11 +1080,10 @@ void finishMethod(){
         tableSymbol->deleteScope(); // sacamos el scope de la función
         cantOfRecursions--;     // sacamos una recursión
 };
-void setScope(string key, string scope, string uso, string& reglaptr, string & reglatype){
-        cout << "se recibió una key" << key << endl;
-        cout << "con scope" << scope << endl;
+// verifica si existe una variable alcanzable y seteea el $$->ptr con el nuevo scope
+void setScope(string key, string scope, string uso, string& reglaptr, string& reglatype){
         tableSymbol->deleteSymbol(key); 
-        symbol* symbolFinded = tableSymbol->getFirstSymbolMatching(key+scope, "var"); 
+        symbol* symbolFinded = tableSymbol->getFirstSymbolMatching(key+scope, uso); 
         if(symbolFinded == nullptr){
                 yyerror("No se encontro declaracion previa de la variable "+ key);
         }else{
@@ -1092,6 +1091,19 @@ void setScope(string key, string scope, string uso, string& reglaptr, string & r
                 reglatype = symbolFinded->type;
         }
 };
+// función cuando se deteta un idnetificador con ++
+void newFactorMasMas (string key, string scope, string uso, string& reglaptr, string& reglatype){
+        tableSymbol->deleteSymbol(key);
+        symbol* symbolFinded = tableSymbol->getFirstSymbolMatching(key+scope, uso); 
+        if(symbolFinded == nullptr){
+                yyerror("No se encontro declaracion previa de la variable "+ key);
+        }else{
+                int number = addTercet("+", symbolFinded->lexema, symbolFinded->lexema);          
+                
+                reglaptr = charTercetoId + to_string(number);
+                reglatype = symbolFinded->type;
+        }
+}
 void newAsignacion(string key, string scope, string op2Lexeme, string op2Type){
         tableSymbol->deleteSymbol(key); 
         symbol* symbolFinded = tableSymbol->getFirstSymbolMatching(key+scope, "var"); 
@@ -1104,11 +1116,6 @@ void newAsignacion(string key, string scope, string op2Lexeme, string op2Type){
 };
 
 void newOperacionAritmetica(string operador, string op1ptr, string op2ptr, string op1type, string op2type, string& reglaptr, string& reglatype){
-        cout << "op1ptr: " << op1ptr<< endl;
-        cout << "op2ptr: " << op2ptr << endl;
-        cout << "op1type: " << op1type << endl;
-        cout << "op2type: " << op2type << endl;
-
         if(checkTypesOperation(op1type, op2type)){
                 reglatype = op1type;
         }else{
@@ -1156,7 +1163,7 @@ void finWhile(string & reglaptr) {
         } 
         reglaptr = charTercetoId + to_string(number);
 }
-#line 1150 "y.tab.c"
+#line 1167 "y.tab.c"
 #define YYABORT goto yyabort
 #define YYACCEPT goto yyaccept
 #define YYERROR goto yyerrlab
@@ -1790,13 +1797,11 @@ case 165:
 break;
 case 166:
 #line 311 "./gramaticaForGenCod.y"
-{ setScope(yyvsp[0]->ptr, tableSymbol->getScope(), "var", yyval->ptr, yyval->type);   
-        cout << "con tipo: " << yyvsp[0]->type << endl;
-        yyval->type = yyvsp[0]->type;}
+{ setScope(yyvsp[0]->ptr, tableSymbol->getScope(), "var", yyval->ptr, yyval->type); }
 break;
 case 167:
 #line 312 "./gramaticaForGenCod.y"
-{ int number = addTercet("+", yyvsp[-1]->ptr, yyvsp[-1]->ptr); yyval->ptr = charTercetoId + to_string(number); yyval->type = tableSymbol->getSymbol(yyvsp[-1]->ptr)->type;}
+{ newFactorMasMas(yyvsp[-1]->ptr, tableSymbol->getScope(), "var", yyval->ptr, yyval->type); }
 break;
 case 168:
 #line 313 "./gramaticaForGenCod.y"
@@ -1838,7 +1843,7 @@ case 178:
 #line 327 "./gramaticaForGenCod.y"
 { yyerror("Falta constante numerica en la expresion"); }
 break;
-#line 1830 "y.tab.c"
+#line 1847 "y.tab.c"
     }
     yyssp -= yym;
     yystate = *yyssp;

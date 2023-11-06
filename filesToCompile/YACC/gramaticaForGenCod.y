@@ -308,8 +308,8 @@ sentencias_ejecutables  :   sentencias_ejecutables ejecutable comas
                         |   error ','                                           { yyerror("Se detecto una sentencia invalida en el bloque de sentencias ejecutables"); }
                         ;
 
-factor : IDENTIFICADOR                                                  { setScope($1->ptr, tableSymbol->getScope(), "var", $$->ptr, $$->type); $$->type = $1->type;}
-       | IDENTIFICADOR OPERADOR_SUMA_SUMA                               { int number = addTercet("+", $1->ptr, $1->ptr); $$->ptr = charTercetoId + to_string(number); $$->type = tableSymbol->getSymbol($1->ptr)->type;}
+factor : IDENTIFICADOR                                                  { setScope($1->ptr, tableSymbol->getScope(), "var", $$->ptr, $$->type); }
+       | IDENTIFICADOR OPERADOR_SUMA_SUMA                               { newFactorMasMas($1->ptr, tableSymbol->getScope(), "var", $$->ptr, $$->type); }
        | constanteSinSigno                                              { $$->ptr = $1->ptr; $$->type = $1->type;}
        | constanteConSigno                                              { $$->ptr = $1->ptr; $$->type = $1->type;}
        | TOF '(' expresion_aritmetica ')'                               { int number = addTercet("tof", " ", $3->ptr); $$->ptr = charTercetoId + to_string(number); $$->type = "float"; } 
@@ -579,7 +579,7 @@ void finishMethod(){
 // verifica si existe una variable alcanzable y seteea el $$->ptr con el nuevo scope
 void setScope(string key, string scope, string uso, string& reglaptr, string& reglatype){
         tableSymbol->deleteSymbol(key); 
-        symbol* symbolFinded = tableSymbol->getFirstSymbolMatching(key+scope, "var"); 
+        symbol* symbolFinded = tableSymbol->getFirstSymbolMatching(key+scope, uso); 
         if(symbolFinded == nullptr){
                 yyerror("No se encontro declaracion previa de la variable "+ key);
         }else{
@@ -587,6 +587,19 @@ void setScope(string key, string scope, string uso, string& reglaptr, string& re
                 reglatype = symbolFinded->type;
         }
 };
+// función cuando se deteta un idnetificador con ++
+void newFactorMasMas (string key, string scope, string uso, string& reglaptr, string& reglatype){
+        tableSymbol->deleteSymbol(key);
+        symbol* symbolFinded = tableSymbol->getFirstSymbolMatching(key+scope, uso); 
+        if(symbolFinded == nullptr){
+                yyerror("No se encontro declaracion previa de la variable "+ key);
+        }else{
+                int number = addTercet("+", symbolFinded->lexema, symbolFinded->lexema);          
+                
+                reglaptr = charTercetoId + to_string(number);
+                reglatype = symbolFinded->type;
+        }
+}
 void newAsignacion(string key, string scope, string op2Lexeme, string op2Type){
         tableSymbol->deleteSymbol(key); 
         symbol* symbolFinded = tableSymbol->getFirstSymbolMatching(key+scope, "var"); 
