@@ -242,18 +242,18 @@ bool TableSymbol::CompareUse(const string& ambito, const string& uso){
     return false;
 }
 
-symbol* TableSymbol:: getFirstSymbolMatching(const string& ambito,const string& uso)
+symbol* TableSymbol:: getFirstSymbolMatching(const string& varWithScope,const string& uso)
 {
-    int diffScope = getDiffOffScope(ambito,uso);
-    
+    int diffScope = getDiffOffScope(varWithScope,uso);
     if(diffScope == -1){ // sino encontramos coincidencia retornamos nullptr
         return nullptr;
     }
-    string ambitoAux = ambito + scope;
-    for (size_t i = 0; i <= diffScope; ++i) {
+    string ambitoAux = varWithScope;
+    while (diffScope != 0){
         size_t lastColonPos = ambitoAux.find_last_of(':');
-        ambitoAux= ambitoAux.substr(0, lastColonPos);
-       }
+        ambitoAux = ambitoAux.substr(0, lastColonPos);
+        diffScope--;
+    };
     auto it = symbolTable.find(ambitoAux);
     if (it != symbolTable.end()) {
         return it->second; // Devolver el puntero al símbolo si se encuentra

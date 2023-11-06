@@ -5,10 +5,12 @@
 #include "include/TableReservedWord.hpp"
 #include "include/Lexico.hpp"
 #include "include/Tercets.hpp"
+#include "include/VectorOfFunction.hpp"
 
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <stack>
 
 using namespace std;
 
@@ -17,6 +19,10 @@ TableSymbol* tableSymbol = new TableSymbol();
 
 // generamos la tabla de palabras reservadas
 TableReservedWord* tableRWords = new TableReservedWord();
+
+VectorOfFunction * vectorOfFunction = new VectorOfFunction();
+stack<functionStack*>* stackFunction = new stack<functionStack*>();
+int cantOfRecursions = 0;
 
 int lineNumber = 1;
 bool isErrorInCode = false;
@@ -104,16 +110,16 @@ declarativa :   tipo lista_de_variables                                         
             |   declaracion_funcion                                                 { yyPrintInLine("Se detecto declaracion de funcion");}
             ;
 
-declaracion_funcion     :       funcion_name '(' parametro ')' '{' cuerpo_de_la_funcion '}'             { tableSymbol->deleteScope();}
+declaracion_funcion     :       funcion_name '(' parametro ')' '{' cuerpo_de_la_funcion '}'             { finishFunction();  }
                         |       VOID '(' parametro ')' '{' cuerpo_de_la_funcion '}'                     { yyerror("Se detecto la falta de un nombre en la funcion"); }
-                        |       funcion_name '(' parametro ')' '{' '}'                                  { tableSymbol->deleteScope(); yywarning("Se detecto la falta de RETURN en el cuerpo de la funcion");}
+                        |       funcion_name '(' parametro ')' '{' '}'                                  { finishFunction(); yywarning("Se detecto la falta de RETURN en el cuerpo de la funcion");}
                         
-                        |       funcion_name '(' parametro ')' '{' comas cuerpo_de_la_funcion '}'             { tableSymbol->deleteScope();}
+                        |       funcion_name '(' parametro ')' '{' comas cuerpo_de_la_funcion '}'             { finishFunction();}
                         |       VOID '(' parametro ')' '{' comas cuerpo_de_la_funcion '}'                     { yyerror("Se detecto la falta de un nombre en la funcion"); }
-                        |       funcion_name '(' parametro ')' '{' comas '}'                                  { tableSymbol->deleteScope(); yywarning("Se detecto la falta de RETURN en el cuerpo de la funcion");}
+                        |       funcion_name '(' parametro ')' '{' comas '}'                                  { finishFunction(); yywarning("Se detecto la falta de RETURN en el cuerpo de la funcion");}
                         ;
 
-funcion_name    :       VOID IDENTIFICADOR              { int diff = tableSymbol->getDiffOffScope($2->ptr+tableSymbol->getScope(), "funcion"); if(diff == 0){yyerror("Redeclaracion de funcion en el mismo ambito");}else{symbol* newIdentificador = setNewScope($2->ptr, "void", tableSymbol->getScope(), "funcion"); lastParam = newIdentificador;} tableSymbol->addScope($2->ptr); }
+funcion_name    :       VOID IDENTIFICADOR              { initFunction($2->ptr, tableSymbol->getScope()); }
                 ;
 
 declaracion_clase   :   nombre_clase '{' lista_atributos_y_metodos '}'   { tableSymbol->deleteScope(); }
@@ -123,7 +129,7 @@ declaracion_clase   :   nombre_clase '{' lista_atributos_y_metodos '}'   { table
                     |   CLASS  '{' '}'                                          { yyerror("Falta nombre de la clase"); }
                     ;
                     
-nombre_clase    :       CLASS IDENTIFICADOR                     { checkClass($2->ptr, tableSymbol->getScope()); $$->ptr = $2->ptr; tableSymbol->addScope($2->ptr);}
+nombre_clase    :       CLASS IDENTIFICADOR                     { initClass($2->ptr, tableSymbol->getScope()); $$->ptr = $2->ptr; tableSymbol->addScope($2->ptr);}
                 ;
 lista_atributos_y_metodos       :       lista_atributos_y_metodos tipo lista_de_atributos ','           { yyPrintInLine("Se detecto declaracion de variable en clase");}
                                 |       lista_atributos_y_metodos metodo ','                                 
@@ -133,20 +139,22 @@ lista_atributos_y_metodos       :       lista_atributos_y_metodos tipo lista_de_
 lista_de_atributos  :   lista_de_atributos ';' IDENTIFICADOR    { addAtribute($3->ptr, tableSymbol->getScope(), typeAux); }
                     |   IDENTIFICADOR                           { addAtribute($1->ptr, tableSymbol->getScope(), typeAux); }
                     ;
-metodo  :   metodo_name '(' parametro ')' '{' cuerpo_de_la_funcion '}'                 { tableSymbol->deleteScope(); }
-        |   metodo_name '(' parametro ')' '{' '}'                                      { tableSymbol->deleteScope(); yyerror("Se detecto la falta de RETURN en el cuerpo de la funcion");}
-        |   metodo_name '(' parametro ')' '{' comas cuerpo_de_la_funcion '}'           {  tableSymbol->deleteScope();}
+metodo  :   metodo_name '(' parametro ')' '{' cuerpo_de_la_funcion '}'                 { finishMethod(); }
+        |   metodo_name '(' parametro ')' '{' '}'                                      { finishMethod(); yyerror("Se detecto la falta de RETURN en el cuerpo de la funcion");}
+        |   metodo_name '(' parametro ')' '{' comas cuerpo_de_la_funcion '}'           { finishMethod(); }
         ;
 
-metodo_name     :       VOID IDENTIFICADOR              { addMetodo($2->ptr, tableSymbol->getScope()); tableSymbol->addScope($2->ptr);}
+metodo_name     :       VOID IDENTIFICADOR              { initMethod($2->ptr, tableSymbol->getScope()); }
                 |       VOID                            { yyerror("Falta de nombre de metodo"); }
                 ;
 
-declaracion_objeto  :   IDENTIFICADOR lista_de_objetos
+declaracion_objeto  :   typeClass lista_de_objetos   {} 
                     ;
+typeClass : IDENTIFICADOR                       { $$->ptr = $1->ptr; actualClass = $1->ptr; tableSymbol->deleteSymbol($1->ptr);}
+          ;
 
-lista_de_objetos    :   lista_de_objetos ';' IDENTIFICADOR  
-                    |   IDENTIFICADOR
+lista_de_objetos    :   lista_de_objetos ';' IDENTIFICADOR      { addObject($3->ptr, tableSymbol->getScope(), actualClass); }
+                    |   IDENTIFICADOR                           { addObject($1->ptr, tableSymbol->getScope(), actualClass); }
                     ;
 
 tipo    :       SHORT   { typeAux = "short"; $$->type ="short";}
@@ -194,7 +202,7 @@ ejecutable  :    asignacion
             |    ciclo_while
             ;
 
-asignacion : IDENTIFICADOR '=' expresion_aritmetica                     { tableSymbol->deleteSymbol($1->ptr); symbol* symbolFinded = tableSymbol->getFirstSymbolMatching($1->ptr+tableSymbol->getScope(), "var"); if(symbolFinded == nullptr){yyerror("No se encontro declaracion previa de la variable "+ $1->ptr);}else{checkTypesAsignation(symbolFinded->type, $3->type); int number = addTercet("=", symbolFinded->lexema, $3->ptr); $$->ptr = charTercetoId + to_string(number);} }
+asignacion : IDENTIFICADOR '=' expresion_aritmetica                     { newAsignacion($1->ptr, tableSymbol->getScope(), $3->ptr,$3->type);}
            | IDENTIFICADOR '.' IDENTIFICADOR '=' expresion_aritmetica
            ;
 
@@ -205,17 +213,17 @@ invocacion : IDENTIFICADOR '(' expresion_aritmetica ')'
            ;
 
 
-expresion_aritmetica : expresion_aritmetica '+' termino         { if(checkTypesOperation($1->type, $3->type)){$$->type=$1->type;}else{$$->type="error";}; Tercet *t = new Tercet("+", $1->ptr, $3->ptr); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number); }
-                    | expresion_aritmetica '-' termino          { if(checkTypesOperation($1->type, $3->type)){$$->type=$1->type;}else{$$->type="error";}; Tercet *t = new Tercet("-", $1->ptr, $3->ptr); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number); }
-                    | expresion_aritmetica '-' '*' termino      { if(checkTypesOperation($1->type, $4->type)){$$->type=$1->type;}else{$$->type="error";}; yywarning("Se detecto un error en operador, quedara '-'"); Tercet *t = new Tercet("-", $1->ptr, $3->ptr); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number); }
-                    | expresion_aritmetica '+' '*' termino      { if(checkTypesOperation($1->type, $4->type)){$$->type=$1->type;}else{$$->type="error";}; yywarning("Se detecto un error en operador, quedara '+'"); Tercet *t = new Tercet("+", $1->ptr, $3->ptr); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number); }
-                    | expresion_aritmetica '-' '/' termino      { if(checkTypesOperation($1->type, $4->type)){$$->type=$1->type;}else{$$->type="error";}; yywarning("Se detecto un error en operador, quedara '-'"); Tercet *t = new Tercet("-", $1->ptr, $3->ptr); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number); }
-                    | expresion_aritmetica '+' '/' termino      { if(checkTypesOperation($1->type, $4->type)){$$->type=$1->type;}else{$$->type="error";}; yywarning("Se detecto un error en operador, quedara '+'"); Tercet *t = new Tercet("+", $1->ptr, $3->ptr); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number); }
+expresion_aritmetica : expresion_aritmetica '+' termino         { newOperacionAritmetica("+", $1->ptr, $3->ptr, $1->type, $3->ptr, $$->ptr, $$->type); }
+                    | expresion_aritmetica '-' termino          { newOperacionAritmetica("-", $1->ptr, $3->ptr, $1->type, $3->ptr, $$->ptr, $$->type); }
+                    | expresion_aritmetica '-' '*' termino      { newOperacionAritmetica("-", $1->ptr, $4->ptr, $1->type, $4->ptr, $$->ptr, $$->type); yywarning("Se detecto un error en operador, quedara '-'"); }
+                    | expresion_aritmetica '+' '*' termino      { newOperacionAritmetica("+", $1->ptr, $4->ptr, $1->type, $4->ptr, $$->ptr, $$->type); yywarning("Se detecto un error en operador, quedara '+'"); }
+                    | expresion_aritmetica '-' '/' termino      { newOperacionAritmetica("-", $1->ptr, $4->ptr, $1->type, $4->ptr, $$->ptr, $$->type); yywarning("Se detecto un error en operador, quedara '-'"); }
+                    | expresion_aritmetica '+' '/' termino      { newOperacionAritmetica("+", $1->ptr, $4->ptr, $1->type, $4->ptr, $$->ptr, $$->type); yywarning("Se detecto un error en operador, quedara '+'"); }
                     | termino                                   { $$->type = $1->type; $$->ptr = $1->ptr; }
                     ;
 
-termino : termino '*' factor                                    { if(checkTypesOperation($1->type, $3->type)){$$->type=$1->type;}else{$$->type="error";}; Tercet *t = new Tercet("*", $1->ptr, $3->ptr); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number); }
-        | termino '/' factor                                    { if(checkTypesOperation($1->type, $3->type)){$$->type=$1->type;}else{$$->type="error";}; Tercet *t = new Tercet("/", $1->ptr, $3->ptr); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number); }
+termino : termino '*' factor                                    { newOperacionAritmetica("*", $1->ptr, $3->ptr, $1->type, $3->ptr, $$->ptr, $$->type); }
+        | termino '/' factor                                    { newOperacionAritmetica("/", $1->ptr, $3->ptr, $1->type, $3->ptr, $$->ptr, $$->type); }
         | factor                                                { $$->ptr = $1->ptr; $$->type = $1->type;}
         ;
 
@@ -391,14 +399,25 @@ symbol* setNewScope(string key, string type, string scope, string uso){
 // Los paramtros son argumento, operador1, y operador2
 int addTercet(string argumento, string operando1, string operando2){
         Tercet *t = new Tercet(argumento, operando1, operando2); 
-        int number = tableTercets->add(t);
+        int number;
+        if(cantOfRecursions <= 0){
+                number = tableTercets->add(t);
+        }else{
+                number = stackFunction->top()->ter->add(t);
+        }
+                
         return number;
 }
 // Crea un terceto y lo agrega a la tabla de tercetos y lo apila.
 // Los paramtros son argumento, operador1, y operador2
 int addTercetAndStack(string argumento, string operando1, string operando2){
         Tercet *t = new Tercet(argumento, operando1, operando2); 
-        int number = tableTercets->add(t);
+        int number;
+        if(cantOfRecursions <= 0){
+                number = tableTercets->add(t);
+        }else{
+                number = stackFunction->top()->ter->add(t);
+        }
         tableTercets->push(t);
         return number;
 }
@@ -415,7 +434,7 @@ Tercet* popTercet(){
         return tableTercets->pop();
 }
 
-void checkClass(string key, string scope){
+void initClass(string key, string scope){
         // verificamos a que distancia se encuentra la primer aparición de la variable en un ámbito alcanzable
         int diff = tableSymbol->getDiffOffScope(key+scope, "clase"); 
         
@@ -453,17 +472,13 @@ void addAtribute(string key, string scope, string type){
                 symbol* newAtribute = new symbol(key+scope, "", type, "atributo");
 
                 // agregamos el nuevo símbolo al vector de simbolos de la clase        
-                lastClass->metodos->push_back(newAtribute);
+                lastClass->attributesAndMethodsVector->push_back(newAtribute);
 
                 // seteamos que si se debe agregar un parametro se le haga a este método
                 lastParam = newAtribute;
-        }
-
-        
-
-        
+        }        
 };
-void addMetodo(string key, string scope ){
+void initMethod(string key, string scope ){
 
         // obtener el símbolo viejo y eliminarlo
         // cargarlo al arreglo de la clase
@@ -474,10 +489,19 @@ void addMetodo(string key, string scope ){
         symbol* newMetodo = new symbol(key+scope, "", "void", "metodo");
 
         // agregamos el nuevo símbolo al vector de simbolos de la clase        
-        lastClass->metodos->push_back(newMetodo);
+        lastClass->attributesAndMethodsVector->push_back(newMetodo);
         
         // seteamos que si se debe agregar un parametro se le haga a este método
         lastParam = newMetodo;
+
+        // agregamos un scope
+        tableSymbol->addScope(key);
+
+        // creamos una stack para la función y la agregamos al stack con el nombre
+        functionStack* fs = new functionStack(key+scope);
+        fs->ter = new Tercets();
+        stackFunction->push(fs);
+        cantOfRecursions++;
 };
 void addParam(string key, string scope, string type){
 
@@ -490,3 +514,87 @@ void addParam(string key, string scope, string type){
         lastParam->typeParam = type;
         lastParam->nameParam = key;
 };
+void addObject(string key, string scope, string classType){
+        
+        // Verificamos que no exista otro objeto con el mismo nombre en el mismo ámbito
+        // buscamos la clase más cercana de classType
+        // si la encontramos por cada atributo y método creamos un nuevo símbolo con el scope del objeto
+
+        
+        
+        int diff = tableSymbol->getDiffOffScope(key+scope, "objeto"); 
+        
+        // si está en el mismo ámbito
+        if(diff == 0){
+                // en el mismo ámbito existe un objeto
+                yyerror("Redeclaracion del objeto " + key + " en el mismo ambito");
+        }else{
+                tableSymbol->deleteSymbol(key); // borramos elobjeto de la tabla de simbolos
+                
+                symbol* matchingClass = tableSymbol->getFirstSymbolMatching(classType+scope, "clase"); // buscamos la primera clase que matchee
+                
+                for (symbol * sm : *matchingClass->attributesAndMethodsVector){
+                        // creamos el nuevo símbolo
+                        symbol* newSm = new symbol(*sm);
+                        newSm->lexema = key+":"+sm->lexema;
+
+                        // agregamos el nuevo símbolo a la tabla de simbolos        
+                        tableSymbol->insert(newSm);
+                }
+        } 
+};
+void initFunction(string key, string scope){
+        int diff = tableSymbol->getDiffOffScope(key+scope, "funcion"); 
+        if(diff == 0){
+                yyerror("Redeclaracion de funcion en el mismo ambito");
+        }else{
+                symbol* newIdentificador = setNewScope(key, "void", scope, "funcion"); 
+                lastParam = newIdentificador;
+        } 
+        
+        tableSymbol->addScope(key);
+
+        // creamos un vector de función y lo agregamos al stack con el nombre
+        functionStack* fs = new functionStack(key+scope);
+        fs->ter = new Tercets();
+        stackFunction->push(fs);
+        cantOfRecursions++;
+}
+void finishFunction(){
+        // obtenemos el stack con los tercetos de la función
+        functionStack* fs = stackFunction->top();
+        stackFunction->pop();
+        vectorOfFunction->add(fs);
+        tableSymbol->deleteScope(); // sacamos el scope de la función
+        cantOfRecursions--;     // sacamos una recursión
+}
+void finishMethod(){
+        // obtenemos el stack con los tercetos de la función
+        functionStack* fs = stackFunction->top();
+        stackFunction->pop();
+        vectorOfFunction->add(fs);
+        tableSymbol->deleteScope(); // sacamos el scope de la función
+        cantOfRecursions--;     // sacamos una recursión
+};
+
+void newAsignacion(string key, string scope, string op2Lexeme, string op2Type){
+        tableSymbol->deleteSymbol(key); 
+        symbol* symbolFinded = tableSymbol->getFirstSymbolMatching(key+scope, "var"); 
+        if(symbolFinded == nullptr){
+                yyerror("No se encontro declaracion previa de la variable "+ key);
+        }else{
+                checkTypesAsignation(symbolFinded->type, op2Type); 
+                int number = addTercet("=", symbolFinded->lexema, op2Lexeme); 
+        } 
+};
+
+void newOperacionAritmetica(string operador, string op1ptr, string op2ptr, string op1type, string op2type, string& reglaptr, string& reglatype){
+        if(checkTypesOperation(op1type, op2type)){
+                reglatype = op1type;
+        }else{
+                reglatype = "error";
+        } 
+        
+        int number = addTercet(operador, op1ptr, op2ptr); 
+        reglaptr = charTercetoId + to_string(number); 
+}

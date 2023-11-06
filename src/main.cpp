@@ -3,6 +3,7 @@
 // #include "include/TableReservedWord.hpp"
 #include "include/Tercets.hpp"
 #include "include/Lexico.hpp"
+#include "include/VectorOfFunction.hpp"
 #include "include/AssemblerGenerator.hpp"
 
 #include <iostream>
@@ -61,6 +62,7 @@ int main(int arg_count, char *arg_list[]) {
     extern TableSymbol* tableSymbol;
     extern TableReservedWord* tableRWords;
     extern Tercets* tableTercets;
+    extern VectorOfFunction * vectorOfFunction;
 
     // cargamos nuestra fase de analisis lexico
     Lexico * lexico = new Lexico(tableSymbol, tableRWords, &contenido, &lineNumber); // la dejamos en la pila porque tiene un tamaño pequeño y su tamaño no es dinámico
@@ -103,6 +105,7 @@ int main(int arg_count, char *arg_list[]) {
     cout << "\n\n --------------- \n\n";
     tableSymbol->imprimirTabla();
     tableSymbol->imprimirAtributosMetodos();
+    vectorOfFunction->imprimir();
     // tableRWords->imprimirTabla();
     tableTercets->print();
 

@@ -2,7 +2,7 @@
 #define _TYPES_H_
 
 #include "AccionSemantica.hpp"
-
+#include "Tercets.hpp"
 #include <iostream>
 #include <vector>
 
@@ -54,6 +54,14 @@ struct myTypeYYLVAL {
     string type;
 
     myTypeYYLVAL(string _ptr, string _type) : ptr(_ptr), type(_type) {};
+};
+
+struct functionStack {
+    string name;
+    Tercets * ter;
+    TableSymbol* ts;
+
+    functionStack(string _name) : name(_name){};
 };
 
 #endif
