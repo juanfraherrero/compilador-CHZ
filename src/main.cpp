@@ -102,6 +102,7 @@ int main(int arg_count, char *arg_list[]) {
 
     cout << "\n\n --------------- \n\n";
     tableSymbol->imprimirTabla();
+    tableSymbol->imprimirAtributosMetodos();
     // tableRWords->imprimirTabla();
     tableTercets->print();
 

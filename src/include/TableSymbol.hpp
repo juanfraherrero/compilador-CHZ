@@ -54,6 +54,8 @@ class TableSymbol{
         string returnTypeParam(const string& key);
         // Función para imprimir la tabla completa
         void imprimirTabla();
+        // Función para imprimir atributos y métodos de las clases
+        void imprimirAtributosMetodos();
         //funcion para setear un valor a la variable uso
         void setUso(const string& uso, const string& key);
         //funcion para devolver el valor de la variable uso

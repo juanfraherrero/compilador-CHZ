@@ -91,6 +91,25 @@ void TableSymbol::imprimirTabla() {
     }
 }
 
+
+void TableSymbol::imprimirAtributosMetodos() {
+    cout << "\n\nAtributos y métodos de clase:\n\n" << endl;
+    for (const auto& pair : symbolTable) {
+        const symbol* sm = pair.second;
+        if (sm->uso == "clase"){
+            cout << "Clave: " << pair.first << "\t Lexema: " << sm->lexema << "\t Valor: " << sm->value << "\t Tipo: " << sm->type << "\t Uso: " << sm->uso << "\t fullIdentifier: " << sm->fullIdentifier <<endl;
+            
+            // Recorre el vector de punteros
+            for (symbol * ptrSymbol : *(sm->attributesAndMethodsVector)) {
+                // Accede a los atributos de cada 'symbol' a través del puntero
+                cout <<  "Lexema: " << ptrSymbol->lexema << "\t Tipo: " << ptrSymbol->type << "\t Uso: " << ptrSymbol->uso << "\t cantParam: " << ptrSymbol->cantParam << "\t typeParam: " << ptrSymbol->typeParam << "\t nameParam: " << ptrSymbol->nameParam << "\t forwarded: " << ptrSymbol->forwarded <<endl;
+            }
+           
+        }
+            
+    }
+}
+
 void TableSymbol::deleteSymbol(const string& key){
     // buscamos si ya existe ese símbolo en la tabla
     auto it = symbolTable.find(key);
@@ -128,7 +147,7 @@ int TableSymbol::getCantParam(const string& key){
     // buscamos si ya existe ese símbolo en la tabla
     auto it = symbolTable.find(key);
     if (it != symbolTable.end()){
-        if(it->second->cantParam == "0"){
+        if(it->second->cantParam == 0){
             return 0;
         }else{
             return 1;
@@ -142,7 +161,7 @@ void TableSymbol::setCantParam(const string& key, const string& cant){
     // buscamos si ya existe ese símbolo en la tabla
     auto it = symbolTable.find(key);
     if (it != symbolTable.end()){
-        it->second->cantParam = cant;
+        it->second->cantParam = stoul(cant);
     }
 }
 

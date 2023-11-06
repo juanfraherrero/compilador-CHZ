@@ -24,6 +24,9 @@ Tercets *tableTercets = new Tercets();
 char charTercetoId = '%';
 
 string typeAux = "";
+string actualClass = "";
+symbol* lastParam;
+symbol* lastClass;
 
 void yyerror(string s){
     isErrorInCode = true;    
@@ -110,26 +113,32 @@ declaracion_funcion     :       funcion_name '(' parametro ')' '{' cuerpo_de_la_
                         |       funcion_name '(' parametro ')' '{' comas '}'                                  { tableSymbol->deleteScope(); yywarning("Se detecto la falta de RETURN en el cuerpo de la funcion");}
                         ;
 
-funcion_name    :       VOID IDENTIFICADOR              { int diff = tableSymbol->getDiffOffScope($2->ptr+tableSymbol->getScope(), "funcion"); if(diff == 0){yyerror("Redeclaracion de funcion en el mismo ambito");}else{symbol* newIdentificador = setNewScope($2->ptr, "void", tableSymbol->getScope(), "funcion");} tableSymbol->addScope($2->ptr); }
+funcion_name    :       VOID IDENTIFICADOR              { int diff = tableSymbol->getDiffOffScope($2->ptr+tableSymbol->getScope(), "funcion"); if(diff == 0){yyerror("Redeclaracion de funcion en el mismo ambito");}else{symbol* newIdentificador = setNewScope($2->ptr, "void", tableSymbol->getScope(), "funcion"); lastParam = newIdentificador;} tableSymbol->addScope($2->ptr); }
                 ;
 
-declaracion_clase   :   CLASS IDENTIFICADOR '{' lista_atributos_y_metodos '}'         /* Los atributos y metodos van en desorden */ { yyPrintInLine("Se detecto declaracion de clase");}
-                    |   CLASS IDENTIFICADOR /* fordward declaration*/           { yyPrintInLine("Se detecto declaracion de clase adelantada");}
-                    |   CLASS IDENTIFICADOR '{' '}'                             {yywarning("Se detecto una declaracion de clases vacia");}
+declaracion_clase   :   nombre_clase '{' lista_atributos_y_metodos '}'   { tableSymbol->deleteScope(); }
+                    |   nombre_clase '{' '}'                             { tableSymbol->deleteScope(); yywarning("Se detecto una declaracion de clases vacia");}
+                    |   CLASS IDENTIFICADOR /* fordward declaration*/           { int diff = tableSymbol->getDiffOffScope($2->ptr+tableSymbol->getScope(), "clase"); if(diff == 0){yyerror("Redeclaracion de funcion en el mismo ambito");}else{symbol* newIdentificador = setNewScope($2->ptr, "", tableSymbol->getScope(), "clase"); } tableSymbol->getSymbol($2->ptr+tableSymbol->getScope())->forwarded = true; }
+                    |   CLASS '{' lista_atributos_y_metodos '}'                 { yyerror("Falta nombre de la clase"); }
+                    |   CLASS  '{' '}'                                          { yyerror("Falta nombre de la clase"); }
                     ;
-lista_atributos_y_metodos       :       lista_atributos_y_metodos tipo lista_de_variables ','           { yyPrintInLine("Se detecto declaracion de variable en clase");}
+                    
+nombre_clase    :       CLASS IDENTIFICADOR                     { checkClass($2->ptr, tableSymbol->getScope()); $$->ptr = $2->ptr; tableSymbol->addScope($2->ptr);}
+                ;
+lista_atributos_y_metodos       :       lista_atributos_y_metodos tipo lista_de_atributos ','           { yyPrintInLine("Se detecto declaracion de variable en clase");}
                                 |       lista_atributos_y_metodos metodo ','                                 
-                                |       tipo lista_de_variables ','                                    { yyPrintInLine("Se detecto declaracion de variable en clase");}
+                                |       tipo lista_de_atributos ','                                    { yyPrintInLine("Se detecto declaracion de variable en clase");}
                                 |       metodo ','
                                 ;
-
-
+lista_de_atributos  :   lista_de_atributos ';' IDENTIFICADOR    { addAtribute($3->ptr, tableSymbol->getScope(), typeAux); }
+                    |   IDENTIFICADOR                           { addAtribute($1->ptr, tableSymbol->getScope(), typeAux); }
+                    ;
 metodo  :   metodo_name '(' parametro ')' '{' cuerpo_de_la_funcion '}'                 { tableSymbol->deleteScope(); }
         |   metodo_name '(' parametro ')' '{' '}'                                      { tableSymbol->deleteScope(); yyerror("Se detecto la falta de RETURN en el cuerpo de la funcion");}
         |   metodo_name '(' parametro ')' '{' comas cuerpo_de_la_funcion '}'           {  tableSymbol->deleteScope();}
         ;
 
-metodo_name     :       VOID IDENTIFICADOR              { symbol* newIdentificador = setNewScope($2->ptr, "void", tableSymbol->getScope(), "metodo"); tableSymbol->addScope($2->ptr);}
+metodo_name     :       VOID IDENTIFICADOR              { addMetodo($2->ptr, tableSymbol->getScope()); tableSymbol->addScope($2->ptr);}
                 |       VOID                            { yyerror("Falta de nombre de metodo"); }
                 ;
 
@@ -146,11 +155,10 @@ tipo    :       SHORT   { typeAux = "short"; $$->type ="short";}
         ;
 
 lista_de_variables  :   lista_de_variables ';' IDENTIFICADOR    { int diff = tableSymbol->getDiffOffScope($3->ptr+tableSymbol->getScope(), "var"); if(diff == 0){yyerror("Redeclaracion de variable en el mismo ambito");}else{symbol* newIdentificador = setNewScope($3->ptr, typeAux, tableSymbol->getScope(),"var");} }
-                    /* |   lista_de_variables IDENTIFICADOR        { yywarning("Se detecto falta de separador ';' entre identificadores."); int diff = tableSymbol->getDiffOffScope($2->ptr+tableSymbol->getScope(), "var"); if(diff == 0){yyerror("Redeclaracion de variable en el mismo ambito");}else{symbol* newIdentificador = setNewScope($2->ptr, typeAux, tableSymbol->getScope(),"var");}} */
                     |   IDENTIFICADOR                           { int diff = tableSymbol->getDiffOffScope($1->ptr+tableSymbol->getScope(), "var"); if(diff == 0){yyerror("Redeclaracion de variable en el mismo ambito");}else{symbol* newIdentificador = setNewScope($1->ptr, typeAux, tableSymbol->getScope(),"var");} }
                     ;
 
-parametro   :   tipo IDENTIFICADOR              { symbol* newIdentificador = setNewScope($2->ptr, $1->type, tableSymbol->getScope(), "parametro"); $$->ptr = newIdentificador->lexema; $$->type = $1->type;}
+parametro   :   tipo IDENTIFICADOR              { addParam($2->ptr, tableSymbol->getScope(), $1->type); $$->type = $1->type;}
             |   tipo                            { yyerror("Falta de nombre de parametro"); }            
             |   IDENTIFICADOR                   { yyerror("Falta de tipo de parametro"); } 
             |   /* vacio */
@@ -293,7 +301,7 @@ sentencias_ejecutables  :   sentencias_ejecutables ejecutable comas
                         ;
 
 factor : IDENTIFICADOR                                                  { $$->ptr = $1->ptr; $$->type = tableSymbol->getSymbol($1->ptr)->type;}
-       | IDENTIFICADOR OPERADOR_SUMA_SUMA                               { Tercet * t = new Tercet("+", $1->ptr, $1->ptr); int number = tableTercets->add(t); $$->ptr = charTercetoId + to_string(number);$$->type = tableSymbol->getSymbol($1->ptr)->type;}
+       | IDENTIFICADOR OPERADOR_SUMA_SUMA                               { int number = addTercet("+", $1->ptr, $1->ptr); $$->ptr = charTercetoId + to_string(number); $$->type = tableSymbol->getSymbol($1->ptr)->type;}
        | constanteSinSigno                                              { $$->ptr = $1->ptr; $$->type = $1->type;}
        | constanteConSigno                                              { $$->ptr = $1->ptr; $$->type = $1->type;}
        | TOF '(' expresion_aritmetica ')'                               { int number = addTercet("tof", " ", $3->ptr); $$->ptr = charTercetoId + to_string(number); $$->type = "float"; } 
@@ -406,3 +414,79 @@ void addTercetOnlyStack(string argumento, string operando1, string operando2){
 Tercet* popTercet(){
         return tableTercets->pop();
 }
+
+void checkClass(string key, string scope){
+        // verificamos a que distancia se encuentra la primer aparición de la variable en un ámbito alcanzable
+        int diff = tableSymbol->getDiffOffScope(key+scope, "clase"); 
+        
+        // si está en el mismo ámbito
+        if(diff == 0){
+                // en el mismo ámbito existe una clase, verificar si es forward declaration
+                symbol* symbolFinded = tableSymbol->getSymbol(key+scope); // obtenemos el símbolo con mismo scope
+                if(symbolFinded->forwarded == false){
+                        yyerror("Redeclaracion de clase " + key + " en el mismo ambito");
+                }else{
+                        // la marcamos como que ya se declaró
+                        symbolFinded->forwarded = false;
+                        symbolFinded->attributesAndMethodsVector = new vector<symbol*>; // inicializamos el vector de simbolos
+                        lastClass = symbolFinded;
+                }
+        }else{
+                symbol* newIdentificador = setNewScope(key, "", scope, "clase"); 
+                newIdentificador->attributesAndMethodsVector = new vector<symbol*>; // inicializamos el vector de simbolos
+                lastClass = newIdentificador;
+        } 
+        actualClass = key; 
+};
+void addAtribute(string key, string scope, string type){
+
+        // obtener el símbolo viejo y eliminarlo
+        // cargarlo al arreglo de la clase
+
+        int diff = tableSymbol->getDiffOffScope(key + scope, "atributo"); 
+        if(diff == 0){
+                yyerror("Redeclaracion de atributio en la misma clase");
+        }else{
+                tableSymbol->deleteSymbol(key);                         // eliminamos el simbolo (usa el contador)
+                
+                // creamos el nuevo símbolo para el atributo
+                symbol* newAtribute = new symbol(key+scope, "", type, "atributo");
+
+                // agregamos el nuevo símbolo al vector de simbolos de la clase        
+                lastClass->metodos->push_back(newAtribute);
+
+                // seteamos que si se debe agregar un parametro se le haga a este método
+                lastParam = newAtribute;
+        }
+
+        
+
+        
+};
+void addMetodo(string key, string scope ){
+
+        // obtener el símbolo viejo y eliminarlo
+        // cargarlo al arreglo de la clase
+
+        tableSymbol->deleteSymbol(key);                         // eliminamos el simbolo (usa el contador)
+        
+        // creamos el nuevo símbolo
+        symbol* newMetodo = new symbol(key+scope, "", "void", "metodo");
+
+        // agregamos el nuevo símbolo al vector de simbolos de la clase        
+        lastClass->metodos->push_back(newMetodo);
+        
+        // seteamos que si se debe agregar un parametro se le haga a este método
+        lastParam = newMetodo;
+};
+void addParam(string key, string scope, string type){
+
+        // obtener el símbolo viejo y eliminarlo
+        // setear el tipo del parametro
+
+        tableSymbol->deleteSymbol(key);                         // eliminamos el simbolo (usa el contador)
+        
+        lastParam->cantParam++;
+        lastParam->typeParam = type;
+        lastParam->nameParam = key;
+};

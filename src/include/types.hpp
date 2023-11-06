@@ -4,6 +4,7 @@
 #include "AccionSemantica.hpp"
 
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -25,12 +26,16 @@ struct valueOfMatrix
 struct symbol {
     string lexema;          // lexema
     string value;           // valor del token
-    string type;            // define un tipo
-    string uso;             // define el uso de cada variable.
-    string cantParam;       // define si la funcion tiene o no parametro, 0 si no tiene, 1 si tiene
-    string typeParam;       //define si es que existe el tipo de parametro
-    string fullIdentifier;  //define el identificador completo, se usa para el truncado
-    int count;
+    string type;            // define un tipo                       SHORT, FLOAT
+    string uso;             // define el uso de cada variable.      metodo, variable, parametro, funcion
+    unsigned int cantParam = 0;       // define si la funcion tiene o no parametro, 0 si no tiene, 1 si tiene si el uso es función o método
+    string typeParam;       // define si es que tiene parámetro el tipo
+    string nameParam;       // define el nombre del parámetro
+    string fullIdentifier;  // define el identificador completo, se usa para el truncado
+    int count;              // se usa para contabilizar cuantos lexemas apuntan al mismo elemento
+    bool forwarded = false; // se usa para saber si el simbolo fue forwardado o no
+    vector<symbol*>* attributesAndMethodsVector; // se usa para que tengamos los atritbutos y métodos de una clase en este vector en heap de simbolos del heap
+    
 
     symbol(const string& _lexema) : lexema(_lexema), count(1) {};
     symbol(const string& _lexema, string _value) : lexema(_lexema), value(_value), count(1) {};
