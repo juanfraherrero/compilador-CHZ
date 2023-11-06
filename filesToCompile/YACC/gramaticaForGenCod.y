@@ -227,14 +227,14 @@ termino : termino '*' factor                                    { newOperacionAr
         | factor                                                { $$->ptr = $1->ptr; $$->type = $1->type;}
         ;
 
-seleccion : IF bloque_condicion cuerpo_if                       { Tercet *t = popTercet(); if (t!=nullptr){t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1) );}}                     
+seleccion : IF bloque_condicion cuerpo_if                       { finIf(); }                     
           ;
 
-bloque_condicion : '(' condicion ')'                            { int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); $$->ptr = charTercetoId + to_string(number); }
-                 | '(' condicion                                { yywarning("Falta de ultimo parentesis en condicion"); int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); $$->ptr = charTercetoId + to_string(number);}
-                 |  condicion ')'                               { yywarning("Falta de primer parentesis en condicion"); int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); $$->ptr = charTercetoId + to_string(number);}
-                 |  condicion                                   { yywarning("Falta de parantesis en condicion"); int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); $$->ptr = charTercetoId + to_string(number);}
-                 |  '(' ')'                                     { yyerror("Falta de condicion en el bloque de control IF"); int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); $$->ptr = charTercetoId + to_string(number);}
+bloque_condicion : '(' condicion ')'                            { condition($$->ptr); }
+                 | '(' condicion                                { condition($$->ptr); yywarning("Falta de ultimo parentesis en condicion"); }
+                 |  condicion ')'                               { condition($$->ptr); yywarning("Falta de primer parentesis en condicion"); }
+                 |  condicion                                   { condition($$->ptr); yywarning("Falta de parantesis en condicion"); }
+                 |  '(' ')'                                     { condition($$->ptr); yyerror("Falta de condicion en el bloque de control IF"); }
                  ;
 
 cuerpo_if : cuerpo_then else_if cuerpo_else END_IF
@@ -248,13 +248,13 @@ cuerpo_then : bloque_ejecutables
             ;
 cuerpo_else : bloque_ejecutables
             ;
-else_if :       ELSE                                            { Tercet * t = popTercet();  if (t!=nullptr){t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2));} int number =  addTercetAndStack("BI", "", ""); $$->ptr = charTercetoId + to_string(number); }
+else_if :       ELSE                                            { addElse($$->ptr); }
         ;
-ciclo_while : inicio_while bloque_condicion DO cuerpo_while               { Tercet *t = popTercet(); if (t!=nullptr){t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2) );} Tercet *t2 = popTercet(); int number; if(t2!=nullptr){int number = addTercet("BI", t2->getArg1(), "");} $$->ptr = charTercetoId + to_string(number);}                     
-            | inicio_while bloque_condicion cuerpo_while                  { yywarning("Falta de DO en WHILE-DO"); Tercet *t = popTercet(); if (t!=nullptr){t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2) );} Tercet *t2 = popTercet();int number; if(t2!=nullptr){int number = addTercet("BI", t2->getArg1(), "");} $$->ptr = charTercetoId + to_string(number);}                     
+ciclo_while : inicio_while bloque_condicion DO cuerpo_while               { finWhile($$->ptr); }                     
+            | inicio_while bloque_condicion cuerpo_while                  { finWhile($$->ptr); yywarning("Falta de DO en WHILE-DO"); }                     
             ;
 
-inicio_while    : WHILE                                                         { addTercetOnlyStack("incioCondicionWhile", charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1), ""); }
+inicio_while    : WHILE                                                         { initWhile(); }
                 ;
 
 cuerpo_while : bloque_ejecutables                                       
@@ -597,4 +597,42 @@ void newOperacionAritmetica(string operador, string op1ptr, string op2ptr, strin
         
         int number = addTercet(operador, op1ptr, op2ptr); 
         reglaptr = charTercetoId + to_string(number); 
+}
+
+void condition(string& reglaptr){
+        int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); 
+        reglaptr = charTercetoId + to_string(number); 
+}
+
+void addElse(string& reglaptr){
+        Tercet * t = popTercet();  
+        if (t!=nullptr){
+                t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2));
+        } 
+        int number =  addTercetAndStack("BI", "", ""); 
+        reglaptr = charTercetoId + to_string(number); 
+}
+
+void finIf(){
+        Tercet *t = popTercet(); 
+        if (t!=nullptr){
+                t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1) );
+        }
+}
+
+void initWhile(){
+        addTercetOnlyStack("incioCondicionWhile", charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1), "");
+}
+
+void finWhile(string & reglaptr) {
+        Tercet *t = popTercet(); 
+        if (t!=nullptr){
+                t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2) );
+        } 
+        Tercet *t2 = popTercet(); 
+        int number; 
+        if(t2!=nullptr){
+                int number = addTercet("BI", t2->getArg1(), "");
+        } 
+        reglaptr = charTercetoId + to_string(number);
 }
