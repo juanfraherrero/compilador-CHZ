@@ -907,13 +907,7 @@ int addTercet(string argumento, string operando1, string operando2){
         if(cantOfRecursions <= 0){
                 number = tableTercets->add(t);
         }else{
-                cout << "xs" << endl;
-                functionStack* fs = stackFunction->top();
-                cout << "xs" << endl;
-                Tercets * ty = fs->ter;
-                cout << "xs" << endl;
-                number = ty->add(t);
-                cout << "xs" << endl;
+                number = stackFunction->top()->ter->add(t);
         }
                 
         return number;
@@ -986,7 +980,7 @@ void addAtribute(string key, string scope, string type){
 
                 // seteamos que si se debe agregar un parametro se le haga a este método
                 lastParam = newAtribute;
-        }
+        }        
 };
 void initMethod(string key, string scope ){
 
@@ -1086,7 +1080,18 @@ void finishMethod(){
         tableSymbol->deleteScope(); // sacamos el scope de la función
         cantOfRecursions--;     // sacamos una recursión
 };
-
+void setScope(string key, string scope, string uso, string& reglaptr, string & reglatype){
+        cout << "se recibió una key" << key << endl;
+        cout << "con scope" << scope << endl;
+        tableSymbol->deleteSymbol(key); 
+        symbol* symbolFinded = tableSymbol->getFirstSymbolMatching(key+scope, "var"); 
+        if(symbolFinded == nullptr){
+                yyerror("No se encontro declaracion previa de la variable "+ key);
+        }else{
+                reglaptr = symbolFinded->lexema;
+                reglatype = symbolFinded->type;
+        }
+};
 void newAsignacion(string key, string scope, string op2Lexeme, string op2Type){
         tableSymbol->deleteSymbol(key); 
         symbol* symbolFinded = tableSymbol->getFirstSymbolMatching(key+scope, "var"); 
@@ -1099,6 +1104,11 @@ void newAsignacion(string key, string scope, string op2Lexeme, string op2Type){
 };
 
 void newOperacionAritmetica(string operador, string op1ptr, string op2ptr, string op1type, string op2type, string& reglaptr, string& reglatype){
+        cout << "op1ptr: " << op1ptr<< endl;
+        cout << "op2ptr: " << op2ptr << endl;
+        cout << "op1type: " << op1type << endl;
+        cout << "op2type: " << op2type << endl;
+
         if(checkTypesOperation(op1type, op2type)){
                 reglatype = op1type;
         }else{
@@ -1108,7 +1118,45 @@ void newOperacionAritmetica(string operador, string op1ptr, string op2ptr, strin
         int number = addTercet(operador, op1ptr, op2ptr); 
         reglaptr = charTercetoId + to_string(number); 
 }
-#line 1106 "y.tab.c"
+
+void condition(string& reglaptr){
+        int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); 
+        reglaptr = charTercetoId + to_string(number); 
+}
+
+void addElse(string& reglaptr){
+        Tercet * t = popTercet();  
+        if (t!=nullptr){
+                t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2));
+        } 
+        int number =  addTercetAndStack("BI", "", ""); 
+        reglaptr = charTercetoId + to_string(number); 
+}
+
+void finIf(){
+        Tercet *t = popTercet(); 
+        if (t!=nullptr){
+                t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1) );
+        }
+}
+
+void initWhile(){
+        addTercetOnlyStack("incioCondicionWhile", charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1), "");
+}
+
+void finWhile(string & reglaptr) {
+        Tercet *t = popTercet(); 
+        if (t!=nullptr){
+                t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2) );
+        } 
+        Tercet *t2 = popTercet(); 
+        int number; 
+        if(t2!=nullptr){
+                int number = addTercet("BI", t2->getArg1(), "");
+        } 
+        reglaptr = charTercetoId + to_string(number);
+}
+#line 1150 "y.tab.c"
 #define YYABORT goto yyabort
 #define YYACCEPT goto yyaccept
 #define YYERROR goto yyerrlab
@@ -1542,31 +1590,31 @@ case 91:
 break;
 case 93:
 #line 205 "./gramaticaForGenCod.y"
-{ newAsignacion(yyvsp[-2]->ptr, tableSymbol->getScope(), yyvsp[0]->ptr, yyvsp[0]->type);}
+{ newAsignacion(yyvsp[-2]->ptr, tableSymbol->getScope(), yyvsp[0]->ptr,yyvsp[0]->type);}
 break;
 case 99:
 #line 216 "./gramaticaForGenCod.y"
-{ newOperacionAritmetica("+", yyvsp[-2]->ptr, yyvsp[0]->ptr, yyvsp[-2]->type, yyvsp[0]->ptr, yyval->ptr, yyval->type); }
+{ newOperacionAritmetica("+", yyvsp[-2]->ptr, yyvsp[0]->ptr, yyvsp[-2]->type, yyvsp[0]->type, yyval->ptr, yyval->type); }
 break;
 case 100:
 #line 217 "./gramaticaForGenCod.y"
-{ newOperacionAritmetica("-", yyvsp[-2]->ptr, yyvsp[0]->ptr, yyvsp[-2]->type, yyvsp[0]->ptr, yyval->ptr, yyval->type); }
+{ newOperacionAritmetica("-", yyvsp[-2]->ptr, yyvsp[0]->ptr, yyvsp[-2]->type, yyvsp[0]->type, yyval->ptr, yyval->type); }
 break;
 case 101:
 #line 218 "./gramaticaForGenCod.y"
-{ newOperacionAritmetica("-", yyvsp[-3]->ptr, yyvsp[0]->ptr, yyvsp[-3]->type, yyvsp[0]->ptr, yyval->ptr, yyval->type); yywarning("Se detecto un error en operador, quedara '-'"); }
+{ newOperacionAritmetica("-", yyvsp[-3]->ptr, yyvsp[0]->ptr, yyvsp[-3]->type, yyvsp[0]->type, yyval->ptr, yyval->type); yywarning("Se detecto un error en operador, quedara '-'"); }
 break;
 case 102:
 #line 219 "./gramaticaForGenCod.y"
-{ newOperacionAritmetica("+", yyvsp[-3]->ptr, yyvsp[0]->ptr, yyvsp[-3]->type, yyvsp[0]->ptr, yyval->ptr, yyval->type); yywarning("Se detecto un error en operador, quedara '+'"); }
+{ newOperacionAritmetica("+", yyvsp[-3]->ptr, yyvsp[0]->ptr, yyvsp[-3]->type, yyvsp[0]->type, yyval->ptr, yyval->type); yywarning("Se detecto un error en operador, quedara '+'"); }
 break;
 case 103:
 #line 220 "./gramaticaForGenCod.y"
-{ newOperacionAritmetica("-", yyvsp[-3]->ptr, yyvsp[0]->ptr, yyvsp[-3]->type, yyvsp[0]->ptr, yyval->ptr, yyval->type); yywarning("Se detecto un error en operador, quedara '-'"); }
+{ newOperacionAritmetica("-", yyvsp[-3]->ptr, yyvsp[0]->ptr, yyvsp[-3]->type, yyvsp[0]->type, yyval->ptr, yyval->type); yywarning("Se detecto un error en operador, quedara '-'"); }
 break;
 case 104:
 #line 221 "./gramaticaForGenCod.y"
-{ newOperacionAritmetica("+", yyvsp[-3]->ptr, yyvsp[0]->ptr, yyvsp[-3]->type, yyvsp[0]->ptr, yyval->ptr, yyval->type); yywarning("Se detecto un error en operador, quedara '+'"); }
+{ newOperacionAritmetica("+", yyvsp[-3]->ptr, yyvsp[0]->ptr, yyvsp[-3]->type, yyvsp[0]->type, yyval->ptr, yyval->type); yywarning("Se detecto un error en operador, quedara '+'"); }
 break;
 case 105:
 #line 222 "./gramaticaForGenCod.y"
@@ -1574,11 +1622,11 @@ case 105:
 break;
 case 106:
 #line 225 "./gramaticaForGenCod.y"
-{ newOperacionAritmetica("*", yyvsp[-2]->ptr, yyvsp[0]->ptr, yyvsp[-2]->type, yyvsp[0]->ptr, yyval->ptr, yyval->type); }
+{ newOperacionAritmetica("*", yyvsp[-2]->ptr, yyvsp[0]->ptr, yyvsp[-2]->type, yyvsp[0]->type, yyval->ptr, yyval->type); }
 break;
 case 107:
 #line 226 "./gramaticaForGenCod.y"
-{ newOperacionAritmetica("/", yyvsp[-2]->ptr, yyvsp[0]->ptr, yyvsp[-2]->type, yyvsp[0]->ptr, yyval->ptr, yyval->type); }
+{ newOperacionAritmetica("/", yyvsp[-2]->ptr, yyvsp[0]->ptr, yyvsp[-2]->type, yyvsp[0]->type, yyval->ptr, yyval->type); }
 break;
 case 108:
 #line 227 "./gramaticaForGenCod.y"
@@ -1586,27 +1634,27 @@ case 108:
 break;
 case 109:
 #line 230 "./gramaticaForGenCod.y"
-{ Tercet *t = popTercet(); if (t!=nullptr){t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1) );}}
+{ finIf(); }
 break;
 case 110:
 #line 233 "./gramaticaForGenCod.y"
-{ int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); yyval->ptr = charTercetoId + to_string(number); }
+{ condition(yyval->ptr); }
 break;
 case 111:
 #line 234 "./gramaticaForGenCod.y"
-{ yywarning("Falta de ultimo parentesis en condicion"); int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); yyval->ptr = charTercetoId + to_string(number);}
+{ condition(yyval->ptr); yywarning("Falta de ultimo parentesis en condicion"); }
 break;
 case 112:
 #line 235 "./gramaticaForGenCod.y"
-{ yywarning("Falta de primer parentesis en condicion"); int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); yyval->ptr = charTercetoId + to_string(number);}
+{ condition(yyval->ptr); yywarning("Falta de primer parentesis en condicion"); }
 break;
 case 113:
 #line 236 "./gramaticaForGenCod.y"
-{ yywarning("Falta de parantesis en condicion"); int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); yyval->ptr = charTercetoId + to_string(number);}
+{ condition(yyval->ptr); yywarning("Falta de parantesis en condicion"); }
 break;
 case 114:
 #line 237 "./gramaticaForGenCod.y"
-{ yyerror("Falta de condicion en el bloque de control IF"); int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); yyval->ptr = charTercetoId + to_string(number);}
+{ condition(yyval->ptr); yyerror("Falta de condicion en el bloque de control IF"); }
 break;
 case 116:
 #line 241 "./gramaticaForGenCod.y"
@@ -1622,19 +1670,19 @@ case 119:
 break;
 case 122:
 #line 251 "./gramaticaForGenCod.y"
-{ Tercet * t = popTercet();  if (t!=nullptr){t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2));} int number =  addTercetAndStack("BI", "", ""); yyval->ptr = charTercetoId + to_string(number); }
+{ addElse(yyval->ptr); }
 break;
 case 123:
 #line 253 "./gramaticaForGenCod.y"
-{ Tercet *t = popTercet(); if (t!=nullptr){t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2) );} Tercet *t2 = popTercet(); int number; if(t2!=nullptr){int number = addTercet("BI", t2->getArg1(), "");} yyval->ptr = charTercetoId + to_string(number);}
+{ finWhile(yyval->ptr); }
 break;
 case 124:
 #line 254 "./gramaticaForGenCod.y"
-{ yywarning("Falta de DO en WHILE-DO"); Tercet *t = popTercet(); if (t!=nullptr){t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2) );} Tercet *t2 = popTercet();int number; if(t2!=nullptr){int number = addTercet("BI", t2->getArg1(), "");} yyval->ptr = charTercetoId + to_string(number);}
+{ finWhile(yyval->ptr); yywarning("Falta de DO en WHILE-DO"); }
 break;
 case 125:
 #line 257 "./gramaticaForGenCod.y"
-{ addTercetOnlyStack("incioCondicionWhile", charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1), ""); }
+{ initWhile(); }
 break;
 case 127:
 #line 263 "./gramaticaForGenCod.y"
@@ -1742,7 +1790,9 @@ case 165:
 break;
 case 166:
 #line 311 "./gramaticaForGenCod.y"
-{ yyval->ptr = yyvsp[0]->ptr; yyval->type = tableSymbol->getSymbol(yyvsp[0]->ptr)->type;}
+{ setScope(yyvsp[0]->ptr, tableSymbol->getScope(), "var", yyval->ptr, yyval->type);   
+        cout << "con tipo: " << yyvsp[0]->type << endl;
+        yyval->type = yyvsp[0]->type;}
 break;
 case 167:
 #line 312 "./gramaticaForGenCod.y"
@@ -1788,7 +1838,7 @@ case 178:
 #line 327 "./gramaticaForGenCod.y"
 { yyerror("Falta constante numerica en la expresion"); }
 break;
-#line 1786 "y.tab.c"
+#line 1830 "y.tab.c"
     }
     yyssp -= yym;
     yystate = *yyssp;

@@ -28,7 +28,7 @@ int Lexico::yylex(){
         return 0; //segun documentacion el token final es un 0
     };
     
-    cout <<  "El token es: " << token->token << " con lexema: " << token->lexeme << endl;
+    // cout <<  "El token es: " << token->token << " con lexema: " << token->lexeme << endl;
 
     yylval = new myTypeYYLVAL(token->lexeme, token->type);
     return token->token;

@@ -59,7 +59,6 @@ struct myTypeYYLVAL {
 struct functionStack {
     string name;
     Tercets * ter;
-    TableSymbol* ts;
 
     functionStack(string _name) : name(_name){};
 };
