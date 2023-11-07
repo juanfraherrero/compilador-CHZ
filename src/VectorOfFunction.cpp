@@ -12,7 +12,7 @@ void VectorOfFunction::add(functionStack * vf){
 
 void VectorOfFunction::imprimir(){
     for (functionStack * vf : *(this->functions)) {
-        cout << "Nombre de la función: " << vf->name << endl;
+        cout << "\nbloque de codigo: " << vf->name <<"\n" << endl;
         vf->ter->print();
     }
 }

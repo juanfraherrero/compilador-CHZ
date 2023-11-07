@@ -107,6 +107,7 @@ int main(int arg_count, char *arg_list[]) {
     tableSymbol->imprimirAtributosMetodos();
     vectorOfFunction->imprimir();
     // tableRWords->imprimirTabla();
+    cout << "\n\n --------Lista de tercetos del main------- \n\n";
     tableTercets->print();
 
 

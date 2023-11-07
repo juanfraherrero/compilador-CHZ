@@ -35,12 +35,12 @@
   29              | declaracion_objeto
   30              | declaracion_funcion
 
-  31  declaracion_funcion : funcion_name '(' parametro ')' '{' cuerpo_de_la_funcion '}'
-  32                      | VOID '(' parametro ')' '{' cuerpo_de_la_funcion '}'
-  33                      | funcion_name '(' parametro ')' '{' '}'
-  34                      | funcion_name '(' parametro ')' '{' comas cuerpo_de_la_funcion '}'
-  35                      | VOID '(' parametro ')' '{' comas cuerpo_de_la_funcion '}'
-  36                      | funcion_name '(' parametro ')' '{' comas '}'
+  31  declaracion_funcion : funcion_name '(' parametro_funcion ')' '{' cuerpo_de_la_funcion '}'
+  32                      | VOID '(' parametro_funcion ')' '{' cuerpo_de_la_funcion '}'
+  33                      | funcion_name '(' parametro_funcion ')' '{' '}'
+  34                      | funcion_name '(' parametro_funcion ')' '{' comas cuerpo_de_la_funcion '}'
+  35                      | VOID '(' parametro_funcion ')' '{' comas cuerpo_de_la_funcion '}'
+  36                      | funcion_name '(' parametro_funcion ')' '{' comas '}'
 
   37  funcion_name : VOID IDENTIFICADOR
 
@@ -60,9 +60,9 @@
   48  lista_de_atributos : lista_de_atributos ';' IDENTIFICADOR
   49                     | IDENTIFICADOR
 
-  50  metodo : metodo_name '(' parametro ')' '{' cuerpo_de_la_funcion '}'
-  51         | metodo_name '(' parametro ')' '{' '}'
-  52         | metodo_name '(' parametro ')' '{' comas cuerpo_de_la_funcion '}'
+  50  metodo : metodo_name '(' parametro_metodo ')' '{' cuerpo_de_la_funcion '}'
+  51         | metodo_name '(' parametro_metodo ')' '{' '}'
+  52         | metodo_name '(' parametro_metodo ')' '{' comas cuerpo_de_la_funcion '}'
 
   53  metodo_name : VOID IDENTIFICADOR
   54              | VOID
@@ -81,144 +81,150 @@
   62  lista_de_variables : lista_de_variables ';' IDENTIFICADOR
   63                     | IDENTIFICADOR
 
-  64  parametro : tipo IDENTIFICADOR
-  65            | tipo
-  66            | IDENTIFICADOR
-  67            |
-  68            | parametro ';' tipo IDENTIFICADOR
+  64  parametro_metodo : tipo IDENTIFICADOR
+  65                   | tipo
+  66                   | IDENTIFICADOR
+  67                   |
+  68                   | parametro_metodo ';' tipo IDENTIFICADOR
 
-  69  cuerpo_de_la_funcion : cuerpo_de_la_funcion_sin_return
-  70                       | cuerpo_de_la_funcion_con_return
+  69  parametro_funcion : tipo IDENTIFICADOR
+  70                    | tipo
+  71                    | IDENTIFICADOR
+  72                    |
+  73                    | parametro_funcion ';' tipo IDENTIFICADOR
 
-  71  cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN ','
-  72                                  | cuerpo_de_la_funcion_sin_return RETURN
-  73                                  | cuerpo_de_la_funcion_sin_return RETURN ',' cuerpo_de_la_funcion_sin_return
-  74                                  | cuerpo_de_la_funcion_sin_return RETURN cuerpo_de_la_funcion_sin_return
-  75                                  | cuerpo_de_la_funcion_sin_return RETURN ',' cuerpo_de_la_funcion_con_return
-  76                                  | cuerpo_de_la_funcion_sin_return RETURN cuerpo_de_la_funcion_con_return
-  77                                  | RETURN ','
-  78                                  | RETURN
-  79                                  | RETURN ',' cuerpo_de_la_funcion_sin_return
-  80                                  | RETURN cuerpo_de_la_funcion_sin_return
-  81                                  | RETURN ',' cuerpo_de_la_funcion_con_return
-  82                                  | RETURN cuerpo_de_la_funcion_con_return
+  74  cuerpo_de_la_funcion : cuerpo_de_la_funcion_sin_return
+  75                       | cuerpo_de_la_funcion_con_return
 
-  83  cuerpo_de_la_funcion_sin_return : cuerpo_de_la_funcion_sin_return sentencia
-  84                                  | sentencia
+  76  cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN ','
+  77                                  | cuerpo_de_la_funcion_sin_return RETURN
+  78                                  | cuerpo_de_la_funcion_sin_return RETURN ',' cuerpo_de_la_funcion_sin_return
+  79                                  | cuerpo_de_la_funcion_sin_return RETURN cuerpo_de_la_funcion_sin_return
+  80                                  | cuerpo_de_la_funcion_sin_return RETURN ',' cuerpo_de_la_funcion_con_return
+  81                                  | cuerpo_de_la_funcion_sin_return RETURN cuerpo_de_la_funcion_con_return
+  82                                  | RETURN ','
+  83                                  | RETURN
+  84                                  | RETURN ',' cuerpo_de_la_funcion_sin_return
+  85                                  | RETURN cuerpo_de_la_funcion_sin_return
+  86                                  | RETURN ',' cuerpo_de_la_funcion_con_return
+  87                                  | RETURN cuerpo_de_la_funcion_con_return
 
-  85  ejecutable : asignacion
-  86             | invocacion
-  87             | seleccion
-  88             | PRINT CADENA_CARACTERES
-  89             | PRINT IDENTIFICADOR
-  90             | PRINT constanteConSigno
-  91             | PRINT constanteSinSigno
-  92             | ciclo_while
+  88  cuerpo_de_la_funcion_sin_return : cuerpo_de_la_funcion_sin_return sentencia
+  89                                  | sentencia
 
-  93  asignacion : IDENTIFICADOR '=' expresion_aritmetica
-  94             | IDENTIFICADOR '.' IDENTIFICADOR '=' expresion_aritmetica
+  90  ejecutable : asignacion
+  91             | invocacion
+  92             | seleccion
+  93             | PRINT CADENA_CARACTERES
+  94             | PRINT IDENTIFICADOR
+  95             | PRINT constanteConSigno
+  96             | PRINT constanteSinSigno
+  97             | ciclo_while
 
-  95  invocacion : IDENTIFICADOR '(' expresion_aritmetica ')'
-  96             | IDENTIFICADOR '(' ')'
-  97             | IDENTIFICADOR '.' IDENTIFICADOR '(' expresion_aritmetica ')'
-  98             | IDENTIFICADOR '.' IDENTIFICADOR '(' ')'
+  98  asignacion : IDENTIFICADOR '=' expresion_aritmetica
+  99             | IDENTIFICADOR '.' IDENTIFICADOR '=' expresion_aritmetica
 
-  99  expresion_aritmetica : expresion_aritmetica '+' termino
- 100                       | expresion_aritmetica '-' termino
- 101                       | expresion_aritmetica '-' '*' termino
- 102                       | expresion_aritmetica '+' '*' termino
- 103                       | expresion_aritmetica '-' '/' termino
- 104                       | expresion_aritmetica '+' '/' termino
- 105                       | termino
+ 100  invocacion : IDENTIFICADOR '(' expresion_aritmetica ')'
+ 101             | IDENTIFICADOR '(' ')'
+ 102             | IDENTIFICADOR '.' IDENTIFICADOR '(' expresion_aritmetica ')'
+ 103             | IDENTIFICADOR '.' IDENTIFICADOR '(' ')'
 
- 106  termino : termino '*' factor
- 107          | termino '/' factor
- 108          | factor
+ 104  expresion_aritmetica : expresion_aritmetica '+' termino
+ 105                       | expresion_aritmetica '-' termino
+ 106                       | expresion_aritmetica '-' '*' termino
+ 107                       | expresion_aritmetica '+' '*' termino
+ 108                       | expresion_aritmetica '-' '/' termino
+ 109                       | expresion_aritmetica '+' '/' termino
+ 110                       | termino
 
- 109  seleccion : IF bloque_condicion cuerpo_if
+ 111  termino : termino '*' factor
+ 112          | termino '/' factor
+ 113          | factor
 
- 110  bloque_condicion : '(' condicion ')'
- 111                   | '(' condicion
- 112                   | condicion ')'
- 113                   | condicion
- 114                   | '(' ')'
+ 114  seleccion : IF bloque_condicion cuerpo_if
 
- 115  cuerpo_if : cuerpo_then else_if cuerpo_else END_IF
- 116            | cuerpo_then else_if cuerpo_else
- 117            | cuerpo_then cuerpo_else END_IF
- 118            | cuerpo_then END_IF
- 119            | cuerpo_then else_if END_IF
+ 115  bloque_condicion : '(' condicion ')'
+ 116                   | '(' condicion
+ 117                   | condicion ')'
+ 118                   | condicion
+ 119                   | '(' ')'
 
- 120  cuerpo_then : bloque_ejecutables
+ 120  cuerpo_if : cuerpo_then else_if cuerpo_else END_IF
+ 121            | cuerpo_then else_if cuerpo_else
+ 122            | cuerpo_then cuerpo_else END_IF
+ 123            | cuerpo_then END_IF
+ 124            | cuerpo_then else_if END_IF
 
- 121  cuerpo_else : bloque_ejecutables
+ 125  cuerpo_then : bloque_ejecutables
 
- 122  else_if : ELSE
+ 126  cuerpo_else : bloque_ejecutables
 
- 123  ciclo_while : inicio_while bloque_condicion DO cuerpo_while
- 124              | inicio_while bloque_condicion cuerpo_while
+ 127  else_if : ELSE
 
- 125  inicio_while : WHILE
+ 128  ciclo_while : inicio_while bloque_condicion DO cuerpo_while
+ 129              | inicio_while bloque_condicion cuerpo_while
 
- 126  cuerpo_while : bloque_ejecutables
+ 130  inicio_while : WHILE
 
- 127  condicion : expresion_aritmetica '>' expresion_aritmetica
- 128            | expresion_aritmetica '<' expresion_aritmetica
- 129            | expresion_aritmetica COMPARADOR_IGUAL_IGUAL expresion_aritmetica
- 130            | expresion_aritmetica COMPARADOR_DISTINTO expresion_aritmetica
- 131            | expresion_aritmetica COMPARADOR_MAYOR_IGUAL expresion_aritmetica
- 132            | expresion_aritmetica COMPARADOR_MENOR_IGUAL expresion_aritmetica
+ 131  cuerpo_while : bloque_ejecutables
 
- 133  bloque_ejecutables : '{' sentencias_ejecutables '}'
- 134                     | '{' sentencias_ejecutables RETURN ',' '}'
- 135                     | '{' sentencias_ejecutables RETURN ',' sentencias_ejecutables '}'
- 136                     | '{' sentencias_ejecutables RETURN sentencias_ejecutables '}'
- 137                     | '{' sentencias_ejecutables RETURN '}'
- 138                     | ejecutable ','
- 139                     | declarativa ','
- 140                     | '{' RETURN ',' '}'
- 141                     | '{' RETURN '}'
- 142                     | RETURN ','
- 143                     | '{' sentencias_ejecutables RETURN ',' comas '}'
- 144                     | '{' sentencias_ejecutables RETURN ',' comas sentencias_ejecutables '}'
- 145                     | '{' comas sentencias_ejecutables '}'
- 146                     | '{' comas sentencias_ejecutables RETURN ',' '}'
- 147                     | '{' comas sentencias_ejecutables RETURN ',' sentencias_ejecutables '}'
- 148                     | '{' comas sentencias_ejecutables RETURN sentencias_ejecutables '}'
- 149                     | '{' comas sentencias_ejecutables RETURN '}'
- 150                     | comas ejecutable ','
- 151                     | comas declarativa ','
- 152                     | '{' comas RETURN ',' '}'
- 153                     | '{' comas RETURN '}'
- 154                     | comas RETURN ','
- 155                     | error ','
+ 132  condicion : expresion_aritmetica '>' expresion_aritmetica
+ 133            | expresion_aritmetica '<' expresion_aritmetica
+ 134            | expresion_aritmetica COMPARADOR_IGUAL_IGUAL expresion_aritmetica
+ 135            | expresion_aritmetica COMPARADOR_DISTINTO expresion_aritmetica
+ 136            | expresion_aritmetica COMPARADOR_MAYOR_IGUAL expresion_aritmetica
+ 137            | expresion_aritmetica COMPARADOR_MENOR_IGUAL expresion_aritmetica
 
- 156  sentencias_ejecutables : sentencias_ejecutables ejecutable comas
- 157                         | sentencias_ejecutables ejecutable
- 158                         | ejecutable comas
- 159                         | ejecutable
- 160                         | sentencias_ejecutables declarativa comas
- 161                         | sentencias_ejecutables declarativa
- 162                         | declarativa ','
- 163                         | declarativa
- 164                         | sentencias_ejecutables error ','
- 165                         | error ','
+ 138  bloque_ejecutables : '{' sentencias_ejecutables '}'
+ 139                     | '{' sentencias_ejecutables RETURN ',' '}'
+ 140                     | '{' sentencias_ejecutables RETURN ',' sentencias_ejecutables '}'
+ 141                     | '{' sentencias_ejecutables RETURN sentencias_ejecutables '}'
+ 142                     | '{' sentencias_ejecutables RETURN '}'
+ 143                     | ejecutable ','
+ 144                     | declarativa ','
+ 145                     | '{' RETURN ',' '}'
+ 146                     | '{' RETURN '}'
+ 147                     | RETURN ','
+ 148                     | '{' sentencias_ejecutables RETURN ',' comas '}'
+ 149                     | '{' sentencias_ejecutables RETURN ',' comas sentencias_ejecutables '}'
+ 150                     | '{' comas sentencias_ejecutables '}'
+ 151                     | '{' comas sentencias_ejecutables RETURN ',' '}'
+ 152                     | '{' comas sentencias_ejecutables RETURN ',' sentencias_ejecutables '}'
+ 153                     | '{' comas sentencias_ejecutables RETURN sentencias_ejecutables '}'
+ 154                     | '{' comas sentencias_ejecutables RETURN '}'
+ 155                     | comas ejecutable ','
+ 156                     | comas declarativa ','
+ 157                     | '{' comas RETURN ',' '}'
+ 158                     | '{' comas RETURN '}'
+ 159                     | comas RETURN ','
+ 160                     | error ','
 
- 166  factor : IDENTIFICADOR
- 167         | IDENTIFICADOR OPERADOR_SUMA_SUMA
- 168         | constanteSinSigno
- 169         | constanteConSigno
- 170         | TOF '(' expresion_aritmetica ')'
- 171         | IDENTIFICADOR '.' IDENTIFICADOR
- 172         | CADENA_CARACTERES
+ 161  sentencias_ejecutables : sentencias_ejecutables ejecutable comas
+ 162                         | sentencias_ejecutables ejecutable
+ 163                         | ejecutable comas
+ 164                         | ejecutable
+ 165                         | sentencias_ejecutables declarativa comas
+ 166                         | sentencias_ejecutables declarativa
+ 167                         | declarativa ','
+ 168                         | declarativa
+ 169                         | sentencias_ejecutables error ','
+ 170                         | error ','
 
- 173  constanteSinSigno : ENTERO_SIN_SIGNO
+ 171  factor : IDENTIFICADOR
+ 172         | IDENTIFICADOR OPERADOR_SUMA_SUMA
+ 173         | constanteSinSigno
+ 174         | constanteConSigno
+ 175         | TOF '(' expresion_aritmetica ')'
+ 176         | IDENTIFICADOR '.' IDENTIFICADOR
+ 177         | CADENA_CARACTERES
 
- 174  constanteConSigno : ENTERO_CORTO
- 175                    | '-' ENTERO_CORTO
- 176                    | PUNTO_FLOTANTE
- 177                    | '-' PUNTO_FLOTANTE
- 178                    | '-'
+ 178  constanteSinSigno : ENTERO_SIN_SIGNO
+
+ 179  constanteConSigno : ENTERO_CORTO
+ 180                    | '-' ENTERO_CORTO
+ 181                    | PUNTO_FLOTANTE
+ 182                    | '-' PUNTO_FLOTANTE
+ 183                    | '-'
 
 state 0
 	$accept : . programa $end  (0)
@@ -267,12 +273,12 @@ state 1
 
 state 2
 	typeClass : IDENTIFICADOR .  (56)
-	asignacion : IDENTIFICADOR . '=' expresion_aritmetica  (93)
-	asignacion : IDENTIFICADOR . '.' IDENTIFICADOR '=' expresion_aritmetica  (94)
-	invocacion : IDENTIFICADOR . '(' expresion_aritmetica ')'  (95)
-	invocacion : IDENTIFICADOR . '(' ')'  (96)
-	invocacion : IDENTIFICADOR . '.' IDENTIFICADOR '(' expresion_aritmetica ')'  (97)
-	invocacion : IDENTIFICADOR . '.' IDENTIFICADOR '(' ')'  (98)
+	asignacion : IDENTIFICADOR . '=' expresion_aritmetica  (98)
+	asignacion : IDENTIFICADOR . '.' IDENTIFICADOR '=' expresion_aritmetica  (99)
+	invocacion : IDENTIFICADOR . '(' expresion_aritmetica ')'  (100)
+	invocacion : IDENTIFICADOR . '(' ')'  (101)
+	invocacion : IDENTIFICADOR . '.' IDENTIFICADOR '(' expresion_aritmetica ')'  (102)
+	invocacion : IDENTIFICADOR . '.' IDENTIFICADOR '(' ')'  (103)
 
 	'('  shift 33
 	'='  shift 34
@@ -281,8 +287,8 @@ state 2
 
 
 state 3
-	declaracion_funcion : VOID . '(' parametro ')' '{' cuerpo_de_la_funcion '}'  (32)
-	declaracion_funcion : VOID . '(' parametro ')' '{' comas cuerpo_de_la_funcion '}'  (35)
+	declaracion_funcion : VOID . '(' parametro_funcion ')' '{' cuerpo_de_la_funcion '}'  (32)
+	declaracion_funcion : VOID . '(' parametro_funcion ')' '{' comas cuerpo_de_la_funcion '}'  (35)
 	funcion_name : VOID . IDENTIFICADOR  (37)
 
 	IDENTIFICADOR  shift 36
@@ -291,7 +297,7 @@ state 3
 
 
 state 4
-	seleccion : IF . bloque_condicion cuerpo_if  (109)
+	seleccion : IF . bloque_condicion cuerpo_if  (114)
 
 	IDENTIFICADOR  shift 38
 	ENTERO_SIN_SIGNO  shift 39
@@ -313,10 +319,10 @@ state 4
 
 
 state 5
-	ejecutable : PRINT . CADENA_CARACTERES  (88)
-	ejecutable : PRINT . IDENTIFICADOR  (89)
-	ejecutable : PRINT . constanteConSigno  (90)
-	ejecutable : PRINT . constanteSinSigno  (91)
+	ejecutable : PRINT . CADENA_CARACTERES  (93)
+	ejecutable : PRINT . IDENTIFICADOR  (94)
+	ejecutable : PRINT . constanteConSigno  (95)
+	ejecutable : PRINT . constanteSinSigno  (96)
 
 	IDENTIFICADOR  shift 53
 	ENTERO_SIN_SIGNO  shift 39
@@ -331,9 +337,9 @@ state 5
 
 
 state 6
-	inicio_while : WHILE .  (125)
+	inicio_while : WHILE .  (130)
 
-	.  reduce 125
+	.  reduce 130
 
 
 state 7
@@ -594,10 +600,10 @@ state 23
 
 
 state 24
-	declaracion_funcion : funcion_name . '(' parametro ')' '{' cuerpo_de_la_funcion '}'  (31)
-	declaracion_funcion : funcion_name . '(' parametro ')' '{' '}'  (33)
-	declaracion_funcion : funcion_name . '(' parametro ')' '{' comas cuerpo_de_la_funcion '}'  (34)
-	declaracion_funcion : funcion_name . '(' parametro ')' '{' comas '}'  (36)
+	declaracion_funcion : funcion_name . '(' parametro_funcion ')' '{' cuerpo_de_la_funcion '}'  (31)
+	declaracion_funcion : funcion_name . '(' parametro_funcion ')' '{' '}'  (33)
+	declaracion_funcion : funcion_name . '(' parametro_funcion ')' '{' comas cuerpo_de_la_funcion '}'  (34)
+	declaracion_funcion : funcion_name . '(' parametro_funcion ')' '{' comas '}'  (36)
 
 	'('  shift 71
 	.  error
@@ -621,32 +627,32 @@ state 26
 
 
 state 27
-	ejecutable : asignacion .  (85)
+	ejecutable : asignacion .  (90)
 
-	.  reduce 85
+	.  reduce 90
 
 
 state 28
-	ejecutable : invocacion .  (86)
+	ejecutable : invocacion .  (91)
 
-	.  reduce 86
+	.  reduce 91
 
 
 state 29
-	ejecutable : seleccion .  (87)
-
-	.  reduce 87
-
-
-state 30
-	ejecutable : ciclo_while .  (92)
+	ejecutable : seleccion .  (92)
 
 	.  reduce 92
 
 
+state 30
+	ejecutable : ciclo_while .  (97)
+
+	.  reduce 97
+
+
 state 31
-	ciclo_while : inicio_while . bloque_condicion DO cuerpo_while  (123)
-	ciclo_while : inicio_while . bloque_condicion cuerpo_while  (124)
+	ciclo_while : inicio_while . bloque_condicion DO cuerpo_while  (128)
+	ciclo_while : inicio_while . bloque_condicion cuerpo_while  (129)
 
 	IDENTIFICADOR  shift 38
 	ENTERO_SIN_SIGNO  shift 39
@@ -674,8 +680,8 @@ state 32
 
 
 state 33
-	invocacion : IDENTIFICADOR '(' . expresion_aritmetica ')'  (95)
-	invocacion : IDENTIFICADOR '(' . ')'  (96)
+	invocacion : IDENTIFICADOR '(' . expresion_aritmetica ')'  (100)
+	invocacion : IDENTIFICADOR '(' . ')'  (101)
 
 	IDENTIFICADOR  shift 38
 	ENTERO_SIN_SIGNO  shift 39
@@ -695,7 +701,7 @@ state 33
 
 
 state 34
-	asignacion : IDENTIFICADOR '=' . expresion_aritmetica  (93)
+	asignacion : IDENTIFICADOR '=' . expresion_aritmetica  (98)
 
 	IDENTIFICADOR  shift 38
 	ENTERO_SIN_SIGNO  shift 39
@@ -714,9 +720,9 @@ state 34
 
 
 state 35
-	asignacion : IDENTIFICADOR '.' . IDENTIFICADOR '=' expresion_aritmetica  (94)
-	invocacion : IDENTIFICADOR '.' . IDENTIFICADOR '(' expresion_aritmetica ')'  (97)
-	invocacion : IDENTIFICADOR '.' . IDENTIFICADOR '(' ')'  (98)
+	asignacion : IDENTIFICADOR '.' . IDENTIFICADOR '=' expresion_aritmetica  (99)
+	invocacion : IDENTIFICADOR '.' . IDENTIFICADOR '(' expresion_aritmetica ')'  (102)
+	invocacion : IDENTIFICADOR '.' . IDENTIFICADOR '(' ')'  (103)
 
 	IDENTIFICADOR  shift 79
 	.  error
@@ -729,92 +735,92 @@ state 36
 
 
 state 37
-	declaracion_funcion : VOID '(' . parametro ')' '{' cuerpo_de_la_funcion '}'  (32)
-	declaracion_funcion : VOID '(' . parametro ')' '{' comas cuerpo_de_la_funcion '}'  (35)
-	parametro : .  (67)
+	declaracion_funcion : VOID '(' . parametro_funcion ')' '{' cuerpo_de_la_funcion '}'  (32)
+	declaracion_funcion : VOID '(' . parametro_funcion ')' '{' comas cuerpo_de_la_funcion '}'  (35)
+	parametro_funcion : .  (72)
 
 	IDENTIFICADOR  shift 80
 	SHORT  shift 7
 	UINT  shift 8
 	FLOAT  shift 9
-	')'  reduce 67
-	';'  reduce 67
+	')'  reduce 72
+	';'  reduce 72
 
 	tipo  goto 81
-	parametro  goto 82
+	parametro_funcion  goto 82
 
 
 state 38
-	factor : IDENTIFICADOR .  (166)
-	factor : IDENTIFICADOR . OPERADOR_SUMA_SUMA  (167)
-	factor : IDENTIFICADOR . '.' IDENTIFICADOR  (171)
+	factor : IDENTIFICADOR .  (171)
+	factor : IDENTIFICADOR . OPERADOR_SUMA_SUMA  (172)
+	factor : IDENTIFICADOR . '.' IDENTIFICADOR  (176)
 
 	OPERADOR_SUMA_SUMA  shift 83
 	'.'  shift 84
-	$end  reduce 166
-	error  reduce 166
-	IDENTIFICADOR  reduce 166
-	COMPARADOR_IGUAL_IGUAL  reduce 166
-	COMPARADOR_DISTINTO  reduce 166
-	COMPARADOR_MENOR_IGUAL  reduce 166
-	COMPARADOR_MAYOR_IGUAL  reduce 166
-	VOID  reduce 166
-	RETURN  reduce 166
-	IF  reduce 166
-	PRINT  reduce 166
-	WHILE  reduce 166
-	DO  reduce 166
-	SHORT  reduce 166
-	UINT  reduce 166
-	FLOAT  reduce 166
-	CLASS  reduce 166
-	'{'  reduce 166
-	'}'  reduce 166
-	','  reduce 166
-	')'  reduce 166
-	'+'  reduce 166
-	'-'  reduce 166
-	'*'  reduce 166
-	'/'  reduce 166
-	'>'  reduce 166
-	'<'  reduce 166
+	$end  reduce 171
+	error  reduce 171
+	IDENTIFICADOR  reduce 171
+	COMPARADOR_IGUAL_IGUAL  reduce 171
+	COMPARADOR_DISTINTO  reduce 171
+	COMPARADOR_MENOR_IGUAL  reduce 171
+	COMPARADOR_MAYOR_IGUAL  reduce 171
+	VOID  reduce 171
+	RETURN  reduce 171
+	IF  reduce 171
+	PRINT  reduce 171
+	WHILE  reduce 171
+	DO  reduce 171
+	SHORT  reduce 171
+	UINT  reduce 171
+	FLOAT  reduce 171
+	CLASS  reduce 171
+	'{'  reduce 171
+	'}'  reduce 171
+	','  reduce 171
+	')'  reduce 171
+	'+'  reduce 171
+	'-'  reduce 171
+	'*'  reduce 171
+	'/'  reduce 171
+	'>'  reduce 171
+	'<'  reduce 171
 
 
 state 39
-	constanteSinSigno : ENTERO_SIN_SIGNO .  (173)
+	constanteSinSigno : ENTERO_SIN_SIGNO .  (178)
 
-	.  reduce 173
+	.  reduce 178
 
 
 state 40
-	constanteConSigno : ENTERO_CORTO .  (174)
+	constanteConSigno : ENTERO_CORTO .  (179)
 
-	.  reduce 174
+	.  reduce 179
 
 
 state 41
-	constanteConSigno : PUNTO_FLOTANTE .  (176)
+	constanteConSigno : PUNTO_FLOTANTE .  (181)
 
-	.  reduce 176
+	.  reduce 181
 
 
 state 42
-	factor : CADENA_CARACTERES .  (172)
+	factor : CADENA_CARACTERES .  (177)
 
-	.  reduce 172
+	.  reduce 177
 
 
 state 43
-	factor : TOF . '(' expresion_aritmetica ')'  (170)
+	factor : TOF . '(' expresion_aritmetica ')'  (175)
 
 	'('  shift 85
 	.  error
 
 
 state 44
-	bloque_condicion : '(' . condicion ')'  (110)
-	bloque_condicion : '(' . condicion  (111)
-	bloque_condicion : '(' . ')'  (114)
+	bloque_condicion : '(' . condicion ')'  (115)
+	bloque_condicion : '(' . condicion  (116)
+	bloque_condicion : '(' . ')'  (119)
 
 	IDENTIFICADOR  shift 38
 	ENTERO_SIN_SIGNO  shift 39
@@ -835,66 +841,66 @@ state 44
 
 
 state 45
-	constanteConSigno : '-' . ENTERO_CORTO  (175)
-	constanteConSigno : '-' . PUNTO_FLOTANTE  (177)
-	constanteConSigno : '-' .  (178)
+	constanteConSigno : '-' . ENTERO_CORTO  (180)
+	constanteConSigno : '-' . PUNTO_FLOTANTE  (182)
+	constanteConSigno : '-' .  (183)
 
 	ENTERO_CORTO  shift 88
 	PUNTO_FLOTANTE  shift 89
-	$end  reduce 178
-	error  reduce 178
-	IDENTIFICADOR  reduce 178
-	COMPARADOR_IGUAL_IGUAL  reduce 178
-	COMPARADOR_DISTINTO  reduce 178
-	COMPARADOR_MENOR_IGUAL  reduce 178
-	COMPARADOR_MAYOR_IGUAL  reduce 178
-	VOID  reduce 178
-	RETURN  reduce 178
-	IF  reduce 178
-	PRINT  reduce 178
-	WHILE  reduce 178
-	DO  reduce 178
-	SHORT  reduce 178
-	UINT  reduce 178
-	FLOAT  reduce 178
-	CLASS  reduce 178
-	'{'  reduce 178
-	'}'  reduce 178
-	','  reduce 178
-	')'  reduce 178
-	'+'  reduce 178
-	'-'  reduce 178
-	'*'  reduce 178
-	'/'  reduce 178
-	'>'  reduce 178
-	'<'  reduce 178
+	$end  reduce 183
+	error  reduce 183
+	IDENTIFICADOR  reduce 183
+	COMPARADOR_IGUAL_IGUAL  reduce 183
+	COMPARADOR_DISTINTO  reduce 183
+	COMPARADOR_MENOR_IGUAL  reduce 183
+	COMPARADOR_MAYOR_IGUAL  reduce 183
+	VOID  reduce 183
+	RETURN  reduce 183
+	IF  reduce 183
+	PRINT  reduce 183
+	WHILE  reduce 183
+	DO  reduce 183
+	SHORT  reduce 183
+	UINT  reduce 183
+	FLOAT  reduce 183
+	CLASS  reduce 183
+	'{'  reduce 183
+	'}'  reduce 183
+	','  reduce 183
+	')'  reduce 183
+	'+'  reduce 183
+	'-'  reduce 183
+	'*'  reduce 183
+	'/'  reduce 183
+	'>'  reduce 183
+	'<'  reduce 183
 
 
 state 46
-	factor : constanteConSigno .  (169)
+	factor : constanteConSigno .  (174)
 
-	.  reduce 169
+	.  reduce 174
 
 
 state 47
-	factor : constanteSinSigno .  (168)
+	factor : constanteSinSigno .  (173)
 
-	.  reduce 168
+	.  reduce 173
 
 
 state 48
-	expresion_aritmetica : expresion_aritmetica . '+' termino  (99)
-	expresion_aritmetica : expresion_aritmetica . '-' termino  (100)
-	expresion_aritmetica : expresion_aritmetica . '-' '*' termino  (101)
-	expresion_aritmetica : expresion_aritmetica . '+' '*' termino  (102)
-	expresion_aritmetica : expresion_aritmetica . '-' '/' termino  (103)
-	expresion_aritmetica : expresion_aritmetica . '+' '/' termino  (104)
-	condicion : expresion_aritmetica . '>' expresion_aritmetica  (127)
-	condicion : expresion_aritmetica . '<' expresion_aritmetica  (128)
-	condicion : expresion_aritmetica . COMPARADOR_IGUAL_IGUAL expresion_aritmetica  (129)
-	condicion : expresion_aritmetica . COMPARADOR_DISTINTO expresion_aritmetica  (130)
-	condicion : expresion_aritmetica . COMPARADOR_MAYOR_IGUAL expresion_aritmetica  (131)
-	condicion : expresion_aritmetica . COMPARADOR_MENOR_IGUAL expresion_aritmetica  (132)
+	expresion_aritmetica : expresion_aritmetica . '+' termino  (104)
+	expresion_aritmetica : expresion_aritmetica . '-' termino  (105)
+	expresion_aritmetica : expresion_aritmetica . '-' '*' termino  (106)
+	expresion_aritmetica : expresion_aritmetica . '+' '*' termino  (107)
+	expresion_aritmetica : expresion_aritmetica . '-' '/' termino  (108)
+	expresion_aritmetica : expresion_aritmetica . '+' '/' termino  (109)
+	condicion : expresion_aritmetica . '>' expresion_aritmetica  (132)
+	condicion : expresion_aritmetica . '<' expresion_aritmetica  (133)
+	condicion : expresion_aritmetica . COMPARADOR_IGUAL_IGUAL expresion_aritmetica  (134)
+	condicion : expresion_aritmetica . COMPARADOR_DISTINTO expresion_aritmetica  (135)
+	condicion : expresion_aritmetica . COMPARADOR_MAYOR_IGUAL expresion_aritmetica  (136)
+	condicion : expresion_aritmetica . COMPARADOR_MENOR_IGUAL expresion_aritmetica  (137)
 
 	COMPARADOR_IGUAL_IGUAL  shift 90
 	COMPARADOR_DISTINTO  shift 91
@@ -908,47 +914,47 @@ state 48
 
 
 state 49
-	expresion_aritmetica : termino .  (105)
-	termino : termino . '*' factor  (106)
-	termino : termino . '/' factor  (107)
+	expresion_aritmetica : termino .  (110)
+	termino : termino . '*' factor  (111)
+	termino : termino . '/' factor  (112)
 
 	'*'  shift 98
 	'/'  shift 99
-	$end  reduce 105
-	error  reduce 105
-	IDENTIFICADOR  reduce 105
-	COMPARADOR_IGUAL_IGUAL  reduce 105
-	COMPARADOR_DISTINTO  reduce 105
-	COMPARADOR_MENOR_IGUAL  reduce 105
-	COMPARADOR_MAYOR_IGUAL  reduce 105
-	VOID  reduce 105
-	RETURN  reduce 105
-	IF  reduce 105
-	PRINT  reduce 105
-	WHILE  reduce 105
-	DO  reduce 105
-	SHORT  reduce 105
-	UINT  reduce 105
-	FLOAT  reduce 105
-	CLASS  reduce 105
-	'{'  reduce 105
-	'}'  reduce 105
-	','  reduce 105
-	')'  reduce 105
-	'+'  reduce 105
-	'-'  reduce 105
-	'>'  reduce 105
-	'<'  reduce 105
+	$end  reduce 110
+	error  reduce 110
+	IDENTIFICADOR  reduce 110
+	COMPARADOR_IGUAL_IGUAL  reduce 110
+	COMPARADOR_DISTINTO  reduce 110
+	COMPARADOR_MENOR_IGUAL  reduce 110
+	COMPARADOR_MAYOR_IGUAL  reduce 110
+	VOID  reduce 110
+	RETURN  reduce 110
+	IF  reduce 110
+	PRINT  reduce 110
+	WHILE  reduce 110
+	DO  reduce 110
+	SHORT  reduce 110
+	UINT  reduce 110
+	FLOAT  reduce 110
+	CLASS  reduce 110
+	'{'  reduce 110
+	'}'  reduce 110
+	','  reduce 110
+	')'  reduce 110
+	'+'  reduce 110
+	'-'  reduce 110
+	'>'  reduce 110
+	'<'  reduce 110
 
 
 state 50
-	termino : factor .  (108)
+	termino : factor .  (113)
 
-	.  reduce 108
+	.  reduce 113
 
 
 state 51
-	seleccion : IF bloque_condicion . cuerpo_if  (109)
+	seleccion : IF bloque_condicion . cuerpo_if  (114)
 
 	error  shift 100
 	IDENTIFICADOR  shift 2
@@ -986,48 +992,48 @@ state 51
 
 
 state 52
-	bloque_condicion : condicion . ')'  (112)
-	bloque_condicion : condicion .  (113)
+	bloque_condicion : condicion . ')'  (117)
+	bloque_condicion : condicion .  (118)
 
 	')'  shift 109
-	error  reduce 113
-	IDENTIFICADOR  reduce 113
-	VOID  reduce 113
-	RETURN  reduce 113
-	IF  reduce 113
-	PRINT  reduce 113
-	WHILE  reduce 113
-	DO  reduce 113
-	SHORT  reduce 113
-	UINT  reduce 113
-	FLOAT  reduce 113
-	CLASS  reduce 113
-	'{'  reduce 113
-	','  reduce 113
+	error  reduce 118
+	IDENTIFICADOR  reduce 118
+	VOID  reduce 118
+	RETURN  reduce 118
+	IF  reduce 118
+	PRINT  reduce 118
+	WHILE  reduce 118
+	DO  reduce 118
+	SHORT  reduce 118
+	UINT  reduce 118
+	FLOAT  reduce 118
+	CLASS  reduce 118
+	'{'  reduce 118
+	','  reduce 118
 
 
 state 53
-	ejecutable : PRINT IDENTIFICADOR .  (89)
+	ejecutable : PRINT IDENTIFICADOR .  (94)
 
-	.  reduce 89
+	.  reduce 94
 
 
 state 54
-	ejecutable : PRINT CADENA_CARACTERES .  (88)
+	ejecutable : PRINT CADENA_CARACTERES .  (93)
 
-	.  reduce 88
+	.  reduce 93
 
 
 state 55
-	ejecutable : PRINT constanteConSigno .  (90)
+	ejecutable : PRINT constanteConSigno .  (95)
 
-	.  reduce 90
+	.  reduce 95
 
 
 state 56
-	ejecutable : PRINT constanteSinSigno .  (91)
+	ejecutable : PRINT constanteSinSigno .  (96)
 
-	.  reduce 91
+	.  reduce 96
 
 
 state 57
@@ -1248,21 +1254,21 @@ state 70
 
 
 state 71
-	declaracion_funcion : funcion_name '(' . parametro ')' '{' cuerpo_de_la_funcion '}'  (31)
-	declaracion_funcion : funcion_name '(' . parametro ')' '{' '}'  (33)
-	declaracion_funcion : funcion_name '(' . parametro ')' '{' comas cuerpo_de_la_funcion '}'  (34)
-	declaracion_funcion : funcion_name '(' . parametro ')' '{' comas '}'  (36)
-	parametro : .  (67)
+	declaracion_funcion : funcion_name '(' . parametro_funcion ')' '{' cuerpo_de_la_funcion '}'  (31)
+	declaracion_funcion : funcion_name '(' . parametro_funcion ')' '{' '}'  (33)
+	declaracion_funcion : funcion_name '(' . parametro_funcion ')' '{' comas cuerpo_de_la_funcion '}'  (34)
+	declaracion_funcion : funcion_name '(' . parametro_funcion ')' '{' comas '}'  (36)
+	parametro_funcion : .  (72)
 
 	IDENTIFICADOR  shift 80
 	SHORT  shift 7
 	UINT  shift 8
 	FLOAT  shift 9
-	')'  reduce 67
-	';'  reduce 67
+	')'  reduce 72
+	';'  reduce 72
 
 	tipo  goto 81
-	parametro  goto 122
+	parametro_funcion  goto 122
 
 
 state 72
@@ -1310,8 +1316,8 @@ state 74
 
 
 state 75
-	ciclo_while : inicio_while bloque_condicion . DO cuerpo_while  (123)
-	ciclo_while : inicio_while bloque_condicion . cuerpo_while  (124)
+	ciclo_while : inicio_while bloque_condicion . DO cuerpo_while  (128)
+	ciclo_while : inicio_while bloque_condicion . cuerpo_while  (129)
 
 	error  shift 100
 	IDENTIFICADOR  shift 2
@@ -1349,19 +1355,19 @@ state 75
 
 
 state 76
-	invocacion : IDENTIFICADOR '(' ')' .  (96)
+	invocacion : IDENTIFICADOR '(' ')' .  (101)
 
-	.  reduce 96
+	.  reduce 101
 
 
 state 77
-	invocacion : IDENTIFICADOR '(' expresion_aritmetica . ')'  (95)
-	expresion_aritmetica : expresion_aritmetica . '+' termino  (99)
-	expresion_aritmetica : expresion_aritmetica . '-' termino  (100)
-	expresion_aritmetica : expresion_aritmetica . '-' '*' termino  (101)
-	expresion_aritmetica : expresion_aritmetica . '+' '*' termino  (102)
-	expresion_aritmetica : expresion_aritmetica . '-' '/' termino  (103)
-	expresion_aritmetica : expresion_aritmetica . '+' '/' termino  (104)
+	invocacion : IDENTIFICADOR '(' expresion_aritmetica . ')'  (100)
+	expresion_aritmetica : expresion_aritmetica . '+' termino  (104)
+	expresion_aritmetica : expresion_aritmetica . '-' termino  (105)
+	expresion_aritmetica : expresion_aritmetica . '-' '*' termino  (106)
+	expresion_aritmetica : expresion_aritmetica . '+' '*' termino  (107)
+	expresion_aritmetica : expresion_aritmetica . '-' '/' termino  (108)
+	expresion_aritmetica : expresion_aritmetica . '+' '/' termino  (109)
 
 	')'  shift 129
 	'+'  shift 94
@@ -1370,36 +1376,36 @@ state 77
 
 
 state 78
-	asignacion : IDENTIFICADOR '=' expresion_aritmetica .  (93)
-	expresion_aritmetica : expresion_aritmetica . '+' termino  (99)
-	expresion_aritmetica : expresion_aritmetica . '-' termino  (100)
-	expresion_aritmetica : expresion_aritmetica . '-' '*' termino  (101)
-	expresion_aritmetica : expresion_aritmetica . '+' '*' termino  (102)
-	expresion_aritmetica : expresion_aritmetica . '-' '/' termino  (103)
-	expresion_aritmetica : expresion_aritmetica . '+' '/' termino  (104)
+	asignacion : IDENTIFICADOR '=' expresion_aritmetica .  (98)
+	expresion_aritmetica : expresion_aritmetica . '+' termino  (104)
+	expresion_aritmetica : expresion_aritmetica . '-' termino  (105)
+	expresion_aritmetica : expresion_aritmetica . '-' '*' termino  (106)
+	expresion_aritmetica : expresion_aritmetica . '+' '*' termino  (107)
+	expresion_aritmetica : expresion_aritmetica . '-' '/' termino  (108)
+	expresion_aritmetica : expresion_aritmetica . '+' '/' termino  (109)
 
 	'+'  shift 94
 	'-'  shift 95
-	$end  reduce 93
-	error  reduce 93
-	IDENTIFICADOR  reduce 93
-	VOID  reduce 93
-	RETURN  reduce 93
-	IF  reduce 93
-	PRINT  reduce 93
-	WHILE  reduce 93
-	SHORT  reduce 93
-	UINT  reduce 93
-	FLOAT  reduce 93
-	CLASS  reduce 93
-	'}'  reduce 93
-	','  reduce 93
+	$end  reduce 98
+	error  reduce 98
+	IDENTIFICADOR  reduce 98
+	VOID  reduce 98
+	RETURN  reduce 98
+	IF  reduce 98
+	PRINT  reduce 98
+	WHILE  reduce 98
+	SHORT  reduce 98
+	UINT  reduce 98
+	FLOAT  reduce 98
+	CLASS  reduce 98
+	'}'  reduce 98
+	','  reduce 98
 
 
 state 79
-	asignacion : IDENTIFICADOR '.' IDENTIFICADOR . '=' expresion_aritmetica  (94)
-	invocacion : IDENTIFICADOR '.' IDENTIFICADOR . '(' expresion_aritmetica ')'  (97)
-	invocacion : IDENTIFICADOR '.' IDENTIFICADOR . '(' ')'  (98)
+	asignacion : IDENTIFICADOR '.' IDENTIFICADOR . '=' expresion_aritmetica  (99)
+	invocacion : IDENTIFICADOR '.' IDENTIFICADOR . '(' expresion_aritmetica ')'  (102)
+	invocacion : IDENTIFICADOR '.' IDENTIFICADOR . '(' ')'  (103)
 
 	'('  shift 130
 	'='  shift 131
@@ -1407,24 +1413,24 @@ state 79
 
 
 state 80
-	parametro : IDENTIFICADOR .  (66)
+	parametro_funcion : IDENTIFICADOR .  (71)
 
-	.  reduce 66
+	.  reduce 71
 
 
 state 81
-	parametro : tipo . IDENTIFICADOR  (64)
-	parametro : tipo .  (65)
+	parametro_funcion : tipo . IDENTIFICADOR  (69)
+	parametro_funcion : tipo .  (70)
 
 	IDENTIFICADOR  shift 132
-	')'  reduce 65
-	';'  reduce 65
+	')'  reduce 70
+	';'  reduce 70
 
 
 state 82
-	declaracion_funcion : VOID '(' parametro . ')' '{' cuerpo_de_la_funcion '}'  (32)
-	declaracion_funcion : VOID '(' parametro . ')' '{' comas cuerpo_de_la_funcion '}'  (35)
-	parametro : parametro . ';' tipo IDENTIFICADOR  (68)
+	declaracion_funcion : VOID '(' parametro_funcion . ')' '{' cuerpo_de_la_funcion '}'  (32)
+	declaracion_funcion : VOID '(' parametro_funcion . ')' '{' comas cuerpo_de_la_funcion '}'  (35)
+	parametro_funcion : parametro_funcion . ';' tipo IDENTIFICADOR  (73)
 
 	')'  shift 133
 	';'  shift 134
@@ -1432,20 +1438,20 @@ state 82
 
 
 state 83
-	factor : IDENTIFICADOR OPERADOR_SUMA_SUMA .  (167)
+	factor : IDENTIFICADOR OPERADOR_SUMA_SUMA .  (172)
 
-	.  reduce 167
+	.  reduce 172
 
 
 state 84
-	factor : IDENTIFICADOR '.' . IDENTIFICADOR  (171)
+	factor : IDENTIFICADOR '.' . IDENTIFICADOR  (176)
 
 	IDENTIFICADOR  shift 135
 	.  error
 
 
 state 85
-	factor : TOF '(' . expresion_aritmetica ')'  (170)
+	factor : TOF '(' . expresion_aritmetica ')'  (175)
 
 	IDENTIFICADOR  shift 38
 	ENTERO_SIN_SIGNO  shift 39
@@ -1464,46 +1470,46 @@ state 85
 
 
 state 86
-	bloque_condicion : '(' ')' .  (114)
+	bloque_condicion : '(' ')' .  (119)
 
-	.  reduce 114
+	.  reduce 119
 
 
 state 87
-	bloque_condicion : '(' condicion . ')'  (110)
-	bloque_condicion : '(' condicion .  (111)
+	bloque_condicion : '(' condicion . ')'  (115)
+	bloque_condicion : '(' condicion .  (116)
 
 	')'  shift 137
-	error  reduce 111
-	IDENTIFICADOR  reduce 111
-	VOID  reduce 111
-	RETURN  reduce 111
-	IF  reduce 111
-	PRINT  reduce 111
-	WHILE  reduce 111
-	DO  reduce 111
-	SHORT  reduce 111
-	UINT  reduce 111
-	FLOAT  reduce 111
-	CLASS  reduce 111
-	'{'  reduce 111
-	','  reduce 111
+	error  reduce 116
+	IDENTIFICADOR  reduce 116
+	VOID  reduce 116
+	RETURN  reduce 116
+	IF  reduce 116
+	PRINT  reduce 116
+	WHILE  reduce 116
+	DO  reduce 116
+	SHORT  reduce 116
+	UINT  reduce 116
+	FLOAT  reduce 116
+	CLASS  reduce 116
+	'{'  reduce 116
+	','  reduce 116
 
 
 state 88
-	constanteConSigno : '-' ENTERO_CORTO .  (175)
+	constanteConSigno : '-' ENTERO_CORTO .  (180)
 
-	.  reduce 175
+	.  reduce 180
 
 
 state 89
-	constanteConSigno : '-' PUNTO_FLOTANTE .  (177)
+	constanteConSigno : '-' PUNTO_FLOTANTE .  (182)
 
-	.  reduce 177
+	.  reduce 182
 
 
 state 90
-	condicion : expresion_aritmetica COMPARADOR_IGUAL_IGUAL . expresion_aritmetica  (129)
+	condicion : expresion_aritmetica COMPARADOR_IGUAL_IGUAL . expresion_aritmetica  (134)
 
 	IDENTIFICADOR  shift 38
 	ENTERO_SIN_SIGNO  shift 39
@@ -1522,7 +1528,7 @@ state 90
 
 
 state 91
-	condicion : expresion_aritmetica COMPARADOR_DISTINTO . expresion_aritmetica  (130)
+	condicion : expresion_aritmetica COMPARADOR_DISTINTO . expresion_aritmetica  (135)
 
 	IDENTIFICADOR  shift 38
 	ENTERO_SIN_SIGNO  shift 39
@@ -1541,7 +1547,7 @@ state 91
 
 
 state 92
-	condicion : expresion_aritmetica COMPARADOR_MENOR_IGUAL . expresion_aritmetica  (132)
+	condicion : expresion_aritmetica COMPARADOR_MENOR_IGUAL . expresion_aritmetica  (137)
 
 	IDENTIFICADOR  shift 38
 	ENTERO_SIN_SIGNO  shift 39
@@ -1560,7 +1566,7 @@ state 92
 
 
 state 93
-	condicion : expresion_aritmetica COMPARADOR_MAYOR_IGUAL . expresion_aritmetica  (131)
+	condicion : expresion_aritmetica COMPARADOR_MAYOR_IGUAL . expresion_aritmetica  (136)
 
 	IDENTIFICADOR  shift 38
 	ENTERO_SIN_SIGNO  shift 39
@@ -1579,9 +1585,9 @@ state 93
 
 
 state 94
-	expresion_aritmetica : expresion_aritmetica '+' . termino  (99)
-	expresion_aritmetica : expresion_aritmetica '+' . '*' termino  (102)
-	expresion_aritmetica : expresion_aritmetica '+' . '/' termino  (104)
+	expresion_aritmetica : expresion_aritmetica '+' . termino  (104)
+	expresion_aritmetica : expresion_aritmetica '+' . '*' termino  (107)
+	expresion_aritmetica : expresion_aritmetica '+' . '/' termino  (109)
 
 	IDENTIFICADOR  shift 38
 	ENTERO_SIN_SIGNO  shift 39
@@ -1601,9 +1607,9 @@ state 94
 
 
 state 95
-	expresion_aritmetica : expresion_aritmetica '-' . termino  (100)
-	expresion_aritmetica : expresion_aritmetica '-' . '*' termino  (101)
-	expresion_aritmetica : expresion_aritmetica '-' . '/' termino  (103)
+	expresion_aritmetica : expresion_aritmetica '-' . termino  (105)
+	expresion_aritmetica : expresion_aritmetica '-' . '*' termino  (106)
+	expresion_aritmetica : expresion_aritmetica '-' . '/' termino  (108)
 
 	IDENTIFICADOR  shift 38
 	ENTERO_SIN_SIGNO  shift 39
@@ -1623,7 +1629,7 @@ state 95
 
 
 state 96
-	condicion : expresion_aritmetica '>' . expresion_aritmetica  (127)
+	condicion : expresion_aritmetica '>' . expresion_aritmetica  (132)
 
 	IDENTIFICADOR  shift 38
 	ENTERO_SIN_SIGNO  shift 39
@@ -1642,7 +1648,7 @@ state 96
 
 
 state 97
-	condicion : expresion_aritmetica '<' . expresion_aritmetica  (128)
+	condicion : expresion_aritmetica '<' . expresion_aritmetica  (133)
 
 	IDENTIFICADOR  shift 38
 	ENTERO_SIN_SIGNO  shift 39
@@ -1661,7 +1667,7 @@ state 97
 
 
 state 98
-	termino : termino '*' . factor  (106)
+	termino : termino '*' . factor  (111)
 
 	IDENTIFICADOR  shift 38
 	ENTERO_SIN_SIGNO  shift 39
@@ -1678,7 +1684,7 @@ state 98
 
 
 state 99
-	termino : termino '/' . factor  (107)
+	termino : termino '/' . factor  (112)
 
 	IDENTIFICADOR  shift 38
 	ENTERO_SIN_SIGNO  shift 39
@@ -1695,36 +1701,36 @@ state 99
 
 
 state 100
-	bloque_ejecutables : error . ','  (155)
+	bloque_ejecutables : error . ','  (160)
 
 	','  shift 152
 	.  error
 
 
 state 101
-	bloque_ejecutables : RETURN . ','  (142)
+	bloque_ejecutables : RETURN . ','  (147)
 
 	','  shift 153
 	.  error
 
 
 state 102
-	bloque_ejecutables : '{' . sentencias_ejecutables '}'  (133)
-	bloque_ejecutables : '{' . sentencias_ejecutables RETURN ',' '}'  (134)
-	bloque_ejecutables : '{' . sentencias_ejecutables RETURN ',' sentencias_ejecutables '}'  (135)
-	bloque_ejecutables : '{' . sentencias_ejecutables RETURN sentencias_ejecutables '}'  (136)
-	bloque_ejecutables : '{' . sentencias_ejecutables RETURN '}'  (137)
-	bloque_ejecutables : '{' . RETURN ',' '}'  (140)
-	bloque_ejecutables : '{' . RETURN '}'  (141)
-	bloque_ejecutables : '{' . sentencias_ejecutables RETURN ',' comas '}'  (143)
-	bloque_ejecutables : '{' . sentencias_ejecutables RETURN ',' comas sentencias_ejecutables '}'  (144)
-	bloque_ejecutables : '{' . comas sentencias_ejecutables '}'  (145)
-	bloque_ejecutables : '{' . comas sentencias_ejecutables RETURN ',' '}'  (146)
-	bloque_ejecutables : '{' . comas sentencias_ejecutables RETURN ',' sentencias_ejecutables '}'  (147)
-	bloque_ejecutables : '{' . comas sentencias_ejecutables RETURN sentencias_ejecutables '}'  (148)
-	bloque_ejecutables : '{' . comas sentencias_ejecutables RETURN '}'  (149)
-	bloque_ejecutables : '{' . comas RETURN ',' '}'  (152)
-	bloque_ejecutables : '{' . comas RETURN '}'  (153)
+	bloque_ejecutables : '{' . sentencias_ejecutables '}'  (138)
+	bloque_ejecutables : '{' . sentencias_ejecutables RETURN ',' '}'  (139)
+	bloque_ejecutables : '{' . sentencias_ejecutables RETURN ',' sentencias_ejecutables '}'  (140)
+	bloque_ejecutables : '{' . sentencias_ejecutables RETURN sentencias_ejecutables '}'  (141)
+	bloque_ejecutables : '{' . sentencias_ejecutables RETURN '}'  (142)
+	bloque_ejecutables : '{' . RETURN ',' '}'  (145)
+	bloque_ejecutables : '{' . RETURN '}'  (146)
+	bloque_ejecutables : '{' . sentencias_ejecutables RETURN ',' comas '}'  (148)
+	bloque_ejecutables : '{' . sentencias_ejecutables RETURN ',' comas sentencias_ejecutables '}'  (149)
+	bloque_ejecutables : '{' . comas sentencias_ejecutables '}'  (150)
+	bloque_ejecutables : '{' . comas sentencias_ejecutables RETURN ',' '}'  (151)
+	bloque_ejecutables : '{' . comas sentencias_ejecutables RETURN ',' sentencias_ejecutables '}'  (152)
+	bloque_ejecutables : '{' . comas sentencias_ejecutables RETURN sentencias_ejecutables '}'  (153)
+	bloque_ejecutables : '{' . comas sentencias_ejecutables RETURN '}'  (154)
+	bloque_ejecutables : '{' . comas RETURN ',' '}'  (157)
+	bloque_ejecutables : '{' . comas RETURN '}'  (158)
 
 	error  shift 154
 	IDENTIFICADOR  shift 2
@@ -1759,9 +1765,9 @@ state 102
 
 
 state 103
-	bloque_ejecutables : comas . ejecutable ','  (150)
-	bloque_ejecutables : comas . declarativa ','  (151)
-	bloque_ejecutables : comas . RETURN ','  (154)
+	bloque_ejecutables : comas . ejecutable ','  (155)
+	bloque_ejecutables : comas . declarativa ','  (156)
+	bloque_ejecutables : comas . RETURN ','  (159)
 
 	IDENTIFICADOR  shift 2
 	VOID  shift 3
@@ -1792,31 +1798,31 @@ state 103
 
 
 state 104
-	bloque_ejecutables : declarativa . ','  (139)
+	bloque_ejecutables : declarativa . ','  (144)
 
 	','  shift 163
 	.  error
 
 
 state 105
-	bloque_ejecutables : ejecutable . ','  (138)
+	bloque_ejecutables : ejecutable . ','  (143)
 
 	','  shift 164
 	.  error
 
 
 state 106
-	seleccion : IF bloque_condicion cuerpo_if .  (109)
+	seleccion : IF bloque_condicion cuerpo_if .  (114)
 
-	.  reduce 109
+	.  reduce 114
 
 
 state 107
-	cuerpo_if : cuerpo_then . else_if cuerpo_else END_IF  (115)
-	cuerpo_if : cuerpo_then . else_if cuerpo_else  (116)
-	cuerpo_if : cuerpo_then . cuerpo_else END_IF  (117)
-	cuerpo_if : cuerpo_then . END_IF  (118)
-	cuerpo_if : cuerpo_then . else_if END_IF  (119)
+	cuerpo_if : cuerpo_then . else_if cuerpo_else END_IF  (120)
+	cuerpo_if : cuerpo_then . else_if cuerpo_else  (121)
+	cuerpo_if : cuerpo_then . cuerpo_else END_IF  (122)
+	cuerpo_if : cuerpo_then . END_IF  (123)
+	cuerpo_if : cuerpo_then . else_if END_IF  (124)
 
 	error  shift 100
 	IDENTIFICADOR  shift 2
@@ -1856,15 +1862,15 @@ state 107
 
 
 state 108
-	cuerpo_then : bloque_ejecutables .  (120)
+	cuerpo_then : bloque_ejecutables .  (125)
 
-	.  reduce 120
+	.  reduce 125
 
 
 state 109
-	bloque_condicion : condicion ')' .  (112)
+	bloque_condicion : condicion ')' .  (117)
 
-	.  reduce 112
+	.  reduce 117
 
 
 state 110
@@ -1915,9 +1921,9 @@ state 114
 
 
 state 115
-	metodo : metodo_name . '(' parametro ')' '{' cuerpo_de_la_funcion '}'  (50)
-	metodo : metodo_name . '(' parametro ')' '{' '}'  (51)
-	metodo : metodo_name . '(' parametro ')' '{' comas cuerpo_de_la_funcion '}'  (52)
+	metodo : metodo_name . '(' parametro_metodo ')' '{' cuerpo_de_la_funcion '}'  (50)
+	metodo : metodo_name . '(' parametro_metodo ')' '{' '}'  (51)
+	metodo : metodo_name . '(' parametro_metodo ')' '{' comas cuerpo_de_la_funcion '}'  (52)
 
 	'('  shift 177
 	.  error
@@ -1992,11 +1998,11 @@ state 121
 
 
 state 122
-	declaracion_funcion : funcion_name '(' parametro . ')' '{' cuerpo_de_la_funcion '}'  (31)
-	declaracion_funcion : funcion_name '(' parametro . ')' '{' '}'  (33)
-	declaracion_funcion : funcion_name '(' parametro . ')' '{' comas cuerpo_de_la_funcion '}'  (34)
-	declaracion_funcion : funcion_name '(' parametro . ')' '{' comas '}'  (36)
-	parametro : parametro . ';' tipo IDENTIFICADOR  (68)
+	declaracion_funcion : funcion_name '(' parametro_funcion . ')' '{' cuerpo_de_la_funcion '}'  (31)
+	declaracion_funcion : funcion_name '(' parametro_funcion . ')' '{' '}'  (33)
+	declaracion_funcion : funcion_name '(' parametro_funcion . ')' '{' comas cuerpo_de_la_funcion '}'  (34)
+	declaracion_funcion : funcion_name '(' parametro_funcion . ')' '{' comas '}'  (36)
+	parametro_funcion : parametro_funcion . ';' tipo IDENTIFICADOR  (73)
 
 	')'  shift 181
 	';'  shift 134
@@ -2034,7 +2040,7 @@ state 125
 
 
 state 126
-	ciclo_while : inicio_while bloque_condicion DO . cuerpo_while  (123)
+	ciclo_while : inicio_while bloque_condicion DO . cuerpo_while  (128)
 
 	error  shift 100
 	IDENTIFICADOR  shift 2
@@ -2071,26 +2077,26 @@ state 126
 
 
 state 127
-	cuerpo_while : bloque_ejecutables .  (126)
+	cuerpo_while : bloque_ejecutables .  (131)
 
-	.  reduce 126
+	.  reduce 131
 
 
 state 128
-	ciclo_while : inicio_while bloque_condicion cuerpo_while .  (124)
+	ciclo_while : inicio_while bloque_condicion cuerpo_while .  (129)
 
-	.  reduce 124
+	.  reduce 129
 
 
 state 129
-	invocacion : IDENTIFICADOR '(' expresion_aritmetica ')' .  (95)
+	invocacion : IDENTIFICADOR '(' expresion_aritmetica ')' .  (100)
 
-	.  reduce 95
+	.  reduce 100
 
 
 state 130
-	invocacion : IDENTIFICADOR '.' IDENTIFICADOR '(' . expresion_aritmetica ')'  (97)
-	invocacion : IDENTIFICADOR '.' IDENTIFICADOR '(' . ')'  (98)
+	invocacion : IDENTIFICADOR '.' IDENTIFICADOR '(' . expresion_aritmetica ')'  (102)
+	invocacion : IDENTIFICADOR '.' IDENTIFICADOR '(' . ')'  (103)
 
 	IDENTIFICADOR  shift 38
 	ENTERO_SIN_SIGNO  shift 39
@@ -2110,7 +2116,7 @@ state 130
 
 
 state 131
-	asignacion : IDENTIFICADOR '.' IDENTIFICADOR '=' . expresion_aritmetica  (94)
+	asignacion : IDENTIFICADOR '.' IDENTIFICADOR '=' . expresion_aritmetica  (99)
 
 	IDENTIFICADOR  shift 38
 	ENTERO_SIN_SIGNO  shift 39
@@ -2129,21 +2135,21 @@ state 131
 
 
 state 132
-	parametro : tipo IDENTIFICADOR .  (64)
+	parametro_funcion : tipo IDENTIFICADOR .  (69)
 
-	.  reduce 64
+	.  reduce 69
 
 
 state 133
-	declaracion_funcion : VOID '(' parametro ')' . '{' cuerpo_de_la_funcion '}'  (32)
-	declaracion_funcion : VOID '(' parametro ')' . '{' comas cuerpo_de_la_funcion '}'  (35)
+	declaracion_funcion : VOID '(' parametro_funcion ')' . '{' cuerpo_de_la_funcion '}'  (32)
+	declaracion_funcion : VOID '(' parametro_funcion ')' . '{' comas cuerpo_de_la_funcion '}'  (35)
 
 	'{'  shift 188
 	.  error
 
 
 state 134
-	parametro : parametro ';' . tipo IDENTIFICADOR  (68)
+	parametro_funcion : parametro_funcion ';' . tipo IDENTIFICADOR  (73)
 
 	SHORT  shift 7
 	UINT  shift 8
@@ -2154,19 +2160,19 @@ state 134
 
 
 state 135
-	factor : IDENTIFICADOR '.' IDENTIFICADOR .  (171)
+	factor : IDENTIFICADOR '.' IDENTIFICADOR .  (176)
 
-	.  reduce 171
+	.  reduce 176
 
 
 state 136
-	expresion_aritmetica : expresion_aritmetica . '+' termino  (99)
-	expresion_aritmetica : expresion_aritmetica . '-' termino  (100)
-	expresion_aritmetica : expresion_aritmetica . '-' '*' termino  (101)
-	expresion_aritmetica : expresion_aritmetica . '+' '*' termino  (102)
-	expresion_aritmetica : expresion_aritmetica . '-' '/' termino  (103)
-	expresion_aritmetica : expresion_aritmetica . '+' '/' termino  (104)
-	factor : TOF '(' expresion_aritmetica . ')'  (170)
+	expresion_aritmetica : expresion_aritmetica . '+' termino  (104)
+	expresion_aritmetica : expresion_aritmetica . '-' termino  (105)
+	expresion_aritmetica : expresion_aritmetica . '-' '*' termino  (106)
+	expresion_aritmetica : expresion_aritmetica . '+' '*' termino  (107)
+	expresion_aritmetica : expresion_aritmetica . '-' '/' termino  (108)
+	expresion_aritmetica : expresion_aritmetica . '+' '/' termino  (109)
+	factor : TOF '(' expresion_aritmetica . ')'  (175)
 
 	')'  shift 190
 	'+'  shift 94
@@ -2175,75 +2181,271 @@ state 136
 
 
 state 137
-	bloque_condicion : '(' condicion ')' .  (110)
+	bloque_condicion : '(' condicion ')' .  (115)
 
-	.  reduce 110
+	.  reduce 115
 
 
 state 138
-	expresion_aritmetica : expresion_aritmetica . '+' termino  (99)
-	expresion_aritmetica : expresion_aritmetica . '-' termino  (100)
-	expresion_aritmetica : expresion_aritmetica . '-' '*' termino  (101)
-	expresion_aritmetica : expresion_aritmetica . '+' '*' termino  (102)
-	expresion_aritmetica : expresion_aritmetica . '-' '/' termino  (103)
-	expresion_aritmetica : expresion_aritmetica . '+' '/' termino  (104)
-	condicion : expresion_aritmetica COMPARADOR_IGUAL_IGUAL expresion_aritmetica .  (129)
+	expresion_aritmetica : expresion_aritmetica . '+' termino  (104)
+	expresion_aritmetica : expresion_aritmetica . '-' termino  (105)
+	expresion_aritmetica : expresion_aritmetica . '-' '*' termino  (106)
+	expresion_aritmetica : expresion_aritmetica . '+' '*' termino  (107)
+	expresion_aritmetica : expresion_aritmetica . '-' '/' termino  (108)
+	expresion_aritmetica : expresion_aritmetica . '+' '/' termino  (109)
+	condicion : expresion_aritmetica COMPARADOR_IGUAL_IGUAL expresion_aritmetica .  (134)
 
 	'+'  shift 94
 	'-'  shift 95
-	error  reduce 129
-	IDENTIFICADOR  reduce 129
-	VOID  reduce 129
-	RETURN  reduce 129
-	IF  reduce 129
-	PRINT  reduce 129
-	WHILE  reduce 129
-	DO  reduce 129
-	SHORT  reduce 129
-	UINT  reduce 129
-	FLOAT  reduce 129
-	CLASS  reduce 129
-	'{'  reduce 129
-	','  reduce 129
-	')'  reduce 129
+	error  reduce 134
+	IDENTIFICADOR  reduce 134
+	VOID  reduce 134
+	RETURN  reduce 134
+	IF  reduce 134
+	PRINT  reduce 134
+	WHILE  reduce 134
+	DO  reduce 134
+	SHORT  reduce 134
+	UINT  reduce 134
+	FLOAT  reduce 134
+	CLASS  reduce 134
+	'{'  reduce 134
+	','  reduce 134
+	')'  reduce 134
 
 
 state 139
-	expresion_aritmetica : expresion_aritmetica . '+' termino  (99)
-	expresion_aritmetica : expresion_aritmetica . '-' termino  (100)
-	expresion_aritmetica : expresion_aritmetica . '-' '*' termino  (101)
-	expresion_aritmetica : expresion_aritmetica . '+' '*' termino  (102)
-	expresion_aritmetica : expresion_aritmetica . '-' '/' termino  (103)
-	expresion_aritmetica : expresion_aritmetica . '+' '/' termino  (104)
-	condicion : expresion_aritmetica COMPARADOR_DISTINTO expresion_aritmetica .  (130)
+	expresion_aritmetica : expresion_aritmetica . '+' termino  (104)
+	expresion_aritmetica : expresion_aritmetica . '-' termino  (105)
+	expresion_aritmetica : expresion_aritmetica . '-' '*' termino  (106)
+	expresion_aritmetica : expresion_aritmetica . '+' '*' termino  (107)
+	expresion_aritmetica : expresion_aritmetica . '-' '/' termino  (108)
+	expresion_aritmetica : expresion_aritmetica . '+' '/' termino  (109)
+	condicion : expresion_aritmetica COMPARADOR_DISTINTO expresion_aritmetica .  (135)
 
 	'+'  shift 94
 	'-'  shift 95
-	error  reduce 130
-	IDENTIFICADOR  reduce 130
-	VOID  reduce 130
-	RETURN  reduce 130
-	IF  reduce 130
-	PRINT  reduce 130
-	WHILE  reduce 130
-	DO  reduce 130
-	SHORT  reduce 130
-	UINT  reduce 130
-	FLOAT  reduce 130
-	CLASS  reduce 130
-	'{'  reduce 130
-	','  reduce 130
-	')'  reduce 130
+	error  reduce 135
+	IDENTIFICADOR  reduce 135
+	VOID  reduce 135
+	RETURN  reduce 135
+	IF  reduce 135
+	PRINT  reduce 135
+	WHILE  reduce 135
+	DO  reduce 135
+	SHORT  reduce 135
+	UINT  reduce 135
+	FLOAT  reduce 135
+	CLASS  reduce 135
+	'{'  reduce 135
+	','  reduce 135
+	')'  reduce 135
 
 
 state 140
-	expresion_aritmetica : expresion_aritmetica . '+' termino  (99)
-	expresion_aritmetica : expresion_aritmetica . '-' termino  (100)
-	expresion_aritmetica : expresion_aritmetica . '-' '*' termino  (101)
-	expresion_aritmetica : expresion_aritmetica . '+' '*' termino  (102)
-	expresion_aritmetica : expresion_aritmetica . '-' '/' termino  (103)
-	expresion_aritmetica : expresion_aritmetica . '+' '/' termino  (104)
-	condicion : expresion_aritmetica COMPARADOR_MENOR_IGUAL expresion_aritmetica .  (132)
+	expresion_aritmetica : expresion_aritmetica . '+' termino  (104)
+	expresion_aritmetica : expresion_aritmetica . '-' termino  (105)
+	expresion_aritmetica : expresion_aritmetica . '-' '*' termino  (106)
+	expresion_aritmetica : expresion_aritmetica . '+' '*' termino  (107)
+	expresion_aritmetica : expresion_aritmetica . '-' '/' termino  (108)
+	expresion_aritmetica : expresion_aritmetica . '+' '/' termino  (109)
+	condicion : expresion_aritmetica COMPARADOR_MENOR_IGUAL expresion_aritmetica .  (137)
+
+	'+'  shift 94
+	'-'  shift 95
+	error  reduce 137
+	IDENTIFICADOR  reduce 137
+	VOID  reduce 137
+	RETURN  reduce 137
+	IF  reduce 137
+	PRINT  reduce 137
+	WHILE  reduce 137
+	DO  reduce 137
+	SHORT  reduce 137
+	UINT  reduce 137
+	FLOAT  reduce 137
+	CLASS  reduce 137
+	'{'  reduce 137
+	','  reduce 137
+	')'  reduce 137
+
+
+state 141
+	expresion_aritmetica : expresion_aritmetica . '+' termino  (104)
+	expresion_aritmetica : expresion_aritmetica . '-' termino  (105)
+	expresion_aritmetica : expresion_aritmetica . '-' '*' termino  (106)
+	expresion_aritmetica : expresion_aritmetica . '+' '*' termino  (107)
+	expresion_aritmetica : expresion_aritmetica . '-' '/' termino  (108)
+	expresion_aritmetica : expresion_aritmetica . '+' '/' termino  (109)
+	condicion : expresion_aritmetica COMPARADOR_MAYOR_IGUAL expresion_aritmetica .  (136)
+
+	'+'  shift 94
+	'-'  shift 95
+	error  reduce 136
+	IDENTIFICADOR  reduce 136
+	VOID  reduce 136
+	RETURN  reduce 136
+	IF  reduce 136
+	PRINT  reduce 136
+	WHILE  reduce 136
+	DO  reduce 136
+	SHORT  reduce 136
+	UINT  reduce 136
+	FLOAT  reduce 136
+	CLASS  reduce 136
+	'{'  reduce 136
+	','  reduce 136
+	')'  reduce 136
+
+
+state 142
+	expresion_aritmetica : expresion_aritmetica '+' '*' . termino  (107)
+
+	IDENTIFICADOR  shift 38
+	ENTERO_SIN_SIGNO  shift 39
+	ENTERO_CORTO  shift 40
+	PUNTO_FLOTANTE  shift 41
+	CADENA_CARACTERES  shift 42
+	TOF  shift 43
+	'-'  shift 45
+	.  error
+
+	constanteConSigno  goto 46
+	constanteSinSigno  goto 47
+	termino  goto 191
+	factor  goto 50
+
+
+state 143
+	expresion_aritmetica : expresion_aritmetica '+' '/' . termino  (109)
+
+	IDENTIFICADOR  shift 38
+	ENTERO_SIN_SIGNO  shift 39
+	ENTERO_CORTO  shift 40
+	PUNTO_FLOTANTE  shift 41
+	CADENA_CARACTERES  shift 42
+	TOF  shift 43
+	'-'  shift 45
+	.  error
+
+	constanteConSigno  goto 46
+	constanteSinSigno  goto 47
+	termino  goto 192
+	factor  goto 50
+
+
+state 144
+	expresion_aritmetica : expresion_aritmetica '+' termino .  (104)
+	termino : termino . '*' factor  (111)
+	termino : termino . '/' factor  (112)
+
+	'*'  shift 98
+	'/'  shift 99
+	$end  reduce 104
+	error  reduce 104
+	IDENTIFICADOR  reduce 104
+	COMPARADOR_IGUAL_IGUAL  reduce 104
+	COMPARADOR_DISTINTO  reduce 104
+	COMPARADOR_MENOR_IGUAL  reduce 104
+	COMPARADOR_MAYOR_IGUAL  reduce 104
+	VOID  reduce 104
+	RETURN  reduce 104
+	IF  reduce 104
+	PRINT  reduce 104
+	WHILE  reduce 104
+	DO  reduce 104
+	SHORT  reduce 104
+	UINT  reduce 104
+	FLOAT  reduce 104
+	CLASS  reduce 104
+	'{'  reduce 104
+	'}'  reduce 104
+	','  reduce 104
+	')'  reduce 104
+	'+'  reduce 104
+	'-'  reduce 104
+	'>'  reduce 104
+	'<'  reduce 104
+
+
+state 145
+	expresion_aritmetica : expresion_aritmetica '-' '*' . termino  (106)
+
+	IDENTIFICADOR  shift 38
+	ENTERO_SIN_SIGNO  shift 39
+	ENTERO_CORTO  shift 40
+	PUNTO_FLOTANTE  shift 41
+	CADENA_CARACTERES  shift 42
+	TOF  shift 43
+	'-'  shift 45
+	.  error
+
+	constanteConSigno  goto 46
+	constanteSinSigno  goto 47
+	termino  goto 193
+	factor  goto 50
+
+
+state 146
+	expresion_aritmetica : expresion_aritmetica '-' '/' . termino  (108)
+
+	IDENTIFICADOR  shift 38
+	ENTERO_SIN_SIGNO  shift 39
+	ENTERO_CORTO  shift 40
+	PUNTO_FLOTANTE  shift 41
+	CADENA_CARACTERES  shift 42
+	TOF  shift 43
+	'-'  shift 45
+	.  error
+
+	constanteConSigno  goto 46
+	constanteSinSigno  goto 47
+	termino  goto 194
+	factor  goto 50
+
+
+state 147
+	expresion_aritmetica : expresion_aritmetica '-' termino .  (105)
+	termino : termino . '*' factor  (111)
+	termino : termino . '/' factor  (112)
+
+	'*'  shift 98
+	'/'  shift 99
+	$end  reduce 105
+	error  reduce 105
+	IDENTIFICADOR  reduce 105
+	COMPARADOR_IGUAL_IGUAL  reduce 105
+	COMPARADOR_DISTINTO  reduce 105
+	COMPARADOR_MENOR_IGUAL  reduce 105
+	COMPARADOR_MAYOR_IGUAL  reduce 105
+	VOID  reduce 105
+	RETURN  reduce 105
+	IF  reduce 105
+	PRINT  reduce 105
+	WHILE  reduce 105
+	DO  reduce 105
+	SHORT  reduce 105
+	UINT  reduce 105
+	FLOAT  reduce 105
+	CLASS  reduce 105
+	'{'  reduce 105
+	'}'  reduce 105
+	','  reduce 105
+	')'  reduce 105
+	'+'  reduce 105
+	'-'  reduce 105
+	'>'  reduce 105
+	'<'  reduce 105
+
+
+state 148
+	expresion_aritmetica : expresion_aritmetica . '+' termino  (104)
+	expresion_aritmetica : expresion_aritmetica . '-' termino  (105)
+	expresion_aritmetica : expresion_aritmetica . '-' '*' termino  (106)
+	expresion_aritmetica : expresion_aritmetica . '+' '*' termino  (107)
+	expresion_aritmetica : expresion_aritmetica . '-' '/' termino  (108)
+	expresion_aritmetica : expresion_aritmetica . '+' '/' termino  (109)
+	condicion : expresion_aritmetica '>' expresion_aritmetica .  (132)
 
 	'+'  shift 94
 	'-'  shift 95
@@ -2264,264 +2466,68 @@ state 140
 	')'  reduce 132
 
 
-state 141
-	expresion_aritmetica : expresion_aritmetica . '+' termino  (99)
-	expresion_aritmetica : expresion_aritmetica . '-' termino  (100)
-	expresion_aritmetica : expresion_aritmetica . '-' '*' termino  (101)
-	expresion_aritmetica : expresion_aritmetica . '+' '*' termino  (102)
-	expresion_aritmetica : expresion_aritmetica . '-' '/' termino  (103)
-	expresion_aritmetica : expresion_aritmetica . '+' '/' termino  (104)
-	condicion : expresion_aritmetica COMPARADOR_MAYOR_IGUAL expresion_aritmetica .  (131)
-
-	'+'  shift 94
-	'-'  shift 95
-	error  reduce 131
-	IDENTIFICADOR  reduce 131
-	VOID  reduce 131
-	RETURN  reduce 131
-	IF  reduce 131
-	PRINT  reduce 131
-	WHILE  reduce 131
-	DO  reduce 131
-	SHORT  reduce 131
-	UINT  reduce 131
-	FLOAT  reduce 131
-	CLASS  reduce 131
-	'{'  reduce 131
-	','  reduce 131
-	')'  reduce 131
-
-
-state 142
-	expresion_aritmetica : expresion_aritmetica '+' '*' . termino  (102)
-
-	IDENTIFICADOR  shift 38
-	ENTERO_SIN_SIGNO  shift 39
-	ENTERO_CORTO  shift 40
-	PUNTO_FLOTANTE  shift 41
-	CADENA_CARACTERES  shift 42
-	TOF  shift 43
-	'-'  shift 45
-	.  error
-
-	constanteConSigno  goto 46
-	constanteSinSigno  goto 47
-	termino  goto 191
-	factor  goto 50
-
-
-state 143
-	expresion_aritmetica : expresion_aritmetica '+' '/' . termino  (104)
-
-	IDENTIFICADOR  shift 38
-	ENTERO_SIN_SIGNO  shift 39
-	ENTERO_CORTO  shift 40
-	PUNTO_FLOTANTE  shift 41
-	CADENA_CARACTERES  shift 42
-	TOF  shift 43
-	'-'  shift 45
-	.  error
-
-	constanteConSigno  goto 46
-	constanteSinSigno  goto 47
-	termino  goto 192
-	factor  goto 50
-
-
-state 144
-	expresion_aritmetica : expresion_aritmetica '+' termino .  (99)
-	termino : termino . '*' factor  (106)
-	termino : termino . '/' factor  (107)
-
-	'*'  shift 98
-	'/'  shift 99
-	$end  reduce 99
-	error  reduce 99
-	IDENTIFICADOR  reduce 99
-	COMPARADOR_IGUAL_IGUAL  reduce 99
-	COMPARADOR_DISTINTO  reduce 99
-	COMPARADOR_MENOR_IGUAL  reduce 99
-	COMPARADOR_MAYOR_IGUAL  reduce 99
-	VOID  reduce 99
-	RETURN  reduce 99
-	IF  reduce 99
-	PRINT  reduce 99
-	WHILE  reduce 99
-	DO  reduce 99
-	SHORT  reduce 99
-	UINT  reduce 99
-	FLOAT  reduce 99
-	CLASS  reduce 99
-	'{'  reduce 99
-	'}'  reduce 99
-	','  reduce 99
-	')'  reduce 99
-	'+'  reduce 99
-	'-'  reduce 99
-	'>'  reduce 99
-	'<'  reduce 99
-
-
-state 145
-	expresion_aritmetica : expresion_aritmetica '-' '*' . termino  (101)
-
-	IDENTIFICADOR  shift 38
-	ENTERO_SIN_SIGNO  shift 39
-	ENTERO_CORTO  shift 40
-	PUNTO_FLOTANTE  shift 41
-	CADENA_CARACTERES  shift 42
-	TOF  shift 43
-	'-'  shift 45
-	.  error
-
-	constanteConSigno  goto 46
-	constanteSinSigno  goto 47
-	termino  goto 193
-	factor  goto 50
-
-
-state 146
-	expresion_aritmetica : expresion_aritmetica '-' '/' . termino  (103)
-
-	IDENTIFICADOR  shift 38
-	ENTERO_SIN_SIGNO  shift 39
-	ENTERO_CORTO  shift 40
-	PUNTO_FLOTANTE  shift 41
-	CADENA_CARACTERES  shift 42
-	TOF  shift 43
-	'-'  shift 45
-	.  error
-
-	constanteConSigno  goto 46
-	constanteSinSigno  goto 47
-	termino  goto 194
-	factor  goto 50
-
-
-state 147
-	expresion_aritmetica : expresion_aritmetica '-' termino .  (100)
-	termino : termino . '*' factor  (106)
-	termino : termino . '/' factor  (107)
-
-	'*'  shift 98
-	'/'  shift 99
-	$end  reduce 100
-	error  reduce 100
-	IDENTIFICADOR  reduce 100
-	COMPARADOR_IGUAL_IGUAL  reduce 100
-	COMPARADOR_DISTINTO  reduce 100
-	COMPARADOR_MENOR_IGUAL  reduce 100
-	COMPARADOR_MAYOR_IGUAL  reduce 100
-	VOID  reduce 100
-	RETURN  reduce 100
-	IF  reduce 100
-	PRINT  reduce 100
-	WHILE  reduce 100
-	DO  reduce 100
-	SHORT  reduce 100
-	UINT  reduce 100
-	FLOAT  reduce 100
-	CLASS  reduce 100
-	'{'  reduce 100
-	'}'  reduce 100
-	','  reduce 100
-	')'  reduce 100
-	'+'  reduce 100
-	'-'  reduce 100
-	'>'  reduce 100
-	'<'  reduce 100
-
-
-state 148
-	expresion_aritmetica : expresion_aritmetica . '+' termino  (99)
-	expresion_aritmetica : expresion_aritmetica . '-' termino  (100)
-	expresion_aritmetica : expresion_aritmetica . '-' '*' termino  (101)
-	expresion_aritmetica : expresion_aritmetica . '+' '*' termino  (102)
-	expresion_aritmetica : expresion_aritmetica . '-' '/' termino  (103)
-	expresion_aritmetica : expresion_aritmetica . '+' '/' termino  (104)
-	condicion : expresion_aritmetica '>' expresion_aritmetica .  (127)
-
-	'+'  shift 94
-	'-'  shift 95
-	error  reduce 127
-	IDENTIFICADOR  reduce 127
-	VOID  reduce 127
-	RETURN  reduce 127
-	IF  reduce 127
-	PRINT  reduce 127
-	WHILE  reduce 127
-	DO  reduce 127
-	SHORT  reduce 127
-	UINT  reduce 127
-	FLOAT  reduce 127
-	CLASS  reduce 127
-	'{'  reduce 127
-	','  reduce 127
-	')'  reduce 127
-
-
 state 149
-	expresion_aritmetica : expresion_aritmetica . '+' termino  (99)
-	expresion_aritmetica : expresion_aritmetica . '-' termino  (100)
-	expresion_aritmetica : expresion_aritmetica . '-' '*' termino  (101)
-	expresion_aritmetica : expresion_aritmetica . '+' '*' termino  (102)
-	expresion_aritmetica : expresion_aritmetica . '-' '/' termino  (103)
-	expresion_aritmetica : expresion_aritmetica . '+' '/' termino  (104)
-	condicion : expresion_aritmetica '<' expresion_aritmetica .  (128)
+	expresion_aritmetica : expresion_aritmetica . '+' termino  (104)
+	expresion_aritmetica : expresion_aritmetica . '-' termino  (105)
+	expresion_aritmetica : expresion_aritmetica . '-' '*' termino  (106)
+	expresion_aritmetica : expresion_aritmetica . '+' '*' termino  (107)
+	expresion_aritmetica : expresion_aritmetica . '-' '/' termino  (108)
+	expresion_aritmetica : expresion_aritmetica . '+' '/' termino  (109)
+	condicion : expresion_aritmetica '<' expresion_aritmetica .  (133)
 
 	'+'  shift 94
 	'-'  shift 95
-	error  reduce 128
-	IDENTIFICADOR  reduce 128
-	VOID  reduce 128
-	RETURN  reduce 128
-	IF  reduce 128
-	PRINT  reduce 128
-	WHILE  reduce 128
-	DO  reduce 128
-	SHORT  reduce 128
-	UINT  reduce 128
-	FLOAT  reduce 128
-	CLASS  reduce 128
-	'{'  reduce 128
-	','  reduce 128
-	')'  reduce 128
+	error  reduce 133
+	IDENTIFICADOR  reduce 133
+	VOID  reduce 133
+	RETURN  reduce 133
+	IF  reduce 133
+	PRINT  reduce 133
+	WHILE  reduce 133
+	DO  reduce 133
+	SHORT  reduce 133
+	UINT  reduce 133
+	FLOAT  reduce 133
+	CLASS  reduce 133
+	'{'  reduce 133
+	','  reduce 133
+	')'  reduce 133
 
 
 state 150
-	termino : termino '*' factor .  (106)
+	termino : termino '*' factor .  (111)
 
-	.  reduce 106
+	.  reduce 111
 
 
 state 151
-	termino : termino '/' factor .  (107)
+	termino : termino '/' factor .  (112)
 
-	.  reduce 107
+	.  reduce 112
 
 
 state 152
-	bloque_ejecutables : error ',' .  (155)
+	bloque_ejecutables : error ',' .  (160)
 
-	.  reduce 155
+	.  reduce 160
 
 
 state 153
-	bloque_ejecutables : RETURN ',' .  (142)
+	bloque_ejecutables : RETURN ',' .  (147)
 
-	.  reduce 142
+	.  reduce 147
 
 
 state 154
-	sentencias_ejecutables : error . ','  (165)
+	sentencias_ejecutables : error . ','  (170)
 
 	','  shift 195
 	.  error
 
 
 state 155
-	bloque_ejecutables : '{' RETURN . ',' '}'  (140)
-	bloque_ejecutables : '{' RETURN . '}'  (141)
+	bloque_ejecutables : '{' RETURN . ',' '}'  (145)
+	bloque_ejecutables : '{' RETURN . '}'  (146)
 
 	'}'  shift 196
 	','  shift 197
@@ -2529,13 +2535,13 @@ state 155
 
 
 state 156
-	bloque_ejecutables : '{' comas . sentencias_ejecutables '}'  (145)
-	bloque_ejecutables : '{' comas . sentencias_ejecutables RETURN ',' '}'  (146)
-	bloque_ejecutables : '{' comas . sentencias_ejecutables RETURN ',' sentencias_ejecutables '}'  (147)
-	bloque_ejecutables : '{' comas . sentencias_ejecutables RETURN sentencias_ejecutables '}'  (148)
-	bloque_ejecutables : '{' comas . sentencias_ejecutables RETURN '}'  (149)
-	bloque_ejecutables : '{' comas . RETURN ',' '}'  (152)
-	bloque_ejecutables : '{' comas . RETURN '}'  (153)
+	bloque_ejecutables : '{' comas . sentencias_ejecutables '}'  (150)
+	bloque_ejecutables : '{' comas . sentencias_ejecutables RETURN ',' '}'  (151)
+	bloque_ejecutables : '{' comas . sentencias_ejecutables RETURN ',' sentencias_ejecutables '}'  (152)
+	bloque_ejecutables : '{' comas . sentencias_ejecutables RETURN sentencias_ejecutables '}'  (153)
+	bloque_ejecutables : '{' comas . sentencias_ejecutables RETURN '}'  (154)
+	bloque_ejecutables : '{' comas . RETURN ',' '}'  (157)
+	bloque_ejecutables : '{' comas . RETURN '}'  (158)
 
 	error  shift 154
 	IDENTIFICADOR  shift 2
@@ -2568,58 +2574,58 @@ state 156
 
 
 state 157
-	sentencias_ejecutables : declarativa . ','  (162)
-	sentencias_ejecutables : declarativa .  (163)
+	sentencias_ejecutables : declarativa . ','  (167)
+	sentencias_ejecutables : declarativa .  (168)
 
 	','  shift 200
-	error  reduce 163
-	IDENTIFICADOR  reduce 163
-	VOID  reduce 163
-	RETURN  reduce 163
-	IF  reduce 163
-	PRINT  reduce 163
-	WHILE  reduce 163
-	SHORT  reduce 163
-	UINT  reduce 163
-	FLOAT  reduce 163
-	CLASS  reduce 163
-	'}'  reduce 163
+	error  reduce 168
+	IDENTIFICADOR  reduce 168
+	VOID  reduce 168
+	RETURN  reduce 168
+	IF  reduce 168
+	PRINT  reduce 168
+	WHILE  reduce 168
+	SHORT  reduce 168
+	UINT  reduce 168
+	FLOAT  reduce 168
+	CLASS  reduce 168
+	'}'  reduce 168
 
 
 state 158
-	sentencias_ejecutables : ejecutable . comas  (158)
-	sentencias_ejecutables : ejecutable .  (159)
+	sentencias_ejecutables : ejecutable . comas  (163)
+	sentencias_ejecutables : ejecutable .  (164)
 
 	','  shift 13
-	error  reduce 159
-	IDENTIFICADOR  reduce 159
-	VOID  reduce 159
-	RETURN  reduce 159
-	IF  reduce 159
-	PRINT  reduce 159
-	WHILE  reduce 159
-	SHORT  reduce 159
-	UINT  reduce 159
-	FLOAT  reduce 159
-	CLASS  reduce 159
-	'}'  reduce 159
+	error  reduce 164
+	IDENTIFICADOR  reduce 164
+	VOID  reduce 164
+	RETURN  reduce 164
+	IF  reduce 164
+	PRINT  reduce 164
+	WHILE  reduce 164
+	SHORT  reduce 164
+	UINT  reduce 164
+	FLOAT  reduce 164
+	CLASS  reduce 164
+	'}'  reduce 164
 
 	comas  goto 201
 
 
 state 159
-	bloque_ejecutables : '{' sentencias_ejecutables . '}'  (133)
-	bloque_ejecutables : '{' sentencias_ejecutables . RETURN ',' '}'  (134)
-	bloque_ejecutables : '{' sentencias_ejecutables . RETURN ',' sentencias_ejecutables '}'  (135)
-	bloque_ejecutables : '{' sentencias_ejecutables . RETURN sentencias_ejecutables '}'  (136)
-	bloque_ejecutables : '{' sentencias_ejecutables . RETURN '}'  (137)
-	bloque_ejecutables : '{' sentencias_ejecutables . RETURN ',' comas '}'  (143)
-	bloque_ejecutables : '{' sentencias_ejecutables . RETURN ',' comas sentencias_ejecutables '}'  (144)
-	sentencias_ejecutables : sentencias_ejecutables . ejecutable comas  (156)
-	sentencias_ejecutables : sentencias_ejecutables . ejecutable  (157)
-	sentencias_ejecutables : sentencias_ejecutables . declarativa comas  (160)
-	sentencias_ejecutables : sentencias_ejecutables . declarativa  (161)
-	sentencias_ejecutables : sentencias_ejecutables . error ','  (164)
+	bloque_ejecutables : '{' sentencias_ejecutables . '}'  (138)
+	bloque_ejecutables : '{' sentencias_ejecutables . RETURN ',' '}'  (139)
+	bloque_ejecutables : '{' sentencias_ejecutables . RETURN ',' sentencias_ejecutables '}'  (140)
+	bloque_ejecutables : '{' sentencias_ejecutables . RETURN sentencias_ejecutables '}'  (141)
+	bloque_ejecutables : '{' sentencias_ejecutables . RETURN '}'  (142)
+	bloque_ejecutables : '{' sentencias_ejecutables . RETURN ',' comas '}'  (148)
+	bloque_ejecutables : '{' sentencias_ejecutables . RETURN ',' comas sentencias_ejecutables '}'  (149)
+	sentencias_ejecutables : sentencias_ejecutables . ejecutable comas  (161)
+	sentencias_ejecutables : sentencias_ejecutables . ejecutable  (162)
+	sentencias_ejecutables : sentencias_ejecutables . declarativa comas  (165)
+	sentencias_ejecutables : sentencias_ejecutables . declarativa  (166)
+	sentencias_ejecutables : sentencias_ejecutables . error ','  (169)
 
 	error  shift 202
 	IDENTIFICADOR  shift 2
@@ -2652,54 +2658,54 @@ state 159
 
 
 state 160
-	bloque_ejecutables : comas RETURN . ','  (154)
+	bloque_ejecutables : comas RETURN . ','  (159)
 
 	','  shift 207
 	.  error
 
 
 state 161
-	bloque_ejecutables : comas declarativa . ','  (151)
+	bloque_ejecutables : comas declarativa . ','  (156)
 
 	','  shift 208
 	.  error
 
 
 state 162
-	bloque_ejecutables : comas ejecutable . ','  (150)
+	bloque_ejecutables : comas ejecutable . ','  (155)
 
 	','  shift 209
 	.  error
 
 
 state 163
-	bloque_ejecutables : declarativa ',' .  (139)
+	bloque_ejecutables : declarativa ',' .  (144)
 
-	.  reduce 139
+	.  reduce 144
 
 
 state 164
-	bloque_ejecutables : ejecutable ',' .  (138)
+	bloque_ejecutables : ejecutable ',' .  (143)
 
-	.  reduce 138
+	.  reduce 143
 
 
 state 165
-	else_if : ELSE .  (122)
+	else_if : ELSE .  (127)
 
-	.  reduce 122
+	.  reduce 127
 
 
 state 166
-	cuerpo_if : cuerpo_then END_IF .  (118)
+	cuerpo_if : cuerpo_then END_IF .  (123)
 
-	.  reduce 118
+	.  reduce 123
 
 
 state 167
-	cuerpo_if : cuerpo_then else_if . cuerpo_else END_IF  (115)
-	cuerpo_if : cuerpo_then else_if . cuerpo_else  (116)
-	cuerpo_if : cuerpo_then else_if . END_IF  (119)
+	cuerpo_if : cuerpo_then else_if . cuerpo_else END_IF  (120)
+	cuerpo_if : cuerpo_then else_if . cuerpo_else  (121)
+	cuerpo_if : cuerpo_then else_if . END_IF  (124)
 
 	error  shift 100
 	IDENTIFICADOR  shift 2
@@ -2737,16 +2743,16 @@ state 167
 
 
 state 168
-	cuerpo_if : cuerpo_then cuerpo_else . END_IF  (117)
+	cuerpo_if : cuerpo_then cuerpo_else . END_IF  (122)
 
 	END_IF  shift 212
 	.  error
 
 
 state 169
-	cuerpo_else : bloque_ejecutables .  (121)
+	cuerpo_else : bloque_ejecutables .  (126)
 
-	.  reduce 121
+	.  reduce 126
 
 
 state 170
@@ -2799,20 +2805,20 @@ state 176
 
 
 state 177
-	metodo : metodo_name '(' . parametro ')' '{' cuerpo_de_la_funcion '}'  (50)
-	metodo : metodo_name '(' . parametro ')' '{' '}'  (51)
-	metodo : metodo_name '(' . parametro ')' '{' comas cuerpo_de_la_funcion '}'  (52)
-	parametro : .  (67)
+	metodo : metodo_name '(' . parametro_metodo ')' '{' cuerpo_de_la_funcion '}'  (50)
+	metodo : metodo_name '(' . parametro_metodo ')' '{' '}'  (51)
+	metodo : metodo_name '(' . parametro_metodo ')' '{' comas cuerpo_de_la_funcion '}'  (52)
+	parametro_metodo : .  (67)
 
-	IDENTIFICADOR  shift 80
+	IDENTIFICADOR  shift 217
 	SHORT  shift 7
 	UINT  shift 8
 	FLOAT  shift 9
 	')'  reduce 67
 	';'  reduce 67
 
-	tipo  goto 81
-	parametro  goto 217
+	tipo  goto 218
+	parametro_metodo  goto 219
 
 
 state 178
@@ -2834,12 +2840,12 @@ state 180
 
 
 state 181
-	declaracion_funcion : funcion_name '(' parametro ')' . '{' cuerpo_de_la_funcion '}'  (31)
-	declaracion_funcion : funcion_name '(' parametro ')' . '{' '}'  (33)
-	declaracion_funcion : funcion_name '(' parametro ')' . '{' comas cuerpo_de_la_funcion '}'  (34)
-	declaracion_funcion : funcion_name '(' parametro ')' . '{' comas '}'  (36)
+	declaracion_funcion : funcion_name '(' parametro_funcion ')' . '{' cuerpo_de_la_funcion '}'  (31)
+	declaracion_funcion : funcion_name '(' parametro_funcion ')' . '{' '}'  (33)
+	declaracion_funcion : funcion_name '(' parametro_funcion ')' . '{' comas cuerpo_de_la_funcion '}'  (34)
+	declaracion_funcion : funcion_name '(' parametro_funcion ')' . '{' comas '}'  (36)
 
-	'{'  shift 218
+	'{'  shift 220
 	.  error
 
 
@@ -2856,67 +2862,67 @@ state 183
 
 
 state 184
-	ciclo_while : inicio_while bloque_condicion DO cuerpo_while .  (123)
+	ciclo_while : inicio_while bloque_condicion DO cuerpo_while .  (128)
 
-	.  reduce 123
+	.  reduce 128
 
 
 state 185
-	invocacion : IDENTIFICADOR '.' IDENTIFICADOR '(' ')' .  (98)
+	invocacion : IDENTIFICADOR '.' IDENTIFICADOR '(' ')' .  (103)
 
-	.  reduce 98
+	.  reduce 103
 
 
 state 186
-	invocacion : IDENTIFICADOR '.' IDENTIFICADOR '(' expresion_aritmetica . ')'  (97)
-	expresion_aritmetica : expresion_aritmetica . '+' termino  (99)
-	expresion_aritmetica : expresion_aritmetica . '-' termino  (100)
-	expresion_aritmetica : expresion_aritmetica . '-' '*' termino  (101)
-	expresion_aritmetica : expresion_aritmetica . '+' '*' termino  (102)
-	expresion_aritmetica : expresion_aritmetica . '-' '/' termino  (103)
-	expresion_aritmetica : expresion_aritmetica . '+' '/' termino  (104)
+	invocacion : IDENTIFICADOR '.' IDENTIFICADOR '(' expresion_aritmetica . ')'  (102)
+	expresion_aritmetica : expresion_aritmetica . '+' termino  (104)
+	expresion_aritmetica : expresion_aritmetica . '-' termino  (105)
+	expresion_aritmetica : expresion_aritmetica . '-' '*' termino  (106)
+	expresion_aritmetica : expresion_aritmetica . '+' '*' termino  (107)
+	expresion_aritmetica : expresion_aritmetica . '-' '/' termino  (108)
+	expresion_aritmetica : expresion_aritmetica . '+' '/' termino  (109)
 
-	')'  shift 219
+	')'  shift 221
 	'+'  shift 94
 	'-'  shift 95
 	.  error
 
 
 state 187
-	asignacion : IDENTIFICADOR '.' IDENTIFICADOR '=' expresion_aritmetica .  (94)
-	expresion_aritmetica : expresion_aritmetica . '+' termino  (99)
-	expresion_aritmetica : expresion_aritmetica . '-' termino  (100)
-	expresion_aritmetica : expresion_aritmetica . '-' '*' termino  (101)
-	expresion_aritmetica : expresion_aritmetica . '+' '*' termino  (102)
-	expresion_aritmetica : expresion_aritmetica . '-' '/' termino  (103)
-	expresion_aritmetica : expresion_aritmetica . '+' '/' termino  (104)
+	asignacion : IDENTIFICADOR '.' IDENTIFICADOR '=' expresion_aritmetica .  (99)
+	expresion_aritmetica : expresion_aritmetica . '+' termino  (104)
+	expresion_aritmetica : expresion_aritmetica . '-' termino  (105)
+	expresion_aritmetica : expresion_aritmetica . '-' '*' termino  (106)
+	expresion_aritmetica : expresion_aritmetica . '+' '*' termino  (107)
+	expresion_aritmetica : expresion_aritmetica . '-' '/' termino  (108)
+	expresion_aritmetica : expresion_aritmetica . '+' '/' termino  (109)
 
 	'+'  shift 94
 	'-'  shift 95
-	$end  reduce 94
-	error  reduce 94
-	IDENTIFICADOR  reduce 94
-	VOID  reduce 94
-	RETURN  reduce 94
-	IF  reduce 94
-	PRINT  reduce 94
-	WHILE  reduce 94
-	SHORT  reduce 94
-	UINT  reduce 94
-	FLOAT  reduce 94
-	CLASS  reduce 94
-	'}'  reduce 94
-	','  reduce 94
+	$end  reduce 99
+	error  reduce 99
+	IDENTIFICADOR  reduce 99
+	VOID  reduce 99
+	RETURN  reduce 99
+	IF  reduce 99
+	PRINT  reduce 99
+	WHILE  reduce 99
+	SHORT  reduce 99
+	UINT  reduce 99
+	FLOAT  reduce 99
+	CLASS  reduce 99
+	'}'  reduce 99
+	','  reduce 99
 
 
 state 188
-	declaracion_funcion : VOID '(' parametro ')' '{' . cuerpo_de_la_funcion '}'  (32)
-	declaracion_funcion : VOID '(' parametro ')' '{' . comas cuerpo_de_la_funcion '}'  (35)
+	declaracion_funcion : VOID '(' parametro_funcion ')' '{' . cuerpo_de_la_funcion '}'  (32)
+	declaracion_funcion : VOID '(' parametro_funcion ')' '{' . comas cuerpo_de_la_funcion '}'  (35)
 
 	error  shift 1
 	IDENTIFICADOR  shift 2
 	VOID  shift 3
-	RETURN  shift 220
+	RETURN  shift 222
 	IF  shift 4
 	PRINT  shift 5
 	WHILE  shift 6
@@ -2927,8 +2933,8 @@ state 188
 	','  shift 13
 	.  error
 
-	comas  goto 221
-	sentencia  goto 222
+	comas  goto 223
+	sentencia  goto 224
 	declarativa  goto 18
 	ejecutable  goto 19
 	tipo  goto 20
@@ -2936,11 +2942,11 @@ state 188
 	declaracion_objeto  goto 22
 	declaracion_funcion  goto 23
 	funcion_name  goto 24
-	cuerpo_de_la_funcion  goto 223
+	cuerpo_de_la_funcion  goto 225
 	nombre_clase  goto 25
 	typeClass  goto 26
-	cuerpo_de_la_funcion_sin_return  goto 224
-	cuerpo_de_la_funcion_con_return  goto 225
+	cuerpo_de_la_funcion_sin_return  goto 226
+	cuerpo_de_la_funcion_con_return  goto 227
 	asignacion  goto 27
 	invocacion  goto 28
 	seleccion  goto 29
@@ -2949,198 +2955,198 @@ state 188
 
 
 state 189
-	parametro : parametro ';' tipo . IDENTIFICADOR  (68)
+	parametro_funcion : parametro_funcion ';' tipo . IDENTIFICADOR  (73)
 
-	IDENTIFICADOR  shift 226
+	IDENTIFICADOR  shift 228
 	.  error
 
 
 state 190
-	factor : TOF '(' expresion_aritmetica ')' .  (170)
+	factor : TOF '(' expresion_aritmetica ')' .  (175)
+
+	.  reduce 175
+
+
+state 191
+	expresion_aritmetica : expresion_aritmetica '+' '*' termino .  (107)
+	termino : termino . '*' factor  (111)
+	termino : termino . '/' factor  (112)
+
+	'*'  shift 98
+	'/'  shift 99
+	$end  reduce 107
+	error  reduce 107
+	IDENTIFICADOR  reduce 107
+	COMPARADOR_IGUAL_IGUAL  reduce 107
+	COMPARADOR_DISTINTO  reduce 107
+	COMPARADOR_MENOR_IGUAL  reduce 107
+	COMPARADOR_MAYOR_IGUAL  reduce 107
+	VOID  reduce 107
+	RETURN  reduce 107
+	IF  reduce 107
+	PRINT  reduce 107
+	WHILE  reduce 107
+	DO  reduce 107
+	SHORT  reduce 107
+	UINT  reduce 107
+	FLOAT  reduce 107
+	CLASS  reduce 107
+	'{'  reduce 107
+	'}'  reduce 107
+	','  reduce 107
+	')'  reduce 107
+	'+'  reduce 107
+	'-'  reduce 107
+	'>'  reduce 107
+	'<'  reduce 107
+
+
+state 192
+	expresion_aritmetica : expresion_aritmetica '+' '/' termino .  (109)
+	termino : termino . '*' factor  (111)
+	termino : termino . '/' factor  (112)
+
+	'*'  shift 98
+	'/'  shift 99
+	$end  reduce 109
+	error  reduce 109
+	IDENTIFICADOR  reduce 109
+	COMPARADOR_IGUAL_IGUAL  reduce 109
+	COMPARADOR_DISTINTO  reduce 109
+	COMPARADOR_MENOR_IGUAL  reduce 109
+	COMPARADOR_MAYOR_IGUAL  reduce 109
+	VOID  reduce 109
+	RETURN  reduce 109
+	IF  reduce 109
+	PRINT  reduce 109
+	WHILE  reduce 109
+	DO  reduce 109
+	SHORT  reduce 109
+	UINT  reduce 109
+	FLOAT  reduce 109
+	CLASS  reduce 109
+	'{'  reduce 109
+	'}'  reduce 109
+	','  reduce 109
+	')'  reduce 109
+	'+'  reduce 109
+	'-'  reduce 109
+	'>'  reduce 109
+	'<'  reduce 109
+
+
+state 193
+	expresion_aritmetica : expresion_aritmetica '-' '*' termino .  (106)
+	termino : termino . '*' factor  (111)
+	termino : termino . '/' factor  (112)
+
+	'*'  shift 98
+	'/'  shift 99
+	$end  reduce 106
+	error  reduce 106
+	IDENTIFICADOR  reduce 106
+	COMPARADOR_IGUAL_IGUAL  reduce 106
+	COMPARADOR_DISTINTO  reduce 106
+	COMPARADOR_MENOR_IGUAL  reduce 106
+	COMPARADOR_MAYOR_IGUAL  reduce 106
+	VOID  reduce 106
+	RETURN  reduce 106
+	IF  reduce 106
+	PRINT  reduce 106
+	WHILE  reduce 106
+	DO  reduce 106
+	SHORT  reduce 106
+	UINT  reduce 106
+	FLOAT  reduce 106
+	CLASS  reduce 106
+	'{'  reduce 106
+	'}'  reduce 106
+	','  reduce 106
+	')'  reduce 106
+	'+'  reduce 106
+	'-'  reduce 106
+	'>'  reduce 106
+	'<'  reduce 106
+
+
+state 194
+	expresion_aritmetica : expresion_aritmetica '-' '/' termino .  (108)
+	termino : termino . '*' factor  (111)
+	termino : termino . '/' factor  (112)
+
+	'*'  shift 98
+	'/'  shift 99
+	$end  reduce 108
+	error  reduce 108
+	IDENTIFICADOR  reduce 108
+	COMPARADOR_IGUAL_IGUAL  reduce 108
+	COMPARADOR_DISTINTO  reduce 108
+	COMPARADOR_MENOR_IGUAL  reduce 108
+	COMPARADOR_MAYOR_IGUAL  reduce 108
+	VOID  reduce 108
+	RETURN  reduce 108
+	IF  reduce 108
+	PRINT  reduce 108
+	WHILE  reduce 108
+	DO  reduce 108
+	SHORT  reduce 108
+	UINT  reduce 108
+	FLOAT  reduce 108
+	CLASS  reduce 108
+	'{'  reduce 108
+	'}'  reduce 108
+	','  reduce 108
+	')'  reduce 108
+	'+'  reduce 108
+	'-'  reduce 108
+	'>'  reduce 108
+	'<'  reduce 108
+
+
+state 195
+	sentencias_ejecutables : error ',' .  (170)
 
 	.  reduce 170
 
 
-state 191
-	expresion_aritmetica : expresion_aritmetica '+' '*' termino .  (102)
-	termino : termino . '*' factor  (106)
-	termino : termino . '/' factor  (107)
-
-	'*'  shift 98
-	'/'  shift 99
-	$end  reduce 102
-	error  reduce 102
-	IDENTIFICADOR  reduce 102
-	COMPARADOR_IGUAL_IGUAL  reduce 102
-	COMPARADOR_DISTINTO  reduce 102
-	COMPARADOR_MENOR_IGUAL  reduce 102
-	COMPARADOR_MAYOR_IGUAL  reduce 102
-	VOID  reduce 102
-	RETURN  reduce 102
-	IF  reduce 102
-	PRINT  reduce 102
-	WHILE  reduce 102
-	DO  reduce 102
-	SHORT  reduce 102
-	UINT  reduce 102
-	FLOAT  reduce 102
-	CLASS  reduce 102
-	'{'  reduce 102
-	'}'  reduce 102
-	','  reduce 102
-	')'  reduce 102
-	'+'  reduce 102
-	'-'  reduce 102
-	'>'  reduce 102
-	'<'  reduce 102
-
-
-state 192
-	expresion_aritmetica : expresion_aritmetica '+' '/' termino .  (104)
-	termino : termino . '*' factor  (106)
-	termino : termino . '/' factor  (107)
-
-	'*'  shift 98
-	'/'  shift 99
-	$end  reduce 104
-	error  reduce 104
-	IDENTIFICADOR  reduce 104
-	COMPARADOR_IGUAL_IGUAL  reduce 104
-	COMPARADOR_DISTINTO  reduce 104
-	COMPARADOR_MENOR_IGUAL  reduce 104
-	COMPARADOR_MAYOR_IGUAL  reduce 104
-	VOID  reduce 104
-	RETURN  reduce 104
-	IF  reduce 104
-	PRINT  reduce 104
-	WHILE  reduce 104
-	DO  reduce 104
-	SHORT  reduce 104
-	UINT  reduce 104
-	FLOAT  reduce 104
-	CLASS  reduce 104
-	'{'  reduce 104
-	'}'  reduce 104
-	','  reduce 104
-	')'  reduce 104
-	'+'  reduce 104
-	'-'  reduce 104
-	'>'  reduce 104
-	'<'  reduce 104
-
-
-state 193
-	expresion_aritmetica : expresion_aritmetica '-' '*' termino .  (101)
-	termino : termino . '*' factor  (106)
-	termino : termino . '/' factor  (107)
-
-	'*'  shift 98
-	'/'  shift 99
-	$end  reduce 101
-	error  reduce 101
-	IDENTIFICADOR  reduce 101
-	COMPARADOR_IGUAL_IGUAL  reduce 101
-	COMPARADOR_DISTINTO  reduce 101
-	COMPARADOR_MENOR_IGUAL  reduce 101
-	COMPARADOR_MAYOR_IGUAL  reduce 101
-	VOID  reduce 101
-	RETURN  reduce 101
-	IF  reduce 101
-	PRINT  reduce 101
-	WHILE  reduce 101
-	DO  reduce 101
-	SHORT  reduce 101
-	UINT  reduce 101
-	FLOAT  reduce 101
-	CLASS  reduce 101
-	'{'  reduce 101
-	'}'  reduce 101
-	','  reduce 101
-	')'  reduce 101
-	'+'  reduce 101
-	'-'  reduce 101
-	'>'  reduce 101
-	'<'  reduce 101
-
-
-state 194
-	expresion_aritmetica : expresion_aritmetica '-' '/' termino .  (103)
-	termino : termino . '*' factor  (106)
-	termino : termino . '/' factor  (107)
-
-	'*'  shift 98
-	'/'  shift 99
-	$end  reduce 103
-	error  reduce 103
-	IDENTIFICADOR  reduce 103
-	COMPARADOR_IGUAL_IGUAL  reduce 103
-	COMPARADOR_DISTINTO  reduce 103
-	COMPARADOR_MENOR_IGUAL  reduce 103
-	COMPARADOR_MAYOR_IGUAL  reduce 103
-	VOID  reduce 103
-	RETURN  reduce 103
-	IF  reduce 103
-	PRINT  reduce 103
-	WHILE  reduce 103
-	DO  reduce 103
-	SHORT  reduce 103
-	UINT  reduce 103
-	FLOAT  reduce 103
-	CLASS  reduce 103
-	'{'  reduce 103
-	'}'  reduce 103
-	','  reduce 103
-	')'  reduce 103
-	'+'  reduce 103
-	'-'  reduce 103
-	'>'  reduce 103
-	'<'  reduce 103
-
-
-state 195
-	sentencias_ejecutables : error ',' .  (165)
-
-	.  reduce 165
-
-
 state 196
-	bloque_ejecutables : '{' RETURN '}' .  (141)
+	bloque_ejecutables : '{' RETURN '}' .  (146)
 
-	.  reduce 141
+	.  reduce 146
 
 
 state 197
-	bloque_ejecutables : '{' RETURN ',' . '}'  (140)
+	bloque_ejecutables : '{' RETURN ',' . '}'  (145)
 
-	'}'  shift 227
+	'}'  shift 229
 	.  error
 
 
 state 198
-	bloque_ejecutables : '{' comas RETURN . ',' '}'  (152)
-	bloque_ejecutables : '{' comas RETURN . '}'  (153)
+	bloque_ejecutables : '{' comas RETURN . ',' '}'  (157)
+	bloque_ejecutables : '{' comas RETURN . '}'  (158)
 
-	'}'  shift 228
-	','  shift 229
+	'}'  shift 230
+	','  shift 231
 	.  error
 
 
 state 199
-	bloque_ejecutables : '{' comas sentencias_ejecutables . '}'  (145)
-	bloque_ejecutables : '{' comas sentencias_ejecutables . RETURN ',' '}'  (146)
-	bloque_ejecutables : '{' comas sentencias_ejecutables . RETURN ',' sentencias_ejecutables '}'  (147)
-	bloque_ejecutables : '{' comas sentencias_ejecutables . RETURN sentencias_ejecutables '}'  (148)
-	bloque_ejecutables : '{' comas sentencias_ejecutables . RETURN '}'  (149)
-	sentencias_ejecutables : sentencias_ejecutables . ejecutable comas  (156)
-	sentencias_ejecutables : sentencias_ejecutables . ejecutable  (157)
-	sentencias_ejecutables : sentencias_ejecutables . declarativa comas  (160)
-	sentencias_ejecutables : sentencias_ejecutables . declarativa  (161)
-	sentencias_ejecutables : sentencias_ejecutables . error ','  (164)
+	bloque_ejecutables : '{' comas sentencias_ejecutables . '}'  (150)
+	bloque_ejecutables : '{' comas sentencias_ejecutables . RETURN ',' '}'  (151)
+	bloque_ejecutables : '{' comas sentencias_ejecutables . RETURN ',' sentencias_ejecutables '}'  (152)
+	bloque_ejecutables : '{' comas sentencias_ejecutables . RETURN sentencias_ejecutables '}'  (153)
+	bloque_ejecutables : '{' comas sentencias_ejecutables . RETURN '}'  (154)
+	sentencias_ejecutables : sentencias_ejecutables . ejecutable comas  (161)
+	sentencias_ejecutables : sentencias_ejecutables . ejecutable  (162)
+	sentencias_ejecutables : sentencias_ejecutables . declarativa comas  (165)
+	sentencias_ejecutables : sentencias_ejecutables . declarativa  (166)
+	sentencias_ejecutables : sentencias_ejecutables . error ','  (169)
 
 	error  shift 202
 	IDENTIFICADOR  shift 2
 	VOID  shift 3
-	RETURN  shift 230
+	RETURN  shift 232
 	IF  shift 4
 	PRINT  shift 5
 	WHILE  shift 6
@@ -3148,7 +3154,7 @@ state 199
 	UINT  shift 8
 	FLOAT  shift 9
 	CLASS  shift 10
-	'}'  shift 231
+	'}'  shift 233
 	.  error
 
 	declarativa  goto 205
@@ -3168,31 +3174,31 @@ state 199
 
 
 state 200
-	sentencias_ejecutables : declarativa ',' .  (162)
+	sentencias_ejecutables : declarativa ',' .  (167)
 
-	.  reduce 162
+	.  reduce 167
 
 
 state 201
-	sentencias_ejecutables : ejecutable comas .  (158)
+	sentencias_ejecutables : ejecutable comas .  (163)
 
-	.  reduce 158
+	.  reduce 163
 
 
 state 202
-	sentencias_ejecutables : sentencias_ejecutables error . ','  (164)
+	sentencias_ejecutables : sentencias_ejecutables error . ','  (169)
 
-	','  shift 232
+	','  shift 234
 	.  error
 
 
 state 203
-	bloque_ejecutables : '{' sentencias_ejecutables RETURN . ',' '}'  (134)
-	bloque_ejecutables : '{' sentencias_ejecutables RETURN . ',' sentencias_ejecutables '}'  (135)
-	bloque_ejecutables : '{' sentencias_ejecutables RETURN . sentencias_ejecutables '}'  (136)
-	bloque_ejecutables : '{' sentencias_ejecutables RETURN . '}'  (137)
-	bloque_ejecutables : '{' sentencias_ejecutables RETURN . ',' comas '}'  (143)
-	bloque_ejecutables : '{' sentencias_ejecutables RETURN . ',' comas sentencias_ejecutables '}'  (144)
+	bloque_ejecutables : '{' sentencias_ejecutables RETURN . ',' '}'  (139)
+	bloque_ejecutables : '{' sentencias_ejecutables RETURN . ',' sentencias_ejecutables '}'  (140)
+	bloque_ejecutables : '{' sentencias_ejecutables RETURN . sentencias_ejecutables '}'  (141)
+	bloque_ejecutables : '{' sentencias_ejecutables RETURN . '}'  (142)
+	bloque_ejecutables : '{' sentencias_ejecutables RETURN . ',' comas '}'  (148)
+	bloque_ejecutables : '{' sentencias_ejecutables RETURN . ',' comas sentencias_ejecutables '}'  (149)
 
 	error  shift 154
 	IDENTIFICADOR  shift 2
@@ -3204,8 +3210,8 @@ state 203
 	UINT  shift 8
 	FLOAT  shift 9
 	CLASS  shift 10
-	'}'  shift 233
-	','  shift 234
+	'}'  shift 235
+	','  shift 236
 	.  error
 
 	declarativa  goto 157
@@ -3222,106 +3228,106 @@ state 203
 	seleccion  goto 29
 	ciclo_while  goto 30
 	inicio_while  goto 31
-	sentencias_ejecutables  goto 235
+	sentencias_ejecutables  goto 237
 
 
 state 204
-	bloque_ejecutables : '{' sentencias_ejecutables '}' .  (133)
+	bloque_ejecutables : '{' sentencias_ejecutables '}' .  (138)
 
-	.  reduce 133
+	.  reduce 138
 
 
 state 205
-	sentencias_ejecutables : sentencias_ejecutables declarativa . comas  (160)
-	sentencias_ejecutables : sentencias_ejecutables declarativa .  (161)
+	sentencias_ejecutables : sentencias_ejecutables declarativa . comas  (165)
+	sentencias_ejecutables : sentencias_ejecutables declarativa .  (166)
 
 	','  shift 13
-	error  reduce 161
-	IDENTIFICADOR  reduce 161
-	VOID  reduce 161
-	RETURN  reduce 161
-	IF  reduce 161
-	PRINT  reduce 161
-	WHILE  reduce 161
-	SHORT  reduce 161
-	UINT  reduce 161
-	FLOAT  reduce 161
-	CLASS  reduce 161
-	'}'  reduce 161
+	error  reduce 166
+	IDENTIFICADOR  reduce 166
+	VOID  reduce 166
+	RETURN  reduce 166
+	IF  reduce 166
+	PRINT  reduce 166
+	WHILE  reduce 166
+	SHORT  reduce 166
+	UINT  reduce 166
+	FLOAT  reduce 166
+	CLASS  reduce 166
+	'}'  reduce 166
 
-	comas  goto 236
+	comas  goto 238
 
 
 state 206
-	sentencias_ejecutables : sentencias_ejecutables ejecutable . comas  (156)
-	sentencias_ejecutables : sentencias_ejecutables ejecutable .  (157)
+	sentencias_ejecutables : sentencias_ejecutables ejecutable . comas  (161)
+	sentencias_ejecutables : sentencias_ejecutables ejecutable .  (162)
 
 	','  shift 13
-	error  reduce 157
-	IDENTIFICADOR  reduce 157
-	VOID  reduce 157
-	RETURN  reduce 157
-	IF  reduce 157
-	PRINT  reduce 157
-	WHILE  reduce 157
-	SHORT  reduce 157
-	UINT  reduce 157
-	FLOAT  reduce 157
-	CLASS  reduce 157
-	'}'  reduce 157
+	error  reduce 162
+	IDENTIFICADOR  reduce 162
+	VOID  reduce 162
+	RETURN  reduce 162
+	IF  reduce 162
+	PRINT  reduce 162
+	WHILE  reduce 162
+	SHORT  reduce 162
+	UINT  reduce 162
+	FLOAT  reduce 162
+	CLASS  reduce 162
+	'}'  reduce 162
 
-	comas  goto 237
+	comas  goto 239
 
 
 state 207
-	bloque_ejecutables : comas RETURN ',' .  (154)
+	bloque_ejecutables : comas RETURN ',' .  (159)
 
-	.  reduce 154
+	.  reduce 159
 
 
 state 208
-	bloque_ejecutables : comas declarativa ',' .  (151)
+	bloque_ejecutables : comas declarativa ',' .  (156)
 
-	.  reduce 151
+	.  reduce 156
 
 
 state 209
-	bloque_ejecutables : comas ejecutable ',' .  (150)
+	bloque_ejecutables : comas ejecutable ',' .  (155)
 
-	.  reduce 150
+	.  reduce 155
 
 
 state 210
-	cuerpo_if : cuerpo_then else_if END_IF .  (119)
+	cuerpo_if : cuerpo_then else_if END_IF .  (124)
 
-	.  reduce 119
+	.  reduce 124
 
 
 state 211
-	cuerpo_if : cuerpo_then else_if cuerpo_else . END_IF  (115)
-	cuerpo_if : cuerpo_then else_if cuerpo_else .  (116)
+	cuerpo_if : cuerpo_then else_if cuerpo_else . END_IF  (120)
+	cuerpo_if : cuerpo_then else_if cuerpo_else .  (121)
 
-	END_IF  shift 238
-	$end  reduce 116
-	error  reduce 116
-	IDENTIFICADOR  reduce 116
-	VOID  reduce 116
-	RETURN  reduce 116
-	IF  reduce 116
-	PRINT  reduce 116
-	WHILE  reduce 116
-	SHORT  reduce 116
-	UINT  reduce 116
-	FLOAT  reduce 116
-	CLASS  reduce 116
-	'}'  reduce 116
-	','  reduce 116
+	END_IF  shift 240
+	$end  reduce 121
+	error  reduce 121
+	IDENTIFICADOR  reduce 121
+	VOID  reduce 121
+	RETURN  reduce 121
+	IF  reduce 121
+	PRINT  reduce 121
+	WHILE  reduce 121
+	SHORT  reduce 121
+	UINT  reduce 121
+	FLOAT  reduce 121
+	CLASS  reduce 121
+	'}'  reduce 121
+	','  reduce 121
 
 
 state 212
-	cuerpo_if : cuerpo_then cuerpo_else END_IF .  (117)
+	cuerpo_if : cuerpo_then cuerpo_else END_IF .  (122)
 
-	.  reduce 117
+	.  reduce 122
 
 
 state 213
@@ -3333,7 +3339,7 @@ state 213
 state 214
 	lista_de_atributos : lista_de_atributos ';' . IDENTIFICADOR  (48)
 
-	IDENTIFICADOR  shift 239
+	IDENTIFICADOR  shift 241
 	.  error
 
 
@@ -3341,7 +3347,7 @@ state 215
 	lista_atributos_y_metodos : lista_atributos_y_metodos tipo lista_de_atributos . ','  (44)
 	lista_de_atributos : lista_de_atributos . ';' IDENTIFICADOR  (48)
 
-	','  shift 240
+	','  shift 242
 	';'  shift 214
 	.  error
 
@@ -3353,76 +3359,41 @@ state 216
 
 
 state 217
-	metodo : metodo_name '(' parametro . ')' '{' cuerpo_de_la_funcion '}'  (50)
-	metodo : metodo_name '(' parametro . ')' '{' '}'  (51)
-	metodo : metodo_name '(' parametro . ')' '{' comas cuerpo_de_la_funcion '}'  (52)
-	parametro : parametro . ';' tipo IDENTIFICADOR  (68)
+	parametro_metodo : IDENTIFICADOR .  (66)
 
-	')'  shift 241
-	';'  shift 134
-	.  error
+	.  reduce 66
 
 
 state 218
-	declaracion_funcion : funcion_name '(' parametro ')' '{' . cuerpo_de_la_funcion '}'  (31)
-	declaracion_funcion : funcion_name '(' parametro ')' '{' . '}'  (33)
-	declaracion_funcion : funcion_name '(' parametro ')' '{' . comas cuerpo_de_la_funcion '}'  (34)
-	declaracion_funcion : funcion_name '(' parametro ')' '{' . comas '}'  (36)
+	parametro_metodo : tipo . IDENTIFICADOR  (64)
+	parametro_metodo : tipo .  (65)
 
-	error  shift 1
-	IDENTIFICADOR  shift 2
-	VOID  shift 3
-	RETURN  shift 220
-	IF  shift 4
-	PRINT  shift 5
-	WHILE  shift 6
-	SHORT  shift 7
-	UINT  shift 8
-	FLOAT  shift 9
-	CLASS  shift 10
-	'}'  shift 242
-	','  shift 13
-	.  error
-
-	comas  goto 243
-	sentencia  goto 222
-	declarativa  goto 18
-	ejecutable  goto 19
-	tipo  goto 20
-	declaracion_clase  goto 21
-	declaracion_objeto  goto 22
-	declaracion_funcion  goto 23
-	funcion_name  goto 24
-	cuerpo_de_la_funcion  goto 244
-	nombre_clase  goto 25
-	typeClass  goto 26
-	cuerpo_de_la_funcion_sin_return  goto 224
-	cuerpo_de_la_funcion_con_return  goto 225
-	asignacion  goto 27
-	invocacion  goto 28
-	seleccion  goto 29
-	ciclo_while  goto 30
-	inicio_while  goto 31
+	IDENTIFICADOR  shift 243
+	')'  reduce 65
+	';'  reduce 65
 
 
 state 219
-	invocacion : IDENTIFICADOR '.' IDENTIFICADOR '(' expresion_aritmetica ')' .  (97)
+	metodo : metodo_name '(' parametro_metodo . ')' '{' cuerpo_de_la_funcion '}'  (50)
+	metodo : metodo_name '(' parametro_metodo . ')' '{' '}'  (51)
+	metodo : metodo_name '(' parametro_metodo . ')' '{' comas cuerpo_de_la_funcion '}'  (52)
+	parametro_metodo : parametro_metodo . ';' tipo IDENTIFICADOR  (68)
 
-	.  reduce 97
+	')'  shift 244
+	';'  shift 245
+	.  error
 
 
 state 220
-	cuerpo_de_la_funcion_con_return : RETURN . ','  (77)
-	cuerpo_de_la_funcion_con_return : RETURN .  (78)
-	cuerpo_de_la_funcion_con_return : RETURN . ',' cuerpo_de_la_funcion_sin_return  (79)
-	cuerpo_de_la_funcion_con_return : RETURN . cuerpo_de_la_funcion_sin_return  (80)
-	cuerpo_de_la_funcion_con_return : RETURN . ',' cuerpo_de_la_funcion_con_return  (81)
-	cuerpo_de_la_funcion_con_return : RETURN . cuerpo_de_la_funcion_con_return  (82)
+	declaracion_funcion : funcion_name '(' parametro_funcion ')' '{' . cuerpo_de_la_funcion '}'  (31)
+	declaracion_funcion : funcion_name '(' parametro_funcion ')' '{' . '}'  (33)
+	declaracion_funcion : funcion_name '(' parametro_funcion ')' '{' . comas cuerpo_de_la_funcion '}'  (34)
+	declaracion_funcion : funcion_name '(' parametro_funcion ')' '{' . comas '}'  (36)
 
 	error  shift 1
 	IDENTIFICADOR  shift 2
 	VOID  shift 3
-	RETURN  shift 220
+	RETURN  shift 222
 	IF  shift 4
 	PRINT  shift 5
 	WHILE  shift 6
@@ -3430,45 +3401,12 @@ state 220
 	UINT  shift 8
 	FLOAT  shift 9
 	CLASS  shift 10
-	','  shift 245
-	'}'  reduce 78
-
-	sentencia  goto 222
-	declarativa  goto 18
-	ejecutable  goto 19
-	tipo  goto 20
-	declaracion_clase  goto 21
-	declaracion_objeto  goto 22
-	declaracion_funcion  goto 23
-	funcion_name  goto 24
-	nombre_clase  goto 25
-	typeClass  goto 26
-	cuerpo_de_la_funcion_sin_return  goto 246
-	cuerpo_de_la_funcion_con_return  goto 247
-	asignacion  goto 27
-	invocacion  goto 28
-	seleccion  goto 29
-	ciclo_while  goto 30
-	inicio_while  goto 31
-
-
-state 221
-	declaracion_funcion : VOID '(' parametro ')' '{' comas . cuerpo_de_la_funcion '}'  (35)
-
-	error  shift 1
-	IDENTIFICADOR  shift 2
-	VOID  shift 3
-	RETURN  shift 220
-	IF  shift 4
-	PRINT  shift 5
-	WHILE  shift 6
-	SHORT  shift 7
-	UINT  shift 8
-	FLOAT  shift 9
-	CLASS  shift 10
+	'}'  shift 246
+	','  shift 13
 	.  error
 
-	sentencia  goto 222
+	comas  goto 247
+	sentencia  goto 224
 	declarativa  goto 18
 	ejecutable  goto 19
 	tipo  goto 20
@@ -3479,8 +3417,8 @@ state 221
 	cuerpo_de_la_funcion  goto 248
 	nombre_clase  goto 25
 	typeClass  goto 26
-	cuerpo_de_la_funcion_sin_return  goto 224
-	cuerpo_de_la_funcion_con_return  goto 225
+	cuerpo_de_la_funcion_sin_return  goto 226
+	cuerpo_de_la_funcion_con_return  goto 227
 	asignacion  goto 27
 	invocacion  goto 28
 	seleccion  goto 29
@@ -3488,33 +3426,24 @@ state 221
 	inicio_while  goto 31
 
 
+state 221
+	invocacion : IDENTIFICADOR '.' IDENTIFICADOR '(' expresion_aritmetica ')' .  (102)
+
+	.  reduce 102
+
+
 state 222
-	cuerpo_de_la_funcion_sin_return : sentencia .  (84)
-
-	.  reduce 84
-
-
-state 223
-	declaracion_funcion : VOID '(' parametro ')' '{' cuerpo_de_la_funcion . '}'  (32)
-
-	'}'  shift 249
-	.  error
-
-
-state 224
-	cuerpo_de_la_funcion : cuerpo_de_la_funcion_sin_return .  (69)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ','  (71)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN  (72)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ',' cuerpo_de_la_funcion_sin_return  (73)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN cuerpo_de_la_funcion_sin_return  (74)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ',' cuerpo_de_la_funcion_con_return  (75)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN cuerpo_de_la_funcion_con_return  (76)
-	cuerpo_de_la_funcion_sin_return : cuerpo_de_la_funcion_sin_return . sentencia  (83)
+	cuerpo_de_la_funcion_con_return : RETURN . ','  (82)
+	cuerpo_de_la_funcion_con_return : RETURN .  (83)
+	cuerpo_de_la_funcion_con_return : RETURN . ',' cuerpo_de_la_funcion_sin_return  (84)
+	cuerpo_de_la_funcion_con_return : RETURN . cuerpo_de_la_funcion_sin_return  (85)
+	cuerpo_de_la_funcion_con_return : RETURN . ',' cuerpo_de_la_funcion_con_return  (86)
+	cuerpo_de_la_funcion_con_return : RETURN . cuerpo_de_la_funcion_con_return  (87)
 
 	error  shift 1
 	IDENTIFICADOR  shift 2
 	VOID  shift 3
-	RETURN  shift 250
+	RETURN  shift 222
 	IF  shift 4
 	PRINT  shift 5
 	WHILE  shift 6
@@ -3522,9 +3451,101 @@ state 224
 	UINT  shift 8
 	FLOAT  shift 9
 	CLASS  shift 10
-	'}'  reduce 69
+	','  shift 249
+	'}'  reduce 83
 
-	sentencia  goto 251
+	sentencia  goto 224
+	declarativa  goto 18
+	ejecutable  goto 19
+	tipo  goto 20
+	declaracion_clase  goto 21
+	declaracion_objeto  goto 22
+	declaracion_funcion  goto 23
+	funcion_name  goto 24
+	nombre_clase  goto 25
+	typeClass  goto 26
+	cuerpo_de_la_funcion_sin_return  goto 250
+	cuerpo_de_la_funcion_con_return  goto 251
+	asignacion  goto 27
+	invocacion  goto 28
+	seleccion  goto 29
+	ciclo_while  goto 30
+	inicio_while  goto 31
+
+
+state 223
+	declaracion_funcion : VOID '(' parametro_funcion ')' '{' comas . cuerpo_de_la_funcion '}'  (35)
+
+	error  shift 1
+	IDENTIFICADOR  shift 2
+	VOID  shift 3
+	RETURN  shift 222
+	IF  shift 4
+	PRINT  shift 5
+	WHILE  shift 6
+	SHORT  shift 7
+	UINT  shift 8
+	FLOAT  shift 9
+	CLASS  shift 10
+	.  error
+
+	sentencia  goto 224
+	declarativa  goto 18
+	ejecutable  goto 19
+	tipo  goto 20
+	declaracion_clase  goto 21
+	declaracion_objeto  goto 22
+	declaracion_funcion  goto 23
+	funcion_name  goto 24
+	cuerpo_de_la_funcion  goto 252
+	nombre_clase  goto 25
+	typeClass  goto 26
+	cuerpo_de_la_funcion_sin_return  goto 226
+	cuerpo_de_la_funcion_con_return  goto 227
+	asignacion  goto 27
+	invocacion  goto 28
+	seleccion  goto 29
+	ciclo_while  goto 30
+	inicio_while  goto 31
+
+
+state 224
+	cuerpo_de_la_funcion_sin_return : sentencia .  (89)
+
+	.  reduce 89
+
+
+state 225
+	declaracion_funcion : VOID '(' parametro_funcion ')' '{' cuerpo_de_la_funcion . '}'  (32)
+
+	'}'  shift 253
+	.  error
+
+
+state 226
+	cuerpo_de_la_funcion : cuerpo_de_la_funcion_sin_return .  (74)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ','  (76)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN  (77)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ',' cuerpo_de_la_funcion_sin_return  (78)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN cuerpo_de_la_funcion_sin_return  (79)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ',' cuerpo_de_la_funcion_con_return  (80)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN cuerpo_de_la_funcion_con_return  (81)
+	cuerpo_de_la_funcion_sin_return : cuerpo_de_la_funcion_sin_return . sentencia  (88)
+
+	error  shift 1
+	IDENTIFICADOR  shift 2
+	VOID  shift 3
+	RETURN  shift 254
+	IF  shift 4
+	PRINT  shift 5
+	WHILE  shift 6
+	SHORT  shift 7
+	UINT  shift 8
+	FLOAT  shift 9
+	CLASS  shift 10
+	'}'  reduce 74
+
+	sentencia  goto 255
 	declarativa  goto 18
 	ejecutable  goto 19
 	tipo  goto 20
@@ -3541,97 +3562,42 @@ state 224
 	inicio_while  goto 31
 
 
-state 225
-	cuerpo_de_la_funcion : cuerpo_de_la_funcion_con_return .  (70)
-
-	.  reduce 70
-
-
-state 226
-	parametro : parametro ';' tipo IDENTIFICADOR .  (68)
-
-	.  reduce 68
-
-
 state 227
-	bloque_ejecutables : '{' RETURN ',' '}' .  (140)
+	cuerpo_de_la_funcion : cuerpo_de_la_funcion_con_return .  (75)
 
-	.  reduce 140
+	.  reduce 75
 
 
 state 228
-	bloque_ejecutables : '{' comas RETURN '}' .  (153)
+	parametro_funcion : parametro_funcion ';' tipo IDENTIFICADOR .  (73)
 
-	.  reduce 153
+	.  reduce 73
 
 
 state 229
-	bloque_ejecutables : '{' comas RETURN ',' . '}'  (152)
-
-	'}'  shift 252
-	.  error
-
-
-state 230
-	bloque_ejecutables : '{' comas sentencias_ejecutables RETURN . ',' '}'  (146)
-	bloque_ejecutables : '{' comas sentencias_ejecutables RETURN . ',' sentencias_ejecutables '}'  (147)
-	bloque_ejecutables : '{' comas sentencias_ejecutables RETURN . sentencias_ejecutables '}'  (148)
-	bloque_ejecutables : '{' comas sentencias_ejecutables RETURN . '}'  (149)
-
-	error  shift 154
-	IDENTIFICADOR  shift 2
-	VOID  shift 3
-	IF  shift 4
-	PRINT  shift 5
-	WHILE  shift 6
-	SHORT  shift 7
-	UINT  shift 8
-	FLOAT  shift 9
-	CLASS  shift 10
-	'}'  shift 253
-	','  shift 254
-	.  error
-
-	declarativa  goto 157
-	ejecutable  goto 158
-	tipo  goto 20
-	declaracion_clase  goto 21
-	declaracion_objeto  goto 22
-	declaracion_funcion  goto 23
-	funcion_name  goto 24
-	nombre_clase  goto 25
-	typeClass  goto 26
-	asignacion  goto 27
-	invocacion  goto 28
-	seleccion  goto 29
-	ciclo_while  goto 30
-	inicio_while  goto 31
-	sentencias_ejecutables  goto 255
-
-
-state 231
-	bloque_ejecutables : '{' comas sentencias_ejecutables '}' .  (145)
+	bloque_ejecutables : '{' RETURN ',' '}' .  (145)
 
 	.  reduce 145
 
 
+state 230
+	bloque_ejecutables : '{' comas RETURN '}' .  (158)
+
+	.  reduce 158
+
+
+state 231
+	bloque_ejecutables : '{' comas RETURN ',' . '}'  (157)
+
+	'}'  shift 256
+	.  error
+
+
 state 232
-	sentencias_ejecutables : sentencias_ejecutables error ',' .  (164)
-
-	.  reduce 164
-
-
-state 233
-	bloque_ejecutables : '{' sentencias_ejecutables RETURN '}' .  (137)
-
-	.  reduce 137
-
-
-state 234
-	bloque_ejecutables : '{' sentencias_ejecutables RETURN ',' . '}'  (134)
-	bloque_ejecutables : '{' sentencias_ejecutables RETURN ',' . sentencias_ejecutables '}'  (135)
-	bloque_ejecutables : '{' sentencias_ejecutables RETURN ',' . comas '}'  (143)
-	bloque_ejecutables : '{' sentencias_ejecutables RETURN ',' . comas sentencias_ejecutables '}'  (144)
+	bloque_ejecutables : '{' comas sentencias_ejecutables RETURN . ',' '}'  (151)
+	bloque_ejecutables : '{' comas sentencias_ejecutables RETURN . ',' sentencias_ejecutables '}'  (152)
+	bloque_ejecutables : '{' comas sentencias_ejecutables RETURN . sentencias_ejecutables '}'  (153)
+	bloque_ejecutables : '{' comas sentencias_ejecutables RETURN . '}'  (154)
 
 	error  shift 154
 	IDENTIFICADOR  shift 2
@@ -3643,11 +3609,10 @@ state 234
 	UINT  shift 8
 	FLOAT  shift 9
 	CLASS  shift 10
-	'}'  shift 256
-	','  shift 13
+	'}'  shift 257
+	','  shift 258
 	.  error
 
-	comas  goto 257
 	declarativa  goto 157
 	ejecutable  goto 158
 	tipo  goto 20
@@ -3662,16 +3627,72 @@ state 234
 	seleccion  goto 29
 	ciclo_while  goto 30
 	inicio_while  goto 31
-	sentencias_ejecutables  goto 258
+	sentencias_ejecutables  goto 259
+
+
+state 233
+	bloque_ejecutables : '{' comas sentencias_ejecutables '}' .  (150)
+
+	.  reduce 150
+
+
+state 234
+	sentencias_ejecutables : sentencias_ejecutables error ',' .  (169)
+
+	.  reduce 169
 
 
 state 235
-	bloque_ejecutables : '{' sentencias_ejecutables RETURN sentencias_ejecutables . '}'  (136)
-	sentencias_ejecutables : sentencias_ejecutables . ejecutable comas  (156)
-	sentencias_ejecutables : sentencias_ejecutables . ejecutable  (157)
-	sentencias_ejecutables : sentencias_ejecutables . declarativa comas  (160)
-	sentencias_ejecutables : sentencias_ejecutables . declarativa  (161)
-	sentencias_ejecutables : sentencias_ejecutables . error ','  (164)
+	bloque_ejecutables : '{' sentencias_ejecutables RETURN '}' .  (142)
+
+	.  reduce 142
+
+
+state 236
+	bloque_ejecutables : '{' sentencias_ejecutables RETURN ',' . '}'  (139)
+	bloque_ejecutables : '{' sentencias_ejecutables RETURN ',' . sentencias_ejecutables '}'  (140)
+	bloque_ejecutables : '{' sentencias_ejecutables RETURN ',' . comas '}'  (148)
+	bloque_ejecutables : '{' sentencias_ejecutables RETURN ',' . comas sentencias_ejecutables '}'  (149)
+
+	error  shift 154
+	IDENTIFICADOR  shift 2
+	VOID  shift 3
+	IF  shift 4
+	PRINT  shift 5
+	WHILE  shift 6
+	SHORT  shift 7
+	UINT  shift 8
+	FLOAT  shift 9
+	CLASS  shift 10
+	'}'  shift 260
+	','  shift 13
+	.  error
+
+	comas  goto 261
+	declarativa  goto 157
+	ejecutable  goto 158
+	tipo  goto 20
+	declaracion_clase  goto 21
+	declaracion_objeto  goto 22
+	declaracion_funcion  goto 23
+	funcion_name  goto 24
+	nombre_clase  goto 25
+	typeClass  goto 26
+	asignacion  goto 27
+	invocacion  goto 28
+	seleccion  goto 29
+	ciclo_while  goto 30
+	inicio_while  goto 31
+	sentencias_ejecutables  goto 262
+
+
+state 237
+	bloque_ejecutables : '{' sentencias_ejecutables RETURN sentencias_ejecutables . '}'  (141)
+	sentencias_ejecutables : sentencias_ejecutables . ejecutable comas  (161)
+	sentencias_ejecutables : sentencias_ejecutables . ejecutable  (162)
+	sentencias_ejecutables : sentencias_ejecutables . declarativa comas  (165)
+	sentencias_ejecutables : sentencias_ejecutables . declarativa  (166)
+	sentencias_ejecutables : sentencias_ejecutables . error ','  (169)
 
 	error  shift 202
 	IDENTIFICADOR  shift 2
@@ -3683,7 +3704,7 @@ state 235
 	UINT  shift 8
 	FLOAT  shift 9
 	CLASS  shift 10
-	'}'  shift 259
+	'}'  shift 263
 	.  error
 
 	declarativa  goto 205
@@ -3702,147 +3723,76 @@ state 235
 	inicio_while  goto 31
 
 
-state 236
-	sentencias_ejecutables : sentencias_ejecutables declarativa comas .  (160)
-
-	.  reduce 160
-
-
-state 237
-	sentencias_ejecutables : sentencias_ejecutables ejecutable comas .  (156)
-
-	.  reduce 156
-
-
 state 238
-	cuerpo_if : cuerpo_then else_if cuerpo_else END_IF .  (115)
+	sentencias_ejecutables : sentencias_ejecutables declarativa comas .  (165)
 
-	.  reduce 115
+	.  reduce 165
 
 
 state 239
+	sentencias_ejecutables : sentencias_ejecutables ejecutable comas .  (161)
+
+	.  reduce 161
+
+
+state 240
+	cuerpo_if : cuerpo_then else_if cuerpo_else END_IF .  (120)
+
+	.  reduce 120
+
+
+state 241
 	lista_de_atributos : lista_de_atributos ';' IDENTIFICADOR .  (48)
 
 	.  reduce 48
 
 
-state 240
+state 242
 	lista_atributos_y_metodos : lista_atributos_y_metodos tipo lista_de_atributos ',' .  (44)
 
 	.  reduce 44
 
 
-state 241
-	metodo : metodo_name '(' parametro ')' . '{' cuerpo_de_la_funcion '}'  (50)
-	metodo : metodo_name '(' parametro ')' . '{' '}'  (51)
-	metodo : metodo_name '(' parametro ')' . '{' comas cuerpo_de_la_funcion '}'  (52)
-
-	'{'  shift 260
-	.  error
-
-
-state 242
-	declaracion_funcion : funcion_name '(' parametro ')' '{' '}' .  (33)
-
-	.  reduce 33
-
-
 state 243
-	declaracion_funcion : funcion_name '(' parametro ')' '{' comas . cuerpo_de_la_funcion '}'  (34)
-	declaracion_funcion : funcion_name '(' parametro ')' '{' comas . '}'  (36)
+	parametro_metodo : tipo IDENTIFICADOR .  (64)
 
-	error  shift 1
-	IDENTIFICADOR  shift 2
-	VOID  shift 3
-	RETURN  shift 220
-	IF  shift 4
-	PRINT  shift 5
-	WHILE  shift 6
-	SHORT  shift 7
-	UINT  shift 8
-	FLOAT  shift 9
-	CLASS  shift 10
-	'}'  shift 261
-	.  error
-
-	sentencia  goto 222
-	declarativa  goto 18
-	ejecutable  goto 19
-	tipo  goto 20
-	declaracion_clase  goto 21
-	declaracion_objeto  goto 22
-	declaracion_funcion  goto 23
-	funcion_name  goto 24
-	cuerpo_de_la_funcion  goto 262
-	nombre_clase  goto 25
-	typeClass  goto 26
-	cuerpo_de_la_funcion_sin_return  goto 224
-	cuerpo_de_la_funcion_con_return  goto 225
-	asignacion  goto 27
-	invocacion  goto 28
-	seleccion  goto 29
-	ciclo_while  goto 30
-	inicio_while  goto 31
+	.  reduce 64
 
 
 state 244
-	declaracion_funcion : funcion_name '(' parametro ')' '{' cuerpo_de_la_funcion . '}'  (31)
+	metodo : metodo_name '(' parametro_metodo ')' . '{' cuerpo_de_la_funcion '}'  (50)
+	metodo : metodo_name '(' parametro_metodo ')' . '{' '}'  (51)
+	metodo : metodo_name '(' parametro_metodo ')' . '{' comas cuerpo_de_la_funcion '}'  (52)
 
-	'}'  shift 263
+	'{'  shift 264
 	.  error
 
 
 state 245
-	cuerpo_de_la_funcion_con_return : RETURN ',' .  (77)
-	cuerpo_de_la_funcion_con_return : RETURN ',' . cuerpo_de_la_funcion_sin_return  (79)
-	cuerpo_de_la_funcion_con_return : RETURN ',' . cuerpo_de_la_funcion_con_return  (81)
+	parametro_metodo : parametro_metodo ';' . tipo IDENTIFICADOR  (68)
 
-	error  shift 1
-	IDENTIFICADOR  shift 2
-	VOID  shift 3
-	RETURN  shift 220
-	IF  shift 4
-	PRINT  shift 5
-	WHILE  shift 6
 	SHORT  shift 7
 	UINT  shift 8
 	FLOAT  shift 9
-	CLASS  shift 10
-	'}'  reduce 77
+	.  error
 
-	sentencia  goto 222
-	declarativa  goto 18
-	ejecutable  goto 19
-	tipo  goto 20
-	declaracion_clase  goto 21
-	declaracion_objeto  goto 22
-	declaracion_funcion  goto 23
-	funcion_name  goto 24
-	nombre_clase  goto 25
-	typeClass  goto 26
-	cuerpo_de_la_funcion_sin_return  goto 264
-	cuerpo_de_la_funcion_con_return  goto 265
-	asignacion  goto 27
-	invocacion  goto 28
-	seleccion  goto 29
-	ciclo_while  goto 30
-	inicio_while  goto 31
+	tipo  goto 265
 
 
 state 246
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ','  (71)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN  (72)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ',' cuerpo_de_la_funcion_sin_return  (73)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN cuerpo_de_la_funcion_sin_return  (74)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ',' cuerpo_de_la_funcion_con_return  (75)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN cuerpo_de_la_funcion_con_return  (76)
-	cuerpo_de_la_funcion_con_return : RETURN cuerpo_de_la_funcion_sin_return .  (80)
-	cuerpo_de_la_funcion_sin_return : cuerpo_de_la_funcion_sin_return . sentencia  (83)
+	declaracion_funcion : funcion_name '(' parametro_funcion ')' '{' '}' .  (33)
+
+	.  reduce 33
+
+
+state 247
+	declaracion_funcion : funcion_name '(' parametro_funcion ')' '{' comas . cuerpo_de_la_funcion '}'  (34)
+	declaracion_funcion : funcion_name '(' parametro_funcion ')' '{' comas . '}'  (36)
 
 	error  shift 1
 	IDENTIFICADOR  shift 2
 	VOID  shift 3
-	RETURN  shift 250
+	RETURN  shift 222
 	IF  shift 4
 	PRINT  shift 5
 	WHILE  shift 6
@@ -3850,9 +3800,10 @@ state 246
 	UINT  shift 8
 	FLOAT  shift 9
 	CLASS  shift 10
-	'}'  reduce 80
+	'}'  shift 266
+	.  error
 
-	sentencia  goto 251
+	sentencia  goto 224
 	declarativa  goto 18
 	ejecutable  goto 19
 	tipo  goto 20
@@ -3860,8 +3811,11 @@ state 246
 	declaracion_objeto  goto 22
 	declaracion_funcion  goto 23
 	funcion_name  goto 24
+	cuerpo_de_la_funcion  goto 267
 	nombre_clase  goto 25
 	typeClass  goto 26
+	cuerpo_de_la_funcion_sin_return  goto 226
+	cuerpo_de_la_funcion_con_return  goto 227
 	asignacion  goto 27
 	invocacion  goto 28
 	seleccion  goto 29
@@ -3869,37 +3823,22 @@ state 246
 	inicio_while  goto 31
 
 
-state 247
-	cuerpo_de_la_funcion_con_return : RETURN cuerpo_de_la_funcion_con_return .  (82)
-
-	.  reduce 82
-
-
 state 248
-	declaracion_funcion : VOID '(' parametro ')' '{' comas cuerpo_de_la_funcion . '}'  (35)
+	declaracion_funcion : funcion_name '(' parametro_funcion ')' '{' cuerpo_de_la_funcion . '}'  (31)
 
-	'}'  shift 266
+	'}'  shift 268
 	.  error
 
 
 state 249
-	declaracion_funcion : VOID '(' parametro ')' '{' cuerpo_de_la_funcion '}' .  (32)
-
-	.  reduce 32
-
-
-state 250
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN . ','  (71)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN .  (72)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN . ',' cuerpo_de_la_funcion_sin_return  (73)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN . cuerpo_de_la_funcion_sin_return  (74)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN . ',' cuerpo_de_la_funcion_con_return  (75)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN . cuerpo_de_la_funcion_con_return  (76)
+	cuerpo_de_la_funcion_con_return : RETURN ',' .  (82)
+	cuerpo_de_la_funcion_con_return : RETURN ',' . cuerpo_de_la_funcion_sin_return  (84)
+	cuerpo_de_la_funcion_con_return : RETURN ',' . cuerpo_de_la_funcion_con_return  (86)
 
 	error  shift 1
 	IDENTIFICADOR  shift 2
 	VOID  shift 3
-	RETURN  shift 220
+	RETURN  shift 222
 	IF  shift 4
 	PRINT  shift 5
 	WHILE  shift 6
@@ -3907,10 +3846,9 @@ state 250
 	UINT  shift 8
 	FLOAT  shift 9
 	CLASS  shift 10
-	','  shift 267
-	'}'  reduce 72
+	'}'  reduce 82
 
-	sentencia  goto 222
+	sentencia  goto 224
 	declarativa  goto 18
 	ejecutable  goto 19
 	tipo  goto 20
@@ -3920,8 +3858,48 @@ state 250
 	funcion_name  goto 24
 	nombre_clase  goto 25
 	typeClass  goto 26
-	cuerpo_de_la_funcion_sin_return  goto 268
-	cuerpo_de_la_funcion_con_return  goto 269
+	cuerpo_de_la_funcion_sin_return  goto 269
+	cuerpo_de_la_funcion_con_return  goto 270
+	asignacion  goto 27
+	invocacion  goto 28
+	seleccion  goto 29
+	ciclo_while  goto 30
+	inicio_while  goto 31
+
+
+state 250
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ','  (76)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN  (77)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ',' cuerpo_de_la_funcion_sin_return  (78)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN cuerpo_de_la_funcion_sin_return  (79)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ',' cuerpo_de_la_funcion_con_return  (80)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN cuerpo_de_la_funcion_con_return  (81)
+	cuerpo_de_la_funcion_con_return : RETURN cuerpo_de_la_funcion_sin_return .  (85)
+	cuerpo_de_la_funcion_sin_return : cuerpo_de_la_funcion_sin_return . sentencia  (88)
+
+	error  shift 1
+	IDENTIFICADOR  shift 2
+	VOID  shift 3
+	RETURN  shift 254
+	IF  shift 4
+	PRINT  shift 5
+	WHILE  shift 6
+	SHORT  shift 7
+	UINT  shift 8
+	FLOAT  shift 9
+	CLASS  shift 10
+	'}'  reduce 85
+
+	sentencia  goto 255
+	declarativa  goto 18
+	ejecutable  goto 19
+	tipo  goto 20
+	declaracion_clase  goto 21
+	declaracion_objeto  goto 22
+	declaracion_funcion  goto 23
+	funcion_name  goto 24
+	nombre_clase  goto 25
+	typeClass  goto 26
 	asignacion  goto 27
 	invocacion  goto 28
 	seleccion  goto 29
@@ -3930,30 +3908,36 @@ state 250
 
 
 state 251
-	cuerpo_de_la_funcion_sin_return : cuerpo_de_la_funcion_sin_return sentencia .  (83)
+	cuerpo_de_la_funcion_con_return : RETURN cuerpo_de_la_funcion_con_return .  (87)
 
-	.  reduce 83
+	.  reduce 87
 
 
 state 252
-	bloque_ejecutables : '{' comas RETURN ',' '}' .  (152)
+	declaracion_funcion : VOID '(' parametro_funcion ')' '{' comas cuerpo_de_la_funcion . '}'  (35)
 
-	.  reduce 152
+	'}'  shift 271
+	.  error
 
 
 state 253
-	bloque_ejecutables : '{' comas sentencias_ejecutables RETURN '}' .  (149)
+	declaracion_funcion : VOID '(' parametro_funcion ')' '{' cuerpo_de_la_funcion '}' .  (32)
 
-	.  reduce 149
+	.  reduce 32
 
 
 state 254
-	bloque_ejecutables : '{' comas sentencias_ejecutables RETURN ',' . '}'  (146)
-	bloque_ejecutables : '{' comas sentencias_ejecutables RETURN ',' . sentencias_ejecutables '}'  (147)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN . ','  (76)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN .  (77)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN . ',' cuerpo_de_la_funcion_sin_return  (78)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN . cuerpo_de_la_funcion_sin_return  (79)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN . ',' cuerpo_de_la_funcion_con_return  (80)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN . cuerpo_de_la_funcion_con_return  (81)
 
-	error  shift 154
+	error  shift 1
 	IDENTIFICADOR  shift 2
 	VOID  shift 3
+	RETURN  shift 222
 	IF  shift 4
 	PRINT  shift 5
 	WHILE  shift 6
@@ -3961,11 +3945,12 @@ state 254
 	UINT  shift 8
 	FLOAT  shift 9
 	CLASS  shift 10
-	'}'  shift 270
-	.  error
+	','  shift 272
+	'}'  reduce 77
 
-	declarativa  goto 157
-	ejecutable  goto 158
+	sentencia  goto 224
+	declarativa  goto 18
+	ejecutable  goto 19
 	tipo  goto 20
 	declaracion_clase  goto 21
 	declaracion_objeto  goto 22
@@ -3973,100 +3958,38 @@ state 254
 	funcion_name  goto 24
 	nombre_clase  goto 25
 	typeClass  goto 26
+	cuerpo_de_la_funcion_sin_return  goto 273
+	cuerpo_de_la_funcion_con_return  goto 274
 	asignacion  goto 27
 	invocacion  goto 28
 	seleccion  goto 29
 	ciclo_while  goto 30
 	inicio_while  goto 31
-	sentencias_ejecutables  goto 271
 
 
 state 255
-	bloque_ejecutables : '{' comas sentencias_ejecutables RETURN sentencias_ejecutables . '}'  (148)
-	sentencias_ejecutables : sentencias_ejecutables . ejecutable comas  (156)
-	sentencias_ejecutables : sentencias_ejecutables . ejecutable  (157)
-	sentencias_ejecutables : sentencias_ejecutables . declarativa comas  (160)
-	sentencias_ejecutables : sentencias_ejecutables . declarativa  (161)
-	sentencias_ejecutables : sentencias_ejecutables . error ','  (164)
+	cuerpo_de_la_funcion_sin_return : cuerpo_de_la_funcion_sin_return sentencia .  (88)
 
-	error  shift 202
-	IDENTIFICADOR  shift 2
-	VOID  shift 3
-	IF  shift 4
-	PRINT  shift 5
-	WHILE  shift 6
-	SHORT  shift 7
-	UINT  shift 8
-	FLOAT  shift 9
-	CLASS  shift 10
-	'}'  shift 272
-	.  error
-
-	declarativa  goto 205
-	ejecutable  goto 206
-	tipo  goto 20
-	declaracion_clase  goto 21
-	declaracion_objeto  goto 22
-	declaracion_funcion  goto 23
-	funcion_name  goto 24
-	nombre_clase  goto 25
-	typeClass  goto 26
-	asignacion  goto 27
-	invocacion  goto 28
-	seleccion  goto 29
-	ciclo_while  goto 30
-	inicio_while  goto 31
+	.  reduce 88
 
 
 state 256
-	bloque_ejecutables : '{' sentencias_ejecutables RETURN ',' '}' .  (134)
+	bloque_ejecutables : '{' comas RETURN ',' '}' .  (157)
 
-	.  reduce 134
+	.  reduce 157
 
 
 state 257
-	bloque_ejecutables : '{' sentencias_ejecutables RETURN ',' comas . '}'  (143)
-	bloque_ejecutables : '{' sentencias_ejecutables RETURN ',' comas . sentencias_ejecutables '}'  (144)
+	bloque_ejecutables : '{' comas sentencias_ejecutables RETURN '}' .  (154)
 
-	error  shift 154
-	IDENTIFICADOR  shift 2
-	VOID  shift 3
-	IF  shift 4
-	PRINT  shift 5
-	WHILE  shift 6
-	SHORT  shift 7
-	UINT  shift 8
-	FLOAT  shift 9
-	CLASS  shift 10
-	'}'  shift 273
-	.  error
-
-	declarativa  goto 157
-	ejecutable  goto 158
-	tipo  goto 20
-	declaracion_clase  goto 21
-	declaracion_objeto  goto 22
-	declaracion_funcion  goto 23
-	funcion_name  goto 24
-	nombre_clase  goto 25
-	typeClass  goto 26
-	asignacion  goto 27
-	invocacion  goto 28
-	seleccion  goto 29
-	ciclo_while  goto 30
-	inicio_while  goto 31
-	sentencias_ejecutables  goto 274
+	.  reduce 154
 
 
 state 258
-	bloque_ejecutables : '{' sentencias_ejecutables RETURN ',' sentencias_ejecutables . '}'  (135)
-	sentencias_ejecutables : sentencias_ejecutables . ejecutable comas  (156)
-	sentencias_ejecutables : sentencias_ejecutables . ejecutable  (157)
-	sentencias_ejecutables : sentencias_ejecutables . declarativa comas  (160)
-	sentencias_ejecutables : sentencias_ejecutables . declarativa  (161)
-	sentencias_ejecutables : sentencias_ejecutables . error ','  (164)
+	bloque_ejecutables : '{' comas sentencias_ejecutables RETURN ',' . '}'  (151)
+	bloque_ejecutables : '{' comas sentencias_ejecutables RETURN ',' . sentencias_ejecutables '}'  (152)
 
-	error  shift 202
+	error  shift 154
 	IDENTIFICADOR  shift 2
 	VOID  shift 3
 	IF  shift 4
@@ -4079,6 +4002,44 @@ state 258
 	'}'  shift 275
 	.  error
 
+	declarativa  goto 157
+	ejecutable  goto 158
+	tipo  goto 20
+	declaracion_clase  goto 21
+	declaracion_objeto  goto 22
+	declaracion_funcion  goto 23
+	funcion_name  goto 24
+	nombre_clase  goto 25
+	typeClass  goto 26
+	asignacion  goto 27
+	invocacion  goto 28
+	seleccion  goto 29
+	ciclo_while  goto 30
+	inicio_while  goto 31
+	sentencias_ejecutables  goto 276
+
+
+state 259
+	bloque_ejecutables : '{' comas sentencias_ejecutables RETURN sentencias_ejecutables . '}'  (153)
+	sentencias_ejecutables : sentencias_ejecutables . ejecutable comas  (161)
+	sentencias_ejecutables : sentencias_ejecutables . ejecutable  (162)
+	sentencias_ejecutables : sentencias_ejecutables . declarativa comas  (165)
+	sentencias_ejecutables : sentencias_ejecutables . declarativa  (166)
+	sentencias_ejecutables : sentencias_ejecutables . error ','  (169)
+
+	error  shift 202
+	IDENTIFICADOR  shift 2
+	VOID  shift 3
+	IF  shift 4
+	PRINT  shift 5
+	WHILE  shift 6
+	SHORT  shift 7
+	UINT  shift 8
+	FLOAT  shift 9
+	CLASS  shift 10
+	'}'  shift 277
+	.  error
+
 	declarativa  goto 205
 	ejecutable  goto 206
 	tipo  goto 20
@@ -4095,21 +4056,19 @@ state 258
 	inicio_while  goto 31
 
 
-state 259
-	bloque_ejecutables : '{' sentencias_ejecutables RETURN sentencias_ejecutables '}' .  (136)
-
-	.  reduce 136
-
-
 state 260
-	metodo : metodo_name '(' parametro ')' '{' . cuerpo_de_la_funcion '}'  (50)
-	metodo : metodo_name '(' parametro ')' '{' . '}'  (51)
-	metodo : metodo_name '(' parametro ')' '{' . comas cuerpo_de_la_funcion '}'  (52)
+	bloque_ejecutables : '{' sentencias_ejecutables RETURN ',' '}' .  (139)
 
-	error  shift 1
+	.  reduce 139
+
+
+state 261
+	bloque_ejecutables : '{' sentencias_ejecutables RETURN ',' comas . '}'  (148)
+	bloque_ejecutables : '{' sentencias_ejecutables RETURN ',' comas . sentencias_ejecutables '}'  (149)
+
+	error  shift 154
 	IDENTIFICADOR  shift 2
 	VOID  shift 3
-	RETURN  shift 220
 	IF  shift 4
 	PRINT  shift 5
 	WHILE  shift 6
@@ -4117,24 +4076,56 @@ state 260
 	UINT  shift 8
 	FLOAT  shift 9
 	CLASS  shift 10
-	'}'  shift 276
-	','  shift 13
+	'}'  shift 278
 	.  error
 
-	comas  goto 277
-	sentencia  goto 222
-	declarativa  goto 18
-	ejecutable  goto 19
+	declarativa  goto 157
+	ejecutable  goto 158
 	tipo  goto 20
 	declaracion_clase  goto 21
 	declaracion_objeto  goto 22
 	declaracion_funcion  goto 23
 	funcion_name  goto 24
-	cuerpo_de_la_funcion  goto 278
 	nombre_clase  goto 25
 	typeClass  goto 26
-	cuerpo_de_la_funcion_sin_return  goto 224
-	cuerpo_de_la_funcion_con_return  goto 225
+	asignacion  goto 27
+	invocacion  goto 28
+	seleccion  goto 29
+	ciclo_while  goto 30
+	inicio_while  goto 31
+	sentencias_ejecutables  goto 279
+
+
+state 262
+	bloque_ejecutables : '{' sentencias_ejecutables RETURN ',' sentencias_ejecutables . '}'  (140)
+	sentencias_ejecutables : sentencias_ejecutables . ejecutable comas  (161)
+	sentencias_ejecutables : sentencias_ejecutables . ejecutable  (162)
+	sentencias_ejecutables : sentencias_ejecutables . declarativa comas  (165)
+	sentencias_ejecutables : sentencias_ejecutables . declarativa  (166)
+	sentencias_ejecutables : sentencias_ejecutables . error ','  (169)
+
+	error  shift 202
+	IDENTIFICADOR  shift 2
+	VOID  shift 3
+	IF  shift 4
+	PRINT  shift 5
+	WHILE  shift 6
+	SHORT  shift 7
+	UINT  shift 8
+	FLOAT  shift 9
+	CLASS  shift 10
+	'}'  shift 280
+	.  error
+
+	declarativa  goto 205
+	ejecutable  goto 206
+	tipo  goto 20
+	declaracion_clase  goto 21
+	declaracion_objeto  goto 22
+	declaracion_funcion  goto 23
+	funcion_name  goto 24
+	nombre_clase  goto 25
+	typeClass  goto 26
 	asignacion  goto 27
 	invocacion  goto 28
 	seleccion  goto 29
@@ -4142,39 +4133,182 @@ state 260
 	inicio_while  goto 31
 
 
-state 261
-	declaracion_funcion : funcion_name '(' parametro ')' '{' comas '}' .  (36)
-
-	.  reduce 36
-
-
-state 262
-	declaracion_funcion : funcion_name '(' parametro ')' '{' comas cuerpo_de_la_funcion . '}'  (34)
-
-	'}'  shift 279
-	.  error
-
-
 state 263
-	declaracion_funcion : funcion_name '(' parametro ')' '{' cuerpo_de_la_funcion '}' .  (31)
+	bloque_ejecutables : '{' sentencias_ejecutables RETURN sentencias_ejecutables '}' .  (141)
 
-	.  reduce 31
+	.  reduce 141
 
 
 state 264
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ','  (71)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN  (72)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ',' cuerpo_de_la_funcion_sin_return  (73)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN cuerpo_de_la_funcion_sin_return  (74)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ',' cuerpo_de_la_funcion_con_return  (75)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN cuerpo_de_la_funcion_con_return  (76)
-	cuerpo_de_la_funcion_con_return : RETURN ',' cuerpo_de_la_funcion_sin_return .  (79)
-	cuerpo_de_la_funcion_sin_return : cuerpo_de_la_funcion_sin_return . sentencia  (83)
+	metodo : metodo_name '(' parametro_metodo ')' '{' . cuerpo_de_la_funcion '}'  (50)
+	metodo : metodo_name '(' parametro_metodo ')' '{' . '}'  (51)
+	metodo : metodo_name '(' parametro_metodo ')' '{' . comas cuerpo_de_la_funcion '}'  (52)
 
 	error  shift 1
 	IDENTIFICADOR  shift 2
 	VOID  shift 3
-	RETURN  shift 250
+	RETURN  shift 222
+	IF  shift 4
+	PRINT  shift 5
+	WHILE  shift 6
+	SHORT  shift 7
+	UINT  shift 8
+	FLOAT  shift 9
+	CLASS  shift 10
+	'}'  shift 281
+	','  shift 13
+	.  error
+
+	comas  goto 282
+	sentencia  goto 224
+	declarativa  goto 18
+	ejecutable  goto 19
+	tipo  goto 20
+	declaracion_clase  goto 21
+	declaracion_objeto  goto 22
+	declaracion_funcion  goto 23
+	funcion_name  goto 24
+	cuerpo_de_la_funcion  goto 283
+	nombre_clase  goto 25
+	typeClass  goto 26
+	cuerpo_de_la_funcion_sin_return  goto 226
+	cuerpo_de_la_funcion_con_return  goto 227
+	asignacion  goto 27
+	invocacion  goto 28
+	seleccion  goto 29
+	ciclo_while  goto 30
+	inicio_while  goto 31
+
+
+state 265
+	parametro_metodo : parametro_metodo ';' tipo . IDENTIFICADOR  (68)
+
+	IDENTIFICADOR  shift 284
+	.  error
+
+
+state 266
+	declaracion_funcion : funcion_name '(' parametro_funcion ')' '{' comas '}' .  (36)
+
+	.  reduce 36
+
+
+state 267
+	declaracion_funcion : funcion_name '(' parametro_funcion ')' '{' comas cuerpo_de_la_funcion . '}'  (34)
+
+	'}'  shift 285
+	.  error
+
+
+state 268
+	declaracion_funcion : funcion_name '(' parametro_funcion ')' '{' cuerpo_de_la_funcion '}' .  (31)
+
+	.  reduce 31
+
+
+state 269
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ','  (76)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN  (77)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ',' cuerpo_de_la_funcion_sin_return  (78)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN cuerpo_de_la_funcion_sin_return  (79)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ',' cuerpo_de_la_funcion_con_return  (80)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN cuerpo_de_la_funcion_con_return  (81)
+	cuerpo_de_la_funcion_con_return : RETURN ',' cuerpo_de_la_funcion_sin_return .  (84)
+	cuerpo_de_la_funcion_sin_return : cuerpo_de_la_funcion_sin_return . sentencia  (88)
+
+	error  shift 1
+	IDENTIFICADOR  shift 2
+	VOID  shift 3
+	RETURN  shift 254
+	IF  shift 4
+	PRINT  shift 5
+	WHILE  shift 6
+	SHORT  shift 7
+	UINT  shift 8
+	FLOAT  shift 9
+	CLASS  shift 10
+	'}'  reduce 84
+
+	sentencia  goto 255
+	declarativa  goto 18
+	ejecutable  goto 19
+	tipo  goto 20
+	declaracion_clase  goto 21
+	declaracion_objeto  goto 22
+	declaracion_funcion  goto 23
+	funcion_name  goto 24
+	nombre_clase  goto 25
+	typeClass  goto 26
+	asignacion  goto 27
+	invocacion  goto 28
+	seleccion  goto 29
+	ciclo_while  goto 30
+	inicio_while  goto 31
+
+
+state 270
+	cuerpo_de_la_funcion_con_return : RETURN ',' cuerpo_de_la_funcion_con_return .  (86)
+
+	.  reduce 86
+
+
+state 271
+	declaracion_funcion : VOID '(' parametro_funcion ')' '{' comas cuerpo_de_la_funcion '}' .  (35)
+
+	.  reduce 35
+
+
+state 272
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN ',' .  (76)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN ',' . cuerpo_de_la_funcion_sin_return  (78)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN ',' . cuerpo_de_la_funcion_con_return  (80)
+
+	error  shift 1
+	IDENTIFICADOR  shift 2
+	VOID  shift 3
+	RETURN  shift 222
+	IF  shift 4
+	PRINT  shift 5
+	WHILE  shift 6
+	SHORT  shift 7
+	UINT  shift 8
+	FLOAT  shift 9
+	CLASS  shift 10
+	'}'  reduce 76
+
+	sentencia  goto 224
+	declarativa  goto 18
+	ejecutable  goto 19
+	tipo  goto 20
+	declaracion_clase  goto 21
+	declaracion_objeto  goto 22
+	declaracion_funcion  goto 23
+	funcion_name  goto 24
+	nombre_clase  goto 25
+	typeClass  goto 26
+	cuerpo_de_la_funcion_sin_return  goto 286
+	cuerpo_de_la_funcion_con_return  goto 287
+	asignacion  goto 27
+	invocacion  goto 28
+	seleccion  goto 29
+	ciclo_while  goto 30
+	inicio_while  goto 31
+
+
+state 273
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ','  (76)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN  (77)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ',' cuerpo_de_la_funcion_sin_return  (78)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN cuerpo_de_la_funcion_sin_return  (79)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN cuerpo_de_la_funcion_sin_return .  (79)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ',' cuerpo_de_la_funcion_con_return  (80)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN cuerpo_de_la_funcion_con_return  (81)
+	cuerpo_de_la_funcion_sin_return : cuerpo_de_la_funcion_sin_return . sentencia  (88)
+
+	error  shift 1
+	IDENTIFICADOR  shift 2
+	VOID  shift 3
+	RETURN  shift 254
 	IF  shift 4
 	PRINT  shift 5
 	WHILE  shift 6
@@ -4184,7 +4318,7 @@ state 264
 	CLASS  shift 10
 	'}'  reduce 79
 
-	sentencia  goto 251
+	sentencia  goto 255
 	declarativa  goto 18
 	ejecutable  goto 19
 	tipo  goto 20
@@ -4201,114 +4335,25 @@ state 264
 	inicio_while  goto 31
 
 
-state 265
-	cuerpo_de_la_funcion_con_return : RETURN ',' cuerpo_de_la_funcion_con_return .  (81)
+state 274
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN cuerpo_de_la_funcion_con_return .  (81)
 
 	.  reduce 81
 
 
-state 266
-	declaracion_funcion : VOID '(' parametro ')' '{' comas cuerpo_de_la_funcion '}' .  (35)
+state 275
+	bloque_ejecutables : '{' comas sentencias_ejecutables RETURN ',' '}' .  (151)
 
-	.  reduce 35
-
-
-state 267
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN ',' .  (71)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN ',' . cuerpo_de_la_funcion_sin_return  (73)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN ',' . cuerpo_de_la_funcion_con_return  (75)
-
-	error  shift 1
-	IDENTIFICADOR  shift 2
-	VOID  shift 3
-	RETURN  shift 220
-	IF  shift 4
-	PRINT  shift 5
-	WHILE  shift 6
-	SHORT  shift 7
-	UINT  shift 8
-	FLOAT  shift 9
-	CLASS  shift 10
-	'}'  reduce 71
-
-	sentencia  goto 222
-	declarativa  goto 18
-	ejecutable  goto 19
-	tipo  goto 20
-	declaracion_clase  goto 21
-	declaracion_objeto  goto 22
-	declaracion_funcion  goto 23
-	funcion_name  goto 24
-	nombre_clase  goto 25
-	typeClass  goto 26
-	cuerpo_de_la_funcion_sin_return  goto 280
-	cuerpo_de_la_funcion_con_return  goto 281
-	asignacion  goto 27
-	invocacion  goto 28
-	seleccion  goto 29
-	ciclo_while  goto 30
-	inicio_while  goto 31
+	.  reduce 151
 
 
-state 268
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ','  (71)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN  (72)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ',' cuerpo_de_la_funcion_sin_return  (73)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN cuerpo_de_la_funcion_sin_return  (74)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN cuerpo_de_la_funcion_sin_return .  (74)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ',' cuerpo_de_la_funcion_con_return  (75)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN cuerpo_de_la_funcion_con_return  (76)
-	cuerpo_de_la_funcion_sin_return : cuerpo_de_la_funcion_sin_return . sentencia  (83)
-
-	error  shift 1
-	IDENTIFICADOR  shift 2
-	VOID  shift 3
-	RETURN  shift 250
-	IF  shift 4
-	PRINT  shift 5
-	WHILE  shift 6
-	SHORT  shift 7
-	UINT  shift 8
-	FLOAT  shift 9
-	CLASS  shift 10
-	'}'  reduce 74
-
-	sentencia  goto 251
-	declarativa  goto 18
-	ejecutable  goto 19
-	tipo  goto 20
-	declaracion_clase  goto 21
-	declaracion_objeto  goto 22
-	declaracion_funcion  goto 23
-	funcion_name  goto 24
-	nombre_clase  goto 25
-	typeClass  goto 26
-	asignacion  goto 27
-	invocacion  goto 28
-	seleccion  goto 29
-	ciclo_while  goto 30
-	inicio_while  goto 31
-
-
-state 269
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN cuerpo_de_la_funcion_con_return .  (76)
-
-	.  reduce 76
-
-
-state 270
-	bloque_ejecutables : '{' comas sentencias_ejecutables RETURN ',' '}' .  (146)
-
-	.  reduce 146
-
-
-state 271
-	bloque_ejecutables : '{' comas sentencias_ejecutables RETURN ',' sentencias_ejecutables . '}'  (147)
-	sentencias_ejecutables : sentencias_ejecutables . ejecutable comas  (156)
-	sentencias_ejecutables : sentencias_ejecutables . ejecutable  (157)
-	sentencias_ejecutables : sentencias_ejecutables . declarativa comas  (160)
-	sentencias_ejecutables : sentencias_ejecutables . declarativa  (161)
-	sentencias_ejecutables : sentencias_ejecutables . error ','  (164)
+state 276
+	bloque_ejecutables : '{' comas sentencias_ejecutables RETURN ',' sentencias_ejecutables . '}'  (152)
+	sentencias_ejecutables : sentencias_ejecutables . ejecutable comas  (161)
+	sentencias_ejecutables : sentencias_ejecutables . ejecutable  (162)
+	sentencias_ejecutables : sentencias_ejecutables . declarativa comas  (165)
+	sentencias_ejecutables : sentencias_ejecutables . declarativa  (166)
+	sentencias_ejecutables : sentencias_ejecutables . error ','  (169)
 
 	error  shift 202
 	IDENTIFICADOR  shift 2
@@ -4320,7 +4365,7 @@ state 271
 	UINT  shift 8
 	FLOAT  shift 9
 	CLASS  shift 10
-	'}'  shift 282
+	'}'  shift 288
 	.  error
 
 	declarativa  goto 205
@@ -4339,25 +4384,25 @@ state 271
 	inicio_while  goto 31
 
 
-state 272
-	bloque_ejecutables : '{' comas sentencias_ejecutables RETURN sentencias_ejecutables '}' .  (148)
+state 277
+	bloque_ejecutables : '{' comas sentencias_ejecutables RETURN sentencias_ejecutables '}' .  (153)
+
+	.  reduce 153
+
+
+state 278
+	bloque_ejecutables : '{' sentencias_ejecutables RETURN ',' comas '}' .  (148)
 
 	.  reduce 148
 
 
-state 273
-	bloque_ejecutables : '{' sentencias_ejecutables RETURN ',' comas '}' .  (143)
-
-	.  reduce 143
-
-
-state 274
-	bloque_ejecutables : '{' sentencias_ejecutables RETURN ',' comas sentencias_ejecutables . '}'  (144)
-	sentencias_ejecutables : sentencias_ejecutables . ejecutable comas  (156)
-	sentencias_ejecutables : sentencias_ejecutables . ejecutable  (157)
-	sentencias_ejecutables : sentencias_ejecutables . declarativa comas  (160)
-	sentencias_ejecutables : sentencias_ejecutables . declarativa  (161)
-	sentencias_ejecutables : sentencias_ejecutables . error ','  (164)
+state 279
+	bloque_ejecutables : '{' sentencias_ejecutables RETURN ',' comas sentencias_ejecutables . '}'  (149)
+	sentencias_ejecutables : sentencias_ejecutables . ejecutable comas  (161)
+	sentencias_ejecutables : sentencias_ejecutables . ejecutable  (162)
+	sentencias_ejecutables : sentencias_ejecutables . declarativa comas  (165)
+	sentencias_ejecutables : sentencias_ejecutables . declarativa  (166)
+	sentencias_ejecutables : sentencias_ejecutables . error ','  (169)
 
 	error  shift 202
 	IDENTIFICADOR  shift 2
@@ -4369,7 +4414,7 @@ state 274
 	UINT  shift 8
 	FLOAT  shift 9
 	CLASS  shift 10
-	'}'  shift 283
+	'}'  shift 289
 	.  error
 
 	declarativa  goto 205
@@ -4388,25 +4433,25 @@ state 274
 	inicio_while  goto 31
 
 
-state 275
-	bloque_ejecutables : '{' sentencias_ejecutables RETURN ',' sentencias_ejecutables '}' .  (135)
+state 280
+	bloque_ejecutables : '{' sentencias_ejecutables RETURN ',' sentencias_ejecutables '}' .  (140)
 
-	.  reduce 135
+	.  reduce 140
 
 
-state 276
-	metodo : metodo_name '(' parametro ')' '{' '}' .  (51)
+state 281
+	metodo : metodo_name '(' parametro_metodo ')' '{' '}' .  (51)
 
 	.  reduce 51
 
 
-state 277
-	metodo : metodo_name '(' parametro ')' '{' comas . cuerpo_de_la_funcion '}'  (52)
+state 282
+	metodo : metodo_name '(' parametro_metodo ')' '{' comas . cuerpo_de_la_funcion '}'  (52)
 
 	error  shift 1
 	IDENTIFICADOR  shift 2
 	VOID  shift 3
-	RETURN  shift 220
+	RETURN  shift 222
 	IF  shift 4
 	PRINT  shift 5
 	WHILE  shift 6
@@ -4416,7 +4461,7 @@ state 277
 	CLASS  shift 10
 	.  error
 
-	sentencia  goto 222
+	sentencia  goto 224
 	declarativa  goto 18
 	ejecutable  goto 19
 	tipo  goto 20
@@ -4424,11 +4469,11 @@ state 277
 	declaracion_objeto  goto 22
 	declaracion_funcion  goto 23
 	funcion_name  goto 24
-	cuerpo_de_la_funcion  goto 284
+	cuerpo_de_la_funcion  goto 290
 	nombre_clase  goto 25
 	typeClass  goto 26
-	cuerpo_de_la_funcion_sin_return  goto 224
-	cuerpo_de_la_funcion_con_return  goto 225
+	cuerpo_de_la_funcion_sin_return  goto 226
+	cuerpo_de_la_funcion_con_return  goto 227
 	asignacion  goto 27
 	invocacion  goto 28
 	seleccion  goto 29
@@ -4436,33 +4481,39 @@ state 277
 	inicio_while  goto 31
 
 
-state 278
-	metodo : metodo_name '(' parametro ')' '{' cuerpo_de_la_funcion . '}'  (50)
+state 283
+	metodo : metodo_name '(' parametro_metodo ')' '{' cuerpo_de_la_funcion . '}'  (50)
 
-	'}'  shift 285
+	'}'  shift 291
 	.  error
 
 
-state 279
-	declaracion_funcion : funcion_name '(' parametro ')' '{' comas cuerpo_de_la_funcion '}' .  (34)
+state 284
+	parametro_metodo : parametro_metodo ';' tipo IDENTIFICADOR .  (68)
+
+	.  reduce 68
+
+
+state 285
+	declaracion_funcion : funcion_name '(' parametro_funcion ')' '{' comas cuerpo_de_la_funcion '}' .  (34)
 
 	.  reduce 34
 
 
-state 280
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ','  (71)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN  (72)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ',' cuerpo_de_la_funcion_sin_return  (73)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN ',' cuerpo_de_la_funcion_sin_return .  (73)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN cuerpo_de_la_funcion_sin_return  (74)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ',' cuerpo_de_la_funcion_con_return  (75)
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN cuerpo_de_la_funcion_con_return  (76)
-	cuerpo_de_la_funcion_sin_return : cuerpo_de_la_funcion_sin_return . sentencia  (83)
+state 286
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ','  (76)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN  (77)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ',' cuerpo_de_la_funcion_sin_return  (78)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN ',' cuerpo_de_la_funcion_sin_return .  (78)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN cuerpo_de_la_funcion_sin_return  (79)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN ',' cuerpo_de_la_funcion_con_return  (80)
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return . RETURN cuerpo_de_la_funcion_con_return  (81)
+	cuerpo_de_la_funcion_sin_return : cuerpo_de_la_funcion_sin_return . sentencia  (88)
 
 	error  shift 1
 	IDENTIFICADOR  shift 2
 	VOID  shift 3
-	RETURN  shift 250
+	RETURN  shift 254
 	IF  shift 4
 	PRINT  shift 5
 	WHILE  shift 6
@@ -4470,9 +4521,9 @@ state 280
 	UINT  shift 8
 	FLOAT  shift 9
 	CLASS  shift 10
-	'}'  reduce 73
+	'}'  reduce 78
 
-	sentencia  goto 251
+	sentencia  goto 255
 	declarativa  goto 18
 	ejecutable  goto 19
 	tipo  goto 20
@@ -4489,42 +4540,42 @@ state 280
 	inicio_while  goto 31
 
 
-state 281
-	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN ',' cuerpo_de_la_funcion_con_return .  (75)
+state 287
+	cuerpo_de_la_funcion_con_return : cuerpo_de_la_funcion_sin_return RETURN ',' cuerpo_de_la_funcion_con_return .  (80)
 
-	.  reduce 75
-
-
-state 282
-	bloque_ejecutables : '{' comas sentencias_ejecutables RETURN ',' sentencias_ejecutables '}' .  (147)
-
-	.  reduce 147
+	.  reduce 80
 
 
-state 283
-	bloque_ejecutables : '{' sentencias_ejecutables RETURN ',' comas sentencias_ejecutables '}' .  (144)
+state 288
+	bloque_ejecutables : '{' comas sentencias_ejecutables RETURN ',' sentencias_ejecutables '}' .  (152)
 
-	.  reduce 144
+	.  reduce 152
 
 
-state 284
-	metodo : metodo_name '(' parametro ')' '{' comas cuerpo_de_la_funcion . '}'  (52)
+state 289
+	bloque_ejecutables : '{' sentencias_ejecutables RETURN ',' comas sentencias_ejecutables '}' .  (149)
 
-	'}'  shift 286
+	.  reduce 149
+
+
+state 290
+	metodo : metodo_name '(' parametro_metodo ')' '{' comas cuerpo_de_la_funcion . '}'  (52)
+
+	'}'  shift 292
 	.  error
 
 
-state 285
-	metodo : metodo_name '(' parametro ')' '{' cuerpo_de_la_funcion '}' .  (50)
+state 291
+	metodo : metodo_name '(' parametro_metodo ')' '{' cuerpo_de_la_funcion '}' .  (50)
 
 	.  reduce 50
 
 
-state 286
-	metodo : metodo_name '(' parametro ')' '{' comas cuerpo_de_la_funcion '}' .  (52)
+state 292
+	metodo : metodo_name '(' parametro_metodo ')' '{' comas cuerpo_de_la_funcion '}' .  (52)
 
 	.  reduce 52
 
 
-39 terminals, 43 nonterminals
-179 grammar rules, 287 states
+39 terminals, 44 nonterminals
+184 grammar rules, 293 states

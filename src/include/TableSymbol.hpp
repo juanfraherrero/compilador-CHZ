@@ -14,10 +14,12 @@ class TableSymbol{
     private:
         // Unordered map con clave de string y valor de puntero a symbol (estrcutura definida en types.hpp)
         unordered_map<string, symbol*> symbolTable;
-        string scope = ":main"; 
+        string scope; 
         unsigned short int cantVartruncated = 0;
     public:
-
+        // Constructor
+        TableSymbol();
+        TableSymbol(string _scope);
         // devuelve un puntero al simbolo buscado
         symbol* getSymbol(const string& key);
 
@@ -61,12 +63,12 @@ class TableSymbol{
         //funcion para devolver el valor de la variable uso
         string getUso(const string& key);
 
-        symbol* getFirstSymbolMatching(const string& ambito,const string& uso);
-        int getDiffOffScope(const string& ambito, const string& uso);
+        symbol* getFirstSymbolMatching(const string& ambito,const string& uso, const string& scope);
+        int getDiffOffScope(const string& ambito, const string& uso, const string& scope);
         // Destructor para liberar la memoria de los símbolos
         ~TableSymbol();
 
-        
+        unordered_map<string, symbol*> getSymbolTable();
         //funciones auxiliares
 
         bool CompareUse(const string& ambito, const string& uso);

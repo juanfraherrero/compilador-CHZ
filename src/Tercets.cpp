@@ -21,7 +21,7 @@ void Tercets::replace(int index, Tercet* t){
 }
 
 void Tercets::print(){
-    cout << "\n\nLista de Tercetos:\n\n" << endl;
+    cout << "\nLista de Tercetos:\n" << endl;
     for (int i = 0; i < this->tercets.size(); i++){
         cout << i << " - ";
         this->tercets[i]->print();

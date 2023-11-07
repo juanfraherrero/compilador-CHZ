@@ -6,6 +6,12 @@
 #include <unordered_map>
 
 using namespace std;
+TableSymbol::TableSymbol(){
+    this->scope = ":main";
+};
+TableSymbol::TableSymbol(string _scope){
+    this->scope = _scope;
+};
 
 // devuelve un puntero al simbolo buscado
 symbol* TableSymbol::getSymbol(const string& key) {
@@ -99,17 +105,14 @@ void TableSymbol::imprimirAtributosMetodos() {
         if (sm->uso == "clase"){
             cout << "Clave: " << pair.first << "\t Lexema: " << sm->lexema << "\t Valor: " << sm->value << "\t Tipo: " << sm->type << "\t Uso: " << sm->uso << "\t fullIdentifier: " << sm->fullIdentifier <<endl;
             
-            // Recorre el vector de punteros
-            for (symbol * ptrSymbol : *(sm->attributesAndMethodsVector)) {
-                // Accede a los atributos de cada 'symbol' a través del puntero
-                cout <<  "Lexema: " << ptrSymbol->lexema << "\t Tipo: " << ptrSymbol->type << "\t Uso: " << ptrSymbol->uso << "\t cantParam: " << ptrSymbol->cantParam << "\t typeParam: " << ptrSymbol->typeParam << "\t nameParam: " << ptrSymbol->nameParam << "\t forwarded: " << ptrSymbol->forwarded <<endl;
-            }
-           
+            sm->attributesAndMethodsVector->imprimirTabla();
         }
             
     }
 }
-
+unordered_map<string, symbol*> TableSymbol::getSymbolTable(){
+    return this->symbolTable;
+}
 void TableSymbol::deleteSymbol(const string& key){
     // buscamos si ya existe ese símbolo en la tabla
     auto it = symbolTable.find(key);
@@ -206,13 +209,13 @@ string TableSymbol::getScope(){
 
 // nameVar+scope
 // symbolWithScope
-int TableSymbol::getDiffOffScope(const string& ambito,const string& uso) {
+int TableSymbol::getDiffOffScope(const string& varWithScope,const string& uso, const string& scope) {
     // Suponemos que uno le pasa por la variable "ambito" el ámbito al que queremos calcular la diferencia de niveles.
-    size_t firstColonPos = ambito.find(':');
-    string nameVar = ambito.substr(0, firstColonPos);
+    size_t firstColonPos = varWithScope.find(':');
+    string nameVar = varWithScope.substr(0, firstColonPos);
     string scopeAux = nameVar + scope;
     int diff = 0;
-    string ambitoActual = ambito;  // Creamos una copia de ambito para no modificar el original
+    string ambitoActual = varWithScope;  // Creamos una copia de ambito para no modificar el original
     size_t lastColonPosAmbito = ambitoActual.find_last_of(':'); // Buscamos la última aparición de ':' en el ámbito
 
     //comparamos el ambito actual con el scope
@@ -242,9 +245,9 @@ bool TableSymbol::CompareUse(const string& ambito, const string& uso){
     return false;
 }
 
-symbol* TableSymbol:: getFirstSymbolMatching(const string& varWithScope,const string& uso)
+symbol* TableSymbol:: getFirstSymbolMatching(const string& varWithScope,const string& uso, const string& scope)
 {
-    int diffScope = getDiffOffScope(varWithScope,uso);
+    int diffScope = getDiffOffScope(varWithScope, uso, scope);
     if(diffScope == -1){ // sino encontramos coincidencia retornamos nullptr
         return nullptr;
     }
