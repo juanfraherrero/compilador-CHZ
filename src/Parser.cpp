@@ -976,7 +976,7 @@ Tercet* popTercet(){
 void initClass(string key, string scope, string & reglaptr){
         // verificamos a que distancia se encuentra la primer aparición de la variable en un ámbito alcanzable
         int diff = tableSymbol->getDiffOffScope(key+scope, "clase", scope); 
-        
+        // cs:main :main:func3   
         // si está en el mismo ámbito
         if(diff == 0){
                 // en el mismo ámbito existe una clase, verificar si es forward declaration
@@ -1115,8 +1115,6 @@ void addObject(string key, string scope, string classType){
         // Verificamos que no exista otro objeto con el mismo nombre en el mismo ámbito
         // buscamos la clase más cercana de classType
         // si la encontramos por cada atributo y método creamos un nuevo símbolo con el scope del objeto
-
-        
         
         int diff = tableSymbol->getDiffOffScope(key+scope, "objeto", scope); 
         
@@ -1125,15 +1123,22 @@ void addObject(string key, string scope, string classType){
                 // en el mismo ámbito existe un objeto
                 yyerror("Redeclaracion del objeto " + key + " en el mismo ambito");
         }else{
-                tableSymbol->deleteSymbol(key); // borramos elobjeto de la tabla de simbolos
+                // eliminamos el símbolo viejo y lo agregamos
+                symbol* newObject = setNewScope(key, "", scope, "objeto", tableSymbol);
                 
-                symbol* matchingClass = tableSymbol->getFirstSymbolMatching(classType+scope, "clase", scope); // buscamos la primera clase que matchee
+                symbol* matchingClass = tableSymbol->getFirstSymbolMatching(classType+":main", "clase", scope); // buscamos la primera clase que matchee
                 
+
                 for (const auto& par : matchingClass->attributesAndMethodsVector->getSymbolTable()){
                         symbol* sm = par.second;
                         // creamos el nuevo símbolo
-                        symbol* newSm = new symbol(*sm);
-                        newSm->lexema = key+":"+sm->lexema;
+                        symbol* newSm = new symbol(*sm);                
+                        size_t firstColonPos = sm->lexema.find(':');
+                        string name = sm->lexema.substr(0, firstColonPos);
+                        firstColonPos = sm->lexema.find(classType);
+                        string scopeInsideClass = sm->lexema.substr(firstColonPos, sm->lexema.size());
+
+                        newSm->lexema = name+scope+":"+scopeInsideClass+":"+key;
 
                         // agregamos el nuevo símbolo a la tabla de simbolos        
                         tableSymbol->insert(newSm);
@@ -1277,7 +1282,6 @@ void newCondicion(string operador, string op1ptr, string op2ptr, string op1type,
 }
 
 void newVariable(string key, string scope, string type){
-        
         TableSymbol* ts;
         
         // determinas que tabla de símbolo usas
@@ -1288,14 +1292,29 @@ void newVariable(string key, string scope, string type){
         }
 
         int diff = ts->getDiffOffScope(key+scope, "var", scope); 
-        
         if(diff == 0){
                 yyerror("Redeclaracion de variable en el mismo ambito");
         }else{
                 symbol* newIdentificador = setNewScope(key, type, scope,"var", ts);
         } 
 };
-#line 1297 "y.tab.c"
+
+void initObjectDeclaration(string key, string scope, string& reglaptr){
+        // verificar que la clase haya sido declarada y exista
+        // borramos el símbolo de la tabla de símbolos general
+        
+        tableSymbol->deleteSymbol(key);
+        
+        symbol* symbolFinded = tableSymbol->getFirstSymbolMatching(key+":main", "clase", scope); 
+        if(symbolFinded == nullptr){
+                yyerror("No se encontro declaracion previa de la clase "+ key);
+                actualClass = "_error"; 
+        }else{
+                reglaptr = key; 
+                actualClass = key; 
+        }
+}       
+#line 1311 "y.tab.c"
 #define YYABORT goto yyabort
 #define YYACCEPT goto yyaccept
 #define YYERROR goto yyerrlab
@@ -1621,7 +1640,7 @@ case 55:
 break;
 case 56:
 #line 153 "./gramaticaForGenCod.y"
-{ yyval->ptr = yyvsp[0]->ptr; actualClass = yyvsp[0]->ptr; tableSymbol->deleteSymbol(yyvsp[0]->ptr);}
+{initObjectDeclaration(yyvsp[0]->ptr, tableSymbol->getScope(), yyval->ptr); }
 break;
 case 57:
 #line 156 "./gramaticaForGenCod.y"
@@ -1991,7 +2010,7 @@ case 183:
 #line 333 "./gramaticaForGenCod.y"
 { yyerror("Falta constante numerica en la expresion"); }
 break;
-#line 1993 "y.tab.c"
+#line 2007 "y.tab.c"
     }
     yyssp -= yym;
     yystate = *yyssp;

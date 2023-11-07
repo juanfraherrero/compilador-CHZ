@@ -209,34 +209,36 @@ string TableSymbol::getScope(){
 
 // nameVar+scope
 // symbolWithScope
-int TableSymbol::getDiffOffScope(const string& varWithScope,const string& uso, const string& scope) {
-    // Suponemos que uno le pasa por la variable "ambito" el ámbito al que queremos calcular la diferencia de niveles.
+int TableSymbol::getDiffOffScope(const string varWithScope,const string& uso, const string& scope) {
+    //  que uno le pasa por la variable "ambito" el ámbito al que queremos calcular la diferencia de niveles.
+    // varWithScope:  cs:main:func3     scope : cs:main
+    // scopeAux: x:main:a:b:c 
+    
     size_t firstColonPos = varWithScope.find(':');
     string nameVar = varWithScope.substr(0, firstColonPos);
     string scopeAux = nameVar + scope;
     int diff = 0;
-    string ambitoActual = varWithScope;  // Creamos una copia de ambito para no modificar el original
-    size_t lastColonPosAmbito = ambitoActual.find_last_of(':'); // Buscamos la última aparición de ':' en el ámbito
+    size_t lastColonPosAmbito = scopeAux.find_last_of(':'); // Buscamos la última aparición de ':' en el ámbito
 
     //comparamos el ambito actual con el scope
     while (lastColonPosAmbito != string::npos) {
-        if (ambitoActual != scopeAux){
+        if (varWithScope != scopeAux){
             diff++;
         }
         else{ 
-            if (CompareUse(ambitoActual,uso))
+            if (CompareUse(scopeAux,uso))
             {   
                 return diff;
             }
         }
-        ambitoActual = ambitoActual.substr(0, lastColonPosAmbito);
-        lastColonPosAmbito = ambitoActual.find_last_of(':');
+        scopeAux = scopeAux.substr(0, lastColonPosAmbito);
+        lastColonPosAmbito = scopeAux.find_last_of(':');
     }
     return -1;
 }
 
-bool TableSymbol::CompareUse(const string& ambito, const string& uso){
-    auto it = symbolTable.find(ambito);
+bool TableSymbol::CompareUse(const string scope, const string uso){
+    auto it = symbolTable.find(scope);
     if (it != symbolTable.end()) {
         if(it->second->uso == uso){
             return true;
@@ -247,11 +249,14 @@ bool TableSymbol::CompareUse(const string& ambito, const string& uso){
 
 symbol* TableSymbol:: getFirstSymbolMatching(const string& varWithScope,const string& uso, const string& scope)
 {
+
     int diffScope = getDiffOffScope(varWithScope, uso, scope);
     if(diffScope == -1){ // sino encontramos coincidencia retornamos nullptr
         return nullptr;
     }
-    string ambitoAux = varWithScope;
+    size_t firstColonPos = varWithScope.find(':');
+    string nameVar = varWithScope.substr(0, firstColonPos);
+    string ambitoAux = nameVar+scope;
     while (diffScope != 0){
         size_t lastColonPos = ambitoAux.find_last_of(':');
         ambitoAux = ambitoAux.substr(0, lastColonPos);

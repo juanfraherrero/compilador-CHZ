@@ -64,14 +64,14 @@ class TableSymbol{
         string getUso(const string& key);
 
         symbol* getFirstSymbolMatching(const string& ambito,const string& uso, const string& scope);
-        int getDiffOffScope(const string& ambito, const string& uso, const string& scope);
+        int getDiffOffScope(const string ambito, const string& uso, const string& scope);
         // Destructor para liberar la memoria de los símbolos
         ~TableSymbol();
 
         unordered_map<string, symbol*> getSymbolTable();
         //funciones auxiliares
 
-        bool CompareUse(const string& ambito, const string& uso);
+        bool CompareUse(const string ambito, const string uso);
 };
 
 #endif

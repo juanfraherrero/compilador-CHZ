@@ -107,7 +107,7 @@ comas : ',' comas
 declarativa :   tipo lista_de_variables                                             { yyPrintInLine("Se detecto declaracion de variable");}
             |   declaracion_clase                                                    
             |   declaracion_objeto                                                  { yyPrintInLine("Se detecto declaracion de objeto");}
-            |   declaracion_funcion                                                 { yyPrintInLine("Se detecto declaracion de funcion");}
+            |                                                            { yyPrintInLine("Se detecto declaracion de funcion");}
             ;
 
 declaracion_funcion     :       funcion_name '(' parametro_funcion ')' '{' cuerpo_de_la_funcion '}'             { finishFunction();  }
@@ -150,7 +150,7 @@ metodo_name     :       VOID IDENTIFICADOR              { initMethod($2->ptr, ta
 
 declaracion_objeto  :   typeClass lista_de_objetos   {} 
                     ;
-typeClass : IDENTIFICADOR                       { $$->ptr = $1->ptr; actualClass = $1->ptr; tableSymbol->deleteSymbol($1->ptr);}
+typeClass : IDENTIFICADOR                       {initObjectDeclaration($1->ptr, tableSymbol->getScope(), $$->ptr); }
           ;
 
 lista_de_objetos    :   lista_de_objetos ';' IDENTIFICADOR      { addObject($3->ptr, tableSymbol->getScope(), actualClass); }
@@ -587,8 +587,6 @@ void addObject(string key, string scope, string classType){
         // Verificamos que no exista otro objeto con el mismo nombre en el mismo ámbito
         // buscamos la clase más cercana de classType
         // si la encontramos por cada atributo y método creamos un nuevo símbolo con el scope del objeto
-
-        
         
         int diff = tableSymbol->getDiffOffScope(key+scope, "objeto", scope); 
         
@@ -597,15 +595,22 @@ void addObject(string key, string scope, string classType){
                 // en el mismo ámbito existe un objeto
                 yyerror("Redeclaracion del objeto " + key + " en el mismo ambito");
         }else{
-                tableSymbol->deleteSymbol(key); // borramos elobjeto de la tabla de simbolos
+                // eliminamos el símbolo viejo y lo agregamos
+                symbol* newObject = setNewScope(key, "", scope, "objeto", tableSymbol);
                 
-                symbol* matchingClass = tableSymbol->getFirstSymbolMatching(classType+scope, "clase", scope); // buscamos la primera clase que matchee
+                symbol* matchingClass = tableSymbol->getFirstSymbolMatching(classType+":main", "clase", scope); // buscamos la primera clase que matchee
                 
+
                 for (const auto& par : matchingClass->attributesAndMethodsVector->getSymbolTable()){
                         symbol* sm = par.second;
                         // creamos el nuevo símbolo
-                        symbol* newSm = new symbol(*sm);
-                        newSm->lexema = key+":"+sm->lexema;
+                        symbol* newSm = new symbol(*sm);                
+                        size_t firstColonPos = sm->lexema.find(':');
+                        string name = sm->lexema.substr(0, firstColonPos);
+                        firstColonPos = sm->lexema.find(classType);
+                        string scopeInsideClass = sm->lexema.substr(firstColonPos, sm->lexema.size());
+
+                        newSm->lexema = name+scope+":"+scopeInsideClass+":"+key;
 
                         // agregamos el nuevo símbolo a la tabla de simbolos        
                         tableSymbol->insert(newSm);
@@ -765,3 +770,19 @@ void newVariable(string key, string scope, string type){
                 symbol* newIdentificador = setNewScope(key, type, scope,"var", ts);
         } 
 };
+
+void initObjectDeclaration(string key, string scope, string& reglaptr){
+        // verificar que la clase haya sido declarada y exista
+        // borramos el símbolo de la tabla de símbolos general
+
+        tableSymbol->deleteSymbol(key);
+        
+        symbol* symbolFinded = tableSymbol->getFirstSymbolMatching(key+":main", "clase", scope); 
+        if(symbolFinded == nullptr){
+                yyerror("No se encontro declaracion previa de la clase "+ key);
+                actualClass = "_error"; 
+        }else{
+                reglaptr = key; 
+                actualClass = key; 
+        }
+}       
