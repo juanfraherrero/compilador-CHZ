@@ -211,8 +211,8 @@ string TableSymbol::getScope(){
 // symbolWithScope
 int TableSymbol::getDiffOffScope(const string varWithScope,const string& uso, const string& scope) {
     //  que uno le pasa por la variable "ambito" el ámbito al que queremos calcular la diferencia de niveles.
-    // varWithScope:  cs:main:func3     scope : cs:main
-    // scopeAux: x:main:a:b:c 
+    // varWithScope:  cs:main:func3     scope : main
+    // scopeAux: cs:main
     
     size_t firstColonPos = varWithScope.find(':');
     string nameVar = varWithScope.substr(0, firstColonPos);
@@ -249,7 +249,8 @@ bool TableSymbol::CompareUse(const string scope, const string uso){
 
 symbol* TableSymbol:: getFirstSymbolMatching(const string& varWithScope,const string& uso, const string& scope)
 {
-
+    // b:main:func3
+    // main:func3
     int diffScope = getDiffOffScope(varWithScope, uso, scope);
     if(diffScope == -1){ // sino encontramos coincidencia retornamos nullptr
         return nullptr;
@@ -268,6 +269,68 @@ symbol* TableSymbol:: getFirstSymbolMatching(const string& varWithScope,const st
     }
     return nullptr;
 }
+
+symbol* TableSymbol:: getFirstSymbolMatching2(const string var,const string uso, string scope)
+{
+    // la idea es que recibe una variable y el scope actual
+    // debe de buscar en la tabla de símbolos si conicide con el uso y el scope
+    // devuelve nullptr si no encuentra coincidencia y sino devuelve la coincidencia
+
+
+    //creamos un scopeaux para poder modificar ya que es una constante
+    while (scope != ""){
+        // recorrer cada uno de los simbolos de la tabla, si lo encuentra retorna el simbolo
+        for (const auto& par : this->symbolTable){
+            symbol* simbolo = par.second;
+            // verificamos que el valor de lexema sea el mismo que el de la variable con el scope,ademas tambien verifcamos el uso
+            if(var+scope == simbolo->lexema &&  simbolo->uso == uso){    
+                // encontramos el primero símbolo con mayor longitud de scope que coincide nombre y uso
+                return simbolo;
+            }
+        }
+        
+        // recortamos el scope
+        size_t lastColonPos = scope.find_last_of(':');
+        scope = scope.substr(0, lastColonPos);  
+        //pregutamos si esta vacio el scopeAux si es asi devolvemos nullptr
+        if (scope == ""){
+            return nullptr;
+        }
+    }
+}
+
+
+int TableSymbol:: getDiffOffScope2(const string var,const string uso, string scope)
+{
+    // la idea es que recibe una variable y el scope actual
+    // debe de buscar en la tabla de símbolos si conicide con el uso y el scope
+    // a medida que recorta un scope summa 1 al diff para saber la distancia a la que se encuentra
+    // si encuentra retorna ese da ino devuelve -1
+
+    int diff = 0;
+    while (scope != ""){
+        // recorrer cada uno de los simbolos de la tabla, si lo encuentra retorna el simbolo
+        for (const auto& par : this->symbolTable){
+            symbol* simbolo = par.second;
+
+            // verificamos que el valor de lexema sea el mismo que el de la variable con el scope, ademas tambien verifcamos el uso
+            if(var+scope == simbolo->lexema &&  simbolo->uso == uso){
+                // encontramos el primero símbolo con mayor longitud de scope que coincide nombre y uso
+                return diff;
+            }
+        }
+        diff++;
+        // recortamos el scope
+        size_t lastColonPos = scope.find_last_of(':');
+        scope = scope.substr(0, lastColonPos);  
+        //pregutamos si esta vacio el scope si es asi devolvemos nullptr
+        if (scope == ""){
+            return -1;
+        }
+    }
+    return -1;
+}
+         
 // Destructor para liberar la memoria de los símbolos
 TableSymbol::~TableSymbol() {
     for (auto& pair : symbolTable) {

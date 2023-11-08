@@ -36,6 +36,8 @@ struct symbol {
     int count;              // se usa para contabilizar cuantos lexemas apuntan al mismo elemento
     bool forwarded = false; // se usa para saber si el simbolo fue forwardado o no
     TableSymbol* attributesAndMethodsVector; // se usa para que tengamos los atritbutos y métodos de una clase en este vector en heap de simbolos del heap
+    // string hereda[3] = {"","",""};
+
 
     symbol(const string& _lexema) : lexema(_lexema), count(1) {};
     symbol(const string& _lexema, string _value) : lexema(_lexema), value(_value), count(1) {};

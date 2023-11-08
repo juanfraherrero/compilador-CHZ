@@ -107,7 +107,7 @@ comas : ',' comas
 declarativa :   tipo lista_de_variables                                             { yyPrintInLine("Se detecto declaracion de variable");}
             |   declaracion_clase                                                    
             |   declaracion_objeto                                                  { yyPrintInLine("Se detecto declaracion de objeto");}
-            |                                                            { yyPrintInLine("Se detecto declaracion de funcion");}
+            |   declaracion_funcion                                                 { yyPrintInLine("Se detecto declaracion de funcion");}
             ;
 
 declaracion_funcion     :       funcion_name '(' parametro_funcion ')' '{' cuerpo_de_la_funcion '}'             { finishFunction();  }
@@ -124,11 +124,15 @@ funcion_name    :       VOID IDENTIFICADOR              { initFunction($2->ptr, 
 
 declaracion_clase   :   nombre_clase '{' lista_atributos_y_metodos '}'   { finishClass(); }
                     |   nombre_clase '{' '}'                             { finishClass(); yywarning("Se detecto una declaracion de clases vacia");}
+                    |   nombre_clase '{' lista_atributos_y_metodos clase_heredada'}'   { finishClass(); }
+                    |   nombre_clase '{' clase_heredada '}'                     { finishClass(); }
                     |   CLASS IDENTIFICADOR /* fordward declaration*/           { forwardClass($2->ptr, tableSymbol->getScope());}
                     |   CLASS '{' lista_atributos_y_metodos '}'                 { yyerror("Falta nombre de la clase"); }
                     |   CLASS  '{' '}'                                          { yyerror("Falta nombre de la clase"); }
                     ;
-                    
+clase_heredada  :       IDENTIFICADOR ','                                       { detectInheritance($1->ptr, tableSymbol->getScope(), actualClass); }
+                |       IDENTIFICADOR                                           { detectInheritance($1->ptr, tableSymbol->getScope(), actualClass); yywarning("Se detecto una falta de coma"); }                    
+                ;
 nombre_clase    :       CLASS IDENTIFICADOR                     { initClass($2->ptr, tableSymbol->getScope(), $$->ptr); }
                 ;
 lista_atributos_y_metodos       :       lista_atributos_y_metodos tipo lista_de_atributos ','           { yyPrintInLine("Se detecto declaracion de variable en clase");}
@@ -590,8 +594,7 @@ void addObject(string key, string scope, string classType){
         if (classType == "_error"){
                 return;
         }
-        int diff = tableSymbol->getDiffOffScope(key+scope, "objeto", scope); 
-        
+        int diff = tableSymbol->getDiffOffScope2(key, "objeto", scope); 
         // si está en el mismo ámbito
         if(diff == 0){
                 // en el mismo ámbito existe un objeto
@@ -599,9 +602,7 @@ void addObject(string key, string scope, string classType){
         }else{
                 // eliminamos el símbolo viejo y lo agregamos
                 symbol* newObject = setNewScope(key, "", scope, "objeto", tableSymbol);
-                
-                symbol* matchingClass = tableSymbol->getFirstSymbolMatching(classType+":main", "clase", scope); // buscamos la primera clase que matchee
-                
+                symbol* matchingClass = tableSymbol->getFirstSymbolMatching2(classType, "clase", scope); // buscamos la primera clase que matchee 
 
                 for (const auto& par : matchingClass->attributesAndMethodsVector->getSymbolTable()){
                         symbol* sm = par.second;
@@ -611,7 +612,7 @@ void addObject(string key, string scope, string classType){
                         string name = sm->lexema.substr(0, firstColonPos);
                         firstColonPos = sm->lexema.find(classType);
                         string scopeInsideClass = sm->lexema.substr(firstColonPos, sm->lexema.size());
-
+                        cout<< "\nname: " << name << " scope: " << scope << " scopeInside " << scopeInsideClass  <<  " calssType " << classType << " sm->lexema " << sm->lexema  << endl;
                         newSm->lexema = name+scope+":"+scopeInsideClass+":"+key;
 
                         // agregamos el nuevo símbolo a la tabla de simbolos        
@@ -776,10 +777,8 @@ void newVariable(string key, string scope, string type){
 void initObjectDeclaration(string key, string scope, string& reglaptr){
         // verificar que la clase haya sido declarada y exista
         // borramos el símbolo de la tabla de símbolos general
-
         tableSymbol->deleteSymbol(key);
-        
-        symbol* symbolFinded = tableSymbol->getFirstSymbolMatching(key+":main", "clase", scope); 
+        symbol* symbolFinded = tableSymbol->getFirstSymbolMatching2(key, "clase", scope);
         if(symbolFinded == nullptr){
                 yyerror("No se encontro declaracion previa de la clase "+ key);
                 actualClass = "_error"; 
@@ -788,3 +787,48 @@ void initObjectDeclaration(string key, string scope, string& reglaptr){
                 actualClass = key; 
         }
 }       
+void  detectInheritance(string classToInherit , string scope, string classWhoInherit){
+        
+        // checkear que exista la clase
+        // pasa los atributos de la clase padre a la clase hija
+
+        tableSymbol->deleteSymbol(classToInherit);
+
+        symbol* classFinded = tableSymbol->getFirstSymbolMatching(classToInherit+":main", "clase", scope);
+        if(classFinded == nullptr){
+                yyerror("No se encontro declaracion previa de la clase a heredar"+ classToInherit);
+        }else{
+                
+                // recorrer cada uno de los atributos y metodos de la clase a hererdar
+                for (const auto& par : classFinded->attributesAndMethodsVector->getSymbolTable()){
+                        
+                        symbol* sm = par.second;
+                        
+                        // creamos el nuevo símbolo
+                        symbol* newClass = new symbol(*sm);   
+
+                        size_t firstColonPos = sm->lexema.find(':');
+                        string name = sm->lexema.substr(0, firstColonPos);
+                        
+                        firstColonPos = scope.rfind(':');
+                        string scopeaux = scope.substr(0, firstColonPos);
+                        
+                        firstColonPos = sm->lexema.find(classToInherit);
+                        string scopeInsideClass = sm->lexema.substr(firstColonPos, sm->lexema.size());
+                        newClass->lexema = name+scopeaux+":"+scopeInsideClass+":"+classWhoInherit;
+                        // try{
+                        //     newClass->addHeredar(classToInherit);
+                        // }catch(const std::exception& e){
+                        //     yyerror("La clase tiene una cadena de más de 3 herencias");
+                        // }
+                        // if (firstColonPos >= sm->lexema.size()) {
+                        //         newSm->lexema = name+scopeaux+":"+classWhoInherit;
+
+                        // }else{          //
+                        //         newSm->lexema = name+scopeaux+":"+scopeInsideClass+":"+classWhoInherit;
+                        // }
+                        // agregamos el nuevo símbolo a la tabla de simbolos   
+                        stackClasses->top()->attributesAndMethodsVector->insert(newClass);
+                }
+        }
+}
