@@ -587,7 +587,9 @@ void addObject(string key, string scope, string classType){
         // Verificamos que no exista otro objeto con el mismo nombre en el mismo ámbito
         // buscamos la clase más cercana de classType
         // si la encontramos por cada atributo y método creamos un nuevo símbolo con el scope del objeto
-        
+        if (classType == "_error"){
+                return;
+        }
         int diff = tableSymbol->getDiffOffScope(key+scope, "objeto", scope); 
         
         // si está en el mismo ámbito
