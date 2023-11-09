@@ -36,7 +36,10 @@ struct symbol {
     int count;              // se usa para contabilizar cuantos lexemas apuntan al mismo elemento
     bool forwarded = false; // se usa para saber si el simbolo fue forwardado o no
     TableSymbol* attributesAndMethodsVector; // se usa para que tengamos los atritbutos y métodos de una clase en este vector en heap de simbolos del heap
-    // string hereda[3] = {"","",""};
+    string inheritance[3] = {"","",""};     // lleva la herencia de la clase, si es que tiene. Máximo 3 niveles de herencia
+    string object = "main";                 // define a que objeto pertence el atributo, método o varibale o función. Por defecto es main
+    string scopeInsideClass;                // define el scope de un atributo o método dentro de una clase
+    string classOfSymbol;                   // define a que clase pertenece cada atributo o método
 
 
     symbol(const string& _lexema) : lexema(_lexema), count(1) {};
