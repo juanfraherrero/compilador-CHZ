@@ -586,6 +586,41 @@ void addParamFunction(string key, string scope, string type, string & reglaptr, 
         reglaptr = newIdentificador->lexema; 
         reglatype = type; 
 };
+
+string checkNewNameBeforeInsert(symbol* newSm){
+        // funcion que se encarga de borrar las apariciones de nombres de clases dentro un lexema 
+        // y de verificar que no exista un nombre igual en el mismo ámbito
+        // la logica funciona en iterar sobre la tabla de symbolor preguntando por cada uno de los lexemas si es que son de tipo clase
+        // si es asi se crea una variable auxiliar donde se concatena de forma correcta el nuevo lexema para buscar si este se encuentra como substring dentro de 
+        // de nuevo lexema a insertar dentro de la tabla de simbolos 
+        
+        for (const auto& par : tableSymbol->getSymbolTable()){
+                symbol* sm = par.second;
+                if(sm->uso == "clase"){
+                        // creo una variable aux para guardar el lexema                 ejemplo= b:main:func3
+                        string lexemaAux = sm->lexema;
+                        //busco la primera aparicion de :                               ejemplo= 2
+                        size_t firstColonPos = lexemaAux.find(':');
+                        //obtengo el nombre de la clase para su uso a posteriori        ejemplo= b
+                        string nameOfClass = lexemaAux.substr(0, firstColonPos); 
+                        //busco el tamaño de la palabra                                 ejemplo= 12
+                        size_t secondColonPos = lexemaAux.size();
+                        //creo el nuevo lexema                                         ejemplo= primer substr = main:func3 segundo substr = b, lo concateno y queda main:func3:b
+                        lexemaAux =  lexemaAux.substr(firstColonPos + 1, secondColonPos)+":"+lexemaAux.substr(0,firstColonPos);
+                        //busco si el nuevo lexema se encuentra dentro del lexema a insertar
+                        size_t pos = newSm->lexema.find(lexemaAux);
+                        // si encuentra una posicion con el find significa que esta
+                        if(pos != string::npos){
+                                //si se encuentra dentro del lexema a insertar, se borra la aparicion de el nombre de la clase unicamente 
+                                size_t pos = newSm->lexema.find(nameOfClass);
+                                newSm->lexema.erase(pos-1, pos);      //siguiendo con el ejemplo y suponiendo que tenemos x:main:func3:b, se borra la aparicion de b y queda x:main:func3
+                                newSm->lexema =  newSm->lexema +":"+nameOfClass; //se concatena el nombre de la clase al final del lexema
+                        }
+                }
+        }
+        return newSm->lexema;
+}
+
 void addObject(string key, string scope, string classType){
         
         // Verificamos que no exista otro objeto con el mismo nombre en el mismo ámbito
@@ -614,12 +649,15 @@ void addObject(string key, string scope, string classType){
                         string scopeInsideClass = sm->lexema.substr(firstColonPos, sm->lexema.size());
                         cout<< "\nname: " << name << " scope: " << scope << " scopeInside " << scopeInsideClass  <<  " calssType " << classType << " sm->lexema " << sm->lexema  << endl;
                         newSm->lexema = name+scope+":"+scopeInsideClass+":"+key;
-
+                        newsm-> lexema = checkNewNameBeforeInsert(newSm);
                         // agregamos el nuevo símbolo a la tabla de simbolos        
                         tableSymbol->insert(newSm);
                 }
         } 
 };
+
+
+
 void initFunction(string key, string scope){
         TableSymbol* ts;
         
