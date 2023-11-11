@@ -93,19 +93,41 @@ void TableSymbol::imprimirTabla() {
     cout << "\n\nTabla de símbolos:\n\n" << endl;
     for (const auto& pair : symbolTable) {
         const symbol* symbol = pair.second;
-        cout << "Clave: " << pair.first << "\t Lexema: " << symbol->lexema << "\t Valor: " << symbol->value << "\t Tipo: " << symbol->type << "\t Uso: " << symbol->uso << "\t fullIdentifier: " << symbol->fullIdentifier <<endl;
+        if (symbol->uso == "var") {
+            cout << symbol->ToString() << endl;
+        } else if (symbol->uso == "funcion") {
+            cout << symbol->ToStringFunction() << endl;
+        } else if (symbol->uso == "metodo") {
+            cout << symbol->ToStringFunction() << endl;
+        } else if (symbol->uso == "clase") {
+            cout << symbol->ToStringClass() << endl;
+        } else if (symbol->uso == "atributo") {
+            cout << symbol->ToStringAttribute() << endl;
+        } else if (symbol->uso == "objeto") {
+            cout << symbol->ToStringObject() << endl;
+        } else {
+            cout << "Clave: " << pair.first << "\t Lexema: " << symbol->lexema << "\t Valor: " << symbol->value << "\t Tipo: " << symbol->type << "\t Uso: " << symbol->uso << "\t fullIdentifier: " << symbol->fullIdentifier <<endl;
+        }
     }
 }
 
 
 void TableSymbol::imprimirAtributosMetodos() {
-    cout << "\n\nAtributos y métodos de clase:\n\n" << endl;
+    cout << "\n\nAtributos y métodos de clase:\n" << endl;
     for (const auto& pair : symbolTable) {
         const symbol* sm = pair.second;
         if (sm->uso == "clase"){
-            cout << "Clave: " << pair.first << "\t Lexema: " << sm->lexema << "\t Valor: " << sm->value << "\t Tipo: " << sm->type << "\t Uso: " << sm->uso << "\t fullIdentifier: " << sm->fullIdentifier <<endl;
-            
-            sm->attributesAndMethodsVector->imprimirTabla();
+            cout << "\nClase: " << sm->lexema.substr(0,sm->lexema.find(":")) <<endl;
+            for (const auto& pair : sm->attributesAndMethodsVector->getSymbolTable()) {
+                const symbol* symbol = pair.second;
+                cout << "Lexema: " << symbol->lexema << "\t Tipo: " << symbol->type << "\t Uso: " << symbol->uso << "\t scopeInsideClass: " << symbol->scopeInsideClass << "\t classOfSymbol: " << symbol->classOfSymbol << endl;
+                // cout << " la clase hereda de:" ;
+                // // copiamos el arreglo de herencia de la clase a heredar a la clase que hereda
+                // for(int i = 0; i < 3; i++) {
+                //     cout << symbol->inheritance[i]->;
+                // }
+                // cout << endl;
+            }
         }
             
     }
