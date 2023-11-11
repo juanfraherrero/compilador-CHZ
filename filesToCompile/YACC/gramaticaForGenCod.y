@@ -470,6 +470,8 @@ void initClass(string key, string scope, string & reglaptr){
                 if(symbolFinded->forwarded == false){
                         yyerror("Redeclaracion de clase " + key + " en el mismo ambito");
                 }else{
+                        //aca borramos el simbolo de la tabla de simbolos general
+                        tableSymbol->deleteSymbol(key); 
                         // la marcamos como que ya se declaró
                         symbolFinded->forwarded = false;
                         symbolFinded->attributesAndMethodsVector = new TableSymbol(scope+":"+key); // inicializamos el vector de simbolos
