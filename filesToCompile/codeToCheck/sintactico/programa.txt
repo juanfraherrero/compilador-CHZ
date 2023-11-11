@@ -1,13 +1,87 @@
 {
-    SHORT x; y,                             *{declaración de variables}*
-    x = 5_s,                                *{asignación}*
-    y = -3.14E-10,                          *{asignación}*
-    z = x + y                               *{asignación, falta de coma}*
-    PRINT #El resultado es: z#,             *{impresión}*
-
-    IF (x < y) {
-        PRINT #x es menor que y#,           
-    } ELSE {
-        PRINT #x no es menor que y #,       
-    } END_IF                               *{bloque de control IF-ELSE, falta de coma}*
+    CLASS clase1 {                          
+        SHORT x,                                                       
+    },                                 
+    CLASS clase2 {                 
+        SHORT z,        
+        clase1,
+    },     
+   clase2 ob2,
+   ob2.z = ...,                          
 }
+
+
+*{
+tabla main
+
+clase1:main ; uso = "clase" ; herencia = [null,null,null] ; nameclass = clase1 
+clase2:main ; uso = "clase" ; herencia = [*ts_clase1,null,null] ; nameclass = clase2
+clase3:main ; uso = "clase" ; herencia = [*ts_clase1,*ts_clase2,*ts_clase3] ; nameclass = clase2
+
+ob2:main ; uso = "objeto" ; nameclass = clase2
+z:main:clase:ob2:main ; uso = "atributo"; nameclass = clase2
+x:main:clase1:ob2:main   ; uso = atributo ; nameclass = clase1
+
+
+
+tabla clase 1
+x:main:clase1; uso = atributo ; nameclass = clase1
+
+
+tabla clase 2
+z:main:clase2; uso = atributo ; nameclass = clase2
+
+// LLAMADO
+ob2.z --> reconstruccion del lexema
+
+1= ob2 si existe en la tabla de simbolos de el main, si existe obtenes de que clase es.
+2= con la clase lo que haces es concatenar el nombre con el ":main" para buscar el puntero a la tabla de simbolos propia de la clase
+3= Ya con la tabla buscas si existe algun lexema que empiece con el valor x con el uso, con esto obtenes el lexema completo estatico de la tabla de simbolos de la clase
+    si no lo encontras iteras haciendo lo mismo sobre la clase padre si es que tiene herencia
+4= guardas el lexema estatico, a esto le sumas el nombre del objeto y tambien le concatenas el scope actual, con esto se forma el lexema original de la varible en el main, 
+    con el objetivo de buscar su existencia
+
+
+1- verificar existencia del objeto nombreObjeto+scopeActual, sino existe error de objeto no declarado
+2- Buscamos el símbolo de la clase con clase+":main" y obteneos su tabla de símbolos
+3- buscamos nombre del atributo o método con su uso. Solo buscamos que tenga ese nombre (arranque con eso)
+4- bucamos el  la tabla de símbolos el nombre estático del atributo o método + nombreObjeto+scopeActual
+
+}*
+
+
+
+
+*{ como deberia quedar la tabla de simbolos como deberia registrarse
+lexema=   ;value=   ;type=   ;uso=    ;fullidentifier= 
+            **Tabla**
+
+lexema= clase1:main ;value=   ;type=identifier   ;uso=clase    ;fullidentifier= ; herencia=[null,null,null]; nameclass=clase1
+
+lexema= clase2:main ;value=   ;type=identifier   ;uso=clase    ;fullidentifier= ; herencia=[clase1,null,null]; nameclass=clase2
+
+lexema= ob2:main:@clase2 ;value=   ;type=identifier   ;uso=variable    ;fullidentifier= ; herencia=[null,null,null]; nameclass=
+lexema= z:ob2:clase2:clase1:main ;value=   ;type=SHORT   ;uso=variable    ;fullidentifier= ; herencia=[null,null,null]; nameclass=
+lexema= metodo1:ob2:clase2:clase1:main ;value=   ;type=void   ;uso=metodo    ;fullidentifier= ; herencia=[null,null,null]; nameclass=
+lexema= x:metodo1:ob2:clase2:clase1:main ;value=   ;type=UINT   ;uso=variable    ;fullidentifier= ; herencia=[null,null,null]; nameclass=
+lexema= z:ob2:clase2:main ;value=   ;type=SHORT   ;uso=variable    ;fullidentifier= ; herencia=[null,null,null]; nameclass=
+lexema= metodo2:ob2:clase2:main ;value=   ;type=void   ;uso=metodo    ;fullidentifier= ; herencia=[null,null,null]; nameclass=
+
+lexema= ob1:main:@clase1 ;value=   ;type=identifier   ;uso=variable    ;fullidentifier= ; herencia=[null,null,null]; nameclass=
+lexema= z:ob1:clase1:main ;value=   ;type=SHORT   ;uso=variable    ;fullidentifier= ; herencia=[null,null,null]; nameclass=
+lexema= metodo1:ob1:clase1:main ;value=   ;type=void   ;uso=metodo    ;fullidentifier= ; herencia=[null,null,null]; nameclass=
+lexema= x:metodo1:ob1:clase1:main ;value=   ;type=UINT   ;uso=variable    ;fullidentifier= ; herencia=[null,null,null]; nameclass=
+
+lexema= x:main ;value=   ;type=SHORT   ;uso=variable    ;fullidentifier= ; herencia=[null,null,null]; nameclass=
+
+            **tabla de simbolos de clase1**
+
+lexema= x:clase1:main ;value=   ;type=short   ;uso=variable    ;fullidentifier= ; herencia=[null,null,null]; nameclass=clase1
+lexema= metodo1:clase1:main ;value=   ;type=void   ;uso=metodo    ;fullidentifier= ; herencia=[null,null,null]; nameclass=clase1
+lexema= x:metodo1:clase1:main ;value=   ;type=uint   ;uso=variable    ;fullidentifier= ; herencia=[null,null,null]; nameclass=clase1
+
+
+            **tabla de simbolos de clase2**
+lexema= metodo1:clase2:main ;value=   ;type=void   ;uso=metodo    ;fullidentifier= ; herencia=[null,null,null]; nameclass=clase2
+lexema= clase1:clase2:main ;value=   ;type=identifier   ;uso=clase    ;fullidentifier= ; herencia=[PunteroAclase1,null,null]; nameclass=clase2  ????
+}*

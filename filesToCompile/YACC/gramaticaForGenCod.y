@@ -124,21 +124,20 @@ funcion_name    :       VOID IDENTIFICADOR              { initFunction($2->ptr, 
 
 declaracion_clase   :   nombre_clase '{' lista_atributos_y_metodos '}'   { finishClass(); }
                     |   nombre_clase '{' '}'                             { finishClass(); yywarning("Se detecto una declaracion de clases vacia");}
-                    |   nombre_clase '{' lista_atributos_y_metodos clase_heredada'}'   { finishClass(); }
-                    |   nombre_clase '{' clase_heredada '}'                     { finishClass(); }
                     |   CLASS IDENTIFICADOR /* fordward declaration*/           { forwardClass($2->ptr, tableSymbol->getScope());}
                     |   CLASS '{' lista_atributos_y_metodos '}'                 { yyerror("Falta nombre de la clase"); }
                     |   CLASS  '{' '}'                                          { yyerror("Falta nombre de la clase"); }
                     ;
-clase_heredada  :       IDENTIFICADOR ','                                       { detectInheritance($1->ptr, tableSymbol->getScope(), actualClass); }
-                |       IDENTIFICADOR                                           { detectInheritance($1->ptr, tableSymbol->getScope(), actualClass); yywarning("Se detecto una falta de coma"); }                    
+clase_heredada  :       IDENTIFICADOR                                       { detectInheritance($1->ptr, tableSymbol->getScope(), actualClass); }
                 ;
 nombre_clase    :       CLASS IDENTIFICADOR                     { initClass($2->ptr, tableSymbol->getScope(), $$->ptr); }
                 ;
 lista_atributos_y_metodos       :       lista_atributos_y_metodos tipo lista_de_atributos ','           { yyPrintInLine("Se detecto declaracion de variable en clase");}
                                 |       lista_atributos_y_metodos metodo ','                                 
-                                |       tipo lista_de_atributos ','                                    { yyPrintInLine("Se detecto declaracion de variable en clase");}
+                                |       lista_atributos_y_metodos clase_heredada ','                                 
+                                |       tipo lista_de_atributos ','                                     { yyPrintInLine("Se detecto declaracion de variable en clase");}
                                 |       metodo ','
+                                |       clase_heredada ','
                                 ;
 lista_de_atributos  :   lista_de_atributos ';' IDENTIFICADOR    { addAtribute($3->ptr, tableSymbol->getScope(), typeAux); }
                     |   IDENTIFICADOR                           { addAtribute($1->ptr, tableSymbol->getScope(), typeAux); }
@@ -462,7 +461,7 @@ Tercet* popTercet(){
 
 void initClass(string key, string scope, string & reglaptr){
         // verificamos a que distancia se encuentra la primer aparición de la variable en un ámbito alcanzable
-        int diff = tableSymbol->getDiffOffScope(key+scope, "clase", scope); 
+        int diff = tableSymbol->getDiffOffScope2(key, "clase", scope); 
         
         // si está en el mismo ámbito
         if(diff == 0){
@@ -523,13 +522,11 @@ void addAtribute(string key, string scope, string type, string classOfAttribute)
         // operamos sobre la tabla de símbolos de la clase
         TableSymbol * tsClass = stackClasses->top()->attributesAndMethodsVector;
 
-        bool existAlready = tsClass->existAttribute(key, scope, "atributo"); 
-                /* Esta función debe de verificar si existe este atributo en la tabla de símbolos de la clase,
-                        no debe verifiar en las tablas de las que hereda ya que se pueden sobreescribir los atributos
-                        verificas si exister key+scope con uso atributo y listo, no acorta lexema o key porque no es necesario
-                        */
-        if(existAlready){
-                yyerror("Redeclaracion de atributio en la misma clase");
+        // verificamos a que distancia se encuentra la primer aparición del atributo en un ámbito alcanzable
+        int diff = tsClass->getDiffOffScope2(key, "atributo", scope); 
+                
+        if(diff == 0){
+                yyerror("Redeclaracion de atributo en la misma clase");
         }else{
                 // creamos el nuevo símbolo para el atributo
                 symbol* newAttribute = new symbol(key+scope, "", type, "atributo");
@@ -539,13 +536,6 @@ void addAtribute(string key, string scope, string type, string classOfAttribute)
 
                 // Marcamos a la clase que pertenece el atributo
                 newAttribute->classOfSymbol = classOfAttribute;
-
-                // obtenemos el scope posterior a la aparción del nombre de la clase
-                //  scope = "x:main:func3:cs:metod1"; y la clase es cs
-                // buscamos :metod1
-                string scopeInsideClass = scope.substr(scope.find(classOfAttribute) + cs.length());
-                newAttribute->scopeInsideClass = scopeInsideClass; // scope inside class puede ser un acadena vacía
-
 
                 // agregamos el nuevo símbolo al vector de simbolos de la clase        
                 tsClass->insert(newAttribute);
@@ -566,27 +556,10 @@ void initMethod(string key, string scope, string classOfAttribute){
         // cargarlo al arreglo de la clase
 
         tableSymbol->deleteSymbol(key);   // eliminamos el simbolo (usa el contador) de la tabla general
-        
-        TableSymbol* tsClass = stackClasses->top()->attributesAndMethodsVector; // obtenemos la tabla de simbolos de la clase a la que le agramos el metodo
+        Symbol * classSymbol = stackClasses->top();
+        TableSymbol* tsClass = classSymbol->attributesAndMethodsVector; // obtenemos la tabla de simbolos de la clase a la que le agramos el metodo
 
-        int methodAlredyExist = tsClass->existMethod(key, scope, "metodo"); 
-                /*      Esta función debe verificar si existe algún método con el mismo nombre en 
-                                la tabla de símbolos de la clase y en cada una de las que hereda,
-                                los métodos no pueden sobre escribirse, por lo que si en algúna tabla de símbolos (propia o de las que hereda existe)
-                                se devuelve true,
-
-                                si el método está en la propia tabla de símbolos de la clase se devuelve 0
-                                si está en alguna de las que hereda se devuelve 1
-                                sino la encuentra se devuelve -1
-
-                                la idea es que como tsClass es un símbolo que tiene un arreglo con las 3 posibles herencias recorras cada una de las tablas
-                                        usando OTRA función que verifique solo en su nivel.
-                                
-                                la tabla ['clase1', 'clase2', 'clase3'] nos indicaría que la clase actual hereda de clase 3 que hereda de clase 2 
-                                        que hereda de clase 1
-                                
-                                Solo permitimos que se herede una vez, porque así es en c++ por ejemplo y en varios lenguajes.
-                        */
+        int methodAlredyExist = existMethodInInheritance(key, scope, "metodo", classSymbol);    // verificamos si el método ya existe en la clase o en alguna de sus clases heredadas
 
         if(methodAlredyExist == 0){
                 yyerror("Redeclaracion de metodo en la misma clase");
@@ -601,9 +574,6 @@ void initMethod(string key, string scope, string classOfAttribute){
                         */
 
                         newMetodo->classOfSymbol = classOfAttribute;
-                        
-                        // obtenemos el scopeInsideClass
-                        newMetodo->scopeInsideClass = "";       // scope inside de un método es siempre vacío  ya que se declara en el primer nivel de la clase
 
                         // agregamos el nuevo símbolo al vector de simbolos de la clase        
                         tsClass->insert(newMetodo);
@@ -623,6 +593,45 @@ void initMethod(string key, string scope, string classOfAttribute){
                 } 
         }
 };
+/**
+ * Esta función verifica si un método con la clave, alcance y uso dados existe en la tabla de símbolos de la clase actual o en cualquiera de sus clases heredadas.
+ * Si el método se encuentra en la tabla de símbolos de la clase actual, devuelve 0.
+ * Si el método se encuentra en una tabla de símbolos de clase heredada, devuelve 1.
+ * Si el método no se encuentra en ninguna de las tablas de símbolos, devuelve -1.
+ *
+ * @param key La clave del método a buscar.
+ * @param scope El alcance del método a buscar.
+ * @param uso El uso del método a buscar.
+ * @param classSymbol La tabla de símbolos de la clase actual en la que buscar.
+ * @return Un entero que indica si el método se encontró en la tabla de símbolos de la clase actual (0), en una tabla de símbolos de clase heredada (1), o no se encontró (-1).
+ */
+int existMethodInInheritan(string key, string scope, string uso, Symbol* classSymbol){
+    // verificamos si el método está en la tabla de símbolos de la clase actual, si es asi devolvemos 0
+    // si no es asi verificamos si está en alguna de las que hereda (de derecha a izquierda), si es asi devolvemos 1 y si no esta devolvemos 2
+    // revisar cuantas herencias hay, en base a esto hacer un for que se encargue de reccorer cada una de las tablas de las clases y en cada llamado usar la funcion getdiffscope y si lo que devuelve es 0 significa que esta
+    
+    // verificamos a que distancia se encuentra la primer aparición del atributo en un ámbito alcanzable
+    int diff = classSymbol->attributesAndMethodsVector->getDiffOffScope2(key, "metodo", scope);        
+    if(diff == 0){
+        //si el método está en la propia tabla de símbolos de la clase se devuelve 0
+        return 0;
+    }else{
+        // recorres el arreglo de herencia de esta clase verificando que exista alguna posicion con nullptr, si es asi verificas si esa clase tiene unmetodo con el mismo nombre y si es asi devuelves 1
+        for (int i=2; i >= 0; i--){
+            if(classSymbol->inheritance[i]!=nullptr){
+                
+                // verificar que en esa tabla no exista el simbolo
+                bool existMethodInTable = classSymbol->inheritance[i]->exisitOnlyElementWithUse(key,uso);
+
+                if(existMethodInTable){
+                    return 1;
+                }
+            }
+        }
+        return -1;
+   }           
+}
+                        
 /**
  * Cuando detectamos un parámtro en un método de clase
  * se elimina el símbolo viejo de la tabla
@@ -1007,48 +1016,58 @@ void initObjectDeclaration(string key, string scope, string& reglaptr){
                 actualClass = key; 
         }
 }       
+/**
+ * Borra el simbolo de la tabla general
+ * verifica si existe la clase a heredar, sino existe lanza un error de que no existe la clase
+ * si encontras la clase copias su arreglo de herencia a esta clase que hereda y le agregas en el primer nullptr la clase a heredar (si te pasas de 3 elemetos throw error de que no se puede heredar más de 3 veces))
+ *
+ *
+ * @param classToInherit The name of the class to inherit from.
+ * @param scope The scope of the inheriting class.
+ * @param classWhoInherit The name of the class that inherits.
+ * @return void
+ */
 void  detectInheritance(string classToInherit , string scope, string classWhoInherit){
         
-        // checkear que exista la clase
-        // pasa los atributos de la clase padre a la clase hija
+        // borrar el simbolo de la tabla general
+        // buscar si existe la clase a heredar, sino existe lanzar un error de que no existe la clase
+        // si encontras la clase copias su arrehlo de herencia a el arreglo de este símbolo y luego le agregas la clase a 
+        // heredar en el primer nullptr de ese arreglo (si te pasas de 3 elemetos throw error de que no se puede heredar más de 3 veces))
 
-        tableSymbol->deleteSymbol(classToInherit);
+        tableSymbol->deleteSymbol(classToInherit); // borramos el símbolo de la tabla general
 
-        symbol* classFinded = tableSymbol->getFirstSymbolMatching(classToInherit+":main", "clase", scope);
-        if(classFinded == nullptr){
-                yyerror("No se encontro declaracion previa de la clase a heredar"+ classToInherit);
+        Symbol* symbolofClassWhoInherit = stackClasses->top()  //guardas el simbolo de la ultima clase creada y agregada al stack de clases
+
+        // verificamos que no herede esta clase de otro,solo puede heredar de una
+        if (symbolofClassWhoInherit->isAlreadyInhenriting){
+                        yyerror("La clase " + symbolofClassWhoInherit->classOfSymbol +" ya hereda de otra clase");
         }else{
-                
-                // recorrer cada uno de los atributos y metodos de la clase a hererdar
-                for (const auto& par : classFinded->attributesAndMethodsVector->getSymbolTable()){
-                        
-                        symbol* sm = par.second;
-                        
-                        // creamos el nuevo símbolo
-                        symbol* newClass = new symbol(*sm);   
+                // buscamos la clase a heredar, la buscamos con scope ":main" porque es en el único lugar donde se pueden declarar clases
+                symbol* classFinded = tableSymbol->getFirstSymbolMatching2(classToInherit, "clase", ":main");w
+                if(classFinded == nullptr){
+                        yyerror("No se encontro declaracion previa de la clase a heredar "+ classToInherit);
+                }else{
+                        // copiamos el arreglo de herencia de la clase a heredar a la clase que hereda
+                        // intentamos agregar la clase a heredar en el primer nullptr del arreglo de herencia, si tiene más de 3 elementos lanzamos un error
 
-                        size_t firstColonPos = sm->lexema.find(':');
-                        string name = sm->lexema.substr(0, firstColonPos);
+                        symbolofClassWhoInherit->inheritance = classFinded->inheritance;                  // copiamos el arreglo de herencia de la clase a heredar a la clase que hereda
+                        bool isNullptr = false;
+                        int posOfNullInInheritance = -1;
+                        // recorres el arreglo verificando que exista alguna posicion con nullptr, si es asi seteas el booleano con true y guardas la posicion del nullptr.
+                        for (int i=0; i < 3; i++){
+                                if(symbolofClassWhoInherit->inheritance[i]==nullptr){
+                                        isNullptr = true;
+                                        posOfNullInInheritance = i;
+                                        break;
+                                }
+                        }
+                        // si el boleano es true, agregas la clase a heredar en el lugar que se encuentra nullptr del arreglo de herencia, si no es true lanzas un error diciendo que ya existe una herencia de 3 clases
+                        if(isNullptr){
+                                symbolofClassWhoInherit->inheritance[posOfNullInInheritance] = classFinded->attributesAndMethodsVector;  
+                        }else{
+                                yyerror("La clase " + symbolofClassWhoInherit->classOfSymbol +" ya hereda de 3 clases");
+                        }
                         
-                        firstColonPos = scope.rfind(':');
-                        string scopeaux = scope.substr(0, firstColonPos);
-                        
-                        firstColonPos = sm->lexema.find(classToInherit);
-                        string scopeInsideClass = sm->lexema.substr(firstColonPos, sm->lexema.size());
-                        newClass->lexema = name+scopeaux+":"+scopeInsideClass+":"+classWhoInherit;
-                        // try{
-                        //     newClass->addHeredar(classToInherit);
-                        // }catch(const std::exception& e){
-                        //     yyerror("La clase tiene una cadena de más de 3 herencias");
-                        // }
-                        // if (firstColonPos >= sm->lexema.size()) {
-                        //         newSm->lexema = name+scopeaux+":"+classWhoInherit;
-
-                        // }else{          //
-                        //         newSm->lexema = name+scopeaux+":"+scopeInsideClass+":"+classWhoInherit;
-                        // }
-                        // agregamos el nuevo símbolo a la tabla de simbolos   
-                        stackClasses->top()->attributesAndMethodsVector->insert(newClass);
                 }
         }
 }

@@ -69,6 +69,8 @@ class TableSymbol{
         symbol* getFirstSymbolMatching2(const string var,const string uso, string scope);
         int getDiffOffScope2(const string var, const string uso, string scope);
 
+        bool existMethodInTable(string key,string uso);
+
         // Destructor para liberar la memoria de los símbolos
         ~TableSymbol();
 

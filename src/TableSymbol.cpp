@@ -330,6 +330,21 @@ int TableSymbol:: getDiffOffScope2(const string var,const string uso, string sco
     }
     return -1;
 }
+
+bool TableSymbol::existMethodInTable(const string key, const string uso){
+    
+    // recorremos la tabla por cada símbolo
+    for (const auto& pair : symbolTable) {
+        const symbol* sm = pair.second;
+
+        // buscamos el símbolo que coincida con el nombre y el uso
+        string lexemaAux = sm->lexema.substr(0, sm->lexema.find(":"));
+        if (lexemaAux == key && sm->uso == uso){
+            return true;
+        }
+    }
+    return false;
+}
          
 // Destructor para liberar la memoria de los símbolos
 TableSymbol::~TableSymbol() {

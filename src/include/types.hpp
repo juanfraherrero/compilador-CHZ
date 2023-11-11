@@ -36,10 +36,10 @@ struct symbol {
     int count;              // se usa para contabilizar cuantos lexemas apuntan al mismo elemento
     bool forwarded = false; // se usa para saber si el simbolo fue forwardado o no
     TableSymbol* attributesAndMethodsVector; // se usa para que tengamos los atritbutos y métodos de una clase en este vector en heap de simbolos del heap
-    TableSymbol* inheritance[3] = {nullptr, nullptr, nullptr};     // lleva la herencia de la clase, si es que tiene. Máximo 3 niveles de herencia. Por ejemplo [*ts_clase1, *ts_clase2, *ts_clase3] nos indicaría que la clase actual hereda de clase 3 que hereda de clase 2... (se le de der a izq y se agrega de izq a der)  
-    string scopeInsideClass = "";                // define el scope de un atributo o método dentro de una clase
-    string classOfSymbol = "";                   // define a que clase pertenece cada atributo o método
-
+    TableSymbol* inheritance[3] = {nullptr, nullptr, nullptr};      // lleva la herencia de la clase, si es que tiene. Máximo 3 niveles de herencia. Por ejemplo [*ts_clase1, *ts_clase2, *ts_clase3] nos indicaría que la clase actual hereda de clase 3 que hereda de clase 2... (se le de der a izq y se agrega de izq a der)  
+    string scopeInsideClass = "";                                   // define el scope de un atributo o método dentro de una clase
+    string classOfSymbol = "";                                      // define a que clase pertenece cada atributo o método
+    bool isAlreadyInhenriting = false;                               // define si el atributo o método ya hereda o no hereda de una clase
 
     symbol(const string& _lexema) : lexema(_lexema), count(1) {};
     symbol(const string& _lexema, string _value) : lexema(_lexema), value(_value), count(1) {};
