@@ -759,37 +759,71 @@ string checkNewNameBeforeInsert(symbol* newSm){
         return newSm->lexema;
 }
 
+/**
+ * Cuando se detecta una declaración de objeto se llama esta función
+ * Verificamos que no exista un objeto en el mismo ámbito con el mismo nombre   
+ * agregamos el objeto a la tabla general, obtenemos la clase del objeto
+ * agregamos cada atributo y método de la clase y de sus herencias. 
+ * 
+ * @param key El nombre del objeto a agregar.
+ * @param scope El scope del objeto a agregar.
+ * @param classType La clase del objeto a agregar.
+ */
 void addObject(string key, string scope, string classType){
         
-        // Verificamos que no exista otro objeto con el mismo nombre en el mismo ámbito
-        // buscamos la clase más cercana de classType
-        // si la encontramos por cada atributo y método creamos un nuevo símbolo con el scope del objeto
+        // si la clase no existe no hacemos nada ya que en la función initObjectDeclaration() se levanta el error de clase no declarada
         if (classType == "_error"){
                 return;
         }
+        
+        // verificamos que no existea un objeto con el mismo nombre en el mismo ámbito
         int diff = tableSymbol->getDiffOffScope2(key, "objeto", scope); 
-        // si está en el mismo ámbito
         if(diff == 0){
-                // en el mismo ámbito existe un objeto
+                // existe un objeto ocn el mismo nombre en el mismo ámbito
                 yyerror("Redeclaracion del objeto " + key + " en el mismo ambito");
         }else{
-                // eliminamos el símbolo viejo y lo agregamos
+                // eliminamos el símbolo viejo y lo agregamos en la tabla de simbolo general
                 symbol* newObject = setNewScope(key, "", scope, "objeto", tableSymbol);
-                symbol* matchingClass = tableSymbol->getFirstSymbolMatching2(classType, "clase", scope); // buscamos la primera clase que matchee 
+                /*
+                    ACA SE AGREGAN LOS ATRIBUTOS AL OBJETO INSTANCIADO
+                */
+                newObject->classOfSymbol = classType; // seteamos el tipo de clase del objeto
 
+                // obtenemos el símbolo de la clase del objeto
+                symbol* matchingClass = tableSymbol->getFirstSymbolMatching2(classType, "clase", ":main"); // obtenemos el símbolo de la clase del objeto
+                
+                // recorremos la tabla de símbolos de la clase del objeto y agregamos cada uno de los elementos
                 for (const auto& par : matchingClass->attributesAndMethodsVector->getSymbolTable()){
-                        symbol* sm = par.second;
+                        symbol* simbolo = par.second;
                         // creamos el nuevo símbolo
-                        symbol* newSm = new symbol(*sm);                
-                        size_t firstColonPos = sm->lexema.find(':');
-                        string name = sm->lexema.substr(0, firstColonPos);
-                        firstColonPos = sm->lexema.find(classType);
-                        string scopeInsideClass = sm->lexema.substr(firstColonPos, sm->lexema.size());
-                        cout<< "\nname: " << name << " scope: " << scope << " scopeInside " << scopeInsideClass  <<  " calssType " << classType << " sm->lexema " << sm->lexema  << endl;
-                        newSm->lexema = name+scope+":"+scopeInsideClass+":"+key;
-                        newsm-> lexema = checkNewNameBeforeInsert(newSm);
+                        symbol* newSm = new symbol(*simbolo);                
+                        
+                        newSm->lexema = newSm->lexema+":"+key+scope; // le agregamos el nombre del objeto + el scope actual
+                        
                         // agregamos el nuevo símbolo a la tabla de simbolos        
                         tableSymbol->insert(newSm);
+                }
+
+                // recorremos las herencias de derecha a izquierda y agregamos cada uno de los elementos a la tabla general
+
+                // recorres el arreglo de herencia de esta clase verificando que exista alguna posicion con nullptr, si es asi verificas si esa clase tiene unmetodo con el mismo nombre y si es asi devuelves 1
+                for (int i=2; i >= 0; i--){
+                    TableSymbol* tableSymbol = matchingClass->inheritance[i];
+                    // si hereda de alguna clase recorremos sus simbolos y los agregamos
+                    if(tableSymbol != nullptr){
+                        
+                        // recorremos la tabla de símbolos de la clase que hereda y agregamos cada uno de los elementos
+                        for (const auto& par : tableSymbol->getSymbolTable()){
+                                symbol* simbolo = par.second;
+                                // creamos el nuevo símbolo
+                                symbol* newSm = new symbol(*simbolo);                
+                                
+                                newSm->lexema = newSm->lexema+":"+key+scope; // le agregamos el nombre del objeto + el scope actual
+                                
+                                // agregamos el nuevo símbolo a la tabla de simbolos        
+                                tableSymbol->insert(newSm);
+                        }
+                    }
                 }
         } 
 };
@@ -1003,19 +1037,29 @@ void newVariable(string key, string scope, string type){
         } 
 };
 
+/**
+ * Cuando se detecta la clase de un objeto a instanciar se llama esta función.
+ * Borra el símbolo de la tabla de símbolos general.
+ * Verifica que la clase haya sido declarada y exista.
+ * 
+ * @param key nombre de la clase
+ * @param scope El alcance del objeto.
+ * @param reglaptr El puntero a la regla.
+ */
 void initObjectDeclaration(string key, string scope, string& reglaptr){
-        // verificar que la clase haya sido declarada y exista
-        // borramos el símbolo de la tabla de símbolos general
-        tableSymbol->deleteSymbol(key);
-        symbol* symbolFinded = tableSymbol->getFirstSymbolMatching2(key, "clase", scope);
-        if(symbolFinded == nullptr){
-                yyerror("No se encontro declaracion previa de la clase "+ key);
-                actualClass = "_error"; 
-        }else{
-                reglaptr = key; 
-                actualClass = key; 
-        }
-}       
+    // verificar que la clase haya sido declarada y exista
+    // borramos el símbolo de la tabla de símbolos general
+    tableSymbol->deleteSymbol(key);
+    // usamos ":main" porque todas las clases se usan en el ámbito ":main"
+    symbol* classFinded = tableSymbol->getFirstSymbolMatching2(key, "clase", ":main");
+    if(classFinded == nullptr){
+        yyerror("No se encontro declaracion previa de la clase "+ key);
+        actualClass = "_error"; 
+    }else{
+        reglaptr = key; 
+        actualClass = key; 
+    }
+}
 /**
  * Borra el simbolo de la tabla general
  * verifica si existe la clase a heredar, sino existe lanza un error de que no existe la clase
