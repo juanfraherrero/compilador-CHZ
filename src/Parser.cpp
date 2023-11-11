@@ -1452,17 +1452,38 @@ void newFactorMasMas (string key, string scope, string& reglaptr, string& reglat
                 reglatype = symbolFinded->type;
         }
 }
+/**
+ * función cuando se detecta una asginaciín sobre una variable
+ *
+ * @param key el acceso al identificador al que se le asigna.
+ * @param scope el scope actual
+ * @param op2Lexeme el acceso de lo que se asigna
+ * @param op2Type el tipo de lo que se asigna
+ * @throws yyerror si no hay variable alcanzable
+ */
 void newAsignacion(string key, string scope, string op2Lexeme, string op2Type){
+        // borramos el simbolo de la tabla general
         tableSymbol->deleteSymbol(key); 
-        symbol* symbolFinded = tableSymbol->getFirstSymbolMatching(key+scope, "var", scope); 
+
+        TableSymbol* ts;
+        // verificamos si es dentro de una clase o fuera y obtenemos la respectiva tabla de símbolos
+        if(stackClasses->size() <= 0){
+                ts = tableSymbol;
+        }else{
+                ts = stackClasses->top()->attributesAndMethodsVector;
+        }
+        
+        //buscamos si existe una variable con el mismo nombre al alcance de la tabla de simbolos
+        symbol* symbolFinded = ts->getFirstSymbolMatching2(key, "var", scope); 
         if(symbolFinded == nullptr){
                 yyerror("No se encontro declaracion previa de la variable "+ key);
         }else{
+                // checkeamos que los tipos sean iguales 
                 checkTypesAsignation(symbolFinded->type, op2Type); 
+                // agregamos el terceto de asignación en la respectiva tabla de tercetos
                 int number = addTercet("=", symbolFinded->lexema, op2Lexeme); 
         } 
 };
-
 void newOperacionAritmetica(string operador, string op1ptr, string op2ptr, string op1type, string op2type, string& reglaptr, string& reglatype){
         if(checkTypesOperation(op1type, op2type)){
                 reglatype = op1type;
