@@ -49,15 +49,15 @@ struct symbol {
     
     // Función para obtener una representación en forma de cadena
     string ToString() const {
-        return "Lexema: " + lexema + "\t Valor:| " + value + "\t Tipo: " + type + "\t Uso: " + uso;
+        return "Lexema: " + lexema + "\t Valor:| " + value + "\t Tipo: " + type + "\t Uso: " + uso + "\t scopeInsideClass: " + scopeInsideClass;
     }
     // Función para obtener una representación en forma de cadena
     string ToStringFunction() const {
-        return "Lexema: " + lexema + "\t nombreParametro:| " + nameParam + "\t cantParam:| " + to_string(cantParam) + "\t Tipo del parametro: " + typeParam + "\t Uso: " + uso;
+        return "Lexema: " + lexema + "\t nombreParametro:| " + nameParam + "\t cantParam:| " + to_string(cantParam) + "\t Tipo del parametro: " + typeParam + "\t Uso: " + uso + "\t scopeInsideClass: " + scopeInsideClass;
     }
     // Función para obtener una representación en forma de cadena
     string ToStringClass() const {
-        return "Lexema: " + lexema + "\t Uso: " + uso + "\t isForwarded:| " + (forwarded? "true":"false") + "\t clase:| " + classOfSymbol + "\t Tipo del parametro: " + typeParam ;
+        return "Lexema: " + lexema + "\t Uso: " + uso + "\t isForwarded:| " + (forwarded? "true":"false") + "\t clase:| " + classOfSymbol ;
     }
     // Función para obtener una representación en forma de cadena
     string ToStringAttribute() const {

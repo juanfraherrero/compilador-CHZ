@@ -826,7 +826,6 @@ void addObject(string key, string scope, string classType){
                 }
         } 
 };
-
 /**
  * cuando detectamos una declaracion de función
  * eliminamos el símbolo viejo de la tabla
@@ -851,7 +850,7 @@ void initFunction(string key, string scope){
 
         // buscamos si existe una función con el mismo nombre en el mismo ámbito
         int diff = ts->getDiffOffScope2(key, "funcion", scope); 
-        if(diff == 0){
+        if( diff == 0){
                 yyerror("Redeclaracion de funcion en el mismo ambito");
         }else{
                 symbol* newFunction = setNewScope(key, "void", scope, "funcion", ts); 
@@ -859,21 +858,21 @@ void initFunction(string key, string scope){
                 // cargamos cual fue el último método o función por si tiene un parámetro
                 lastMethod = newFunction;
                 // si esta dentro de una clase le seteamos los atributos de clase y scopeInsideClass
-                if(stackClasses->size() <= 0){
+                if(stackClasses->size() > 0){
                         string classOfAttribute = stackClasses->top()->classOfSymbol;
                         newFunction->classOfSymbol = classOfAttribute;
                         newFunction->scopeInsideClass = scope.substr(scope.find(classOfAttribute) + classOfAttribute.length());
                 }
         } 
-        
+        // agregamos al scope el nombre de la función
         tableSymbol->addScope(key);
-
         // creamos un vector de función y lo agregamos al stack con el nombre
         functionStack* fs = new functionStack(key+scope);
         fs->ter = new Tercets();
         stackFunction->push(fs);
+        //verificamos las recursiones y le sumamos uno
         cantOfRecursions++;
-}
+};
 /**
  * Cuando detectamos el fin de una declaracion de función
  * guardamos el bloque de tercetos de la función
@@ -1018,24 +1017,55 @@ void newCondicion(string operador, string op1ptr, string op2ptr, string op1type,
         reglaptr = charTercetoId + to_string(number);
 }
 
+/**
+ * Cuando se detecta una sentencia que declara una variable se llama esta función.
+ * Agrega una nueva variable a la tabla de símbolos específica de clase o la general.
+ * 
+ * @param key La clave de la variable.
+ * @param scope El ámbito de la variable.
+ * @param type El tipo de la variable.
+ */
 void newVariable(string key, string scope, string type){
         TableSymbol* ts;
         
-        // determinas que tabla de símbolo usas
+        symbol* newIdentificador = nullptr;
+        
+        // determinas que tabla de símbolo usas checkeando si esta vacio el stack de clases
         if(stackClasses->size() <= 0){
+                // obtenemos la tabla general
                 ts = tableSymbol;
         }else{
+                // obtenemos la tabla de la clase
                 ts = stackClasses->top()->attributesAndMethodsVector;
         }
-
-        int diff = ts->getDiffOffScope(key+scope, "var", scope); 
+        //buscamos si esta definida ya una variable con ese mismo nombre dentro de la tabla de simbolos que corresponda
+        int diff = ts->getDiffOffScope2(key, "var", scope); 
+        
         if(diff == 0){
+                // existe una variable previa en el mismo ambito con el mismo nombre
                 yyerror("Redeclaracion de variable en el mismo ambito");
         }else{
-                symbol* newIdentificador = setNewScope(key, type, scope,"var", ts);
-        } 
-};
+            // eliminamos el simbolo de la tabla general y lo agregamos a la tabla específica, si es de clase le seteamos los atributos
+            if(stackClasses->size() <= 0){
+                    newIdentificador = setNewScope(key, type, scope, "var", ts); 
+                    /*
+                        ACA SE PUEDEN AGREGAR COSAS A LOS SIMBOLOS DE VARIABLES CARGADOS
+                    */
+            }else{
+                    newIdentificador = setNewScope(key, type, scope, "var", ts); 
+                    /*
+                        ACA SE PUEDEN AGREGAR COSAS A LOS SIMBOLOS DE VARIABLES CARGADOS
+                    */
 
+                    // marcamos a que clase pertenece el simbolo
+                    string classOfAttribute = stackClasses->top()->classOfSymbol;
+                    newIdentificador->classOfSymbol = classOfAttribute;
+                    // marcamos cual seria el scope dentro de la clase de donde proviene la variable
+                    string scopeInsideClass = scope.substr(scope.find(classOfAttribute) + classOfAttribute.length());
+                    newIdentificador->scopeInsideClass = scopeInsideClass;
+            }
+        }
+};
 /**
  * Cuando se detecta la clase de un objeto a instanciar se llama esta función.
  * Borra el símbolo de la tabla de símbolos general.
