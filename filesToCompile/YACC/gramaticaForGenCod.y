@@ -31,7 +31,7 @@ char charTercetoId = '%';
 
 string typeAux = "";
 string actualClass = "";
-symbol* lastParam;
+symbol* lastMethod;
 stack<symbol*>*  stackClasses = new stack<symbol*>();
 
 void yyerror(string s){
@@ -318,8 +318,8 @@ sentencias_ejecutables  :   sentencias_ejecutables ejecutable comas
                         |   error ','                                           { yyerror("Se detecto una sentencia invalida en el bloque de sentencias ejecutables"); }
                         ;
 
-factor : IDENTIFICADOR                                                  { setScope($1->ptr, tableSymbol->getScope(), "var", $$->ptr, $$->type); }
-       | IDENTIFICADOR OPERADOR_SUMA_SUMA                               { newFactorMasMas($1->ptr, tableSymbol->getScope(), "var", $$->ptr, $$->type); }
+factor : IDENTIFICADOR                                                  { checkVarInScope($1->ptr, tableSymbol->getScope(), "var", $$->ptr, $$->type); }
+       | IDENTIFICADOR OPERADOR_SUMA_SUMA                               { newFactorMasMas($1->ptr, tableSymbol->getScope(), $$->ptr, $$->type); }
        | constanteSinSigno                                              { $$->ptr = $1->ptr; $$->type = $1->type;}
        | constanteConSigno                                              { $$->ptr = $1->ptr; $$->type = $1->type;}
        | TOF '(' expresion_aritmetica ')'                               { newTof($3->ptr,$$->ptr,$$->type); } 
@@ -385,7 +385,18 @@ void checkTypesAsignation(string type1, string type2){
                 yyerror("Incompatibilidad de tipos al asignar "+ type2 + " a " + type1);
         }
 }
-// Esta funcion dado el acceso a un elemento de la tabla de simbolos elimina el simbolo y lo actualiza con el scope y el tipo de esa variable.
+/**
+ * Carga el símbolo en la tabla
+ * Dado el acceso a un elemento de la tabla de simbolos lo elimina
+ * Actualiza el símbolocon los datos pasados, 
+ * si no se quiere modificar los datos dejar ""
+ * 
+ * @param key nombre del acceso
+ * @param type tipo del acceso
+ * @param scope scope actual
+ * @param uso uso del acceso
+ * @param ts tabla de símbolo a la que agregarle el acceso
+ */
 symbol* setNewScope(string key, string type, string scope, string uso, TableSymbol* ts){
         
         // borramos el símbolo de la tabla de símbolos general
@@ -463,7 +474,7 @@ void initClass(string key, string scope, string & reglaptr){
                         // la marcamos como que ya se declaró
                         symbolFinded->forwarded = false;
                         symbolFinded->attributesAndMethodsVector = new TableSymbol(scope+":"+key); // inicializamos el vector de simbolos
-                        
+                        symbolFinded->classOfSymbol = key;
                         // agregamos la clase al stack de clases
                         stackClasses->push(symbolFinded);
 
@@ -471,6 +482,7 @@ void initClass(string key, string scope, string & reglaptr){
         }else{
                 symbol* newIdentificador = setNewScope(key, "", scope, "clase", tableSymbol); 
                 newIdentificador->attributesAndMethodsVector = new TableSymbol(scope+":"+key); // inicializamos el vector de simbolos
+                newIdentificador->classOfSymbol = key;
                 stackClasses->push(newIdentificador);
         } 
         actualClass = key; 
@@ -491,82 +503,187 @@ void forwardClass(string key, string scope){
         } 
         tableSymbol->getSymbol(key+scope)->forwarded = true; 
 }
-void addAtribute(string key, string scope, string type){
+/**
+ * Cuando detectamos un atributo de clase se ejecuta esta función
+ * Obtiene el símbolo viejo lo elimina 
+ * y lo carga a la tabla de la clase
+ *
+ * @param key nombre del acceso
+ * @param scope scope actual
+ * @param type tipo del acceso
+ * @param classOfAttribute nombre de la clase a la que pertenece
+*/
+void addAtribute(string key, string scope, string type, string classOfAttribute){
 
         // obtener el símbolo viejo y eliminarlo
         // cargarlo al arreglo de la clase
 
-        tableSymbol->deleteSymbol(key);                         // eliminamos el simbolo (usa el contador)
-        
-        int diff = tableSymbol->getDiffOffScope(key + scope, "atributo", scope); 
-        if(diff == 0){
+        tableSymbol->deleteSymbol(key);         // eliminamos el simbolo dela tabla general
+
+        // operamos sobre la tabla de símbolos de la clase
+        TableSymbol * tsClass = stackClasses->top()->attributesAndMethodsVector;
+
+        bool existAlready = tsClass->existAttribute(key, scope, "atributo"); 
+                /* Esta función debe de verificar si existe este atributo en la tabla de símbolos de la clase,
+                        no debe verifiar en las tablas de las que hereda ya que se pueden sobreescribir los atributos
+                        verificas si exister key+scope con uso atributo y listo, no acorta lexema o key porque no es necesario
+                        */
+        if(existAlready){
                 yyerror("Redeclaracion de atributio en la misma clase");
         }else{
                 // creamos el nuevo símbolo para el atributo
-                symbol* newAtribute = new symbol(key+scope, "", type, "atributo");
+                symbol* newAttribute = new symbol(key+scope, "", type, "atributo");
+                /*
+                        ACA SE PUEDEN AGREGAR COSAS A LOS SIMBOLOS DE ATRIBUTOS CARGADOS
+                */
+
+                // Marcamos a la clase que pertenece el atributo
+                newAttribute->classOfSymbol = classOfAttribute;
+
+                // obtenemos el scope posterior a la aparción del nombre de la clase
+                //  scope = "x:main:func3:cs:metod1"; y la clase es cs
+                // buscamos :metod1
+                string scopeInsideClass = scope.substr(scope.find(classOfAttribute) + cs.length());
+                newAttribute->scopeInsideClass = scopeInsideClass; // scope inside class puede ser un acadena vacía
+
 
                 // agregamos el nuevo símbolo al vector de simbolos de la clase        
-                stackClasses->top()->attributesAndMethodsVector->insert(newAtribute);
-
-                /* // seteamos que si se debe agregar un parametro se le haga a este método
-                lastParam = newAtribute; */
+                tsClass->insert(newAttribute);
         }        
 };
-void initMethod(string key, string scope ){
+/**
+ * Cuando detectamos un método de clase
+ * se elimina el símbolo viejo de la tabla
+ * se carga el nuevo símbolo a la tabla de la clase
+ * 
+ * @param key nombre del acceso
+ * @param scope scope actual
+ * @param classOfAttribute nombre de la clase a la que pertenece
+ */
+void initMethod(string key, string scope, string classOfAttribute){
 
         // obtener el símbolo viejo y eliminarlo
         // cargarlo al arreglo de la clase
 
-        tableSymbol->deleteSymbol(key);                         // eliminamos el simbolo (usa el contador)
-        int diff = tableSymbol->getDiffOffScope(key + scope, "metodo", scope); 
-        if(diff == 0){
-                yyerror("Redeclaracion de método en la misma clase");
+        tableSymbol->deleteSymbol(key);   // eliminamos el simbolo (usa el contador) de la tabla general
+        
+        TableSymbol* tsClass = stackClasses->top()->attributesAndMethodsVector; // obtenemos la tabla de simbolos de la clase a la que le agramos el metodo
+
+        int methodAlredyExist = tsClass->existMethod(key, scope, "metodo"); 
+                /*      Esta función debe verificar si existe algún método con el mismo nombre en 
+                                la tabla de símbolos de la clase y en cada una de las que hereda,
+                                los métodos no pueden sobre escribirse, por lo que si en algúna tabla de símbolos (propia o de las que hereda existe)
+                                se devuelve true,
+
+                                si el método está en la propia tabla de símbolos de la clase se devuelve 0
+                                si está en alguna de las que hereda se devuelve 1
+                                sino la encuentra se devuelve -1
+
+                                la idea es que como tsClass es un símbolo que tiene un arreglo con las 3 posibles herencias recorras cada una de las tablas
+                                        usando OTRA función que verifique solo en su nivel.
+                                
+                                la tabla ['clase1', 'clase2', 'clase3'] nos indicaría que la clase actual hereda de clase 3 que hereda de clase 2 
+                                        que hereda de clase 1
+                                
+                                Solo permitimos que se herede una vez, porque así es en c++ por ejemplo y en varios lenguajes.
+                        */
+
+        if(methodAlredyExist == 0){
+                yyerror("Redeclaracion de metodo en la misma clase");
         }else{
-                // creamos el nuevo símbolo
-                symbol* newMetodo = new symbol(key+scope, "", "void", "metodo");
+                if(methodAlredyExist == 1){
+                        yyerror("Sobreescritura de metodos prohibida");
+                }else{        
+                        // creamos el nuevo símbolo
+                        symbol* newMetodo = new symbol(key+scope, "", "void", "metodo");
+                        /*
+                                ACA SE PUEDEN AGREGAR COSAS A LOS SIMBOLOS DE METODOS CARGADOS
+                        */
 
-                // agregamos el nuevo símbolo al vector de simbolos de la clase        
-                stackClasses->top()->attributesAndMethodsVector->insert(newMetodo);
-                
-                // seteamos que si se debe agregar un parametro se le haga a este método
-                lastParam = newMetodo;
+                        newMetodo->classOfSymbol = classOfAttribute;
+                        
+                        // obtenemos el scopeInsideClass
+                        newMetodo->scopeInsideClass = "";       // scope inside de un método es siempre vacío  ya que se declara en el primer nivel de la clase
 
-                // agregamos un scope
-                tableSymbol->addScope(key);
+                        // agregamos el nuevo símbolo al vector de simbolos de la clase        
+                        tsClass->insert(newMetodo);
+                        
+                        // seteamos que si se debe agregar un parametro se le haga a este método
+                        lastMethod = newMetodo;
 
-                // creamos una stack para la función y la agregamos al stack con el nombre
-                functionStack* fs = new functionStack(key+scope);
-                fs->ter = new Tercets();
-                stackFunction->push(fs);
-                
-                cantOfRecursions++;
+                        // agregamos un scope
+                        tableSymbol->addScope(key);
+
+                        // creamos una stack para la función y la agregamos al stack con el nombre
+                        functionStack* fs = new functionStack(key+scope);
+                        fs->ter = new Tercets();
+                        stackFunction->push(fs);
+                        
+                        cantOfRecursions++;
+                } 
         }
 };
-void addParamMetodo(string key, string scope, string type){
+/**
+ * Cuando detectamos un parámtro en un método de clase
+ * se elimina el símbolo viejo de la tabla
+ * se carga el nuevo símbolo a la tabla de la clase
+ * Se carga como una variable y se le agrega a su scope el nombre del método
+ * 
+ * @param key nombre del acceso
+ * @param scope scope actual
+ * @param type tipo del acceso
+ * @param classOfAttribute nombre de la clase a la que pertenece
+*/
+void addParamMetodo(string key, string scope, string type, string classOfAttribute){
 
         // obtener el símbolo viejo y eliminarlo
         // verificar que no esté previamente en ese scope en esa tabla de símobolo
         // lo agregamos y setear el tipo del parametro
 
 
-        tableSymbol->deleteSymbol(key);                         // eliminamos el simbolo (usa el contador)
+        tableSymbol->deleteSymbol(key);    // eliminamos el simbolo (usa el contador) de la tabla general
         
-        // verificamos a que distancia se encuentra la primer aparición de la variable en un ámbito alcanzable
-        int diff = stackClasses->top()->attributesAndMethodsVector->getDiffOffScope(key+scope, "var", scope); 
+        TableSymbol* tsClass = stackClasses->top()->attributesAndMethodsVector; // obtenemos la tabla de simbolos de la clase a la que le agramos el metodo
+
+        /* SE SUPONE QUE ESTO NUNCA DEBERÍA SUCEDER PORQUE ES UN SOLO PARÁEMETRO Y LA PRIMER VARIABLE DEL ÁMBITO */
+
+        // verificamos a que distancia se encuentra la primer aparición de la variable en un ámbito alcanzable dentro de la tala de símbolos de la clase
+        int diff = tsClass->getDiffOffScope2(key, "var", scope); 
         if(diff == 0){
-                yyerror("Redeclaracion de variable en el misma ambito");
+                yyerror("Redeclaracion de variable en el misma ambito del metodo");
         }else{
                 // creamos el nuevo símbolo
                 symbol* newparam = new symbol(key+scope, "", type, "var");
+                /*
+                        ACA SE PUEDEN AGREGAR COSAS A LOS SIMBOLOS DE PARAMETROS DE METODO CARGADOS
+                */
+
+                // Marcamos a la clase que pertenece la variable
+                newparam->classOfSymbol = classOfAttribute;
+
+                // obtenemos el scopeInsideClass, que al ser un parámetro de un método siempre es el mismo método
+                newparam->scopeInsideClass = ":"+lastMethod->key;
 
                 // agregamos el nuevo símbolo al vector de simbolos de la clase        
-                stackClasses->top()->attributesAndMethodsVector->insert(newparam);
+                tsClass->insert(newparam);
 
-                lastParam->cantParam++;
-                lastParam->typeParam = type;
-                lastParam->nameParam = key;
+                lastMethod->cantParam++;
+                lastMethod->typeParam = type;
+                lastMethod->nameParam = key;
         }
 };
+/**
+ * Cuando detectamos un parámtro en una declaración de función
+ * eliminamos el símbolo viejo de la tabla
+ * verificamos si es dentro de una clase o fuera
+ * si está afuera de una clase terminamos
+ * 
+ * @param key nombre del acceso
+ * @param scope scope actual
+ * @param type tipo del parámetro
+ * @param reglaptr puntero al lexema de la regla
+ * @param reglatype puntero al tipo de la regla
+*/
 void addParamFunction(string key, string scope, string type, string & reglaptr, string& reglatype){
         // verificamos si está dentro de la declaración de una clase o no
 
@@ -575,14 +692,26 @@ void addParamFunction(string key, string scope, string type, string & reglaptr, 
 
         TableSymbol* ts;
         
-        // determinas que tabla de símbolo usas
+        symbol* newIdentificador = nullptr;
+
+        // determinas que tabla de símbolo usas checkeando si esta vacio el stack de clases
         if(stackClasses->size() <= 0){
+                // obtenemos la tabla general y le cargamos el parametro como variable
                 ts = tableSymbol;
+                newIdentificador = setNewScope(key, type, scope, "var", ts); 
         }else{
+                // obtenemos la tabla de la clase y le cargamos el parametro como variable
                 ts = stackClasses->top()->attributesAndMethodsVector;
+                newIdentificador = setNewScope(key, type, scope, "var", ts); 
+                
+                // marcamos a que clase pertenece el simbolo
+                string classOfAttribute = stackClasses->top()->classOfSymbol;
+                newIdentificador->classOfSymbol = classOfAttribute;
+
+                string scopeInsideClass = scope.substr(scope.find(classOfAttribute) + classOfAttribute.length());
+                newIdentificador->scopeInsideClass = scopeInsideClass;
         }
 
-        symbol* newIdentificador = setNewScope(key, type, scope, "var", ts); 
         reglaptr = newIdentificador->lexema; 
         reglatype = type; 
 };
@@ -656,24 +785,43 @@ void addObject(string key, string scope, string classType){
         } 
 };
 
-
-
+/**
+ * cuando detectamos una declaracion de función
+ * eliminamos el símbolo viejo de la tabla
+ * verificamos si es dentro de una clase o fuera
+ * si está afuera de una clase lo agregamos a la tabla general
+ * si está dentro de una clase lo agregamos a la tabla de la clase y le seteamos la clase a la que pertenece y el scope inside class
+ * 
+ * @param key nombre del acceso
+ * @param scope scope actual
+*/
 void initFunction(string key, string scope){
         TableSymbol* ts;
         
-        // determinas que tabla de símbolo usas
+        string scopeOriginal = scope
+
+        // verificamos si es dentro de una clase o fuera y obtenemos la respectiva tabla de símbolos
         if(stackClasses->size() <= 0){
                 ts = tableSymbol;
         }else{
                 ts = stackClasses->top()->attributesAndMethodsVector;
         }
 
-        int diff = tableSymbol->getDiffOffScope(key+scope, "funcion", scope); 
+        // buscamos si existe una función con el mismo nombre en el mismo ámbito
+        int diff = ts->getDiffOffScope2(key, "funcion", scope); 
         if(diff == 0){
                 yyerror("Redeclaracion de funcion en el mismo ambito");
         }else{
-                symbol* newIdentificador = setNewScope(key, "void", scope, "funcion", ts); 
-                lastParam = newIdentificador;
+                symbol* newFunction = setNewScope(key, "void", scope, "funcion", ts); 
+                
+                // cargamos cual fue el último método o función por si tiene un parámetro
+                lastMethod = newFunction;
+                // si esta dentro de una clase le seteamos los atributos de clase y scopeInsideClass
+                if(stackClasses->size() <= 0){
+                        string classOfAttribute = stackClasses->top()->classOfSymbol;
+                        newIdentificador->classOfSymbol = classOfAttribute;
+                        newIdentificador->scopeInsideClass = scope.substr(scope.find(classOfAttribute) + classOfAttribute.length());
+                }
         } 
         
         tableSymbol->addScope(key);
@@ -684,6 +832,11 @@ void initFunction(string key, string scope){
         stackFunction->push(fs);
         cantOfRecursions++;
 }
+/**
+ * Cuando detectamos el fin de una declaracion de función
+ * guardamos el bloque de tercetos de la función
+ * sacamos el scope de la función
+*/
 void finishFunction(){
         // obtenemos el stack con los tercetos de la función
         functionStack* fs = stackFunction->top();
@@ -692,6 +845,11 @@ void finishFunction(){
         tableSymbol->deleteScope(); // sacamos el scope de la función
         cantOfRecursions--;     // sacamos una recursión
 }
+/**
+ * cuando detectamos el fin de una declaracion de metodo
+ * guardamos el bloque de tercetos de la función
+ * sacamos el scope de la función
+*/
 void finishMethod(){
         // obtenemos el stack con los tercetos de la función
         functionStack* fs = stackFunction->top();
@@ -700,10 +858,23 @@ void finishMethod(){
         tableSymbol->deleteScope(); // sacamos el scope de la función
         cantOfRecursions--;     // sacamos una recursión
 };
-// verifica si existe una variable alcanzable y seteea el $$->ptr con el nuevo scope
-void setScope(string key, string scope, string uso, string& reglaptr, string& reglatype){
+/**
+ * Cuando detectas una variable
+ * Borras el símbolo de la tabla general
+ * verifica si existe una variable alcanzable y si existe seteea el $$->ptr con el lexema
+ *
+ * @param key el acceso.
+ * @param scope el scope actual
+ * @param reglaptr puntero al lexema de la regla
+ * @param reglatype puntero al tipo de la regla
+ * @throws yyerror si no hay variable enalcanzable
+ */
+void checkVarInScope(string key, string scope, string uso, string& reglaptr, string& reglatype){
+        // borramos el simbolo de la tabla general
         tableSymbol->deleteSymbol(key); 
-        symbol* symbolFinded = tableSymbol->getFirstSymbolMatching(key+scope, uso, scope); 
+
+        // verificamos a que distancia se encuentra la primer aparición de la variable en un ámbito alcanzable
+        symbol* symbolFinded = tableSymbol->getFirstSymbolMatching2(key, uso, scope); 
         if(symbolFinded == nullptr){
                 yyerror("No se encontro declaracion previa de la variable "+ key);
         }else{
@@ -711,10 +882,21 @@ void setScope(string key, string scope, string uso, string& reglaptr, string& re
                 reglatype = symbolFinded->type;
         }
 };
-// función cuando se deteta un idnetificador con ++
-void newFactorMasMas (string key, string scope, string uso, string& reglaptr, string& reglatype){
+
+/**
+ * función cuando se detecta una variable++ 
+ *
+ * @param key el acceso.
+ * @param scope el scope actual
+ * @param reglaptr puntero al lexema de la regla
+ * @param reglatype puntero al tipo de la regla
+ * @throws yyerror si no hay variable enalcanzable
+ */
+void newFactorMasMas (string key, string scope, string& reglaptr, string& reglatype){
         tableSymbol->deleteSymbol(key);
-        symbol* symbolFinded = tableSymbol->getFirstSymbolMatching(key+scope, uso, scope); 
+
+        // busca variable en scope que coincide con el uso
+        symbol* symbolFinded = tableSymbol->getFirstSymbolMatching(key+scope, "var", scope); 
         if(symbolFinded == nullptr){
                 yyerror("No se encontro declaracion previa de la variable "+ key);
         }else{
