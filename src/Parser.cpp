@@ -24,7 +24,8 @@ TableSymbol* tableSymbol = new TableSymbol();
 /* generamos la tabla de palabras reservadas*/
 TableReservedWord* tableRWords = new TableReservedWord();
 
-VectorOfFunction * vectorOfFunction = new VectorOfFunction();
+VectorOfFunction * vectorOfFunction = new VectorOfFunction(); /* este vector se guarda las listas de tercetos instanciadas y a usar, como funciones en main o métodos de un objeto instanciado*/
+VectorOfFunction * vectorOfFunctionDeclaredInClasses = new VectorOfFunction(); /* este vector se usa para cuando declaramos un método o una función dentro de una clase (esto es una declaración y se debe instanciar por cada objeto)*/
 stack<functionStack*>* stackFunction = new stack<functionStack*>();
 int cantOfRecursions = 0;
 
@@ -48,7 +49,7 @@ void yywarning(string s){
 void yyPrintInLine(string s){
     cout << "Linea: " << lineNumber << "-> " << s << endl;
 };
-#line 52 "y.tab.c"
+#line 53 "y.tab.c"
 #define IDENTIFICADOR 257
 #define ENTERO_SIN_SIGNO 258
 #define ENTERO_CORTO 259
@@ -838,7 +839,7 @@ YYSTYPE yylval;
 short yyss[YYSTACKSIZE];
 YYSTYPE yyvs[YYSTACKSIZE];
 #define yystacksize YYSTACKSIZE
-#line 340 "./gramaticaForGenCod.y"
+#line 341 "./gramaticaForGenCod.y"
 void checkIntegerShort(string lexeme){
         symbol* sm = tableSymbol->getSymbol(lexeme);
         if(sm != nullptr ){
@@ -1098,7 +1099,7 @@ void initMethod(string key, string scope, string classOfAttribute){
         // cargarlo al arreglo de la clase
 
         tableSymbol->deleteSymbol(key);   // eliminamos el simbolo (usa el contador) de la tabla general
-        symbol* classSymbol = stackClasses->top();
+        symbol * classSymbol = stackClasses->top();
         TableSymbol* tsClass = classSymbol->attributesAndMethodsVector; // obtenemos la tabla de simbolos de la clase a la que le agramos el metodo
 
         int methodAlredyExist = existMethodInInheritance(key, scope, "metodo", classSymbol);    // verificamos si el método ya existe en la clase o en alguna de sus clases heredadas
@@ -1134,7 +1135,7 @@ void initMethod(string key, string scope, string classOfAttribute){
                         cantOfRecursions++;
                 } 
         }
-};                       
+};                        
 /**
  * Cuando detectamos un parámtro en un método de clase
  * se elimina el símbolo viejo de la tabla
@@ -1261,7 +1262,44 @@ string checkNewNameBeforeInsert(symbol* newSm){
         }
         return newSm->lexema;
 }
+/**
+ * Esta función se llama cuando se quiere crear un método o función de un objeto a instanciar
+ * Para esto se require de buscar el bloque de tercetos en el vecto de bloques de tercetos de declaración
+ * copiarlo y agregarle a cada argumento que sea propio del objeto ":"+objeto+scope 
+ * al nuevo bloque también le agregamos eso al nombre e insertamos la copia en el vecotr de bloques de tercetos de ejecución
+ * 
+ * 
+ * @param objectName El nombre del objeto.
+ * @param scope El scope actual.
+ * @param simboloDeFuncion El símbolo de la función o método.
+ * @param tableSymbolOfTheClass La tabla de símbolos de la clase.
+ */
+void createFunctionTerecets(string objectName, string scope, symbol* simboloDeFuncion, TableSymbol* tableSymbolOfTheClass){
+     /*
+        la función debe buscar en el vector de declaración de bloques de tercetos de funciones la declaraciónde este método o función, 
+            copiarlo al vector de ejecución
+            recorrer cada terceto y por cada operador de este terceto verificar si alguno es igual a algún atributo o método de la clase ode sus herencias, 
+            en ese caso se le agrega el objeto y el scope actual
+    */
+    functionStack* copyOfTheStack = vectorOfFunctionDeclaredInClasses->getCopyOfFunction(simboloDeFuncion->lexema);
 
+    // recorremos el stack de tercetos de la función o método
+    for (const auto& tercet : copyOfTheStack->ter->getTercets()){
+        // si la tabla contiene exactamente ese elemento del terceto entonces le agregamos el objeto y el scope actual
+        if(tableSymbolOfTheClass->isTheSpecificLexemaInTable(tercet->getArg1())){
+            tercet->setArg1(tercet->getArg1()+":"+objectName+scope);
+        }
+        // si la tabla contiene exactamente ese elemento del terceto entonces le agregamos el objeto y el scope actual
+        if(tableSymbolOfTheClass->isTheSpecificLexemaInTable(tercet->getArg2())){
+            tercet->setArg2(tercet->getArg1()+":"+objectName+scope);
+        }
+    }
+
+    copyOfTheStack->name += ":"+objectName+scope; // le agregamos el nombre del objeto + el scope actual
+    // agregamos el nuevo stack de funciones a la tabla de funciones en ejecución
+    vectorOfFunction->add(copyOfTheStack);
+
+};
 /**
  * Cuando se detecta una declaración de objeto se llama esta función
  * Verificamos que no exista un objeto en el mismo ámbito con el mismo nombre   
@@ -1301,6 +1339,13 @@ void addObject(string key, string scope, string classType){
                         // creamos el nuevo símbolo
                         symbol* newSm = new symbol(*simbolo);                
                         
+                        // verificamos si el simbolo es una función o método y cargamos su bloque de tercetos en 
+                        //      la tabla de tercetos principal o de ejecución
+                        if(newSm->uso=="metodo" || newSm->uso=="funcion"){
+                            createFunctionTerecets(key, scope, newSm, matchingClass->attributesAndMethodsVector);
+                        }
+                                
+
                         newSm->lexema = newSm->lexema+":"+key+scope; // le agregamos el nombre del objeto + el scope actual
                         
                         // agregamos el nuevo símbolo a la tabla de simbolos        
@@ -1321,6 +1366,12 @@ void addObject(string key, string scope, string classType){
                                 // creamos el nuevo símbolo
                                 symbol* newSm = new symbol(*simbolo);                
                                 
+                                // verificamos si el simbolo es una función o método y cargamos su bloque de tercetos en 
+                                //      la tabla de tercetos principal o de ejecución
+                                if(newSm->uso=="metodo" || newSm->uso=="funcion"){
+                                    createFunctionTerecets(key, scope, newSm, tableSymbolMatchingClass);
+                                }
+
                                 newSm->lexema = newSm->lexema+":"+key+scope; // le agregamos el nombre del objeto + el scope actual
                                 
                                 // agregamos el nuevo símbolo a la tabla de simbolos        
@@ -1330,7 +1381,6 @@ void addObject(string key, string scope, string classType){
                 }
         } 
 };
-
 /**
  * cuando detectamos una declaracion de función
  * eliminamos el símbolo viejo de la tabla
@@ -1387,9 +1437,17 @@ void finishFunction(){
         // obtenemos el stack con los tercetos de la función
         functionStack* fs = stackFunction->top();
         stackFunction->pop();
-        vectorOfFunction->add(fs);
         tableSymbol->deleteScope(); // sacamos el scope de la función
         cantOfRecursions--;     // sacamos una recursión
+
+        if(stackClasses->size() <= 0){
+                // si no está dentro de una clase lo agregamos a la tabla general
+                vectorOfFunction->add(fs);
+        }else{
+            // si está dentro de una clase es una función declarada de ntro de un metodo y se guarda en el vector de funciones declaradas en clases
+            vectorOfFunctionDeclaredInClasses->add(fs);
+        }
+            
 }
 /**
  * cuando detectamos el fin de una declaracion de metodo
@@ -1400,7 +1458,8 @@ void finishMethod(){
         // obtenemos el stack con los tercetos de la función
         functionStack* fs = stackFunction->top();
         stackFunction->pop();
-        vectorOfFunction->add(fs);
+        // los vectores siempre se guardan en el vector de funciones declaradas en clases
+        vectorOfFunctionDeclaredInClasses->add(fs);
         tableSymbol->deleteScope(); // sacamos el scope de la función
         cantOfRecursions--;     // sacamos una recursión
 };
@@ -1484,6 +1543,7 @@ void newAsignacion(string key, string scope, string op2Lexeme, string op2Type){
                 int number = addTercet("=", symbolFinded->lexema, op2Lexeme); 
         } 
 };
+
 void newOperacionAritmetica(string operador, string op1ptr, string op2ptr, string op1type, string op2type, string& reglaptr, string& reglatype){
         if(checkTypesOperation(op1type, op2type)){
                 reglatype = op1type;
@@ -1648,7 +1708,7 @@ void  detectInheritance(string classToInherit , string scope, string classWhoInh
                 }else{
                         // copiamos el arreglo de herencia de la clase a heredar a la clase que hereda
                         // intentamos agregar la clase a heredar en el primer nullptr del arreglo de herencia, si tiene más de 3 elementos lanzamos un error
-                        
+
                         // copiamos el arreglo de herencia de la clase a heredar a la clase que hereda
                         for(int i = 0; i < 3; i++) {
                                 symbolofClassWhoInherit->inheritance[i] = classFinded->inheritance[i];
@@ -1673,7 +1733,7 @@ void  detectInheritance(string classToInherit , string scope, string classWhoInh
                 }
         }
 }
-#line 1621 "y.tab.c"
+#line 1738 "y.tab.c"
 #define YYABORT goto yyabort
 #define YYACCEPT goto yyaccept
 #define YYERROR goto yyerrlab
@@ -1814,566 +1874,566 @@ yyreduce:
     switch (yyn)
     {
 case 1:
-#line 73 "./gramaticaForGenCod.y"
-{ int number = addTercet("FIN", "-", "-"); }
-break;
-case 2:
 #line 74 "./gramaticaForGenCod.y"
 { int number = addTercet("FIN", "-", "-"); }
 break;
-case 3:
+case 2:
 #line 75 "./gramaticaForGenCod.y"
 { int number = addTercet("FIN", "-", "-"); }
 break;
-case 4:
+case 3:
 #line 76 "./gramaticaForGenCod.y"
+{ int number = addTercet("FIN", "-", "-"); }
+break;
+case 4:
+#line 77 "./gramaticaForGenCod.y"
 { yywarning("Se esta compilando un programa sin contenido"); }
 break;
 case 5:
-#line 77 "./gramaticaForGenCod.y"
+#line 78 "./gramaticaForGenCod.y"
 { yywarning("Se esta compilando un programa sin contenido y falta la ultima llave"); }
 break;
 case 6:
-#line 78 "./gramaticaForGenCod.y"
+#line 79 "./gramaticaForGenCod.y"
 { yywarning("Se esta compilando un programa sin contenido y falta la primer llave"); }
 break;
 case 7:
-#line 79 "./gramaticaForGenCod.y"
+#line 80 "./gramaticaForGenCod.y"
 { yyerror("Se detecto contenido luego de finalizado el programa");}
 break;
 case 8:
-#line 80 "./gramaticaForGenCod.y"
+#line 81 "./gramaticaForGenCod.y"
 { yywarning("Se esta compilando un programa sin contenido"); yyerror("Se detecto contenido luego de finalizado el programa");}
 break;
 case 9:
-#line 81 "./gramaticaForGenCod.y"
+#line 82 "./gramaticaForGenCod.y"
 { yywarning("Se detecto la falta de llaves en el programa"); }
 break;
 case 10:
-#line 82 "./gramaticaForGenCod.y"
+#line 83 "./gramaticaForGenCod.y"
 { yywarning("Se detecto la falta de la ultima llave del programa"); }
 break;
 case 11:
-#line 83 "./gramaticaForGenCod.y"
+#line 84 "./gramaticaForGenCod.y"
 { yywarning("Se detecto la falta de la primera llave del programa"); }
 break;
 case 12:
-#line 84 "./gramaticaForGenCod.y"
+#line 85 "./gramaticaForGenCod.y"
 { yywarning("Se detecto la falta de llaves en el programa"); }
 break;
 case 13:
-#line 85 "./gramaticaForGenCod.y"
+#line 86 "./gramaticaForGenCod.y"
 { yywarning("Se detecto la falta de la ultima llave del programa"); }
 break;
 case 14:
-#line 86 "./gramaticaForGenCod.y"
+#line 87 "./gramaticaForGenCod.y"
 { yywarning("Se detecto la falta de la primera llave del programa"); }
 break;
 case 15:
-#line 87 "./gramaticaForGenCod.y"
+#line 88 "./gramaticaForGenCod.y"
 { yywarning("Se detecto la falta de la ultima llave del programa"); }
 break;
 case 16:
-#line 88 "./gramaticaForGenCod.y"
+#line 89 "./gramaticaForGenCod.y"
 { yywarning("Se detecto la falta de la primera llave del programa"); }
 break;
 case 17:
-#line 89 "./gramaticaForGenCod.y"
+#line 90 "./gramaticaForGenCod.y"
 { yywarning("Se detecto la falta de llaves en el programa"); }
 break;
 case 22:
-#line 98 "./gramaticaForGenCod.y"
-{ yywarning("Se detecto una falta de coma"); }
-break;
-case 23:
 #line 99 "./gramaticaForGenCod.y"
 { yywarning("Se detecto una falta de coma"); }
 break;
-case 24:
+case 23:
 #line 100 "./gramaticaForGenCod.y"
+{ yywarning("Se detecto una falta de coma"); }
+break;
+case 24:
+#line 101 "./gramaticaForGenCod.y"
 { yyerror("Se detecto una sentencia invalida"); }
 break;
 case 27:
-#line 107 "./gramaticaForGenCod.y"
+#line 108 "./gramaticaForGenCod.y"
 { yyPrintInLine("Se detecto declaracion de variable");}
 break;
 case 29:
-#line 109 "./gramaticaForGenCod.y"
+#line 110 "./gramaticaForGenCod.y"
 { yyPrintInLine("Se detecto declaracion de objeto");}
 break;
 case 30:
-#line 110 "./gramaticaForGenCod.y"
+#line 111 "./gramaticaForGenCod.y"
 { yyPrintInLine("Se detecto declaracion de funcion");}
 break;
 case 31:
-#line 113 "./gramaticaForGenCod.y"
+#line 114 "./gramaticaForGenCod.y"
 { finishFunction();  }
 break;
 case 32:
-#line 114 "./gramaticaForGenCod.y"
+#line 115 "./gramaticaForGenCod.y"
 { yyerror("Se detecto la falta de un nombre en la funcion"); }
 break;
 case 33:
-#line 115 "./gramaticaForGenCod.y"
+#line 116 "./gramaticaForGenCod.y"
 { finishFunction(); yywarning("Se detecto la falta de RETURN en el cuerpo de la funcion");}
 break;
 case 34:
-#line 117 "./gramaticaForGenCod.y"
+#line 118 "./gramaticaForGenCod.y"
 { finishFunction();}
 break;
 case 35:
-#line 118 "./gramaticaForGenCod.y"
+#line 119 "./gramaticaForGenCod.y"
 { yyerror("Se detecto la falta de un nombre en la funcion"); }
 break;
 case 36:
-#line 119 "./gramaticaForGenCod.y"
+#line 120 "./gramaticaForGenCod.y"
 { finishFunction(); yywarning("Se detecto la falta de RETURN en el cuerpo de la funcion");}
 break;
 case 37:
-#line 122 "./gramaticaForGenCod.y"
+#line 123 "./gramaticaForGenCod.y"
 { initFunction(yyvsp[0]->ptr, tableSymbol->getScope()); }
 break;
 case 38:
-#line 125 "./gramaticaForGenCod.y"
+#line 126 "./gramaticaForGenCod.y"
 { finishClass(); }
 break;
 case 39:
-#line 126 "./gramaticaForGenCod.y"
+#line 127 "./gramaticaForGenCod.y"
 { finishClass(); yywarning("Se detecto una declaracion de clases vacia");}
 break;
 case 40:
-#line 127 "./gramaticaForGenCod.y"
+#line 128 "./gramaticaForGenCod.y"
 { forwardClass(yyvsp[0]->ptr, tableSymbol->getScope());}
 break;
 case 41:
-#line 128 "./gramaticaForGenCod.y"
-{ yyerror("Falta nombre de la clase"); }
-break;
-case 42:
 #line 129 "./gramaticaForGenCod.y"
 { yyerror("Falta nombre de la clase"); }
 break;
+case 42:
+#line 130 "./gramaticaForGenCod.y"
+{ yyerror("Falta nombre de la clase"); }
+break;
 case 43:
-#line 131 "./gramaticaForGenCod.y"
+#line 132 "./gramaticaForGenCod.y"
 { detectInheritance(yyvsp[0]->ptr, tableSymbol->getScope(), actualClass); }
 break;
 case 44:
-#line 133 "./gramaticaForGenCod.y"
+#line 134 "./gramaticaForGenCod.y"
 { initClass(yyvsp[0]->ptr, tableSymbol->getScope(), yyval->ptr); }
 break;
 case 45:
-#line 135 "./gramaticaForGenCod.y"
+#line 136 "./gramaticaForGenCod.y"
 { yyPrintInLine("Se detecto declaracion de variable en clase");}
 break;
 case 48:
-#line 138 "./gramaticaForGenCod.y"
+#line 139 "./gramaticaForGenCod.y"
 { yyPrintInLine("Se detecto declaracion de variable en clase");}
 break;
 case 51:
-#line 142 "./gramaticaForGenCod.y"
-{ addAtribute(yyvsp[0]->ptr, tableSymbol->getScope(), typeAux, actualClass); }
-break;
-case 52:
 #line 143 "./gramaticaForGenCod.y"
 { addAtribute(yyvsp[0]->ptr, tableSymbol->getScope(), typeAux, actualClass); }
 break;
+case 52:
+#line 144 "./gramaticaForGenCod.y"
+{ addAtribute(yyvsp[0]->ptr, tableSymbol->getScope(), typeAux, actualClass); }
+break;
 case 53:
-#line 145 "./gramaticaForGenCod.y"
+#line 146 "./gramaticaForGenCod.y"
 { finishMethod(); }
 break;
 case 54:
-#line 146 "./gramaticaForGenCod.y"
+#line 147 "./gramaticaForGenCod.y"
 { finishMethod(); yyerror("Se detecto la falta de RETURN en el cuerpo de la funcion");}
 break;
 case 55:
-#line 147 "./gramaticaForGenCod.y"
+#line 148 "./gramaticaForGenCod.y"
 { finishMethod(); }
 break;
 case 56:
-#line 150 "./gramaticaForGenCod.y"
+#line 151 "./gramaticaForGenCod.y"
 { initMethod(yyvsp[0]->ptr, tableSymbol->getScope(), actualClass); }
 break;
 case 57:
-#line 151 "./gramaticaForGenCod.y"
+#line 152 "./gramaticaForGenCod.y"
 { yyerror("Falta de nombre de metodo"); }
 break;
 case 58:
-#line 154 "./gramaticaForGenCod.y"
+#line 155 "./gramaticaForGenCod.y"
 {}
 break;
 case 59:
-#line 156 "./gramaticaForGenCod.y"
+#line 157 "./gramaticaForGenCod.y"
 {initObjectDeclaration(yyvsp[0]->ptr, tableSymbol->getScope(), yyval->ptr); }
 break;
 case 60:
-#line 159 "./gramaticaForGenCod.y"
-{ addObject(yyvsp[0]->ptr, tableSymbol->getScope(), actualClass); }
-break;
-case 61:
 #line 160 "./gramaticaForGenCod.y"
 { addObject(yyvsp[0]->ptr, tableSymbol->getScope(), actualClass); }
 break;
+case 61:
+#line 161 "./gramaticaForGenCod.y"
+{ addObject(yyvsp[0]->ptr, tableSymbol->getScope(), actualClass); }
+break;
 case 62:
-#line 163 "./gramaticaForGenCod.y"
+#line 164 "./gramaticaForGenCod.y"
 { typeAux = "short"; yyval->type ="short";}
 break;
 case 63:
-#line 164 "./gramaticaForGenCod.y"
+#line 165 "./gramaticaForGenCod.y"
 { typeAux = "unsigned int"; yyval->type = "unsigned int";}
 break;
 case 64:
-#line 165 "./gramaticaForGenCod.y"
+#line 166 "./gramaticaForGenCod.y"
 { typeAux = "float"; yyval->type = "float";}
 break;
 case 65:
-#line 168 "./gramaticaForGenCod.y"
-{ newVariable(yyvsp[0]->ptr,tableSymbol->getScope(),typeAux); }
-break;
-case 66:
 #line 169 "./gramaticaForGenCod.y"
 { newVariable(yyvsp[0]->ptr,tableSymbol->getScope(),typeAux); }
 break;
+case 66:
+#line 170 "./gramaticaForGenCod.y"
+{ newVariable(yyvsp[0]->ptr,tableSymbol->getScope(),typeAux); }
+break;
 case 67:
-#line 171 "./gramaticaForGenCod.y"
+#line 172 "./gramaticaForGenCod.y"
 { addParamMetodo(yyvsp[0]->ptr, tableSymbol->getScope(), yyvsp[-1]->type, actualClass); yyval->type = yyvsp[-1]->type;}
 break;
 case 68:
-#line 172 "./gramaticaForGenCod.y"
+#line 173 "./gramaticaForGenCod.y"
 { yyerror("Falta de nombre de parametro"); }
 break;
 case 69:
-#line 173 "./gramaticaForGenCod.y"
+#line 174 "./gramaticaForGenCod.y"
 { yyerror("Falta de tipo de parametro"); }
 break;
 case 71:
-#line 175 "./gramaticaForGenCod.y"
+#line 176 "./gramaticaForGenCod.y"
 { yyerror("Exceso de parametros"); }
 break;
 case 72:
-#line 178 "./gramaticaForGenCod.y"
+#line 179 "./gramaticaForGenCod.y"
 { addParamFunction (yyvsp[0]->ptr, tableSymbol->getScope(), yyvsp[-1]->type, yyval->ptr, yyval->type); }
 break;
 case 73:
-#line 179 "./gramaticaForGenCod.y"
+#line 180 "./gramaticaForGenCod.y"
 { yyerror("Falta de nombre de parametro"); }
 break;
 case 74:
-#line 180 "./gramaticaForGenCod.y"
+#line 181 "./gramaticaForGenCod.y"
 { yyerror("Falta de tipo de parametro"); }
 break;
 case 76:
-#line 182 "./gramaticaForGenCod.y"
+#line 183 "./gramaticaForGenCod.y"
 { yyerror("Exceso de parametros"); }
 break;
 case 77:
-#line 185 "./gramaticaForGenCod.y"
+#line 186 "./gramaticaForGenCod.y"
 {yyerror("Se detecto la falta de RETURN en el cuerpo de la funcion");}
 break;
 case 80:
-#line 189 "./gramaticaForGenCod.y"
+#line 190 "./gramaticaForGenCod.y"
 { yywarning("Se detecto una falta de coma"); }
 break;
 case 81:
-#line 190 "./gramaticaForGenCod.y"
+#line 191 "./gramaticaForGenCod.y"
 { yywarning("Se detecto codigo posterior a un return"); }
 break;
 case 82:
-#line 191 "./gramaticaForGenCod.y"
+#line 192 "./gramaticaForGenCod.y"
 { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
 break;
 case 83:
-#line 192 "./gramaticaForGenCod.y"
+#line 193 "./gramaticaForGenCod.y"
 { yywarning("Se detecto codigo posterior a un return"); }
 break;
 case 84:
-#line 193 "./gramaticaForGenCod.y"
+#line 194 "./gramaticaForGenCod.y"
 { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
 break;
 case 86:
-#line 195 "./gramaticaForGenCod.y"
+#line 196 "./gramaticaForGenCod.y"
 {yywarning("Se detecto una falta de coma"); }
 break;
 case 87:
-#line 196 "./gramaticaForGenCod.y"
+#line 197 "./gramaticaForGenCod.y"
 {yywarning("Se detecto codigo posterior a un return"); }
 break;
 case 88:
-#line 197 "./gramaticaForGenCod.y"
+#line 198 "./gramaticaForGenCod.y"
 { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
 break;
 case 89:
-#line 198 "./gramaticaForGenCod.y"
+#line 199 "./gramaticaForGenCod.y"
 {yywarning("Se detecto codigo posterior a un return"); }
 break;
 case 90:
-#line 199 "./gramaticaForGenCod.y"
+#line 200 "./gramaticaForGenCod.y"
 { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
 break;
 case 96:
-#line 207 "./gramaticaForGenCod.y"
+#line 208 "./gramaticaForGenCod.y"
 { int number = addTercet("print", tableSymbol->getSymbol(yyvsp[0]->ptr)->value, ""); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 97:
-#line 208 "./gramaticaForGenCod.y"
+#line 209 "./gramaticaForGenCod.y"
 { yyPrintInLine("Se detecto una impresion de identificador"); }
 break;
 case 98:
-#line 209 "./gramaticaForGenCod.y"
-{ yyPrintInLine("Se detecto una impresion de constante"); }
-break;
-case 99:
 #line 210 "./gramaticaForGenCod.y"
 { yyPrintInLine("Se detecto una impresion de constante"); }
 break;
+case 99:
+#line 211 "./gramaticaForGenCod.y"
+{ yyPrintInLine("Se detecto una impresion de constante"); }
+break;
 case 101:
-#line 214 "./gramaticaForGenCod.y"
+#line 215 "./gramaticaForGenCod.y"
 { newAsignacion(yyvsp[-2]->ptr, tableSymbol->getScope(), yyvsp[0]->ptr,yyvsp[0]->type);}
 break;
 case 107:
-#line 225 "./gramaticaForGenCod.y"
+#line 226 "./gramaticaForGenCod.y"
 { newOperacionAritmetica("+", yyvsp[-2]->ptr, yyvsp[0]->ptr, yyvsp[-2]->type, yyvsp[0]->type, yyval->ptr, yyval->type); }
 break;
 case 108:
-#line 226 "./gramaticaForGenCod.y"
+#line 227 "./gramaticaForGenCod.y"
 { newOperacionAritmetica("-", yyvsp[-2]->ptr, yyvsp[0]->ptr, yyvsp[-2]->type, yyvsp[0]->type, yyval->ptr, yyval->type); }
 break;
 case 109:
-#line 227 "./gramaticaForGenCod.y"
+#line 228 "./gramaticaForGenCod.y"
 { newOperacionAritmetica("-", yyvsp[-3]->ptr, yyvsp[0]->ptr, yyvsp[-3]->type, yyvsp[0]->type, yyval->ptr, yyval->type); yywarning("Se detecto un error en operador, quedara '-'"); }
 break;
 case 110:
-#line 228 "./gramaticaForGenCod.y"
+#line 229 "./gramaticaForGenCod.y"
 { newOperacionAritmetica("+", yyvsp[-3]->ptr, yyvsp[0]->ptr, yyvsp[-3]->type, yyvsp[0]->type, yyval->ptr, yyval->type); yywarning("Se detecto un error en operador, quedara '+'"); }
 break;
 case 111:
-#line 229 "./gramaticaForGenCod.y"
+#line 230 "./gramaticaForGenCod.y"
 { newOperacionAritmetica("-", yyvsp[-3]->ptr, yyvsp[0]->ptr, yyvsp[-3]->type, yyvsp[0]->type, yyval->ptr, yyval->type); yywarning("Se detecto un error en operador, quedara '-'"); }
 break;
 case 112:
-#line 230 "./gramaticaForGenCod.y"
+#line 231 "./gramaticaForGenCod.y"
 { newOperacionAritmetica("+", yyvsp[-3]->ptr, yyvsp[0]->ptr, yyvsp[-3]->type, yyvsp[0]->type, yyval->ptr, yyval->type); yywarning("Se detecto un error en operador, quedara '+'"); }
 break;
 case 113:
-#line 231 "./gramaticaForGenCod.y"
+#line 232 "./gramaticaForGenCod.y"
 { yyval->type = yyvsp[0]->type; yyval->ptr = yyvsp[0]->ptr; }
 break;
 case 114:
-#line 234 "./gramaticaForGenCod.y"
+#line 235 "./gramaticaForGenCod.y"
 { newOperacionAritmetica("*", yyvsp[-2]->ptr, yyvsp[0]->ptr, yyvsp[-2]->type, yyvsp[0]->type, yyval->ptr, yyval->type); }
 break;
 case 115:
-#line 235 "./gramaticaForGenCod.y"
+#line 236 "./gramaticaForGenCod.y"
 { newOperacionAritmetica("/", yyvsp[-2]->ptr, yyvsp[0]->ptr, yyvsp[-2]->type, yyvsp[0]->type, yyval->ptr, yyval->type); }
 break;
 case 116:
-#line 236 "./gramaticaForGenCod.y"
+#line 237 "./gramaticaForGenCod.y"
 { yyval->ptr = yyvsp[0]->ptr; yyval->type = yyvsp[0]->type;}
 break;
 case 117:
-#line 239 "./gramaticaForGenCod.y"
+#line 240 "./gramaticaForGenCod.y"
 { finIf(); }
 break;
 case 118:
-#line 242 "./gramaticaForGenCod.y"
+#line 243 "./gramaticaForGenCod.y"
 { condition(yyval->ptr); }
 break;
 case 119:
-#line 243 "./gramaticaForGenCod.y"
+#line 244 "./gramaticaForGenCod.y"
 { condition(yyval->ptr); yywarning("Falta de ultimo parentesis en condicion"); }
 break;
 case 120:
-#line 244 "./gramaticaForGenCod.y"
+#line 245 "./gramaticaForGenCod.y"
 { condition(yyval->ptr); yywarning("Falta de primer parentesis en condicion"); }
 break;
 case 121:
-#line 245 "./gramaticaForGenCod.y"
+#line 246 "./gramaticaForGenCod.y"
 { condition(yyval->ptr); yywarning("Falta de parantesis en condicion"); }
 break;
 case 122:
-#line 246 "./gramaticaForGenCod.y"
+#line 247 "./gramaticaForGenCod.y"
 { condition(yyval->ptr); yyerror("Falta de condicion en el bloque de control IF"); }
 break;
 case 124:
-#line 250 "./gramaticaForGenCod.y"
+#line 251 "./gramaticaForGenCod.y"
 { yyerror(" Falta de END_IF en bloque de control IF-ELSE"); }
 break;
 case 125:
-#line 251 "./gramaticaForGenCod.y"
+#line 252 "./gramaticaForGenCod.y"
 { yyerror(" Falta de ELSE en bloque de control IF-ELSE");}
 break;
 case 127:
-#line 253 "./gramaticaForGenCod.y"
+#line 254 "./gramaticaForGenCod.y"
 { yyerror(" Falta contenido dentro del ELSE en bloque de control IF-ELSE");}
 break;
 case 130:
-#line 260 "./gramaticaForGenCod.y"
+#line 261 "./gramaticaForGenCod.y"
 { addElse(yyval->ptr); }
 break;
 case 131:
-#line 262 "./gramaticaForGenCod.y"
+#line 263 "./gramaticaForGenCod.y"
 { finWhile(yyval->ptr); }
 break;
 case 132:
-#line 263 "./gramaticaForGenCod.y"
+#line 264 "./gramaticaForGenCod.y"
 { finWhile(yyval->ptr); yywarning("Falta de DO en WHILE-DO"); }
 break;
 case 133:
-#line 266 "./gramaticaForGenCod.y"
+#line 267 "./gramaticaForGenCod.y"
 { initWhile(); }
 break;
 case 135:
-#line 272 "./gramaticaForGenCod.y"
+#line 273 "./gramaticaForGenCod.y"
 { newCondicion(">",yyvsp[-2]->ptr, yyvsp[0]->ptr,yyvsp[-2]->type, yyvsp[0]->type,yyval->ptr); }
 break;
 case 136:
-#line 273 "./gramaticaForGenCod.y"
+#line 274 "./gramaticaForGenCod.y"
 { newCondicion("<",yyvsp[-2]->ptr, yyvsp[0]->ptr,yyvsp[-2]->type, yyvsp[0]->type,yyval->ptr); }
 break;
 case 137:
-#line 274 "./gramaticaForGenCod.y"
+#line 275 "./gramaticaForGenCod.y"
 { newCondicion("==",yyvsp[-2]->ptr, yyvsp[0]->ptr,yyvsp[-2]->type, yyvsp[0]->type,yyval->ptr);}
 break;
 case 138:
-#line 275 "./gramaticaForGenCod.y"
+#line 276 "./gramaticaForGenCod.y"
 { newCondicion("!!",yyvsp[-2]->ptr, yyvsp[0]->ptr,yyvsp[-2]->type, yyvsp[0]->type,yyval->ptr);}
 break;
 case 139:
-#line 276 "./gramaticaForGenCod.y"
+#line 277 "./gramaticaForGenCod.y"
 { newCondicion(">=",yyvsp[-2]->ptr, yyvsp[0]->ptr,yyvsp[-2]->type, yyvsp[0]->type,yyval->ptr);}
 break;
 case 140:
-#line 277 "./gramaticaForGenCod.y"
+#line 278 "./gramaticaForGenCod.y"
 { newCondicion("<=",yyvsp[-2]->ptr, yyvsp[0]->ptr,yyvsp[-2]->type, yyvsp[0]->type,yyval->ptr);}
 break;
 case 143:
-#line 282 "./gramaticaForGenCod.y"
+#line 283 "./gramaticaForGenCod.y"
 { yywarning("Se detecto codigo posterior a un return"); }
 break;
 case 144:
-#line 283 "./gramaticaForGenCod.y"
+#line 284 "./gramaticaForGenCod.y"
 { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
 break;
 case 145:
-#line 284 "./gramaticaForGenCod.y"
+#line 285 "./gramaticaForGenCod.y"
 { yywarning("Se detecto una falta de coma"); }
 break;
 case 147:
-#line 286 "./gramaticaForGenCod.y"
+#line 287 "./gramaticaForGenCod.y"
 { yyerror("Se detecto una sentencia declarativa en bloque de control"); }
 break;
 case 149:
-#line 288 "./gramaticaForGenCod.y"
+#line 289 "./gramaticaForGenCod.y"
 { yywarning("Se detecto una falta de coma"); }
 break;
 case 152:
-#line 292 "./gramaticaForGenCod.y"
+#line 293 "./gramaticaForGenCod.y"
 { yywarning("Se detecto codigo posterior a un return"); }
 break;
 case 155:
-#line 297 "./gramaticaForGenCod.y"
+#line 298 "./gramaticaForGenCod.y"
 { yywarning("Se detecto codigo posterior a un return"); }
 break;
 case 156:
-#line 298 "./gramaticaForGenCod.y"
+#line 299 "./gramaticaForGenCod.y"
 { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
 break;
 case 157:
-#line 299 "./gramaticaForGenCod.y"
+#line 300 "./gramaticaForGenCod.y"
 { yywarning("Se detecto una falta de coma"); }
 break;
 case 159:
-#line 301 "./gramaticaForGenCod.y"
+#line 302 "./gramaticaForGenCod.y"
 { yyerror("Se detecto una sentencia declarativa en bloque de control"); }
 break;
 case 161:
-#line 303 "./gramaticaForGenCod.y"
+#line 304 "./gramaticaForGenCod.y"
 { yywarning("Se detecto una falta de coma"); }
 break;
 case 163:
-#line 305 "./gramaticaForGenCod.y"
+#line 306 "./gramaticaForGenCod.y"
 { yyerror("Se detecto un bloque invalido"); }
 break;
 case 165:
-#line 309 "./gramaticaForGenCod.y"
+#line 310 "./gramaticaForGenCod.y"
 { yywarning("Se detecto una falta de coma"); }
 break;
 case 167:
-#line 311 "./gramaticaForGenCod.y"
+#line 312 "./gramaticaForGenCod.y"
 { yywarning("Se detecto una falta de coma"); }
 break;
 case 168:
-#line 312 "./gramaticaForGenCod.y"
+#line 313 "./gramaticaForGenCod.y"
 { yyerror("Se detecto una sentencia declarativa en bloque de control"); }
 break;
 case 169:
-#line 313 "./gramaticaForGenCod.y"
+#line 314 "./gramaticaForGenCod.y"
 { yyerror("Se detecto una sentencia declarativa en bloque de control y la falta de coma"); }
 break;
 case 170:
-#line 314 "./gramaticaForGenCod.y"
+#line 315 "./gramaticaForGenCod.y"
 { yyerror("Se detecto una sentencia declarativa en bloque de control"); }
 break;
 case 171:
-#line 315 "./gramaticaForGenCod.y"
+#line 316 "./gramaticaForGenCod.y"
 { yywarning("Se detecto una falta de coma"); }
 break;
 case 172:
-#line 316 "./gramaticaForGenCod.y"
+#line 317 "./gramaticaForGenCod.y"
 { yyerror("Se detecto una sentencia invalida dentro del bloque de sentencias ejecutables"); }
 break;
 case 173:
-#line 317 "./gramaticaForGenCod.y"
+#line 318 "./gramaticaForGenCod.y"
 { yyerror("Se detecto una sentencia invalida en el bloque de sentencias ejecutables"); }
 break;
 case 174:
-#line 320 "./gramaticaForGenCod.y"
+#line 321 "./gramaticaForGenCod.y"
 { checkVarInScope(yyvsp[0]->ptr, tableSymbol->getScope(), "var", yyval->ptr, yyval->type); }
 break;
 case 175:
-#line 321 "./gramaticaForGenCod.y"
+#line 322 "./gramaticaForGenCod.y"
 { newFactorMasMas(yyvsp[-1]->ptr, tableSymbol->getScope(), yyval->ptr, yyval->type); }
 break;
 case 176:
-#line 322 "./gramaticaForGenCod.y"
-{ yyval->ptr = yyvsp[0]->ptr; yyval->type = yyvsp[0]->type;}
-break;
-case 177:
 #line 323 "./gramaticaForGenCod.y"
 { yyval->ptr = yyvsp[0]->ptr; yyval->type = yyvsp[0]->type;}
 break;
-case 178:
+case 177:
 #line 324 "./gramaticaForGenCod.y"
+{ yyval->ptr = yyvsp[0]->ptr; yyval->type = yyvsp[0]->type;}
+break;
+case 178:
+#line 325 "./gramaticaForGenCod.y"
 { newTof(yyvsp[-1]->ptr,yyval->ptr,yyval->type); }
 break;
 case 180:
-#line 326 "./gramaticaForGenCod.y"
+#line 327 "./gramaticaForGenCod.y"
 { yyerror("No se puede operar con cadena de caracteres");{ yyval->ptr = yyvsp[0]->ptr; yyval->type = yyvsp[0]->type;} }
 break;
 case 181:
-#line 329 "./gramaticaForGenCod.y"
+#line 330 "./gramaticaForGenCod.y"
 { yyval->ptr = yyvsp[0]->ptr; yyval->type = yyvsp[0]->type;}
 break;
 case 182:
-#line 332 "./gramaticaForGenCod.y"
+#line 333 "./gramaticaForGenCod.y"
 { checkIntegerShort(yyvsp[0]->ptr); yyval->ptr = yyvsp[0]->ptr; yyval->type = yyvsp[0]->type;}
 break;
 case 183:
-#line 333 "./gramaticaForGenCod.y"
+#line 334 "./gramaticaForGenCod.y"
 { string newLexema = checkIntegerShortNegative(yyvsp[0]->ptr); yyval->ptr = newLexema; yyval->type = yyvsp[0]->type;}
 break;
 case 184:
-#line 334 "./gramaticaForGenCod.y"
+#line 335 "./gramaticaForGenCod.y"
 { yyval->ptr = yyvsp[0]->ptr; yyval->type = yyvsp[0]->type;}
 break;
 case 185:
-#line 335 "./gramaticaForGenCod.y"
+#line 336 "./gramaticaForGenCod.y"
 { string newLexema = setFloatNegative(yyvsp[0]->ptr); yyval->ptr = newLexema; yyval->type = yyvsp[0]->type;}
 break;
 case 186:
-#line 336 "./gramaticaForGenCod.y"
+#line 337 "./gramaticaForGenCod.y"
 { yyerror("Falta constante numerica en la expresion"); }
 break;
-#line 2321 "y.tab.c"
+#line 2438 "y.tab.c"
     }
     yyssp -= yym;
     yystate = *yyssp;

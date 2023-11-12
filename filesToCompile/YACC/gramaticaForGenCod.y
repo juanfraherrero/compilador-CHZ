@@ -20,7 +20,8 @@ TableSymbol* tableSymbol = new TableSymbol();
 // generamos la tabla de palabras reservadas
 TableReservedWord* tableRWords = new TableReservedWord();
 
-VectorOfFunction * vectorOfFunction = new VectorOfFunction();
+VectorOfFunction * vectorOfFunction = new VectorOfFunction(); // este vector se guarda las listas de tercetos instanciadas y a usar, como funciones en main o métodos de un objeto instanciado
+VectorOfFunction * vectorOfFunctionDeclaredInClasses = new VectorOfFunction(); // este vector se usa para cuando declaramos un método o una función dentro de una clase (esto es una declaración y se debe instanciar por cada objeto)
 stack<functionStack*>* stackFunction = new stack<functionStack*>();
 int cantOfRecursions = 0;
 
@@ -759,7 +760,44 @@ string checkNewNameBeforeInsert(symbol* newSm){
         }
         return newSm->lexema;
 }
+/**
+ * Esta función se llama cuando se quiere crear un método o función de un objeto a instanciar
+ * Para esto se require de buscar el bloque de tercetos en el vecto de bloques de tercetos de declaración
+ * copiarlo y agregarle a cada argumento que sea propio del objeto ":"+objeto+scope 
+ * al nuevo bloque también le agregamos eso al nombre e insertamos la copia en el vecotr de bloques de tercetos de ejecución
+ * 
+ * 
+ * @param objectName El nombre del objeto.
+ * @param scope El scope actual.
+ * @param simboloDeFuncion El símbolo de la función o método.
+ * @param tableSymbolOfTheClass La tabla de símbolos de la clase.
+ */
+void createFunctionTerecets(string objectName, string scope, symbol* simboloDeFuncion, TableSymbol* tableSymbolOfTheClass){
+     /*
+        la función debe buscar en el vector de declaración de bloques de tercetos de funciones la declaraciónde este método o función, 
+            copiarlo al vector de ejecución
+            recorrer cada terceto y por cada operador de este terceto verificar si alguno es igual a algún atributo o método de la clase ode sus herencias, 
+            en ese caso se le agrega el objeto y el scope actual
+    */
+    functionStack* copyOfTheStack = vectorOfFunctionDeclaredInClasses->getCopyOfFunction(simboloDeFuncion->lexema);
 
+    // recorremos el stack de tercetos de la función o método
+    for (const auto& tercet : copyOfTheStack->ter->getTercets()){
+        // si la tabla contiene exactamente ese elemento del terceto entonces le agregamos el objeto y el scope actual
+        if(tableSymbolOfTheClass->isTheSpecificLexemaInTable(tercet->getArg1())){
+            tercet->setArg1(tercet->getArg1()+":"+objectName+scope);
+        }
+        // si la tabla contiene exactamente ese elemento del terceto entonces le agregamos el objeto y el scope actual
+        if(tableSymbolOfTheClass->isTheSpecificLexemaInTable(tercet->getArg2())){
+            tercet->setArg2(tercet->getArg1()+":"+objectName+scope);
+        }
+    }
+
+    copyOfTheStack->name += ":"+objectName+scope; // le agregamos el nombre del objeto + el scope actual
+    // agregamos el nuevo stack de funciones a la tabla de funciones en ejecución
+    vectorOfFunction->add(copyOfTheStack);
+
+};
 /**
  * Cuando se detecta una declaración de objeto se llama esta función
  * Verificamos que no exista un objeto en el mismo ámbito con el mismo nombre   
@@ -799,6 +837,13 @@ void addObject(string key, string scope, string classType){
                         // creamos el nuevo símbolo
                         symbol* newSm = new symbol(*simbolo);                
                         
+                        // verificamos si el simbolo es una función o método y cargamos su bloque de tercetos en 
+                        //      la tabla de tercetos principal o de ejecución
+                        if(newSm->uso=="metodo" || newSm->uso=="funcion"){
+                            createFunctionTerecets(key, scope, newSm, matchingClass->attributesAndMethodsVector);
+                        }
+                                
+
                         newSm->lexema = newSm->lexema+":"+key+scope; // le agregamos el nombre del objeto + el scope actual
                         
                         // agregamos el nuevo símbolo a la tabla de simbolos        
@@ -819,6 +864,12 @@ void addObject(string key, string scope, string classType){
                                 // creamos el nuevo símbolo
                                 symbol* newSm = new symbol(*simbolo);                
                                 
+                                // verificamos si el simbolo es una función o método y cargamos su bloque de tercetos en 
+                                //      la tabla de tercetos principal o de ejecución
+                                if(newSm->uso=="metodo" || newSm->uso=="funcion"){
+                                    createFunctionTerecets(key, scope, newSm, tableSymbolMatchingClass);
+                                }
+
                                 newSm->lexema = newSm->lexema+":"+key+scope; // le agregamos el nombre del objeto + el scope actual
                                 
                                 // agregamos el nuevo símbolo a la tabla de simbolos        
@@ -884,9 +935,17 @@ void finishFunction(){
         // obtenemos el stack con los tercetos de la función
         functionStack* fs = stackFunction->top();
         stackFunction->pop();
-        vectorOfFunction->add(fs);
         tableSymbol->deleteScope(); // sacamos el scope de la función
         cantOfRecursions--;     // sacamos una recursión
+
+        if(stackClasses->size() <= 0){
+                // si no está dentro de una clase lo agregamos a la tabla general
+                vectorOfFunction->add(fs);
+        }else{
+            // si está dentro de una clase es una función declarada de ntro de un metodo y se guarda en el vector de funciones declaradas en clases
+            vectorOfFunctionDeclaredInClasses->add(fs);
+        }
+            
 }
 /**
  * cuando detectamos el fin de una declaracion de metodo
@@ -897,7 +956,8 @@ void finishMethod(){
         // obtenemos el stack con los tercetos de la función
         functionStack* fs = stackFunction->top();
         stackFunction->pop();
-        vectorOfFunction->add(fs);
+        // los vectores siempre se guardan en el vector de funciones declaradas en clases
+        vectorOfFunctionDeclaredInClasses->add(fs);
         tableSymbol->deleteScope(); // sacamos el scope de la función
         cantOfRecursions--;     // sacamos una recursión
 };

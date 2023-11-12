@@ -63,6 +63,7 @@ int main(int arg_count, char *arg_list[]) {
     extern TableReservedWord* tableRWords;
     extern Tercets* tableTercets;
     extern VectorOfFunction * vectorOfFunction;
+    extern VectorOfFunction * vectorOfFunctionDeclaredInClasses;
 
     // cargamos nuestra fase de analisis lexico
     Lexico * lexico = new Lexico(tableSymbol, tableRWords, &contenido, &lineNumber); // la dejamos en la pila porque tiene un tamaño pequeño y su tamaño no es dinámico
@@ -105,8 +106,15 @@ int main(int arg_count, char *arg_list[]) {
     cout << "\n\n --------------- \n\n";
     tableSymbol->imprimirTabla();
     tableSymbol->imprimirAtributosMetodos();
+
+    cout << "\n\n ------bloques de codigo ejecutables--------- \n\n";
     vectorOfFunction->imprimir();
+    
+    // cout << "\n\n ------bloques de códigos declarativos--------- \n\n";
+    // vectorOfFunctionDeclaredInClasses->imprimir();
+    
     // tableRWords->imprimirTabla();
+    
     cout << "\n\n --------Lista de tercetos del main------- \n\n";
     tableTercets->print();
 

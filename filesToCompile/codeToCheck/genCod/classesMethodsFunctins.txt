@@ -1,0 +1,20 @@
+{
+    CLASS cs {                          
+        SHORT z,                      *{ declaración de variable en clase }*      
+        VOID metodo1 ()                
+        {   
+            SHORT x,
+            x = 3_s,
+            VOID func3()                
+            {   
+                SHORT x,
+                x = 3_s,
+                RETURN,
+            },
+            RETURN,
+        },                              
+    },                                 
+
+    cs ob3,
+    cs ob2,
+}

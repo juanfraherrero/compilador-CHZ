@@ -39,6 +39,11 @@ void Tercets::printStack(){
     }
 }
 
+//Devuelve el vector de tercetos
+vector<Tercet*> Tercets::getTercets(){
+    return this->tercets;
+};  
+
 void Tercets::push(Tercet* t){
     this->tercetsStack.push(t);
 }

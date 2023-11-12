@@ -70,7 +70,7 @@ class TableSymbol{
         int getDiffOffScope2(const string var, const string uso, string scope);
 
         bool existMethodInTable(string key,string uso);
-
+        bool isTheSpecificLexemaInTable(string lexema);    //verifica si existe un elemento con el mismo lexema
         // Destructor para liberar la memoria de los símbolos
         ~TableSymbol();
 

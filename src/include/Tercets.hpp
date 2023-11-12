@@ -22,7 +22,7 @@ public:
     void push(Tercet* tercet); //Añade un terceto a la pila de tercetos.
     Tercet* pop(); //Devuelve el ultimo terceto de la pila de tercetos.
     void printStack(); //Imprime todos los tercetos de la estructura.
-
+    vector<Tercet*> getTercets();   //Devuelve el vector de tercetos
     ~Tercets();
 
 private:

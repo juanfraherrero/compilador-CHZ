@@ -1,0 +1,15 @@
+{
+  
+    CLASS clase1 {                         
+        VOID metodo1 ()           
+        {
+            UINT z;x,             *{declaración de variable}*
+            z = 1_ui,
+            x = 2_ui,
+                         
+            RETURN,
+        },                                                   
+    },         
+    clase1 ob1,
+    
+}

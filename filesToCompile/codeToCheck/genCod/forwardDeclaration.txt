@@ -1,0 +1,13 @@
+{
+    CLASS clase1,       *{Forward declaration}*
+         
+    CLASS clase1 {                          
+        SHORT x,   
+        VOID metodo1 ()           
+        {     
+            RETURN,
+        },                                                   
+    },         
+
+    clase1 ob1,  
+}

@@ -17,6 +17,21 @@ void VectorOfFunction::imprimir(){
     }
 }
 
+//Devuelve una copia de la lista de la función de tercetos
+functionStack* VectorOfFunction::getCopyOfFunction(string _name){
+    for (functionStack * vf : *(this->functions)) {
+        if(vf->name == _name){
+            functionStack* copy = new functionStack(_name);
+            copy->ter = new Tercets();
+            for (Tercet* tercet : vf->ter->getTercets()) {
+                copy->ter->add(new Tercet(tercet->getOp(), tercet->getArg1(), tercet->getArg2()));
+            }
+            return copy;
+        }
+    }
+    return nullptr;
+} 
+
 VectorOfFunction::~VectorOfFunction() {
     // // Eliminar objetos apuntados en el vector 'tercets'
     // for (Tercet* tercet : tercets) {

@@ -367,6 +367,18 @@ bool TableSymbol::existMethodInTable(const string key, const string uso){
     }
     return false;
 }
+//verifica si existe un elemento con el mismo lexema
+bool TableSymbol::isTheSpecificLexemaInTable(string _lexema){
+    // recorremos la tabla por cada símbolo
+    for (const auto& pair : symbolTable) {
+        const symbol* sm = pair.second;
+        // verificamos si algun lexema coincide con el lexema pasado por parametro
+        if(sm->lexema == _lexema){
+            return true;
+        }
+    }
+    return false;
+};    
          
 // Destructor para liberar la memoria de los símbolos
 TableSymbol::~TableSymbol() {
