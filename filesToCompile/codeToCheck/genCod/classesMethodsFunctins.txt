@@ -1,5 +1,5 @@
 {
-    CLASS cs {                          
+    CLASS clase1 {                          
         SHORT z,                      *{ declaración de variable en clase }*      
         VOID metodo1 ()                
         {   
@@ -13,8 +13,17 @@
             },
             RETURN,
         },                              
-    },                                 
+    },         
+    CLASS clase2 {                          
+        clase1,      
+        SHORT z,
+        VOID metodo1 ()                
+        {   
+            UINT x,
+            x = 3_ui,
+            RETURN,
+        },                                  
+    },                        
 
-    cs ob3,
-    cs ob2,
+    clase2 ob2,
 }
