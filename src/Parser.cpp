@@ -1597,7 +1597,16 @@ void newFactorMasMas (string key, string scope, string& reglaptr, string& reglat
         if(symbolFinded == nullptr){
                 yyerror("No se encontro declaracion previa de la variable "+ key);
         }else{
-                int number = addTercet("+", symbolFinded->lexema, symbolFinded->lexema);          
+                string value = "";
+                if(symbolFinded->type == "unsigned int"){
+                    value = "1_ui";
+                }else if(symbolFinded->type == "short"){
+                    value = "1_s";
+                }else if(symbolFinded->type == "float"){
+                    value = "1.0";
+                }
+                int number = addTercet("+", symbolFinded->lexema, value);   
+                number = addTercet("=", symbolFinded->lexema, charTercetoId + to_string(number));       
                 
                 reglaptr = charTercetoId + to_string(number);
                 reglatype = symbolFinded->type;
@@ -2043,8 +2052,16 @@ void newUseObjectAttributeFactorMasMas(string objectName, string attributeName, 
                 if (attributeSymbol == nullptr){
                     yyerror("No se encontro declaracion previa del atributo "+ attributeName + " en la clase " + classOfObject + " del objeto " + objectName);
                 }else{
-                    // agregamos el terceto de suma y seteamos el ptr de la regla con este terceto
-                    int number = addTercet("+", attributeSymbol->lexema, attributeSymbol->lexema);          
+                    string value = "";
+                    if(attributeSymbol->type == "unsigned int"){
+                        value = "1_ui";
+                    }else if(attributeSymbol->type == "short"){
+                        value = "1_s";
+                    }else if(attributeSymbol->type == "float"){
+                        value = "1.0";
+                    }
+                    int number = addTercet("+", attributeSymbol->lexema, value);   
+                    number = addTercet("=", attributeSymbol->lexema, charTercetoId + to_string(number));           
                 
                     reglaptr = charTercetoId + to_string(number);
                     reglatype = attributeSymbol->type;
@@ -2293,7 +2310,7 @@ void newInvocacionMethodWithParam(string objectName, string methodName, string s
         }
     }
 };
-#line 2297 "y.tab.c"
+#line 2322 "y.tab.c"
 #define YYABORT goto yyabort
 #define YYACCEPT goto yyaccept
 #define YYERROR goto yyerrlab
@@ -2366,7 +2383,7 @@ yyloop:
     goto yynewerror;
 #endif
 yynewerror:
-    yyerror("syntax error");
+    
 #ifdef lint
     goto yyerrlab;
 #endif
@@ -3037,7 +3054,7 @@ case 191:
 #line 344 "./gramaticaForGenCod.y"
 { yyerror("Falta constante numerica en la expresion"); }
 break;
-#line 3041 "y.tab.c"
+#line 3066 "y.tab.c"
     }
     yyssp -= yym;
     yystate = *yyssp;
