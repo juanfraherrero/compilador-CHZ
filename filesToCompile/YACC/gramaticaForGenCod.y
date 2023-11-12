@@ -29,6 +29,7 @@ int lineNumber = 1;
 bool isErrorInCode = false;
 Tercets *tableTercets = new Tercets();
 char charTercetoId = '%';
+bool isVariableToCheck = false;      // booleano que sirve para indicar si se esta declarando una variable con check
 
 string typeAux = "";
 string actualClass = "";
@@ -66,6 +67,7 @@ void yyPrintInLine(string s){
 %token SHORT UINT FLOAT
 %token TOF
 %token CLASS
+%token CHECK
 
 %start programa
 
@@ -105,12 +107,14 @@ comas : ',' comas
       | ',' 
       ;
 
-declarativa :   tipo lista_de_variables                                             { yyPrintInLine("Se detecto declaracion de variable");}
+declarativa :   tipo lista_de_variables                                             { finishVariableDeclaration(); yyPrintInLine("Se detecto declaracion de variable");}
+            |   check tipo lista_de_variables                                       { finishVariableDeclaration(); yyPrintInLine("Se detecto declaracion de variable con CHECK");}
             |   declaracion_clase                                                    
             |   declaracion_objeto                                                  { yyPrintInLine("Se detecto declaracion de objeto");}
             |   declaracion_funcion                                                 { yyPrintInLine("Se detecto declaracion de funcion");}
             ;
-
+check   :   CHECK                                                                   { setVariableToCheck(); }
+        ;
 declaracion_funcion     :       funcion_name '(' parametro_funcion ')' '{' cuerpo_de_la_funcion '}'             { finishFunction();  }
                         |       VOID '(' parametro_funcion ')' '{' cuerpo_de_la_funcion '}'                     { yyerror("Se detecto la falta de un nombre en la funcion"); }
                         |       funcion_name '(' parametro_funcion ')' '{' '}'                                  { finishFunction(); yywarning("Se detecto la falta de RETURN en el cuerpo de la funcion");}
@@ -214,6 +218,7 @@ ejecutable  :    asignacion
 
 asignacion : IDENTIFICADOR '=' expresion_aritmetica                     { newAsignacion($1->ptr, tableSymbol->getScope(), $3->ptr,$3->type);}
            | IDENTIFICADOR '.' IDENTIFICADOR '=' expresion_aritmetica
+           | IDENTIFICADOR OPERADOR_SUMA_SUMA                           { newFactorMasMas($1->ptr, tableSymbol->getScope(), $$->ptr, $$->type); }
            ;
 
 invocacion : IDENTIFICADOR '(' expresion_aritmetica ')'      
@@ -984,6 +989,17 @@ void checkVarInScope(string key, string scope, string uso, string& reglaptr, str
         }else{
                 reglaptr = symbolFinded->lexema;
                 reglatype = symbolFinded->type;
+
+                /* en este punto sabes que es una variable declarada, 
+                    pero ahora quiero saber si es de este ámbito o de otro, 
+                    si es de otro y esa variable tiene el check debo informar que se está usando a la izquierda de una asignación
+                    ESTO LO DEJO PARA ZUCCHI, DESPUES BORRAR ESTE COMENTARIO
+                */
+                
+                // si el símbolo tiene que checkearse y si los lexemas no coincidencia entonces es una variable de otro ámbito
+                if(symbolFinded->isVariableToCheck && key+scope != symbolFinded->lexema){
+                    yywarning("Se esta usando la variable "+ key +" como una expresion en un ambito diferente al de su declaracion");
+                }
         }
 };
 
@@ -1000,7 +1016,7 @@ void newFactorMasMas (string key, string scope, string& reglaptr, string& reglat
         tableSymbol->deleteSymbol(key);
 
         // busca variable en scope que coincide con el uso
-        symbol* symbolFinded = tableSymbol->getFirstSymbolMatching(key+scope, "var", scope); 
+        symbol* symbolFinded = tableSymbol->getFirstSymbolMatching2(key, "var", scope); 
         if(symbolFinded == nullptr){
                 yyerror("No se encontro declaracion previa de la variable "+ key);
         }else{
@@ -1008,10 +1024,25 @@ void newFactorMasMas (string key, string scope, string& reglaptr, string& reglat
                 
                 reglaptr = charTercetoId + to_string(number);
                 reglatype = symbolFinded->type;
+
+                /* en este punto sabes que es una variable declarada, 
+                    pero ahora quiero saber si es de este ámbito o de otro, 
+                    si es de otro y esa variable tiene el check debo informar que se está usando a la izquierda de una asignación
+                    ESTO LO DEJO PARA ZUCCHI, DESPUES BORRAR ESTE COMENTARIO
+                */
+                
+                // si el símbolo tiene que checkearse y si los lexemas no coincidencia entonces es una variable de otro ámbito
+                if(symbolFinded->isVariableToCheck && key+scope != symbolFinded->lexema){
+                    yywarning("Se esta modificando la variable "+ key +" en un ambito diferente al de su declaracion");
+                }
         }
 }
 /**
- * función cuando se detecta una asginaciín sobre una variable
+ * función cuando se detecta una asginación sobre una variable
+ * Borras el símbolo de la tabla general
+ * verifica si existe una variable alcanzable
+ * verifica que los tipos sean iguales
+ * verifica que si se usa una variable de otro ámbito que tiene el checkeo activo se informa 
  *
  * @param key el acceso al identificador al que se le asigna.
  * @param scope el scope actual
@@ -1040,6 +1071,17 @@ void newAsignacion(string key, string scope, string op2Lexeme, string op2Type){
                 checkTypesAsignation(symbolFinded->type, op2Type); 
                 // agregamos el terceto de asignación en la respectiva tabla de tercetos
                 int number = addTercet("=", symbolFinded->lexema, op2Lexeme); 
+
+                /* en este punto sabes que es una variable declarada, 
+                    pero ahora quiero saber si es de este ámbito o de otro, 
+                    si es de otro y esa variable tiene el check debo informar que se está usando a la izquierda de una asignación
+                    ESTO LO DEJO PARA ZUCCHI, DESPUES BORRAR ESTE COMENTARIO
+                */
+
+                // si al variable tiene asignado que se checke y si los lexemas no coincidencia entonces es una variable de otro ámbito
+                if(symbolFinded->isVariableToCheck && key+scope != symbolFinded->lexema){
+                    yywarning("Se esta usando la variable "+ key +" a la izquierda de una asignacion en un ambito diferente al de su declaracion");
+                }
         } 
 };
 
@@ -1105,7 +1147,9 @@ void newCondicion(string operador, string op1ptr, string op2ptr, string op1type,
 /**
  * Cuando se detecta una sentencia que declara una variable se llama esta función.
  * Agrega una nueva variable a la tabla de símbolos específica de clase o la general.
- * 
+ * Agrega los atributos correspondientes al símbolo
+ * Verifica que si se usa una variable de otro ámbito que tiene el checkeo activo se informa 
+ *
  * @param key La clave de la variable.
  * @param scope El ámbito de la variable.
  * @param type El tipo de la variable.
@@ -1136,6 +1180,10 @@ void newVariable(string key, string scope, string type){
                     /*
                         ACA SE PUEDEN AGREGAR COSAS A LOS SIMBOLOS DE VARIABLES CARGADOS
                     */
+                    if (isVariableToCheck){
+                        // si es una variable a chequear le seteamos que se debe checkear en el simbolo
+                        newIdentificador->isVariableToCheck = true;
+                    }
             }else{
                     newIdentificador = setNewScope(key, type, scope, "var", ts); 
                     /*
@@ -1148,6 +1196,11 @@ void newVariable(string key, string scope, string type){
                     // marcamos cual seria el scope dentro de la clase de donde proviene la variable
                     string scopeInsideClass = scope.substr(scope.find(classOfAttribute) + classOfAttribute.length());
                     newIdentificador->scopeInsideClass = scopeInsideClass;
+
+                    if (isVariableToCheck){
+                        // si es una variable a chequear le seteamos que se debe checkear en el simbolo
+                        newIdentificador->isVariableToCheck = true;
+                    }
             }
         }
 };
@@ -1231,4 +1284,18 @@ void  detectInheritance(string classToInherit , string scope, string classWhoInh
                         
                 }
         }
+}
+/**
+ * Cuando finaliza la declaración de variables se llama esta función.
+ * Establece la variable para checkeo de variables en falso.
+ */
+void finishVariableDeclaration(){
+    isVariableToCheck = false;
+}
+/**
+ * Cuando se detecta la palabra reservada CHECK se llama esta función.
+ * Establece la variable para checkeo de variables en true.
+ */
+void setVariableToCheck(){
+    isVariableToCheck = true;
 }

@@ -1,0 +1,17 @@
+{
+    CHECK SHORT x; y,
+    x = 1_s,
+    y = 2_s,
+    x = x + y,
+     
+    VOID func2 ()           
+    {
+        SHORT a; b,                
+        y = a,
+        x = 2_s,
+        a = a + x,
+        x++,
+        RETURN,
+    },                      
+    
+}

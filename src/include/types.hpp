@@ -25,21 +25,23 @@ struct valueOfMatrix
 
 // Definición de la estructura que contiene un string y un entero
 struct symbol {
-    string lexema;          // lexema
-    string value;           // valor del token
-    string type;            // define un tipo                       SHORT, FLOAT
-    string uso;             // define el uso de cada variable.      metodo, variable, parametro, funcion
+    string lexema;              // lexema
+    string value;               // valor del token
+    string type;                // define un tipo                       SHORT, FLOAT
+    string uso;                 // define el uso de cada variable.      metodo, variable, parametro, funcion
     unsigned int cantParam = 0;       // define si la funcion tiene o no parametro, 0 si no tiene, 1 si tiene si el uso es función o método
-    string typeParam;       // define si es que tiene parámetro el tipo
-    string nameParam;       // define el nombre del parámetro
-    string fullIdentifier;  // define el identificador completo, se usa para el truncado
-    int count;              // se usa para contabilizar cuantos lexemas apuntan al mismo elemento
-    bool forwarded = false; // se usa para saber si el simbolo fue forwardado o no
-    TableSymbol* attributesAndMethodsVector; // se usa para que tengamos los atritbutos y métodos de una clase en este vector en heap de simbolos del heap
+    string typeParam;           // define si es que tiene parámetro el tipo
+    string nameParam;           // define el nombre del parámetro
+    string fullIdentifier;      // define el identificador completo, se usa para el truncado
+    int count;                  // se usa para contabilizar cuantos lexemas apuntan al mismo elemento
+    bool forwarded = false;     // se usa para saber si el simbolo fue forwardado o no
+    TableSymbol* attributesAndMethodsVector;                        // se usa para que tengamos los atritbutos y métodos de una clase en este vector en heap de simbolos del heap
     TableSymbol* inheritance[3] = {nullptr, nullptr, nullptr};      // lleva la herencia de la clase, si es que tiene. Máximo 3 niveles de herencia. Por ejemplo [*ts_clase1, *ts_clase2, *ts_clase3] nos indicaría que la clase actual hereda de clase 3 que hereda de clase 2... (se le de der a izq y se agrega de izq a der)  
     string scopeInsideClass = "";                                   // define el scope de un atributo o método dentro de una clase
     string classOfSymbol = "";                                      // define a que clase pertenece cada atributo o método
-    bool isAlreadyInhenriting = false;                               // define si el atributo o método ya hereda o no hereda de una clase
+    bool isAlreadyInhenriting = false;                              // define si el atributo o método ya hereda o no hereda de una clase
+    bool isVariableToCheck = false;                                  // booleano que sirve para indicar si se esta declarando una variable con check
+
 
     symbol(const string& _lexema) : lexema(_lexema), count(1) {};
     symbol(const string& _lexema, string _value) : lexema(_lexema), value(_value), count(1) {};

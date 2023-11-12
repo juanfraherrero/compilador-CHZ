@@ -21,6 +21,7 @@ TableReservedWord::TableReservedWord(){
     insert("FLOAT",277);
     insert("TOF",278);
     insert("CLASS",279);
+    insert("CHECK",280);
 };
 
 // devuelve el nro de token asociado al lexema
