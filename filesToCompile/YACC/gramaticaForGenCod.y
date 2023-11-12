@@ -217,7 +217,7 @@ ejecutable  :    asignacion
             ;
 
 asignacion : IDENTIFICADOR '=' expresion_aritmetica                     { newAsignacion($1->ptr, tableSymbol->getScope(), $3->ptr,$3->type);}
-           | IDENTIFICADOR '.' IDENTIFICADOR '=' expresion_aritmetica
+           | IDENTIFICADOR '.' IDENTIFICADOR '=' expresion_aritmetica   { newAsignacionObjectAttribute($1->ptr, $3->ptr, tableSymbol->getScope(), $5->ptr, $5->type, $5->ptr,$5->type); }
            | IDENTIFICADOR OPERADOR_SUMA_SUMA                           { newFactorMasMas($1->ptr, tableSymbol->getScope(), $$->ptr, $$->type); }
            ;
 
@@ -328,7 +328,7 @@ factor : IDENTIFICADOR                                                  { checkV
        | constanteSinSigno                                              { $$->ptr = $1->ptr; $$->type = $1->type;}
        | constanteConSigno                                              { $$->ptr = $1->ptr; $$->type = $1->type;}
        | TOF '(' expresion_aritmetica ')'                               { newTof($3->ptr,$$->ptr,$$->type); } 
-       | IDENTIFICADOR '.' IDENTIFICADOR 
+       | IDENTIFICADOR '.' IDENTIFICADOR                                { newUseObjectAttribute($1->ptr, $3->ptr,  tableSymbol->getScope(), $$->ptr, $$->type); } 
        | CADENA_CARACTERES                                              { yyerror("No se puede operar con cadena de caracteres");{ $$->ptr = $1->ptr; $$->type = $1->type;} }          
        ;
 
@@ -1299,3 +1299,142 @@ void finishVariableDeclaration(){
 void setVariableToCheck(){
     isVariableToCheck = true;
 }
+/**
+ * Esta función busca el símbolo de un atributo que tenga el mismo nombre que el parámetro en el símbolo del a clase, si no está busca en sus herencias.
+ * si encuentra elsímbololo devuelve y sino devuelve nullptr
+ *
+ * @param key La clave del método a buscar.
+ * @param classSymbol La tabla de símbolos de la clase actual en la que buscar.
+ * @return puntero al simbolo del atributo encontrado o nullptr sino lo encuentra
+ */
+symbol* getFirstSymbolMatchingOfAttribute(string attributeName, symbol* classSymbol){
+    
+    // verificamos si el elemento está en la tabla de símbolos de la clase actual, si está devolvemos el símbolo
+    // si no es asi verificamos si está en alguna de las que hereda (de derecha a izquierda), si está devilvemos el símbolo
+    // sino lo encontramos devolvemos nullptr
+    
+    // obtenemos el simbolo que tenga el mismo nombre (solo mira la primer parte del nombre) y el mismo uso
+    symbol* symbolAttribute = classSymbol->attributesAndMethodsVector->getElementInTableByFisrtPartAndUse(attributeName, "atributo");
+    if(symbolAttribute != nullptr){
+        // si encontramos el atributo en la tabla de símbolos de la clase actual devolvemos el símbolo
+        return symbolAttribute;
+    }else{
+        // si no encontramos símbolo en la tabla principal dela clase buscamos en sus herencias de derecha a izquierda ya que si hay sobre escritura buscamos la más reciente
+        for (int i=2; i >= 0; i--){
+            if(classSymbol->inheritance[i]!=nullptr){
+                
+                // obtener el símbolo de la clase que hereda
+                symbolAttribute = classSymbol->inheritance[i]->getElementInTableByFisrtPartAndUse(attributeName, "atributo");
+                if(symbolAttribute != nullptr){
+                    return symbolAttribute;
+                }
+            }
+        }
+        return nullptr;
+    }           
+}
+/**
+ * Esta función se llama cuando se detecta el uso de un atributo en una expresión aritmética (a la derecha de una asignación).
+ * Verifica que el objeto esté declarado y obtiene su clase.
+ * Verifica que la clase exista.
+ * Verifica que la clase contenga el atributo.
+ * Obtiene sumando el scope estático del atributo + nombre objeto + scope actual el lexema del símbolo propio del objeto.
+ * asigna a reglaptr el lexema del símbolo y a reglatype el tipo del símbolo.
+ *
+ * @param objectName Nombre del objeto.
+ * @param attributeName Nombre del atributo.
+ * @param scope Alcance.
+ * @param reglaptr Puntero a la regla.
+ * @param reglatype Tipo de la regla.
+ */
+void newUseObjectAttribute(string objectName, string attributeName, string scope, string& reglaptr, string& reglatype){
+
+    // Verifica que el objeto este declarado y obtiene su clase
+    symbol* objectSymbol = tableSymbol->getFirstSymbolMatching2(objectName, "objeto", scope);
+    if(objectSymbol == nullptr){
+            yyerror("No se encontro declaracion previa del objeto"+ objectName);
+    }else{
+        // si encontramos el objeto declarado obtenemos su clase y verificamos que exista la clase en el scope ":main" ya que todas las clases van ahí
+        string classOfObject = objectSymbol->classOfSymbol;
+        symbol* classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
+        if(classSymbol == nullptr){
+            // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
+            yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
+        }else{
+            // si encontramos la clase verificamos que contenga el atributo     
+            symbol* attributeSymbol = getFirstSymbolMatchingOfAttribute(attributeName, classSymbol);
+
+            if(attributeSymbol == nullptr){
+                yyerror("No se encontro declaracion previa del atributo "+ attributeName + " en la clase " + classOfObject + " del objeto " + objectName); 
+            }else{
+                // encontramos el atributo en la clase y obtenemos el scope estático del atributo, 
+                // buscamos en la tabla general el scope estático + le nombre del objeto + el scope actual y obtenemos el simbolo del primer atributo que coincida
+                
+                attributeSymbol = tableSymbol->getFirstSymbolMatching2(attributeSymbol->lexema + ":" + objectName, "atributo", scope);
+                if (attributeSymbol == nullptr){
+                    yyerror("No se encontro declaracion previa del atributo "+ attributeName + " en la clase " + classOfObject + " del objeto " + objectName);
+                }else{
+                    reglaptr =  attributeSymbol->lexema;
+                    reglatype = attributeSymbol->type;
+                }
+            }
+        }
+    }
+};
+/**
+ * Esta función se llama cuando se detecta la asignación de una expresión a un atributo de un objeto.
+ * Verifica que el objeto esté declarado y obtiene su clase.
+ * Verifica que la clase exista.
+ * Verifica que la clase contenga el atributo.
+ * Obtiene sumando el scope estático del atributo + nombre objeto + scope actual el lexema del símbolo propio del objeto.
+ * Verifica que los tipos sean iguales.
+ * Genera la asignación de la expresión al atributo del objeto.
+ * 
+ * @param objectName Nombre del objeto.
+ * @param attributeName Nombre del atributo.
+ * @param scope Alcance.
+ * @param op2Lexeme Lexema de la expresión a asignar.
+ * @param op2Type Tipo de la expresión a asignar.
+ * @param reglaptr Puntero al terceto generado.
+ * @param reglatype Tipo del atributo.
+ */
+void newAsignacionObjectAttribute(string objectName, string attributeName, string scope, string op2Lexeme, string op2Type, string& reglaptr, string& reglatype){
+
+    // Verifica que el objeto este declarado y obtiene su clase
+    symbol* objectSymbol = tableSymbol->getFirstSymbolMatching2(objectName, "objeto", scope);
+    if(objectSymbol == nullptr){
+            yyerror("No se encontro declaracion previa del objeto"+ objectName);
+    }else{
+        // si encontramos el objeto declarado obtenemos su clase y verificamos que exista la clase en el scope ":main" ya que todas las clases van ahí
+        string classOfObject = objectSymbol->classOfSymbol;
+        symbol* classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
+        if(classSymbol == nullptr){
+            // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
+            yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
+        }else{
+            // si encontramos la clase verificamos que contenga el atributo     
+            symbol* attributeSymbol = getFirstSymbolMatchingOfAttribute(attributeName, classSymbol);
+
+            if(attributeSymbol == nullptr){
+                yyerror("No se encontro declaracion previa del atributo "+ attributeName + " en la clase " + classOfObject + " del objeto " + objectName); 
+            }else{
+                // encontramos el atributo en la clase y obtenemos el scope estático del atributo, 
+                // buscamos en la tabla general el scope estático + le nombre del objeto + el scope actual y obtenemos el simbolo del primer atributo que coincida
+                
+                attributeSymbol = tableSymbol->getFirstSymbolMatching2(attributeSymbol->lexema + ":" + objectName, "atributo", scope);
+                if (attributeSymbol == nullptr){
+                    yyerror("No se encontro declaracion previa del atributo "+ attributeName + " en la clase " + classOfObject + " del objeto " + objectName);
+                }else{
+                    // checkeamos que los tipos sean iguales 
+                    checkTypesAsignation(attributeSymbol->type, op2Type); 
+
+                    // agregamos el terceto de asignación en la respectiva tabla de tercetos
+                    int number = addTercet("=", attributeSymbol->lexema, op2Lexeme);
+                    
+                    reglaptr = charTercetoId + to_string(number);
+                    reglatype = attributeSymbol->type;
+                }
+            }
+        }
+    }
+};

@@ -378,8 +378,22 @@ bool TableSymbol::isTheSpecificLexemaInTable(string _lexema){
         }
     }
     return false;
-};    
-         
+};
+// devuelva la primera apariciónde un simbolo con el mismo nombre de simboloy mismo uso    
+symbol* TableSymbol::getElementInTableByFisrtPartAndUse(const string key, const string uso){
+    
+    // recorremos la tabla por cada símbolo
+    for (const auto& pair : symbolTable) {
+        symbol* sm = pair.second;
+
+        // buscamos el símbolo que coincida con el nombre y el uso
+        string lexemaAux = sm->lexema.substr(0, sm->lexema.find(":"));
+        if (lexemaAux == key && sm->uso == uso){
+            return sm;
+        }
+    }
+    return nullptr;
+}        
 // Destructor para liberar la memoria de los símbolos
 TableSymbol::~TableSymbol() {
     for (auto& pair : symbolTable) {

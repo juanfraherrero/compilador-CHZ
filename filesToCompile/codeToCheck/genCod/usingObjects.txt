@@ -1,0 +1,18 @@
+{       
+    CLASS clase2 {                                    
+        SHORT z,
+        VOID metodo1 ()                
+        {   
+            UINT x,
+            x = 3_ui,
+            PRINT #inside metodo1#,
+            RETURN,
+        },                                  
+    },                        
+
+    clase2 ob2,
+    SHORT x,
+    x = ob2.z,                           *{ acceso a variable de clase }*
+    ob2.z = 3_s,                        *{ acceso a variable de clase }*
+    ob2.metodo1(),                      *{ llamada a método de clase }*
+}
