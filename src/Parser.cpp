@@ -1307,7 +1307,7 @@ void addParamFunction(string key, string scope, string type, string & reglaptr, 
         lastMethod->nameParam = key;
         
         reglaptr = newIdentificador->lexema; 
-        reglatype = type;
+        reglatype = type; 
 };
 
 string checkNewNameBeforeInsert(symbol* newSm){
@@ -2096,8 +2096,9 @@ void newInvocacion(string nombreFuncion, string scope, string& reglaptr){
  * Esta función se llama cuando se detecta una invocación a función con parámetro.
  * Borramos el símbolo de la tabla general, verificamos si estamos dentro de una declaración de clase o en el main.
  * En base a eso usamos la respectiva tabla de símbolos para buscar el primer símbolo de función.
- * Verificamos que esa función no tenga parámetros, sino tiramos un error de que estamos llamando a una función que no requiere de parametros.
+ * Verificamos que esa función tenga parámetros, sino tiramos un error de que estamos llamando a una función que no requiere de parametros.
  * verificamos que los tipos de los parametros coincidan
+ * generamos el terceto de pasaje de parameros
  * Generamos el terceto de call a esa función.
  * 
  * @param nombreFuncion El nombre de la función a invocar.
@@ -2105,15 +2106,7 @@ void newInvocacion(string nombreFuncion, string scope, string& reglaptr){
  * @param reglaptr Puntero a la regla generada.
  */
 void newInvocacionWithParam(string nombreFuncion, string scope, string ptrParam, string typeParam, string& reglaptr){
-    /*
-        Esta función se llama cuando se detecta una invocación a función con parámetro
-        Borramos el simbolo dela tabla general
-        verificamos si estamos dentro de una declaraciónd e claseso en el main
-        En base a eso usamos la respectiva tabla de símbolos para buscar el primer símbolo de funcion
-        verificamos que esa función tenga parámteros sino tiramos un error de que estamos llamando a una función que no requiere de parametros
-        verificamos que los tipos de los parametros coincidan
-        generamos el terceto de call a esa función
-    */ 
+
     // borramos el simbolo de la tabla general
     tableSymbol->deleteSymbol(nombreFuncion); 
 
@@ -2138,7 +2131,7 @@ void newInvocacionWithParam(string nombreFuncion, string scope, string ptrParam,
             // verificamos que los tipos de los parametros sean ifuales
             checkTypesParams(functionFinded->typeParam, typeParam); 
         }
-
+            
         /*
             NO SE PORQUE PERO PRESIENTO QUE VA A SERVIR
         */
@@ -2152,7 +2145,155 @@ void newInvocacionWithParam(string nombreFuncion, string scope, string ptrParam,
         reglaptr = charTercetoId + to_string(number);
         } 
 };
-#line 2145 "y.tab.c"
+/**
+ * Esta función busca el símbolo de un metoddo que tenga el mismo nombre que el parámetro en el símbolo del a clase, si no está busca en sus herencias.
+ * si encuentra el símbololo lo devuelve y sino devuelve nullptr
+ *
+ * @param key La clave del método a buscar.
+ * @param classSymbol La tabla de símbolos de la clase actual en la que buscar.
+ * @return puntero al simbolo del atributo encontrado o nullptr sino lo encuentra
+ */
+symbol* getFirstSymbolMatchingOfMethod(string attributeName, symbol* classSymbol){
+    
+    // obtenemos el simbolo que tenga el mismo nombre (solo mira la primer parte del nombre) y el mismo uso
+    symbol* symbolAttribute = classSymbol->attributesAndMethodsVector->getElementInTableByFisrtPartAndUse(attributeName, "metodo");
+    if(symbolAttribute != nullptr){
+        // si encontramos el atributo en la tabla de símbolos de la clase actual devolvemos el símbolo
+        return symbolAttribute;
+    }else{
+        // si no encontramos símbolo en la tabla principal dela clase buscamos en sus herencias de derecha a izquierda ya que si hay sobre escritura buscamos la más reciente
+        for (int i=2; i >= 0; i--){
+            if(classSymbol->inheritance[i]!=nullptr){
+                
+                // obtener el símbolo de la clase que hereda
+                symbolAttribute = classSymbol->inheritance[i]->getElementInTableByFisrtPartAndUse(attributeName, "metodo");
+                if(symbolAttribute != nullptr){
+                    return symbolAttribute;
+                }
+            }
+        }
+        return nullptr;
+    }           
+}
+void newInvocacionMethod(string objectName, string methodName, string scope, string& reglaptr){
+    /*
+        Esta funciónse llama cuando se detecta quese quiere invocar un método sin parametro de un objeto
+        Verifica que el objeto esté declarado y obtiene su clase.
+        Verificar que la clase exista
+        Verificar que la clase contenga el método
+        Obtener sumando el scope estático del método + nombre objeto + scope actual el lexema del símbolo propio del objeto.
+        verificar que el metodo no reciba atributos, sino informarlo
+        generar el terceto de call a ese método
+
+    */
+
+    // Verifica que el objeto este declarado y obtiene su clase
+    symbol* objectSymbol = tableSymbol->getFirstSymbolMatching2(objectName, "objeto", scope);
+    if(objectSymbol == nullptr){
+            yyerror("No se encontro declaracion previa del objeto"+ objectName);
+    }else{
+        // si encontramos el objeto declarado obtenemos su clase y verificamos que exista la clase en el scope ":main" ya que todas las clases van ahí
+        string classOfObject = objectSymbol->classOfSymbol;
+        symbol* classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
+        if(classSymbol == nullptr){
+            // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
+            yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
+        }else{
+            // si encontramos la clase verificamos que contenga el metodo    
+            symbol* methodSymbol = getFirstSymbolMatchingOfMethod(methodName, classSymbol);
+
+            if(methodSymbol == nullptr){
+                yyerror("No se encontro declaracion previa del metodo "+ methodName + " en la clase " + classOfObject + " del objeto " + objectName); 
+            }else{
+                // encontramos el metodo en la clase y obtenemos el scope estático del metodo, 
+                // buscamos en la tabla general el scope estático + el nombre del objeto + el scope actual y obtenemos el simbolo del primer metodo que coincida
+                
+                methodSymbol = tableSymbol->getFirstSymbolMatching2(methodSymbol->lexema + ":" + objectName, "metodo", scope);
+                if (methodSymbol == nullptr){
+                    yyerror("No se encontro declaracion previa del metodo "+ methodName + " en la clase " + classOfObject + " del objeto " + objectName);
+                }else{
+                    // verificamos que el metodo no tenga parametros
+                    if(methodSymbol->cantParam != 0){
+                        yyerror("Se esta llamando al metodo "+ methodName + " del objeto " + objectName + " sin pasarle un parametro, el parametro debe ser de tipo " + methodSymbol->typeParam);
+                    }
+                    // agregamos el terceto la llamada al metodo en la respectiva tabla de tercetos
+                    int number = addTercet("call", methodSymbol->lexema, "");
+
+                    reglaptr = charTercetoId + to_string(number);
+                }
+            }
+        }
+    }
+
+};
+
+void newInvocacionMethodWithParam(string objectName, string methodName, string scope, string ptrParam, string typeParam, string& reglaptr){
+    /*
+        Esta funciónse llama cuando se detecta quese quiere invocar un método con parametro de un objeto 
+        Verifica que el objeto esté declarado y obtiene su clase.
+        Verificar que la clase exista
+        Verificar que la clase contenga el método
+        Obtener sumando el scope estático del método + nombre objeto + scope actual el lexema del símbolo propio del objeto.
+        verificar que el metodo no reciba atributos, sino informarlo
+        generar el terceto de call a ese método
+
+    */
+
+    // Verifica que el objeto este declarado y obtiene su clase
+    symbol* objectSymbol = tableSymbol->getFirstSymbolMatching2(objectName, "objeto", scope);
+    if(objectSymbol == nullptr){
+            yyerror("No se encontro declaracion previa del objeto"+ objectName);
+    }else{
+        // si encontramos el objeto declarado obtenemos su clase y verificamos que exista la clase en el scope ":main" ya que todas las clases van ahí
+        string classOfObject = objectSymbol->classOfSymbol;
+        symbol* classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
+        if(classSymbol == nullptr){
+            // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
+            yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
+        }else{
+            // si encontramos la clase verificamos que contenga el metodo    
+            symbol* methodSymbol = getFirstSymbolMatchingOfMethod(methodName, classSymbol);
+            /*
+                Esta función debe buscar en la tabla de la clase si existe elmétodo y sino buscarlo en las clases heredadas
+                devuelve el puntero a ese metodo
+            */
+
+            if(methodSymbol == nullptr){
+                yyerror("No se encontro declaracion previa del metodo "+ methodName + " en la clase " + classOfObject + " del objeto " + objectName); 
+            }else{
+                // encontramos el metodo en la clase y obtenemos el scope estático del metodo, 
+                // buscamos en la tabla general el scope estático + el nombre del objeto + el scope actual y obtenemos el simbolo del primer metodo que coincida
+                
+                methodSymbol = tableSymbol->getFirstSymbolMatching2(methodSymbol->lexema + ":" + objectName, "metodo", scope);
+                if (methodSymbol == nullptr){
+                    yyerror("No se encontro declaracion previa del metodo "+ methodName + " en la clase " + classOfObject + " del objeto " + objectName);
+                }else{
+                    // verificamos que el metodo tenga parametros
+                    if(methodSymbol->cantParam == 0){
+                        yyerror("Se esta llamando al metodo "+ methodName + " con parametro y la funcion no recibe parametro");
+                    }else{
+                        // esto va acá dentro para que no tire dos errores si no recibe paramatro la función
+                        // verificamos que los tipos de los parametros sean iguales
+                        checkTypesParams(methodSymbol->typeParam, typeParam); 
+                    }
+                        
+                    /*
+                        NO SE PORQUE PERO PRESIENTO QUE VA A SERVIR
+                    */
+
+                    // creamos un terceto de pasaje de parametro con su ptr y su tipo
+                    int number = addTercet("param", ptrParam, typeParam);
+
+                    // agregamos el terceto la llamada al metodo en la respectiva tabla de tercetos
+                    number = addTercet("call", methodSymbol->lexema, "");
+
+                    reglaptr = charTercetoId + to_string(number);
+                }
+            }
+        }
+    }
+};
+#line 2297 "y.tab.c"
 #define YYABORT goto yyabort
 #define YYACCEPT goto yyaccept
 #define YYERROR goto yyerrlab
@@ -2225,7 +2366,7 @@ yyloop:
     goto yynewerror;
 #endif
 yynewerror:
-    
+    yyerror("syntax error");
 #ifdef lint
     goto yyerrlab;
 #endif
@@ -2636,6 +2777,14 @@ case 108:
 #line 226 "./gramaticaForGenCod.y"
 { newInvocacion(yyvsp[-2]->ptr, tableSymbol->getScope(), yyval->ptr); }
 break;
+case 109:
+#line 227 "./gramaticaForGenCod.y"
+{ newInvocacionMethodWithParam(yyvsp[-5]->ptr, yyvsp[-3]->ptr, tableSymbol->getScope(), yyvsp[-1]->ptr, yyvsp[-1]->type, yyval->ptr); }
+break;
+case 110:
+#line 228 "./gramaticaForGenCod.y"
+{ newInvocacionMethod(yyvsp[-4]->ptr, yyvsp[-2]->ptr, tableSymbol->getScope(), yyval->ptr); }
+break;
 case 111:
 #line 232 "./gramaticaForGenCod.y"
 { newOperacionAritmetica("+", yyvsp[-2]->ptr, yyvsp[0]->ptr, yyvsp[-2]->type, yyvsp[0]->type, yyval->ptr, yyval->type); }
@@ -2888,7 +3037,7 @@ case 191:
 #line 344 "./gramaticaForGenCod.y"
 { yyerror("Falta constante numerica en la expresion"); }
 break;
-#line 2881 "y.tab.c"
+#line 3041 "y.tab.c"
     }
     yyssp -= yym;
     yystate = *yyssp;
