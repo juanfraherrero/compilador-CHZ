@@ -12,7 +12,9 @@
 
     clase2 ob2,
     SHORT x,
-    x = ob2.z,                           *{ acceso a variable de clase }*
+    x = ob2.z,                          *{ acceso a variable de clase }*
     ob2.z = 3_s,                        *{ acceso a variable de clase }*
+    ob2.z++,                            *{ uso de operador ++ sobre atributo de clase}*
+    x = ob2.z++,                          *{ uso de operador ++ sobre atributo de clase }*
     ob2.metodo1(),                      *{ llamada a método de clase }*
 }

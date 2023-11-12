@@ -219,6 +219,7 @@ ejecutable  :    asignacion
 asignacion : IDENTIFICADOR '=' expresion_aritmetica                     { newAsignacion($1->ptr, tableSymbol->getScope(), $3->ptr,$3->type);}
            | IDENTIFICADOR '.' IDENTIFICADOR '=' expresion_aritmetica   { newAsignacionObjectAttribute($1->ptr, $3->ptr, tableSymbol->getScope(), $5->ptr, $5->type, $5->ptr,$5->type); }
            | IDENTIFICADOR OPERADOR_SUMA_SUMA                           { newFactorMasMas($1->ptr, tableSymbol->getScope(), $$->ptr, $$->type); }
+           | IDENTIFICADOR '.' IDENTIFICADOR OPERADOR_SUMA_SUMA         { newUseObjectAttributeFactorMasMas($1->ptr, $3->ptr,  tableSymbol->getScope(), $$->ptr, $$->type); } 
            ;
 
 invocacion : IDENTIFICADOR '(' expresion_aritmetica ')'      
@@ -329,6 +330,7 @@ factor : IDENTIFICADOR                                                  { checkV
        | constanteConSigno                                              { $$->ptr = $1->ptr; $$->type = $1->type;}
        | TOF '(' expresion_aritmetica ')'                               { newTof($3->ptr,$$->ptr,$$->type); } 
        | IDENTIFICADOR '.' IDENTIFICADOR                                { newUseObjectAttribute($1->ptr, $3->ptr,  tableSymbol->getScope(), $$->ptr, $$->type); } 
+       | IDENTIFICADOR '.' IDENTIFICADOR OPERADOR_SUMA_SUMA             { newUseObjectAttributeFactorMasMas($1->ptr, $3->ptr,  tableSymbol->getScope(), $$->ptr, $$->type); } 
        | CADENA_CARACTERES                                              { yyerror("No se puede operar con cadena de caracteres");{ $$->ptr = $1->ptr; $$->type = $1->type;} }          
        ;
 
@@ -1431,6 +1433,44 @@ void newAsignacionObjectAttribute(string objectName, string attributeName, strin
                     // agregamos el terceto de asignación en la respectiva tabla de tercetos
                     int number = addTercet("=", attributeSymbol->lexema, op2Lexeme);
                     
+                    reglaptr = charTercetoId + to_string(number);
+                    reglatype = attributeSymbol->type;
+                }
+            }
+        }
+    }
+};
+
+void newUseObjectAttributeFactorMasMas(string objectName, string attributeName, string scope, string& reglaptr, string& reglatype){
+
+    // Verifica que el objeto este declarado y obtiene su clase
+    symbol* objectSymbol = tableSymbol->getFirstSymbolMatching2(objectName, "objeto", scope);
+    if(objectSymbol == nullptr){
+            yyerror("No se encontro declaracion previa del objeto"+ objectName);
+    }else{
+        // si encontramos el objeto declarado obtenemos su clase y verificamos que exista la clase en el scope ":main" ya que todas las clases van ahí
+        string classOfObject = objectSymbol->classOfSymbol;
+        symbol* classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
+        if(classSymbol == nullptr){
+            // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
+            yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
+        }else{
+            // si encontramos la clase verificamos que contenga el atributo     
+            symbol* attributeSymbol = getFirstSymbolMatchingOfAttribute(attributeName, classSymbol);
+
+            if(attributeSymbol == nullptr){
+                yyerror("No se encontro declaracion previa del atributo "+ attributeName + " en la clase " + classOfObject + " del objeto " + objectName); 
+            }else{
+                // encontramos el atributo en la clase y obtenemos el scope estático del atributo, 
+                // buscamos en la tabla general el scope estático + le nombre del objeto + el scope actual y obtenemos el simbolo del primer atributo que coincida
+                
+                attributeSymbol = tableSymbol->getFirstSymbolMatching2(attributeSymbol->lexema + ":" + objectName, "atributo", scope);
+                if (attributeSymbol == nullptr){
+                    yyerror("No se encontro declaracion previa del atributo "+ attributeName + " en la clase " + classOfObject + " del objeto " + objectName);
+                }else{
+                    // agregamos el terceto de suma y seteamos el ptr de la regla con este terceto
+                    int number = addTercet("+", attributeSymbol->lexema, attributeSymbol->lexema);          
+                
                     reglaptr = charTercetoId + to_string(number);
                     reglatype = attributeSymbol->type;
                 }
