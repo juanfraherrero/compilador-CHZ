@@ -957,6 +957,11 @@ void checkTypesAsignation(string type1, string type2){
                 yyerror("Incompatibilidad de tipos al asignar "+ type2 + " a " + type1);
         }
 }
+void checkTypesParams(string type1, string type2){
+        if(type1 != type2 && type1 != "error" && type2 != "error"){
+                yyerror("Incompatibilidad de tipos "+ type2 + " y " + type1 + " entre los parametros");
+        }
+}
 /**
  * Carga el símbolo en la tabla
  * Dado el acceso a un elemento de la tabla de simbolos lo elimina
@@ -1296,8 +1301,13 @@ void addParamFunction(string key, string scope, string type, string & reglaptr, 
                 newIdentificador->scopeInsideClass = scopeInsideClass;
         }
 
+        // seteamos el parámetro al símbolo de la función
+        lastMethod->cantParam++;
+        lastMethod->typeParam = type;
+        lastMethod->nameParam = key;
+        
         reglaptr = newIdentificador->lexema; 
-        reglatype = type; 
+        reglatype = type;
 };
 
 string checkNewNameBeforeInsert(symbol* newSm){
@@ -2043,7 +2053,106 @@ void newUseObjectAttributeFactorMasMas(string objectName, string attributeName, 
         }
     }
 };
-#line 2047 "y.tab.c"
+/**
+ * Esta función se llama cuando se detecta una invocación a función sin parámetro.
+ * Borramos el símbolo de la tabla general, verificamos si estamos dentro de una declaración de clase o en el main.
+ * En base a eso usamos la respectiva tabla de símbolos para buscar el primer símbolo de función.
+ * Verificamos que esa función no tenga parámetros, sino tiramos un error de que falta pasar un parámetro.
+ * Generamos el terceto de call a esa función.
+ * 
+ * @param nombreFuncion El nombre de la función a invocar.
+ * @param scope El alcance de la función.
+ * @param reglaptr Puntero a la regla generada.
+ */
+void newInvocacion(string nombreFuncion, string scope, string& reglaptr){
+    // borramos el simbolo de la tabla general
+    tableSymbol->deleteSymbol(nombreFuncion); 
+
+    TableSymbol* ts;
+    // verificamos si es dentro de una clase o fuera y obtenemos la respectiva tabla de símbolos
+    if(stackClasses->size() <= 0){
+        ts = tableSymbol;
+    }else{
+        ts = stackClasses->top()->attributesAndMethodsVector;
+    }
+        
+    //buscamos si existe una variable con el mismo nombre al alcance de la tabla de simbolos
+    symbol* functionFinded = ts->getFirstSymbolMatching2(nombreFuncion, "funcion", scope); 
+    if(functionFinded == nullptr){
+        yyerror("No se encontro declaracion previa de la funcion "+ nombreFuncion);
+    }else{
+        // verificamos que la función no tenga parametros
+        if(functionFinded->cantParam != 0){
+            yyerror(" Se esta llamando a la funcion "+ nombreFuncion + " sin pasarle un parametro, el parametro debe ser de tipo " + functionFinded->typeParam);
+        }
+
+        // agregamos el terceto de asignación en la respectiva tabla de tercetos
+        int number = addTercet("call", functionFinded->lexema, "");
+
+        reglaptr = charTercetoId + to_string(number);
+        } 
+};
+/**
+ * Esta función se llama cuando se detecta una invocación a función con parámetro.
+ * Borramos el símbolo de la tabla general, verificamos si estamos dentro de una declaración de clase o en el main.
+ * En base a eso usamos la respectiva tabla de símbolos para buscar el primer símbolo de función.
+ * Verificamos que esa función no tenga parámetros, sino tiramos un error de que estamos llamando a una función que no requiere de parametros.
+ * verificamos que los tipos de los parametros coincidan
+ * Generamos el terceto de call a esa función.
+ * 
+ * @param nombreFuncion El nombre de la función a invocar.
+ * @param scope El alcance de la función.
+ * @param reglaptr Puntero a la regla generada.
+ */
+void newInvocacionWithParam(string nombreFuncion, string scope, string ptrParam, string typeParam, string& reglaptr){
+    /*
+        Esta función se llama cuando se detecta una invocación a función con parámetro
+        Borramos el simbolo dela tabla general
+        verificamos si estamos dentro de una declaraciónd e claseso en el main
+        En base a eso usamos la respectiva tabla de símbolos para buscar el primer símbolo de funcion
+        verificamos que esa función tenga parámteros sino tiramos un error de que estamos llamando a una función que no requiere de parametros
+        verificamos que los tipos de los parametros coincidan
+        generamos el terceto de call a esa función
+    */ 
+    // borramos el simbolo de la tabla general
+    tableSymbol->deleteSymbol(nombreFuncion); 
+
+    TableSymbol* ts;
+    // verificamos si es dentro de una clase o fuera y obtenemos la respectiva tabla de símbolos
+    if(stackClasses->size() <= 0){
+        ts = tableSymbol;
+    }else{
+        ts = stackClasses->top()->attributesAndMethodsVector;
+    }
+        
+    //buscamos si existe una variable con el mismo nombre al alcance de la tabla de simbolos
+    symbol* functionFinded = ts->getFirstSymbolMatching2(nombreFuncion, "funcion", scope); 
+    if(functionFinded == nullptr){
+        yyerror("No se encontro declaracion previa de la funcion "+ nombreFuncion);
+    }else{
+        // verificamos que la función no tenga parametros
+        if(functionFinded->cantParam == 0){
+            yyerror(" Se esta llamando a la funcion "+ nombreFuncion + " con parametro y la funcion no recibe parametro");
+        }else{
+            // esto va acá dentro para que no tire dos errores si no recibe paramatro la función
+            // verificamos que los tipos de los parametros sean ifuales
+            checkTypesParams(functionFinded->typeParam, typeParam); 
+        }
+
+        /*
+            NO SE PORQUE PERO PRESIENTO QUE VA A SERVIR
+        */
+
+        // creamos un terceto de pasaje de parametro con su ptr y su tipo
+        int number = addTercet("param", ptrParam, typeParam);
+
+        // agregamos el terceto de asignación en la respectiva tabla de tercetos
+        number = addTercet("call", functionFinded->lexema, "");
+
+        reglaptr = charTercetoId + to_string(number);
+        } 
+};
+#line 2145 "y.tab.c"
 #define YYABORT goto yyabort
 #define YYACCEPT goto yyaccept
 #define YYERROR goto yyerrlab
@@ -2519,6 +2628,14 @@ case 106:
 #line 222 "./gramaticaForGenCod.y"
 { newUseObjectAttributeFactorMasMas(yyvsp[-3]->ptr, yyvsp[-1]->ptr,  tableSymbol->getScope(), yyval->ptr, yyval->type); }
 break;
+case 107:
+#line 225 "./gramaticaForGenCod.y"
+{ newInvocacionWithParam(yyvsp[-3]->ptr, tableSymbol->getScope(), yyvsp[-1]->ptr, yyvsp[-1]->type, yyval->ptr); }
+break;
+case 108:
+#line 226 "./gramaticaForGenCod.y"
+{ newInvocacion(yyvsp[-2]->ptr, tableSymbol->getScope(), yyval->ptr); }
+break;
 case 111:
 #line 232 "./gramaticaForGenCod.y"
 { newOperacionAritmetica("+", yyvsp[-2]->ptr, yyvsp[0]->ptr, yyvsp[-2]->type, yyvsp[0]->type, yyval->ptr, yyval->type); }
@@ -2771,7 +2888,7 @@ case 191:
 #line 344 "./gramaticaForGenCod.y"
 { yyerror("Falta constante numerica en la expresion"); }
 break;
-#line 2775 "y.tab.c"
+#line 2881 "y.tab.c"
     }
     yyssp -= yym;
     yystate = *yyssp;

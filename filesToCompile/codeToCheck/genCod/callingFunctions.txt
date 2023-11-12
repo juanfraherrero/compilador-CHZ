@@ -1,0 +1,26 @@
+{
+    SHORT x; y,
+    x = 1_s,
+    y = 2_s,
+     
+    VOID func2 (SHORT u)           
+    {
+        SHORT a; b,                
+        a = 1_s,
+        b = 2_s,
+        a = a + b,    
+        RETURN,
+    },                      
+    VOID func3 ()           
+    {
+        func2(x),
+        RETURN,
+    }, 
+
+    func3(),
+    func3(x),
+    UINT j,
+    func2(j),
+    func2(),
+
+}
