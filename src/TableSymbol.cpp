@@ -394,6 +394,20 @@ symbol* TableSymbol::getElementInTableByFisrtPartAndUse(const string key, const 
     }
     return nullptr;
 }        
+// devuelve un vector de los símbolos que coincida con uso y clase y tengan forwarded en true forwarded
+vector<symbol*> TableSymbol::getSymbolsByUseAndNameClassAndForwarded(string use, string className){
+    vector<symbol*> symbols = {};
+    // recorremos la tabla por cada símbolo
+    for (const auto& pair : symbolTable) {
+        symbol* sm = pair.second;
+
+        if (sm->uso == use && sm->classOfSymbol == className && sm->forwarded){
+            symbols.push_back(sm);
+        }
+    }
+    return symbols;
+}; 
+
 // Destructor para liberar la memoria de los símbolos
 TableSymbol::~TableSymbol() {
     for (auto& pair : symbolTable) {

@@ -980,7 +980,6 @@ symbol* setNewScope(string key, string type, string scope, string uso, TableSymb
         symbol* identificador = tableSymbol->getSymbol(key);    // obtenemos el simbolo
         symbol* newIdentificador = new symbol(*identificador);  // copiamos el simbolo
         tableSymbol->deleteSymbol(key);                         // eliminamos el simbolo (usa el contador)
-        
         // seteas los nuevos valores
         if(type != ""){
                 newIdentificador->type = type;                          // actualizamos el tipo
@@ -1067,10 +1066,6 @@ void initClass(string key, string scope, string & reglaptr){
         actualClass = key; 
         reglaptr = key; 
         tableSymbol->addScope(key);
-};
-void finishClass(){
-        tableSymbol->deleteScope();
-        stackClasses->pop();
 };
 void forwardClass(string key, string scope){
         // las clases van en la tabla general 
@@ -1414,6 +1409,14 @@ void addObject(string key, string scope, string classType){
                 // obtenemos el símbolo de la clase del objeto
                 symbol* matchingClass = tableSymbol->getFirstSymbolMatching2(classType, "clase", ":main"); // obtenemos el símbolo de la clase del objeto
                 
+                // verificamos si la clase es una forward declaration 
+                // de ser forward el objeto también se convierte en forwarded para luego isntanciarlo cuando la clase se declare
+                // ya que si es asi no podemos agregar sus atributos y métodos
+                if(matchingClass->forwarded){
+                    newObject->forwarded = true;    
+                    return;
+                }
+                
                 // recorremos la tabla de símbolos de la clase del objeto y agregamos cada uno de los elementos
                 for (const auto& par : matchingClass->attributesAndMethodsVector->getSymbolTable()){
                         symbol* simbolo = par.second;
@@ -1461,6 +1464,91 @@ void addObject(string key, string scope, string classType){
                     }
                 }
         } 
+};
+/**
+ * Cuando se detecta una clase que fue forwardeada y un objeto fue declarado de esa clase se llma a esta función
+ * instranciamos el obejo cargando los elementosdela tabla de simbolos de la clase y de sus herencias a la tabla general
+ * 
+ * @param symbolObject Puntero al símbolo del objeto.
+ * @param classSymbol Puntero al símbolo de la clase del objeto.
+ */
+void addObjectForwarded(symbol* symbolObject, symbol* classSymbol){
+        string key = symbolObject->lexema.substr(0, symbolObject->lexema.find(":"));
+        string scope = symbolObject->lexema.substr( symbolObject->lexema.find(":"), symbolObject->lexema.size() );
+        string classType = symbolObject->classOfSymbol;
+
+              
+        // recorremos la tabla de símbolos de la clase del objeto y agregamos cada uno de los elementos
+        for (const auto& par : classSymbol->attributesAndMethodsVector->getSymbolTable()){
+                symbol* simbolo = par.second;
+                // creamos el nuevo símbolo
+                symbol* newSm = new symbol(*simbolo);                
+                
+                // verificamos si el simbolo es una función o método y cargamos su bloque de tercetos en 
+                //      la tabla de tercetos principal o de ejecución
+                if(newSm->uso=="metodo" || newSm->uso=="funcion"){
+                    createFunctionTerecets(key, scope, newSm, classSymbol->attributesAndMethodsVector);
+                }
+                        
+                newSm->lexema = newSm->lexema+":"+key+scope; // le agregamos el nombre del objeto + el scope actual
+                
+                // agregamos el nuevo símbolo a la tabla de simbolos        
+                tableSymbol->insert(newSm);
+        }
+
+        // recorres el arreglo de herencia de esta clase verificando que exista alguna posicion con nullptr, si es asi verificas si esa clase tiene unmetodo con el mismo nombre y si es asi devuelves 1
+        for (int i=2; i >= 0; i--){
+            TableSymbol* tableSymbolMatchingClass = classSymbol->inheritance[i];
+            // si hereda de alguna clase recorremos sus simbolos y los agregamos
+            if(tableSymbolMatchingClass != nullptr){
+                
+                // recorremos la tabla de símbolos de la clase que hereda y agregamos cada uno de los elementos
+                for (const auto& par : tableSymbolMatchingClass->getSymbolTable()){
+                        symbol* simbolo = par.second;
+                        // creamos el nuevo símbolo
+                        symbol* newSm = new symbol(*simbolo);                
+                        
+                        // verificamos si el simbolo es una función o método y cargamos su bloque de tercetos en 
+                        //      la tabla de tercetos principal o de ejecución
+                        if(newSm->uso=="metodo" || newSm->uso=="funcion"){
+                            createFunctionTerecets(key, scope, newSm, tableSymbolMatchingClass);
+                        }
+
+                        newSm->lexema = newSm->lexema+":"+key+scope; // le agregamos el nombre del objeto + el scope actual
+                        
+                        // agregamos el nuevo símbolo a la tabla de simbolos        
+                        tableSymbol->insert(newSm);
+                }
+            }
+        }
+};
+/**
+ * Cuando se detecta una finalización de declaración de clase se llama a esta función
+ * Recorre la tabla de símbolos en busca de símbolos de uso objeto y de la clase actual y que hayan sido declarados luego del forwarded y previo a la declaración de la clase. 
+ * Por cada uno de esos objetos, los instancia y les agrega los atributos y métodos de la clase y de sus herencias.
+ * 
+ * @return void
+ */
+void finishClass(){
+        tableSymbol->imprimirTabla();
+        tableSymbol->deleteScope();
+        /*
+            tenemos el simbolo de la clase
+            recorrer la tabla general en busca de simbolos de uso objeto y de esta clase. Por cad a uno instanciar sus atributos
+
+            el lexema debe quedar con el scope estático de cada elemento + el lexema del objeto (que sería su bnombre de ojeto más su scope dinámico propio del objeto)
+        */
+        symbol* symbolClass = stackClasses->top();
+        // cout << symbolClass->ToStringClass() << endl;
+        vector<symbol*> symbolsMatched = tableSymbol->getSymbolsByUseAndNameClassAndForwarded("objeto", symbolClass->classOfSymbol);
+
+        for (symbol* sm : symbolsMatched){
+                // recorremos los simbolos de los objetos e instanciamos
+                sm->forwarded = false;
+
+                addObjectForwarded(sm, symbolClass);
+        }
+        stackClasses->pop();
 };
 /**
  * cuando detectamos una declaracion de función
@@ -1947,6 +2035,10 @@ void newUseObjectAttribute(string objectName, string attributeName, string scope
             // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
             yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
         }else{
+            if(classSymbol->forwarded){
+                yyerror("Uso de clase " + classOfObject + " y esta forwardeada");
+                return;
+            }
             // si encontramos la clase verificamos que contenga el atributo     
             symbol* attributeSymbol = getFirstSymbolMatchingOfAttribute(attributeName, classSymbol);
 
@@ -1998,6 +2090,10 @@ void newAsignacionObjectAttribute(string objectName, string attributeName, strin
             // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
             yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
         }else{
+            if(classSymbol->forwarded){
+                yyerror("Uso de clase " + classOfObject + " y esta forwardeada");
+                return;
+            }
             // si encontramos la clase verificamos que contenga el atributo     
             symbol* attributeSymbol = getFirstSymbolMatchingOfAttribute(attributeName, classSymbol);
 
@@ -2039,6 +2135,10 @@ void newUseObjectAttributeFactorMasMas(string objectName, string attributeName, 
             // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
             yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
         }else{
+            if(classSymbol->forwarded){
+                yyerror("Uso de clase " + classOfObject + " y esta forwardeada");
+                return;
+            }
             // si encontramos la clase verificamos que contenga el atributo     
             symbol* attributeSymbol = getFirstSymbolMatchingOfAttribute(attributeName, classSymbol);
 
@@ -2216,6 +2316,10 @@ void newInvocacionMethod(string objectName, string methodName, string scope, str
             // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
             yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
         }else{
+            if(classSymbol->forwarded){
+                yyerror("Uso de clase " + classOfObject + " y esta forwardeada");
+                return;
+            }
             // si encontramos la clase verificamos que contenga el metodo    
             symbol* methodSymbol = getFirstSymbolMatchingOfMethod(methodName, classSymbol);
 
@@ -2268,6 +2372,10 @@ void newInvocacionMethodWithParam(string objectName, string methodName, string s
             // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
             yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
         }else{
+            if(classSymbol->forwarded){
+                yyerror("Uso de clase " + classOfObject + " y esta forwardeada");
+                return;
+            }
             // si encontramos la clase verificamos que contenga el metodo    
             symbol* methodSymbol = getFirstSymbolMatchingOfMethod(methodName, classSymbol);
             /*
@@ -2310,7 +2418,7 @@ void newInvocacionMethodWithParam(string objectName, string methodName, string s
         }
     }
 };
-#line 2322 "y.tab.c"
+#line 2358 "y.tab.c"
 #define YYABORT goto yyabort
 #define YYACCEPT goto yyaccept
 #define YYERROR goto yyerrlab
@@ -2383,7 +2491,7 @@ yyloop:
     goto yynewerror;
 #endif
 yynewerror:
-    
+
 #ifdef lint
     goto yyerrlab;
 #endif
@@ -3054,7 +3162,7 @@ case 191:
 #line 344 "./gramaticaForGenCod.y"
 { yyerror("Falta constante numerica en la expresion"); }
 break;
-#line 3066 "y.tab.c"
+#line 3102 "y.tab.c"
     }
     yyssp -= yym;
     yystate = *yyssp;

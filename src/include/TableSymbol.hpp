@@ -72,6 +72,8 @@ class TableSymbol{
         bool existMethodInTable(string key,string uso);
         bool isTheSpecificLexemaInTable(string lexema);    //verifica si existe un elemento con el mismo lexema
         symbol* getElementInTableByFisrtPartAndUse(const string key, const string uso);  // devuelva la primera apariciónde un simbolo con el mismo nombre de simbolo y mismo uso    
+        vector<symbol*> getSymbolsByUseAndNameClassAndForwarded(string use, string className); // devuelve un vector de los símbolos que coincida con uso y clase y tengan forwarded en true forwarded
+        
         // Destructor para liberar la memoria de los símbolos
         ~TableSymbol();
 

@@ -1,6 +1,8 @@
 {
     CLASS clase1,       *{Forward declaration}*
-         
+    
+    clase1 ob1,  
+    *{ob1.a = 1_s,           }*
     CLASS clase1 {                          
         SHORT x,   
         VOID metodo1 ()           
@@ -9,5 +11,4 @@
         },                                                   
     },         
 
-    clase1 ob1,  
 }
