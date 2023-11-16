@@ -1,0 +1,22 @@
+{
+    SHORT x,
+    VOID func1(){
+        SHORT x,
+        x = 1_s,
+        RETURN,
+    },
+
+    VOID func2(){
+        SHORT x,
+        x = 2_s,
+        VOID func1(){
+            x = 3_s,
+            RETURN,
+        },
+        func1(), 
+        RETURN,
+    },  
+    
+    func1(), 
+    x = 5_s,
+}

@@ -1945,9 +1945,8 @@ void  detectInheritance(string classToInherit , string scope, string classWhoInh
                         if(isNullptr){
                                 symbolofClassWhoInherit->inheritance[posOfNullInInheritance] = classFinded->attributesAndMethodsVector;  
                         }else{
-                                yyerror("La clase " + symbolofClassWhoInherit->classOfSymbol +" ya hereda de 3 clases");
+                                yyerror("La clase " + symbolofClassWhoInherit->classOfSymbol +" intenta heredar de " + classToInherit + " pero ya hereda de 3 clases");
                         }
-                        
                 }
         }
 }

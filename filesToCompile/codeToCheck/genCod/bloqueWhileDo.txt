@@ -1,0 +1,8 @@
+{
+    SHORT x,
+    x = 12_s,
+
+    WHILE ( x < 20_s ) DO {
+        x = x + 1_s,
+    },
+}

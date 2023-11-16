@@ -1,0 +1,28 @@
+{
+    CLASS clase1 {
+        SHORT x,    
+        VOID method1(){
+            SHORT x,
+            x = 1_s,
+            PRINT x,
+            RETURN,
+        },    
+    },
+
+    CLASS clase2 {
+        SHORT y,
+        clase1,        
+    },     
+
+    CLASS clase3 {
+        clase2,        
+    },
+
+    CLASS clase4 {
+        clase3,        
+    },
+
+    CLASS clase5 {
+        clase4,        
+    },
+}

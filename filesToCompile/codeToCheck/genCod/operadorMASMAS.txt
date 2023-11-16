@@ -1,0 +1,7 @@
+{
+    UINT operando,
+    operando = 3_ui,
+    PRINT operando,
+    operando++,
+    PRINT operando,
+}

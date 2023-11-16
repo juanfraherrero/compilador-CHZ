@@ -1,0 +1,16 @@
+{
+    SHORT j,
+    VOId funcsinparam (){
+        RETURN,
+    }, 
+    VOID funcconparam(SHORT x){
+        RETURN,
+    }, 
+
+    UINT k,
+    
+    funcsinparam(),
+    funcsinparam(j),
+    funcconparam(),
+    funcconparam(k),
+}
