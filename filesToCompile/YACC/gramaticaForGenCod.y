@@ -485,6 +485,12 @@ void initClass(string key, string scope, string & reglaptr){
                 symbol* symbolFinded = tableSymbol->getSymbol(key+scope); // obtenemos el símbolo con mismo scope
                 if(symbolFinded->forwarded == false){
                         yyerror("Redeclaracion de clase " + key + " en el mismo ambito");
+                        
+                        //aca borramos el simbolo de la tabla de simbolos general
+                        tableSymbol->deleteSymbol(key); 
+                        
+                        // agregamos la clase al stack de clases para que aunque este redeclarada no tire un error si intentamos acceder a una clase del stack que no existe
+                        stackClasses->push(symbolFinded);
                 }else{
                         //aca borramos el simbolo de la tabla de simbolos general
                         tableSymbol->deleteSymbol(key); 
