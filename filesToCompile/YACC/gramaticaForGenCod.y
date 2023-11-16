@@ -190,18 +190,18 @@ parametro_funcion   :   tipo IDENTIFICADOR              { addParamFunction ($2->
 cuerpo_de_la_funcion    :   cuerpo_de_la_funcion_sin_return                             {yyerror("Se detecto la falta de RETURN en el cuerpo de la funcion");}
                         |   cuerpo_de_la_funcion_con_return
                         ;
-cuerpo_de_la_funcion_con_return    :   cuerpo_de_la_funcion_sin_return RETURN ','
-                                   |   cuerpo_de_la_funcion_sin_return RETURN                                           { yywarning("Se detecto una falta de coma"); }
-                                   |   cuerpo_de_la_funcion_sin_return RETURN ',' cuerpo_de_la_funcion_sin_return       { yywarning("Se detecto codigo posterior a un return"); }
-                                   |   cuerpo_de_la_funcion_sin_return RETURN cuerpo_de_la_funcion_sin_return           { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
-                                   |   cuerpo_de_la_funcion_sin_return RETURN ',' cuerpo_de_la_funcion_con_return       { yywarning("Se detecto codigo posterior a un return"); }
-                                   |   cuerpo_de_la_funcion_sin_return RETURN cuerpo_de_la_funcion_con_return           { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
-                                   |   RETURN ','
-                                   |   RETURN                                           {yywarning("Se detecto una falta de coma"); }        
-                                   |   RETURN ',' cuerpo_de_la_funcion_sin_return       {yywarning("Se detecto codigo posterior a un return"); }
-                                   |   RETURN cuerpo_de_la_funcion_sin_return       { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
-                                   |   RETURN ',' cuerpo_de_la_funcion_con_return       {yywarning("Se detecto codigo posterior a un return"); }
-                                   |   RETURN cuerpo_de_la_funcion_con_return       { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
+cuerpo_de_la_funcion_con_return    :   cuerpo_de_la_funcion_sin_return return ','
+                                   |   cuerpo_de_la_funcion_sin_return return                                           { yywarning("Se detecto una falta de coma"); }
+                                   |   cuerpo_de_la_funcion_sin_return return ',' cuerpo_de_la_funcion_sin_return       { yywarning("Se detecto codigo posterior a un return"); }
+                                   |   cuerpo_de_la_funcion_sin_return return cuerpo_de_la_funcion_sin_return           { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
+                                   |   cuerpo_de_la_funcion_sin_return return ',' cuerpo_de_la_funcion_con_return       { yywarning("Se detecto codigo posterior a un return"); }
+                                   |   cuerpo_de_la_funcion_sin_return return cuerpo_de_la_funcion_con_return           { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
+                                   |   return ','
+                                   |   return                                           {yywarning("Se detecto una falta de coma"); }        
+                                   |   return ',' cuerpo_de_la_funcion_sin_return       {yywarning("Se detecto codigo posterior a un return"); }
+                                   |   return cuerpo_de_la_funcion_sin_return       { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
+                                   |   return ',' cuerpo_de_la_funcion_con_return       {yywarning("Se detecto codigo posterior a un return"); }
+                                   |   return cuerpo_de_la_funcion_con_return       { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
                                    ;
 cuerpo_de_la_funcion_sin_return    :   cuerpo_de_la_funcion_sin_return sentencia 
                                    |   sentencia
@@ -285,32 +285,35 @@ condicion : expresion_aritmetica '>' expresion_aritmetica                       
           ;
 
 bloque_ejecutables  :   '{' sentencias_ejecutables '}'
-                    |   '{' sentencias_ejecutables RETURN ',' '}'        
-                    |   '{' sentencias_ejecutables RETURN ',' sentencias_ejecutables '}'        { yywarning("Se detecto codigo posterior a un return"); }
-                    |   '{' sentencias_ejecutables RETURN sentencias_ejecutables '}'            { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
-                    |   '{' sentencias_ejecutables RETURN '}'                                   { yywarning("Se detecto una falta de coma"); }
+                    |   '{' sentencias_ejecutables return ',' '}'        
+                    |   '{' sentencias_ejecutables return ',' sentencias_ejecutables '}'        { yywarning("Se detecto codigo posterior a un return"); }
+                    |   '{' sentencias_ejecutables return sentencias_ejecutables '}'            { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
+                    |   '{' sentencias_ejecutables return '}'                                   { yywarning("Se detecto una falta de coma"); }
                     |   ejecutable ',' 
                     |   declarativa  ','                                                        { yyerror("Se detecto una sentencia declarativa en bloque de control"); }
-                    |   '{' RETURN ',' '}'
-                    |   '{' RETURN '}'                                                          { yywarning("Se detecto una falta de coma"); }
-                    |    RETURN ','
+                    |   '{' return ',' '}'
+                    |   '{' return '}'                                                          { yywarning("Se detecto una falta de coma"); }
+                    |    return ','
                     
-                    |   '{' sentencias_ejecutables RETURN ',' comas '}'        
-                    |   '{' sentencias_ejecutables RETURN ',' comas sentencias_ejecutables '}'        { yywarning("Se detecto codigo posterior a un return"); }
+                    |   '{' sentencias_ejecutables return ',' comas '}'        
+                    |   '{' sentencias_ejecutables return ',' comas sentencias_ejecutables '}'        { yywarning("Se detecto codigo posterior a un return"); }
 
 
                     |   '{' comas sentencias_ejecutables '}'      
-                    |   '{' comas sentencias_ejecutables RETURN ',' '}'              
-                    |   '{' comas sentencias_ejecutables RETURN ',' sentencias_ejecutables '}'  { yywarning("Se detecto codigo posterior a un return"); }
-                    |   '{' comas sentencias_ejecutables RETURN sentencias_ejecutables '}'      { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
-                    |   '{' comas sentencias_ejecutables RETURN '}'                             { yywarning("Se detecto una falta de coma"); }
+                    |   '{' comas sentencias_ejecutables return ',' '}'              
+                    |   '{' comas sentencias_ejecutables return ',' sentencias_ejecutables '}'  { yywarning("Se detecto codigo posterior a un return"); }
+                    |   '{' comas sentencias_ejecutables return sentencias_ejecutables '}'      { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
+                    |   '{' comas sentencias_ejecutables return '}'                             { yywarning("Se detecto una falta de coma"); }
                     |   comas ejecutable ',' 
                     |   comas declarativa  ','                                                  { yyerror("Se detecto una sentencia declarativa en bloque de control"); }
-                    |   '{' comas RETURN ',' '}'
-                    |   '{' comas RETURN '}'                                                    { yywarning("Se detecto una falta de coma"); }
-                    |    comas RETURN ','
+                    |   '{' comas return ',' '}'
+                    |   '{' comas return '}'                                                    { yywarning("Se detecto una falta de coma"); }
+                    |    comas return ','                                               
                     |   error ','                                                               { yyerror("Se detecto un bloque invalido"); }
                     ;
+
+return  : RETURN                        { addTercetReturn($$->ptr); }
+        ;
 
 sentencias_ejecutables  :   sentencias_ejecutables ejecutable comas
                         |   sentencias_ejecutables ejecutable                   { yywarning("Se detecto una falta de coma"); }
@@ -502,6 +505,44 @@ void initClass(string key, string scope, string & reglaptr){
         actualClass = key; 
         reglaptr = key; 
         tableSymbol->addScope(key);
+};
+/**
+ * Esta función se llama cuando se quiere crear un método o función de un objeto a instanciar
+ * Para esto se require de buscar el bloque de tercetos en el vecto de bloques de tercetos de declaración
+ * copiarlo y agregarle a cada argumento que sea propio del objeto ":"+objeto+scope 
+ * al nuevo bloque también le agregamos eso al nombre e insertamos la copia en el vecotr de bloques de tercetos de ejecución
+ * 
+ * 
+ * @param objectName El nombre del objeto.
+ * @param scope El scope actual.
+ * @param simboloDeFuncion El símbolo de la función o método.
+ * @param tableSymbolOfTheClass La tabla de símbolos de la clase.
+ */
+void createFunctionTerecets(string objectName, string scope, symbol* simboloDeFuncion, TableSymbol* tableSymbolOfTheClass){
+     /*
+        la función debe buscar en el vector de declaración de bloques de tercetos de funciones la declaraciónde este método o función, 
+            copiarlo al vector de ejecución
+            recorrer cada terceto y por cada operador de este terceto verificar si alguno es igual a algún atributo o método de la clase ode sus herencias, 
+            en ese caso se le agrega el objeto y el scope actual
+    */
+    functionStack* copyOfTheStack = vectorOfFunctionDeclaredInClasses->getCopyOfFunction(simboloDeFuncion->lexema);
+
+    // recorremos el stack de tercetos de la función o método
+    for (const auto& tercet : copyOfTheStack->ter->getTercets()){
+        // si la tabla contiene exactamente ese elemento del terceto entonces le agregamos el objeto y el scope actual
+        if(tableSymbolOfTheClass->isTheSpecificLexemaInTable(tercet->getArg1())){
+            tercet->setArg1(tercet->getArg1()+":"+objectName+scope);
+        }
+        // si la tabla contiene exactamente ese elemento del terceto entonces le agregamos el objeto y el scope actual
+        if(tableSymbolOfTheClass->isTheSpecificLexemaInTable(tercet->getArg2())){
+            tercet->setArg2(tercet->getArg1()+":"+objectName+scope);
+        }
+    }
+
+    copyOfTheStack->name += ":"+objectName+scope; // le agregamos el nombre del objeto + el scope actual
+    // agregamos el nuevo stack de funciones a la tabla de funciones en ejecución
+    vectorOfFunction->add(copyOfTheStack);
+
 };
 /**
  * Cuando se detecta una clase que fue forwardeada y un objeto fue declarado de esa clase se llma a esta función
@@ -853,44 +894,6 @@ string checkNewNameBeforeInsert(symbol* newSm){
         }
         return newSm->lexema;
 }
-/**
- * Esta función se llama cuando se quiere crear un método o función de un objeto a instanciar
- * Para esto se require de buscar el bloque de tercetos en el vecto de bloques de tercetos de declaración
- * copiarlo y agregarle a cada argumento que sea propio del objeto ":"+objeto+scope 
- * al nuevo bloque también le agregamos eso al nombre e insertamos la copia en el vecotr de bloques de tercetos de ejecución
- * 
- * 
- * @param objectName El nombre del objeto.
- * @param scope El scope actual.
- * @param simboloDeFuncion El símbolo de la función o método.
- * @param tableSymbolOfTheClass La tabla de símbolos de la clase.
- */
-void createFunctionTerecets(string objectName, string scope, symbol* simboloDeFuncion, TableSymbol* tableSymbolOfTheClass){
-     /*
-        la función debe buscar en el vector de declaración de bloques de tercetos de funciones la declaraciónde este método o función, 
-            copiarlo al vector de ejecución
-            recorrer cada terceto y por cada operador de este terceto verificar si alguno es igual a algún atributo o método de la clase ode sus herencias, 
-            en ese caso se le agrega el objeto y el scope actual
-    */
-    functionStack* copyOfTheStack = vectorOfFunctionDeclaredInClasses->getCopyOfFunction(simboloDeFuncion->lexema);
-
-    // recorremos el stack de tercetos de la función o método
-    for (const auto& tercet : copyOfTheStack->ter->getTercets()){
-        // si la tabla contiene exactamente ese elemento del terceto entonces le agregamos el objeto y el scope actual
-        if(tableSymbolOfTheClass->isTheSpecificLexemaInTable(tercet->getArg1())){
-            tercet->setArg1(tercet->getArg1()+":"+objectName+scope);
-        }
-        // si la tabla contiene exactamente ese elemento del terceto entonces le agregamos el objeto y el scope actual
-        if(tableSymbolOfTheClass->isTheSpecificLexemaInTable(tercet->getArg2())){
-            tercet->setArg2(tercet->getArg1()+":"+objectName+scope);
-        }
-    }
-
-    copyOfTheStack->name += ":"+objectName+scope; // le agregamos el nombre del objeto + el scope actual
-    // agregamos el nuevo stack de funciones a la tabla de funciones en ejecución
-    vectorOfFunction->add(copyOfTheStack);
-
-};
 /**
  * Cuando se detecta una declaración de objeto se llama esta función
  * Verificamos que no exista un objeto en el mismo ámbito con el mismo nombre   
@@ -1847,4 +1850,9 @@ void newInvocacionMethodWithParam(string objectName, string methodName, string s
             }
         }
     }
+};
+void addTercetReturn(string& reglaptr){
+        int number = addTercet("return","","");        
+
+        reglaptr = charTercetoId + to_string(number);
 };
