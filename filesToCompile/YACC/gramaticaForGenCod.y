@@ -738,36 +738,35 @@ void initMethod(string key, string scope, string classOfAttribute){
 
         if(methodAlredyExist == 0){
                 yyerror("Redeclaracion de metodo en la misma clase");
-        }else{
-                if(methodAlredyExist == 1){
-                        yyerror("Sobreescritura de metodos prohibida");
-                }      
-                // aunque tire error igual lo agregamos para que no falle la genreacion de codigo   
-                  
-                // creamos el nuevo símbolo
-                symbol* newMetodo = new symbol(key+scope, "", "void", "metodo");
-                /*
-                        ACA SE PUEDEN AGREGAR COSAS A LOS SIMBOLOS DE METODOS CARGADOS
-                */
-
-                newMetodo->classOfSymbol = classOfAttribute;
-
-                // agregamos el nuevo símbolo al vector de simbolos de la clase        
-                tsClass->insert(newMetodo);
-                
-                // seteamos que si se debe agregar un parametro se le haga a este método
-                lastMethod = newMetodo;
-
-                // agregamos un scope
-                tableSymbol->addScope(key);
-
-                // creamos una stack para la función y la agregamos al stack con el nombre
-                functionStack* fs = new functionStack(key+scope);
-                fs->ter = new Tercets();
-                stackFunction->push(fs);
-                
-                cantOfRecursions++;
         }
+        if(methodAlredyExist == 1){
+                yyerror("Sobreescritura de metodos prohibida");
+        }      
+        // aunque tire error igual lo agregamos para que no falle la genreacion de codigo   
+                
+        // creamos el nuevo símbolo
+        symbol* newMetodo = new symbol(key+scope, "", "void", "metodo");
+        /*
+                ACA SE PUEDEN AGREGAR COSAS A LOS SIMBOLOS DE METODOS CARGADOS
+        */
+
+        newMetodo->classOfSymbol = classOfAttribute;
+
+        // agregamos el nuevo símbolo al vector de simbolos de la clase        
+        tsClass->insert(newMetodo);
+        
+        // seteamos que si se debe agregar un parametro se le haga a este método
+        lastMethod = newMetodo;
+
+        // agregamos un scope
+        tableSymbol->addScope(key);
+
+        // creamos una stack para la función y la agregamos al stack con el nombre
+        functionStack* fs = new functionStack(key+scope);
+        fs->ter = new Tercets();
+        stackFunction->push(fs);
+        
+        cantOfRecursions++;        
 };                        
 /**
  * Cuando detectamos un parámtro en un método de clase
