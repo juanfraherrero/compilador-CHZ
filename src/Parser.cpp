@@ -1368,7 +1368,7 @@ void addParamMetodo(string key, string scope, string type, string classOfAttribu
 
                 lastMethod->cantParam++;
                 lastMethod->typeParam = type;
-                lastMethod->nameParam = key;
+                lastMethod->nameParam = key+scope;
         }
 };
 /**
@@ -1414,7 +1414,7 @@ void addParamFunction(string key, string scope, string type, string & reglaptr, 
         // seteamos el parámetro al símbolo de la función
         lastMethod->cantParam++;
         lastMethod->typeParam = type;
-        lastMethod->nameParam = key;
+        lastMethod->nameParam = key+scope;
         
         reglaptr = newIdentificador->lexema; 
         reglatype = type; 
@@ -2245,7 +2245,8 @@ void newInvocacionWithParam(string nombreFuncion, string scope, string ptrParam,
         */
 
         // creamos un terceto de pasaje de parametro con su ptr y su tipo
-        int number = addTercet("param", ptrParam, typeParam);
+        int number = addTercet("paramReal", ptrParam, typeParam);
+        number = addTercet("paramFormal", functionFinded->nameParam, functionFinded->typeParam);
 
         // agregamos el terceto de asignación en la respectiva tabla de tercetos
         number = addTercet("call", functionFinded->lexema, "");
@@ -2398,7 +2399,8 @@ void newInvocacionMethodWithParam(string objectName, string methodName, string s
                     */
 
                     // creamos un terceto de pasaje de parametro con su ptr y su tipo
-                    int number = addTercet("param", ptrParam, typeParam);
+                    int number = addTercet("paramReal", ptrParam, typeParam);
+                    number = addTercet("paramFormal", methodSymbol->nameParam, methodSymbol->typeParam);
 
                     // agregamos el terceto la llamada al metodo en la respectiva tabla de tercetos
                     number = addTercet("call", methodSymbol->lexema, "");
