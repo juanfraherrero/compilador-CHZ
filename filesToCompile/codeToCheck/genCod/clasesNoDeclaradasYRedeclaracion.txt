@@ -1,0 +1,26 @@
+{
+    clase1 obj1,
+
+    CLASS clase1 {
+        SHORT x,    
+        VOID method1(){
+            SHORT x,
+            x = 1_s,
+            PRINT x,
+            RETURN,
+        },    
+    },
+
+    clase1 obj2,
+
+    CLASS clase1 {
+        SHORT y,        
+    },     
+
+    clase1 obj3,
+}
+
+
+*{ 
+    la redeclaracio´n de clase escomo si la queres extender o seguir agregandole cosas, 
+    osea que si le pones un método con le mismo nombre que antes te va a decir que está prohibido}*

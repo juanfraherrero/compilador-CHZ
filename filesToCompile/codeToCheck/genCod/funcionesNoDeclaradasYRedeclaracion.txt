@@ -1,0 +1,12 @@
+{
+    func3(),
+    VOID func3(){
+        SHORT x,
+        x = 1_s,
+        RETURN,
+    },  
+    func3(),
+    VOID func3(){
+        RETURN,
+    },  
+}

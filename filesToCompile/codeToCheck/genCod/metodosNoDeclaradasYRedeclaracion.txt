@@ -1,0 +1,31 @@
+{
+
+    CLASS clase1 {
+        SHORT x,    
+        VOID method1(){
+            SHORT x,
+            x = 1_s,
+            PRINT x,
+            RETURN,
+        },    
+    },
+
+    clase1 obj1,
+    obj1.method2(),
+
+    CLASS clase2 {
+        FLOAT y,    
+        VOID method2(){
+            SHORT x,
+            RETURN,
+        },
+        
+        VOID method2(){
+            SHORT y,
+            RETURN,
+        },    
+    },
+
+    clase2 obj2,
+    obj2.method2(),
+}

@@ -1,0 +1,11 @@
+{
+    SHORT x,
+    y = 2_s,
+    VOID func3(){
+        x = 1_s,
+        y = 2_s,
+        RETURN,
+    },  
+    FLOAT x,
+    SHORT x,
+}
