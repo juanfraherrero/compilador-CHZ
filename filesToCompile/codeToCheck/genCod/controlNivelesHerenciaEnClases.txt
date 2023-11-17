@@ -22,7 +22,14 @@
         clase3,        
     },
 
-    CLASS clase5 {
-        clase4,        
+    CLASS clase7 {
+        SHORT x,    
+        VOID method1(){
+            SHORT x,
+            x = 1_s,
+            PRINT x,
+            RETURN,
+        },    
     },
+    SHORT x,
 }

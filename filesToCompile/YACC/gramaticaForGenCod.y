@@ -582,7 +582,7 @@ void addObjectForwarded(symbol* symbolObject, symbol* classSymbol){
         }
 
         // recorres el arreglo de herencia de esta clase verificando que exista alguna posicion con nullptr, si es asi verificas si esa clase tiene unmetodo con el mismo nombre y si es asi devuelves 1
-        for (int i=2; i >= 0; i--){
+        for (int i=1; i >= 0; i--){
             TableSymbol* tableSymbolMatchingClass = classSymbol->inheritance[i];
             // si hereda de alguna clase recorremos sus simbolos y los agregamos
             if(tableSymbolMatchingClass != nullptr){
@@ -702,7 +702,7 @@ int existMethodInInheritance(string key, string scope, string uso, symbol* class
         return 0;
     }else{
         // recorres el arreglo de herencia de esta clase verificando que exista alguna posicion con nullptr, si es asi verificas si esa clase tiene unmetodo con el mismo nombre y si es asi devuelves 1
-        for (int i=2; i >= 0; i--){
+        for (int i=1; i >= 0; i--){
             if(classSymbol->inheritance[i]!=nullptr){
                 
                 // verificar que en esa tabla no exista el simbolo
@@ -962,7 +962,7 @@ void addObject(string key, string scope, string classType){
                 // recorremos las herencias de derecha a izquierda y agregamos cada uno de los elementos a la tabla general
 
                 // recorres el arreglo de herencia de esta clase verificando que exista alguna posicion con nullptr, si es asi verificas si esa clase tiene unmetodo con el mismo nombre y si es asi devuelves 1
-                for (int i=2; i >= 0; i--){
+                for (int i=1; i >= 0; i--){
                     TableSymbol* tableSymbolMatchingClass = matchingClass->inheritance[i];
                     // si hereda de alguna clase recorremos sus simbolos y los agregamos
                     if(tableSymbolMatchingClass != nullptr){
@@ -1374,13 +1374,13 @@ void  detectInheritance(string classToInherit , string scope, string classWhoInh
                         // intentamos agregar la clase a heredar en el primer nullptr del arreglo de herencia, si tiene más de 3 elementos lanzamos un error
 
                         // copiamos el arreglo de herencia de la clase a heredar a la clase que hereda
-                        for(int i = 0; i < 3; i++) {
+                        for(int i = 0; i < 2; i++) {
                                 symbolofClassWhoInherit->inheritance[i] = classFinded->inheritance[i];
                         }
                         bool isNullptr = false;
                         int posOfNullInInheritance = -1;
                         // recorres el arreglo verificando que exista alguna posicion con nullptr, si es asi seteas el booleano con true y guardas la posicion del nullptr.
-                        for (int i=0; i < 3; i++){
+                        for (int i=0; i < 2; i++){
                                 if(symbolofClassWhoInherit->inheritance[i]==nullptr){
                                         isNullptr = true;
                                         posOfNullInInheritance = i;
@@ -1391,7 +1391,7 @@ void  detectInheritance(string classToInherit , string scope, string classWhoInh
                         if(isNullptr){
                                 symbolofClassWhoInherit->inheritance[posOfNullInInheritance] = classFinded->attributesAndMethodsVector;  
                         }else{
-                                yyerror("La clase " + symbolofClassWhoInherit->classOfSymbol +" intenta heredar de " + classToInherit + " pero ya hereda de 3 clases");
+                                yyerror("La clase " + symbolofClassWhoInherit->classOfSymbol +" intenta heredar de " + classToInherit + " pero ya hereda de 2 clases");
                         }
                         
                 }
@@ -1432,7 +1432,7 @@ symbol* getFirstSymbolMatchingOfAttribute(string attributeName, symbol* classSym
         return symbolAttribute;
     }else{
         // si no encontramos símbolo en la tabla principal dela clase buscamos en sus herencias de derecha a izquierda ya que si hay sobre escritura buscamos la más reciente
-        for (int i=2; i >= 0; i--){
+        for (int i=1; i >= 0; i--){
             if(classSymbol->inheritance[i]!=nullptr){
                 
                 // obtener el símbolo de la clase que hereda
@@ -1718,7 +1718,7 @@ symbol* getFirstSymbolMatchingOfMethod(string attributeName, symbol* classSymbol
         return symbolAttribute;
     }else{
         // si no encontramos símbolo en la tabla principal dela clase buscamos en sus herencias de derecha a izquierda ya que si hay sobre escritura buscamos la más reciente
-        for (int i=2; i >= 0; i--){
+        for (int i=1; i >= 0; i--){
             if(classSymbol->inheritance[i]!=nullptr){
                 
                 // obtener el símbolo de la clase que hereda
