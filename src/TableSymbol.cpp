@@ -408,6 +408,11 @@ vector<symbol*> TableSymbol::getSymbolsByUseAndNameClassAndForwarded(string use,
     return symbols;
 }; 
 
+string TableSymbol::getAuxVariable(){
+    this->auxVariable++;
+    return "@aux" + to_string(this->auxVariable);
+}
+
 // Destructor para liberar la memoria de los símbolos
 TableSymbol::~TableSymbol() {
     for (auto& pair : symbolTable) {

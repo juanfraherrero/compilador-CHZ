@@ -80,8 +80,8 @@ int main(int arg_count, char *arg_list[]) {
             cout << "Parsing exitoso" << endl;
             cout << "Generando el assembler" << endl;
             // generamos el codigo assembler
-            // AssemblerGenerator * assemblerGenerator = new AssemblerGenerator("output.asm");
-            // assemblerGenerator->generateAssembler(tableTercets);
+            AssemblerGenerator * assemblerGenerator = new AssemblerGenerator("output.asm", tableSymbol);
+            assemblerGenerator->generateAssembler(tableTercets);
         }
     }else{
         yyerror("Se detecto una sentencia invalida");

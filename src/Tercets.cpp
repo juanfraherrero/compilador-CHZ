@@ -1,10 +1,8 @@
 #include "include/Tercets.hpp"
-#include "include/Tercet.hpp"
-
 #include <iostream> 
 
 Tercets::Tercets(){
-    
+
 }
 
 int Tercets::add(Tercet* t){
@@ -59,6 +57,14 @@ Tercet* Tercets::pop(){
 
 int Tercets::numberOfLastTercet(){
     return this->tercets.size() - 1;
+}
+
+string Tercets::getAssembler(TableSymbol * tableSymbol){
+    string assembler = "";
+    for (int i = 0; i < this->tercets.size(); i++){
+        assembler += this->tercets[i]->getAssembler(tableSymbol);
+    }
+    return assembler;
 }
 
 Tercets::~Tercets() {

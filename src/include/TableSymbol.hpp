@@ -16,6 +16,7 @@ class TableSymbol{
         unordered_map<string, symbol*> symbolTable;
         string scope; 
         unsigned short int cantVartruncated = 0;
+        int auxVariable = 0;
     public:
         // Constructor
         TableSymbol();
@@ -74,6 +75,8 @@ class TableSymbol{
         symbol* getElementInTableByFisrtPartAndUse(const string key, const string uso);  // devuelva la primera apariciónde un simbolo con el mismo nombre de simbolo y mismo uso    
         vector<symbol*> getSymbolsByUseAndNameClassAndForwarded(string use, string className); // devuelve un vector de los símbolos que coincida con uso y clase y tengan forwarded en true forwarded
         
+        string getAuxVariable(); //Devuelve el nombre de la variable auxiliar a utilizar en la generacion del codigo assembler.
+
         // Destructor para liberar la memoria de los símbolos
         ~TableSymbol();
 

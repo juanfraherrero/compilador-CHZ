@@ -2,7 +2,7 @@
 #define _TERCETS_HPP_
 
 #include "Tercet.hpp"
-
+#include "TableSymbol.hpp"
 #include <string>
 #include <vector>
 #include <stack>
@@ -23,6 +23,7 @@ public:
     Tercet* pop(); //Devuelve el ultimo terceto de la pila de tercetos.
     void printStack(); //Imprime todos los tercetos de la estructura.
     vector<Tercet*> getTercets();   //Devuelve el vector de tercetos
+    string getAssembler(TableSymbol * TableSymbol); //Devuelve el codigo assembler generado por los tercetos
     ~Tercets();
 
 private:
