@@ -18,6 +18,8 @@ private:
 public:
     AssemblerGenerator(string pathFinal, TableSymbol * tableSymbol);
     void generateAssembler(Tercets * tercets); //genera el código assembler dado unalista de tercetos
+    void generateData(); //Genera las instrucciones declarativas.
+    string reemplazarEspacios(string s); //Reemplaza los espacios por guiones bajos.
 };
 
 #endif

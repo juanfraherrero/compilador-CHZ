@@ -1,0 +1,13 @@
+{
+    SHORT x,
+    FLOAT z,
+    x = 7_s,
+    x = x + 8_s,
+    z = TOF(10_s),
+    IF (4_s < 6_s)
+        PRINT # verdadero #,                *{ impresión }*
+    ELSE                                 *{ bloque de control IF-ELSE }*
+        PRINT # falso #,
+    END_IF,
+    x = x + 10_s,
+}         

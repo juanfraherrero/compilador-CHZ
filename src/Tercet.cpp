@@ -49,8 +49,6 @@ string Tercet::getAssembler(TableSymbol * tableSymbols){
     string typeOfFirstArg;
     
     //Primero verificamos que los operandos sean referencias a tercetos. En caso de serlo, los reemplazamos por la variable auxiliar que guarda el resultado del terceto.
-    
-    
     if (this->opIsTercet(1)){
         op1 = "@aux" + this->arg1.substr(1);
         symbol * firstArg = tableSymbols->getSymbol(op1);
@@ -58,10 +56,14 @@ string Tercet::getAssembler(TableSymbol * tableSymbols){
             typeOfFirstArg = firstArg->type;
     }
     else{
-        op1 = "_" + this->arg1;
-        symbol * firstArg = tableSymbols->getSymbol(this->arg1);
-        if (firstArg)
-            typeOfFirstArg = firstArg->type;     
+        if (this->op == "print"){ //Si se trata de un print, se reemplazan todos los espacios por guiones bajos.
+            op1 = reemplazarEspacios(this->arg1);
+        } else {
+            op1 = "_" + this->arg1;
+            symbol * firstArg = tableSymbols->getSymbol(this->arg1);
+            if (firstArg)
+                typeOfFirstArg = firstArg->type;          
+        }
     }
 
     if (this->opIsTercet(2)){
@@ -86,7 +88,7 @@ string Tercet::getAssembler(TableSymbol * tableSymbols){
         else if (typeOfFirstArg == "float"){
             out += "FLD " + op1 + "\n";
             out += "FADD " + op2 + "\n";
-            out += "FST " + this->auxVariable + "\n";
+            out += "FSTP " + this->auxVariable + "\n";
         }
         
     }
@@ -105,7 +107,7 @@ string Tercet::getAssembler(TableSymbol * tableSymbols){
         else if (typeOfFirstArg == "float"){
             out += "FLD " + op1 + "\n";
             out += "FSUB " + op2 + "\n";
-            out += "FST " + this->auxVariable + "\n";
+            out += "FSTP " + this->auxVariable + "\n";
         }
     }
     //Multiplicacion
@@ -128,7 +130,7 @@ string Tercet::getAssembler(TableSymbol * tableSymbols){
         else if (typeOfFirstArg == "float"){
             out += "FLD " + op1 + "\n";
             out += "FMUL " + op2 + "\n";
-            out += "FST " + this->auxVariable + "\n";
+            out += "FSTP " + this->auxVariable + "\n";
             out += "JO errorProductoFlotantes\n";
         }
     }
@@ -152,7 +154,7 @@ string Tercet::getAssembler(TableSymbol * tableSymbols){
         else if (typeOfFirstArg == "float"){
             out += "FLD " + op1 + "\n";
             out += "FDIV " + op2 + "\n";
-            out += "FST " + this->auxVariable + "\n";
+            out += "FSTP " + this->auxVariable + "\n";
         }
     }
     //Asignacion
@@ -167,108 +169,120 @@ string Tercet::getAssembler(TableSymbol * tableSymbols){
         }
         else if (typeOfFirstArg == "float"){
             out += "FLD " + op2 + "\n";
-            out += "FST " + op1 + "\n";
+            out += "FSTP " + op1 + "\n";
         }
     }
     //Comparacion igual
     else if (this->op == "=="){
         if (typeOfFirstArg == "short" || typeOfFirstArg == "unsigned int"){
-            out += "CMP" + op1 + ", " + op2 + "\n";
-            out += "JNE" + op1 + "\n";
+            out += "CMP " + op1 + ", " + op2 + "\n";
+            out += "JNE ";
         }
         else if (typeOfFirstArg == "float"){
             out += "FLD " + op1 + "\n";
             out += "FCOM " + op2 + "\n";
             out += "FSTSW AX\n";
             out += "SAHF\n";
-            out += "JNE" + op1 + "\n";
+            out += "JNE ";
         }
     }
     //Comparacion menor o igual
     else if (this->op == "<="){
         if (typeOfFirstArg == "short"){
-            out += "CMP" + op1 + ", " + op2 + "\n";
-            out += "JG" + op1 + "\n";
+            out += "CMP " + op1 + ", " + op2 + "\n";
+            out += "JG ";
         }
         else if (typeOfFirstArg == "unsigned int"){
-            out += "CMP" + op1 + ", " + op2 + "\n";
-            out += "JA" + op1 + "\n";
+            out += "CMP " + op1 + ", " + op2 + "\n";
+            out += "JA ";
         }
         else if (typeOfFirstArg == "float"){
             out += "FLD " + op1 + "\n";
             out += "FCOM " + op2 + "\n";
             out += "FSTSW AX\n";
             out += "SAHF\n";
-            out += "JG" + op1 + "\n";
+            out += "JG ";
         }
     }
     //Comparacion menor
     else if (this->op == "<"){
         if (typeOfFirstArg == "short"){
-            out += "CMP" + op1 + ", " + op2 + "\n";
-            out += "JGE" + op1 + "\n";
+            out += "CMP " + op1 + ", " + op2 + "\n";
+            out += "JGE ";
         }
         else if (typeOfFirstArg == "unsigned int"){
-            out += "CMP" + op1 + ", " + op2 + "\n";
-            out += "JAE" + op1 + "\n";
+            out += "CMP " + op1 + ", " + op2 + "\n";
+            out += "JAE ";
         }
         else if (typeOfFirstArg == "float"){
             out += "FLD " + op1 + "\n";
             out += "FCOM " + op2 + "\n";
             out += "FSTSW AX\n";
             out += "SAHF\n";
-            out += "JGE" + op1 + "\n";
+            out += "JGE ";
         }
     }
     //Comparacion mayor o igual
     else if (this->op == ">="){
         if (typeOfFirstArg == "short"){
-            out += "CMP" + op1 + ", " + op2 + "\n";
-            out += "JL" + op1 + "\n";
+            out += "CMP " + op1 + ", " + op2 + "\n";
+            out += "JL";
         }
         else if (typeOfFirstArg == "unsigned int"){
-            out += "CMP" + op1 + ", " + op2 + "\n";
-            out += "JB" + op1 + "\n";
+            out += "CMP " + op1 + ", " + op2 + "\n";
+            out += "JB ";
         }
         else if (typeOfFirstArg == "float"){
             out += "FLD " + op1 + "\n";
             out += "FCOM " + op2 + "\n";
             out += "FSTSW AX\n";
             out += "SAHF\n";
-            out += "JL" + op1 + "\n";
+            out += "JL ";
         }
     }
     //Comparacion mayor
     else if (this->op == ">"){
         if (typeOfFirstArg == "short"){
-            out += "CMP" + op1 + ", " + op2 + "\n";
-            out += "JLE" + op1 + "\n";
+            out += "CMP " + op1 + ", " + op2 + "\n";
+            out += "JLE ";
         }
         else if (typeOfFirstArg == "unsigned int"){
-            out += "CMP" + op1 + ", " + op2 + "\n";
-            out += "JBE" + op1 + "\n";
+            out += "CMP " + op1 + ", " + op2 + "\n";
+            out += "JBE ";
         }
         else if (typeOfFirstArg == "float"){
             out += "FLD " + op1 + "\n";
             out += "FCOM " + op2 + "\n";
             out += "FSTSW AX\n";
             out += "SAHF\n";
-            out += "JLE" + op1 + "\n";
+            out += "JLE ";
         }
     }
     //Comparacion distinto
     else if (this->op == "!!"){
         if (typeOfFirstArg == "short" || typeOfFirstArg == "unsigned int"){
-            out += "CMP" + op1 + ", " + op2 + "\n";
-            out += "JE" + op1 + "\n";
+            out += "CMP " + op1 + ", " + op2 + "\n";
+            out += "JE ";
         }
         else if (typeOfFirstArg == "float"){
             out += "FLD " + op1 + "\n";
             out += "FCOM " + op2 + "\n";
             out += "FSTSW AX\n";
             out += "SAHF\n";
-            out += "JE" + op1 + "\n";
+            out += "JE ";
         }
+    }
+    //Branch por falso
+    else if (this->op == "BF"){
+        out+= "Label" + this->arg2.substr(1) + "\n";
+    }
+    //Branch incondicional
+    else if (this->op == "BI"){
+        out+= "JMP Label" + this->arg2.substr(1) + "\n";
+    }
+    //Label
+    else if (this->op.substr(0,5) == "Label"){
+        out+= this->op + ":";
     }
     //Llamado a subrutina
     else if (this->op == "call"){
@@ -282,10 +296,56 @@ string Tercet::getAssembler(TableSymbol * tableSymbols){
     else if (this->op == "print"){
         out += "INVOKE MessageBox, NULL, addr " + op1 + ", addr " + op1 + ", MB_OK" + "\n";
     }
-    out += "\n";
-    return out;
+    //Parametro real
+    else if (this->op == "paramReal"){
+        if (this->arg2 == "short"){
+            out += "MOV AX, " + op1 + "\n";
+        }
+        else if (this->arg2 == "unsigned int"){
+            out += "MOV AL, " + op1 + "\n";
+        }
+        else if (this->arg2 == "float"){
+            out += "FLD " + op1 + "\n";
+        }
+    }
+    //Parametro formal
+    else if (this->op == "paramFormal"){
+        if (this->arg2 == "short"){
+            out += "MOV " + op1 + ", AX\n";
+        }
+        else if (this->arg2 == "unsigned int"){
+            out += "MOV " + op1 + ", AL\n";
+        }
+        else if (this->arg2 == "float"){
+            out += "FSTP " + op1 + "\n";
+        }
+    }
+    //Conversion explicita a float
+    else if (this->op == "tof"){
+        this->auxVariable = tableSymbols->getAuxVariable();
+
+        symbol * auxSymbol = new symbol(this->auxVariable, "", "float", "auxVariable");
+        tableSymbols->insert(auxSymbol);
+
+        out += "FILD " + op2 + "\n";
+        out += "FSTP " + this->auxVariable + "\n";
+    }
+
+    //Si se trataba de una comparacion, no se devuelve el assembler + \n ya que lo siguiente que viene es el label.
+    if (this->op == "==" || this->op == "<=" || this->op == "<" || this->op == ">=" || this->op == ">" || this->op == "!!")
+        return out;
+    else
+        return out + "\n";
 }
 
+string Tercet::reemplazarEspacios(string s){
+    for (int i = 0; i < s.length() - 1; i++){
+        if (s[i] == ' '){
+            s[i] = '_';
+        }
+    }
+    return s;
+}
 
 Tercet::~Tercet(){
     

@@ -21,6 +21,8 @@ public:
     string typeOfArg1(); //Devuelve el tipo del operando 1
     string typeOfArg2(); //Devuelve el tipo del operando 2
     string getAssembler(TableSymbol * tableSymbols); //Devuelve el codigo assembler generado por el terceto
+
+    string reemplazarEspacios(string s); //Reemplaza los espacios de una cadena por guiones bajos.
     ~Tercet();
 
 private:
