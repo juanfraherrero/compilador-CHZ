@@ -13,16 +13,13 @@ public:
     string getOp() const; //Operador, tipo de terceto
     string getArg1() const; //Operando 1
     string getArg2() const; //Operando 2
+    string getAuxVariable() const; //Variable auxiliar que almacena al terceto.
     void setArg1(string arg1); //Seteo de operando 1
     void setArg2(string arg2); //Seteo de operando 2
+    void setAuxVariable(string auxVariable); //Seteo de variable auxiliar
     void print(); //Imprime el terceto.
 
-    bool opIsTercet(int op); //Devuelve true si el operador es una referencia a un terceto o no.
-    string typeOfArg1(); //Devuelve el tipo del operando 1
-    string typeOfArg2(); //Devuelve el tipo del operando 2
-    string getAssembler(TableSymbol * tableSymbols); //Devuelve el codigo assembler generado por el terceto
-
-    string reemplazarEspacios(string s); //Reemplaza los espacios de una cadena por guiones bajos.
+    bool opIsTercet(int op); //Devuelve true si el operando es una referencia a un terceto o no.
     ~Tercet();
 
 private:

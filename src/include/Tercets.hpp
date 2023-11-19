@@ -15,6 +15,7 @@ public:
     Tercets();
 
     int add(Tercet* tercet); //Añade un terceto y devuelve la posicion en la que se añadio.
+    Tercet* get(int index); //Devuelve un terceto en cierta posicion de la estructura
     void erase(int index); //Elimina un terceto en cierta posicion de la estructura
     void replace(int index, Tercet* tercet); //Reemplaza un terceto en cierta posicion de la estructura por otro Terceto.
     int numberOfLastTercet(); //Devuelve el numero del ultimo terceto añadido.
@@ -23,7 +24,6 @@ public:
     Tercet* pop(); //Devuelve el ultimo terceto de la pila de tercetos.
     void printStack(); //Imprime todos los tercetos de la estructura.
     vector<Tercet*> getTercets();   //Devuelve el vector de tercetos
-    string getAssembler(TableSymbol * TableSymbol); //Devuelve el codigo assembler generado por los tercetos
     ~Tercets();
 
 private:
