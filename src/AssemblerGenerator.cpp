@@ -1,6 +1,7 @@
 #include "include/AssemblerGenerator.hpp"
 #include <iostream>
 #include <fstream>
+#include <string>
 
 using namespace std;
 
@@ -99,6 +100,11 @@ void AssemblerGenerator::generateAssembler(){
 
 }
 
+string AssemblerGenerator::getAuxVariable(){
+    this->auxVariable++;
+    return "@aux" + to_string(this->auxVariable);
+}
+
 string AssemblerGenerator::getTercetAssembler(Tercet * tercet){
     string out = "";
     string op1 = "";
@@ -132,7 +138,7 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet){
 
     //Suma, chequeando overflow en suma de enteros
     if (tercet->getOp() == "+"){
-        tercet->setAuxVariable(tableSymbol->getAuxVariable());
+        tercet->setAuxVariable(getAuxVariable());
         string auxVariable = tercet->getAuxVariable();
 
         symbol * auxSymbol = new symbol(tercet->getAuxVariable(), "", typeOfFirstArg, "auxVariable");
@@ -152,7 +158,7 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet){
     }
     //Resta
     else if (tercet->getOp() == "-"){
-        tercet->setAuxVariable(tableSymbol->getAuxVariable());
+        tercet->setAuxVariable(getAuxVariable());
         string auxVariable = tercet->getAuxVariable();
 
         symbol * auxSymbol = new symbol(tercet->getAuxVariable(), "", typeOfFirstArg, "auxVariable");
@@ -171,7 +177,7 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet){
     }
     //Multiplicacion
     else if (tercet->getOp() == "*"){
-        tercet->setAuxVariable(tableSymbol->getAuxVariable());
+        tercet->setAuxVariable(getAuxVariable());
         string auxVariable = tercet->getAuxVariable();
 
         symbol * auxSymbol = new symbol(tercet->getAuxVariable(), "", typeOfFirstArg, "auxVariable");
@@ -196,7 +202,7 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet){
     }
     //Division
     else if (tercet->getOp() == "/"){
-        tercet->setAuxVariable(tableSymbol->getAuxVariable());
+        tercet->setAuxVariable(getAuxVariable());
         string auxVariable = tercet->getAuxVariable();
 
         symbol * auxSymbol = new symbol(tercet->getAuxVariable(), "", typeOfFirstArg, "auxVariable");
@@ -335,15 +341,17 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet){
     }
     //Branch por falso
     else if (tercet->getOp() == "BF"){
-        out+= "Label" + tercet->getArg2().substr(1) + "\n";
+        string label = tercets->get(stoi(tercet->getArg2().substr(1)))->getArg1();
+        out+= label + "\n";
     }
     //Branch incondicional
     else if (tercet->getOp() == "BI"){
-        out+= "JMP Label" + tercet->getArg2().substr(1) + "\n";
+        string label = tercets->get(stoi(tercet->getArg2().substr(1)))->getArg1();
+        out+= "JMP " + label + "\n";
     }
     //Label
-    else if (tercet->getOp().substr(0,5) == "Label"){
-        out+= tercet->getOp() + ":";
+    else if (tercet->getOp() == "label"){
+        out+= tercet->getArg1() + ":";
     }
     //Llamado a subrutina
     else if (tercet->getOp() == "call"){
@@ -383,7 +391,7 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet){
     }
     //Conversion explicita a float
     else if (tercet->getOp() == "tof"){
-        tercet->setAuxVariable(tableSymbol->getAuxVariable());
+        tercet->setAuxVariable(getAuxVariable());
         string auxVariable = tercet->getAuxVariable();
 
         symbol * auxSymbol = new symbol(tercet->getAuxVariable(), "", "float", "auxVariable");

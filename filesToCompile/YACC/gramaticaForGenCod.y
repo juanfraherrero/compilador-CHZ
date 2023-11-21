@@ -190,18 +190,18 @@ parametro_funcion   :   tipo IDENTIFICADOR              { addParamFunction ($2->
 cuerpo_de_la_funcion    :   cuerpo_de_la_funcion_sin_return                             {yyerror("Se detecto la falta de RETURN en el cuerpo de la funcion");}
                         |   cuerpo_de_la_funcion_con_return
                         ;
-cuerpo_de_la_funcion_con_return    :   cuerpo_de_la_funcion_sin_return RETURN ','
-                                   |   cuerpo_de_la_funcion_sin_return RETURN                                           { yywarning("Se detecto una falta de coma"); }
-                                   |   cuerpo_de_la_funcion_sin_return RETURN ',' cuerpo_de_la_funcion_sin_return       { yywarning("Se detecto codigo posterior a un return"); }
-                                   |   cuerpo_de_la_funcion_sin_return RETURN cuerpo_de_la_funcion_sin_return           { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
-                                   |   cuerpo_de_la_funcion_sin_return RETURN ',' cuerpo_de_la_funcion_con_return       { yywarning("Se detecto codigo posterior a un return"); }
-                                   |   cuerpo_de_la_funcion_sin_return RETURN cuerpo_de_la_funcion_con_return           { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
-                                   |   RETURN ','
-                                   |   RETURN                                           {yywarning("Se detecto una falta de coma"); }        
-                                   |   RETURN ',' cuerpo_de_la_funcion_sin_return       {yywarning("Se detecto codigo posterior a un return"); }
-                                   |   RETURN cuerpo_de_la_funcion_sin_return       { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
-                                   |   RETURN ',' cuerpo_de_la_funcion_con_return       {yywarning("Se detecto codigo posterior a un return"); }
-                                   |   RETURN cuerpo_de_la_funcion_con_return       { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
+cuerpo_de_la_funcion_con_return    :   cuerpo_de_la_funcion_sin_return return ','
+                                   |   cuerpo_de_la_funcion_sin_return return                                           { yywarning("Se detecto una falta de coma"); }
+                                   |   cuerpo_de_la_funcion_sin_return return ',' cuerpo_de_la_funcion_sin_return       { yywarning("Se detecto codigo posterior a un return"); }
+                                   |   cuerpo_de_la_funcion_sin_return return cuerpo_de_la_funcion_sin_return           { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
+                                   |   cuerpo_de_la_funcion_sin_return return ',' cuerpo_de_la_funcion_con_return       { yywarning("Se detecto codigo posterior a un return"); }
+                                   |   cuerpo_de_la_funcion_sin_return return cuerpo_de_la_funcion_con_return           { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
+                                   |   return ','
+                                   |   return                                           {yywarning("Se detecto una falta de coma"); }        
+                                   |   return ',' cuerpo_de_la_funcion_sin_return       {yywarning("Se detecto codigo posterior a un return"); }
+                                   |   return cuerpo_de_la_funcion_sin_return       { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
+                                   |   return ',' cuerpo_de_la_funcion_con_return       {yywarning("Se detecto codigo posterior a un return"); }
+                                   |   return cuerpo_de_la_funcion_con_return       { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
                                    ;
 cuerpo_de_la_funcion_sin_return    :   cuerpo_de_la_funcion_sin_return sentencia 
                                    |   sentencia
@@ -285,32 +285,35 @@ condicion : expresion_aritmetica '>' expresion_aritmetica                       
           ;
 
 bloque_ejecutables  :   '{' sentencias_ejecutables '}'
-                    |   '{' sentencias_ejecutables RETURN ',' '}'        
-                    |   '{' sentencias_ejecutables RETURN ',' sentencias_ejecutables '}'        { yywarning("Se detecto codigo posterior a un return"); }
-                    |   '{' sentencias_ejecutables RETURN sentencias_ejecutables '}'            { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
-                    |   '{' sentencias_ejecutables RETURN '}'                                   { yywarning("Se detecto una falta de coma"); }
+                    |   '{' sentencias_ejecutables return ',' '}'        
+                    |   '{' sentencias_ejecutables return ',' sentencias_ejecutables '}'        { yywarning("Se detecto codigo posterior a un return"); }
+                    |   '{' sentencias_ejecutables return sentencias_ejecutables '}'            { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
+                    |   '{' sentencias_ejecutables return '}'                                   { yywarning("Se detecto una falta de coma"); }
                     |   ejecutable ',' 
                     |   declarativa  ','                                                        { yyerror("Se detecto una sentencia declarativa en bloque de control"); }
-                    |   '{' RETURN ',' '}'
-                    |   '{' RETURN '}'                                                          { yywarning("Se detecto una falta de coma"); }
-                    |    RETURN ','
+                    |   '{' return ',' '}'
+                    |   '{' return '}'                                                          { yywarning("Se detecto una falta de coma"); }
+                    |    return ','
                     
-                    |   '{' sentencias_ejecutables RETURN ',' comas '}'        
-                    |   '{' sentencias_ejecutables RETURN ',' comas sentencias_ejecutables '}'        { yywarning("Se detecto codigo posterior a un return"); }
+                    |   '{' sentencias_ejecutables return ',' comas '}'        
+                    |   '{' sentencias_ejecutables return ',' comas sentencias_ejecutables '}'        { yywarning("Se detecto codigo posterior a un return"); }
 
 
                     |   '{' comas sentencias_ejecutables '}'      
-                    |   '{' comas sentencias_ejecutables RETURN ',' '}'              
-                    |   '{' comas sentencias_ejecutables RETURN ',' sentencias_ejecutables '}'  { yywarning("Se detecto codigo posterior a un return"); }
-                    |   '{' comas sentencias_ejecutables RETURN sentencias_ejecutables '}'      { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
-                    |   '{' comas sentencias_ejecutables RETURN '}'                             { yywarning("Se detecto una falta de coma"); }
+                    |   '{' comas sentencias_ejecutables return ',' '}'              
+                    |   '{' comas sentencias_ejecutables return ',' sentencias_ejecutables '}'  { yywarning("Se detecto codigo posterior a un return"); }
+                    |   '{' comas sentencias_ejecutables return sentencias_ejecutables '}'      { yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
+                    |   '{' comas sentencias_ejecutables return '}'                             { yywarning("Se detecto una falta de coma"); }
                     |   comas ejecutable ',' 
                     |   comas declarativa  ','                                                  { yyerror("Se detecto una sentencia declarativa en bloque de control"); }
-                    |   '{' comas RETURN ',' '}'
-                    |   '{' comas RETURN '}'                                                    { yywarning("Se detecto una falta de coma"); }
-                    |    comas RETURN ','
+                    |   '{' comas return ',' '}'
+                    |   '{' comas return '}'                                                    { yywarning("Se detecto una falta de coma"); }
+                    |    comas return ','                                               
                     |   error ','                                                               { yyerror("Se detecto un bloque invalido"); }
                     ;
+
+return  : RETURN                        { addTercetReturn($$->ptr); }
+        ;
 
 sentencias_ejecutables  :   sentencias_ejecutables ejecutable comas
                         |   sentencias_ejecutables ejecutable                   { yywarning("Se detecto una falta de coma"); }
@@ -482,6 +485,12 @@ void initClass(string key, string scope, string & reglaptr){
                 symbol* symbolFinded = tableSymbol->getSymbol(key+scope); // obtenemos el símbolo con mismo scope
                 if(symbolFinded->forwarded == false){
                         yyerror("Redeclaracion de clase " + key + " en el mismo ambito");
+                        
+                        //aca borramos el simbolo de la tabla de simbolos general
+                        tableSymbol->deleteSymbol(key); 
+                        
+                        // agregamos la clase al stack de clases para que aunque este redeclarada no tire un error si intentamos acceder a una clase del stack que no existe
+                        stackClasses->push(symbolFinded);
                 }else{
                         //aca borramos el simbolo de la tabla de simbolos general
                         tableSymbol->deleteSymbol(key); 
@@ -502,6 +511,44 @@ void initClass(string key, string scope, string & reglaptr){
         actualClass = key; 
         reglaptr = key; 
         tableSymbol->addScope(key);
+};
+/**
+ * Esta función se llama cuando se quiere crear un método o función de un objeto a instanciar
+ * Para esto se require de buscar el bloque de tercetos en el vecto de bloques de tercetos de declaración
+ * copiarlo y agregarle a cada argumento que sea propio del objeto ":"+objeto+scope 
+ * al nuevo bloque también le agregamos eso al nombre e insertamos la copia en el vecotr de bloques de tercetos de ejecución
+ * 
+ * 
+ * @param objectName El nombre del objeto.
+ * @param scope El scope actual.
+ * @param simboloDeFuncion El símbolo de la función o método.
+ * @param tableSymbolOfTheClass La tabla de símbolos de la clase.
+ */
+void createFunctionTerecets(string objectName, string scope, symbol* simboloDeFuncion, TableSymbol* tableSymbolOfTheClass){
+     /*
+        la función debe buscar en el vector de declaración de bloques de tercetos de funciones la declaraciónde este método o función, 
+            copiarlo al vector de ejecución
+            recorrer cada terceto y por cada operador de este terceto verificar si alguno es igual a algún atributo o método de la clase ode sus herencias, 
+            en ese caso se le agrega el objeto y el scope actual
+    */
+    functionStack* copyOfTheStack = vectorOfFunctionDeclaredInClasses->getCopyOfFunction(simboloDeFuncion->lexema);
+
+    // recorremos el stack de tercetos de la función o método
+    for (const auto& tercet : copyOfTheStack->ter->getTercets()){
+        // si la tabla contiene exactamente ese elemento del terceto entonces le agregamos el objeto y el scope actual
+        if(tableSymbolOfTheClass->isTheSpecificLexemaInTable(tercet->getArg1())){
+            tercet->setArg1(tercet->getArg1()+":"+objectName+scope);
+        }
+        // si la tabla contiene exactamente ese elemento del terceto entonces le agregamos el objeto y el scope actual
+        if(tableSymbolOfTheClass->isTheSpecificLexemaInTable(tercet->getArg2())){
+            tercet->setArg2(tercet->getArg1()+":"+objectName+scope);
+        }
+    }
+
+    copyOfTheStack->name += ":"+objectName+scope; // le agregamos el nombre del objeto + el scope actual
+    // agregamos el nuevo stack de funciones a la tabla de funciones en ejecución
+    vectorOfFunction->add(copyOfTheStack);
+
 };
 /**
  * Cuando se detecta una clase que fue forwardeada y un objeto fue declarado de esa clase se llma a esta función
@@ -535,7 +582,7 @@ void addObjectForwarded(symbol* symbolObject, symbol* classSymbol){
         }
 
         // recorres el arreglo de herencia de esta clase verificando que exista alguna posicion con nullptr, si es asi verificas si esa clase tiene unmetodo con el mismo nombre y si es asi devuelves 1
-        for (int i=2; i >= 0; i--){
+        for (int i=1; i >= 0; i--){
             TableSymbol* tableSymbolMatchingClass = classSymbol->inheritance[i];
             // si hereda de alguna clase recorremos sus simbolos y los agregamos
             if(tableSymbolMatchingClass != nullptr){
@@ -655,7 +702,7 @@ int existMethodInInheritance(string key, string scope, string uso, symbol* class
         return 0;
     }else{
         // recorres el arreglo de herencia de esta clase verificando que exista alguna posicion con nullptr, si es asi verificas si esa clase tiene unmetodo con el mismo nombre y si es asi devuelves 1
-        for (int i=2; i >= 0; i--){
+        for (int i=1; i >= 0; i--){
             if(classSymbol->inheritance[i]!=nullptr){
                 
                 // verificar que en esa tabla no exista el simbolo
@@ -691,36 +738,35 @@ void initMethod(string key, string scope, string classOfAttribute){
 
         if(methodAlredyExist == 0){
                 yyerror("Redeclaracion de metodo en la misma clase");
-        }else{
-                if(methodAlredyExist == 1){
-                        yyerror("Sobreescritura de metodos prohibida");
-                }      
-                // aunque tire error igual lo agregamos para que no falle la genreacion de codigo   
-                  
-                // creamos el nuevo símbolo
-                symbol* newMetodo = new symbol(key+scope, "", "void", "metodo");
-                /*
-                        ACA SE PUEDEN AGREGAR COSAS A LOS SIMBOLOS DE METODOS CARGADOS
-                */
-
-                newMetodo->classOfSymbol = classOfAttribute;
-
-                // agregamos el nuevo símbolo al vector de simbolos de la clase        
-                tsClass->insert(newMetodo);
-                
-                // seteamos que si se debe agregar un parametro se le haga a este método
-                lastMethod = newMetodo;
-
-                // agregamos un scope
-                tableSymbol->addScope(key);
-
-                // creamos una stack para la función y la agregamos al stack con el nombre
-                functionStack* fs = new functionStack(key+scope);
-                fs->ter = new Tercets();
-                stackFunction->push(fs);
-                
-                cantOfRecursions++;
         }
+        if(methodAlredyExist == 1){
+                yyerror("Sobreescritura de metodos prohibida");
+        }      
+        // aunque tire error igual lo agregamos para que no falle la genreacion de codigo   
+                
+        // creamos el nuevo símbolo
+        symbol* newMetodo = new symbol(key+scope, "", "void", "metodo");
+        /*
+                ACA SE PUEDEN AGREGAR COSAS A LOS SIMBOLOS DE METODOS CARGADOS
+        */
+
+        newMetodo->classOfSymbol = classOfAttribute;
+
+        // agregamos el nuevo símbolo al vector de simbolos de la clase        
+        tsClass->insert(newMetodo);
+        
+        // seteamos que si se debe agregar un parametro se le haga a este método
+        lastMethod = newMetodo;
+
+        // agregamos un scope
+        tableSymbol->addScope(key);
+
+        // creamos una stack para la función y la agregamos al stack con el nombre
+        functionStack* fs = new functionStack(key+scope);
+        fs->ter = new Tercets();
+        stackFunction->push(fs);
+        
+        cantOfRecursions++;        
 };                        
 /**
  * Cuando detectamos un parámtro en un método de clase
@@ -768,7 +814,7 @@ void addParamMetodo(string key, string scope, string type, string classOfAttribu
 
                 lastMethod->cantParam++;
                 lastMethod->typeParam = type;
-                lastMethod->nameParam = key;
+                lastMethod->nameParam = key+scope;
         }
 };
 /**
@@ -814,7 +860,7 @@ void addParamFunction(string key, string scope, string type, string & reglaptr, 
         // seteamos el parámetro al símbolo de la función
         lastMethod->cantParam++;
         lastMethod->typeParam = type;
-        lastMethod->nameParam = key;
+        lastMethod->nameParam = key+scope;
         
         reglaptr = newIdentificador->lexema; 
         reglatype = type; 
@@ -853,44 +899,6 @@ string checkNewNameBeforeInsert(symbol* newSm){
         }
         return newSm->lexema;
 }
-/**
- * Esta función se llama cuando se quiere crear un método o función de un objeto a instanciar
- * Para esto se require de buscar el bloque de tercetos en el vecto de bloques de tercetos de declaración
- * copiarlo y agregarle a cada argumento que sea propio del objeto ":"+objeto+scope 
- * al nuevo bloque también le agregamos eso al nombre e insertamos la copia en el vecotr de bloques de tercetos de ejecución
- * 
- * 
- * @param objectName El nombre del objeto.
- * @param scope El scope actual.
- * @param simboloDeFuncion El símbolo de la función o método.
- * @param tableSymbolOfTheClass La tabla de símbolos de la clase.
- */
-void createFunctionTerecets(string objectName, string scope, symbol* simboloDeFuncion, TableSymbol* tableSymbolOfTheClass){
-     /*
-        la función debe buscar en el vector de declaración de bloques de tercetos de funciones la declaraciónde este método o función, 
-            copiarlo al vector de ejecución
-            recorrer cada terceto y por cada operador de este terceto verificar si alguno es igual a algún atributo o método de la clase ode sus herencias, 
-            en ese caso se le agrega el objeto y el scope actual
-    */
-    functionStack* copyOfTheStack = vectorOfFunctionDeclaredInClasses->getCopyOfFunction(simboloDeFuncion->lexema);
-
-    // recorremos el stack de tercetos de la función o método
-    for (const auto& tercet : copyOfTheStack->ter->getTercets()){
-        // si la tabla contiene exactamente ese elemento del terceto entonces le agregamos el objeto y el scope actual
-        if(tableSymbolOfTheClass->isTheSpecificLexemaInTable(tercet->getArg1())){
-            tercet->setArg1(tercet->getArg1()+":"+objectName+scope);
-        }
-        // si la tabla contiene exactamente ese elemento del terceto entonces le agregamos el objeto y el scope actual
-        if(tableSymbolOfTheClass->isTheSpecificLexemaInTable(tercet->getArg2())){
-            tercet->setArg2(tercet->getArg1()+":"+objectName+scope);
-        }
-    }
-
-    copyOfTheStack->name += ":"+objectName+scope; // le agregamos el nombre del objeto + el scope actual
-    // agregamos el nuevo stack de funciones a la tabla de funciones en ejecución
-    vectorOfFunction->add(copyOfTheStack);
-
-};
 /**
  * Cuando se detecta una declaración de objeto se llama esta función
  * Verificamos que no exista un objeto en el mismo ámbito con el mismo nombre   
@@ -954,7 +962,7 @@ void addObject(string key, string scope, string classType){
                 // recorremos las herencias de derecha a izquierda y agregamos cada uno de los elementos a la tabla general
 
                 // recorres el arreglo de herencia de esta clase verificando que exista alguna posicion con nullptr, si es asi verificas si esa clase tiene unmetodo con el mismo nombre y si es asi devuelves 1
-                for (int i=2; i >= 0; i--){
+                for (int i=1; i >= 0; i--){
                     TableSymbol* tableSymbolMatchingClass = matchingClass->inheritance[i];
                     // si hereda de alguna clase recorremos sus simbolos y los agregamos
                     if(tableSymbolMatchingClass != nullptr){
@@ -1215,6 +1223,7 @@ void addElse(string& reglaptr){
                 t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2));
         } 
         int number =  addTercetAndStack("BI", "", ""); 
+        number = addTercet("label","label"+to_string(cantLabels),"");
         reglaptr = charTercetoId + to_string(number); 
 }
 
@@ -1223,10 +1232,12 @@ void finIf(){
         if (t!=nullptr){
                 t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1) );
         }
+        int number = addTercet("label","label"+to_string(cantLabels),"");
 }
 
 void initWhile(){
         addTercetOnlyStack("incioCondicionWhile", charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1), "");
+        int number = addTercet("label","label"+to_string(cantLabels),"");
 }
 
 void finWhile(string & reglaptr) {
@@ -1237,8 +1248,9 @@ void finWhile(string & reglaptr) {
         Tercet *t2 = popTercet(); 
         int number; 
         if(t2!=nullptr){
-                int number = addTercet("BI", t2->getArg1(), "");
+                number = addTercet("BI", t2->getArg1(), "");
         } 
+        number = addTercet("label","label"+to_string(cantLabels),"");
         reglaptr = charTercetoId + to_string(number);
 }
 
@@ -1366,13 +1378,13 @@ void  detectInheritance(string classToInherit , string scope, string classWhoInh
                         // intentamos agregar la clase a heredar en el primer nullptr del arreglo de herencia, si tiene más de 3 elementos lanzamos un error
 
                         // copiamos el arreglo de herencia de la clase a heredar a la clase que hereda
-                        for(int i = 0; i < 3; i++) {
+                        for(int i = 0; i < 2; i++) {
                                 symbolofClassWhoInherit->inheritance[i] = classFinded->inheritance[i];
                         }
                         bool isNullptr = false;
                         int posOfNullInInheritance = -1;
                         // recorres el arreglo verificando que exista alguna posicion con nullptr, si es asi seteas el booleano con true y guardas la posicion del nullptr.
-                        for (int i=0; i < 3; i++){
+                        for (int i=0; i < 2; i++){
                                 if(symbolofClassWhoInherit->inheritance[i]==nullptr){
                                         isNullptr = true;
                                         posOfNullInInheritance = i;
@@ -1383,7 +1395,7 @@ void  detectInheritance(string classToInherit , string scope, string classWhoInh
                         if(isNullptr){
                                 symbolofClassWhoInherit->inheritance[posOfNullInInheritance] = classFinded->attributesAndMethodsVector;  
                         }else{
-                                yyerror("La clase " + symbolofClassWhoInherit->classOfSymbol +" ya hereda de 3 clases");
+                                yyerror("La clase " + symbolofClassWhoInherit->classOfSymbol +" intenta heredar de " + classToInherit + " pero ya hereda de 2 clases");
                         }
                         
                 }
@@ -1424,7 +1436,7 @@ symbol* getFirstSymbolMatchingOfAttribute(string attributeName, symbol* classSym
         return symbolAttribute;
     }else{
         // si no encontramos símbolo en la tabla principal dela clase buscamos en sus herencias de derecha a izquierda ya que si hay sobre escritura buscamos la más reciente
-        for (int i=2; i >= 0; i--){
+        for (int i=1; i >= 0; i--){
             if(classSymbol->inheritance[i]!=nullptr){
                 
                 // obtener el símbolo de la clase que hereda
@@ -1684,7 +1696,8 @@ void newInvocacionWithParam(string nombreFuncion, string scope, string ptrParam,
         */
 
         // creamos un terceto de pasaje de parametro con su ptr y su tipo
-        int number = addTercet("param", ptrParam, typeParam);
+        int number = addTercet("paramReal", ptrParam, typeParam);
+        number = addTercet("paramFormal", functionFinded->nameParam, functionFinded->typeParam);
 
         // agregamos el terceto de asignación en la respectiva tabla de tercetos
         number = addTercet("call", functionFinded->lexema, "");
@@ -1709,7 +1722,7 @@ symbol* getFirstSymbolMatchingOfMethod(string attributeName, symbol* classSymbol
         return symbolAttribute;
     }else{
         // si no encontramos símbolo en la tabla principal dela clase buscamos en sus herencias de derecha a izquierda ya que si hay sobre escritura buscamos la más reciente
-        for (int i=2; i >= 0; i--){
+        for (int i=1; i >= 0; i--){
             if(classSymbol->inheritance[i]!=nullptr){
                 
                 // obtener el símbolo de la clase que hereda
@@ -1837,7 +1850,8 @@ void newInvocacionMethodWithParam(string objectName, string methodName, string s
                     */
 
                     // creamos un terceto de pasaje de parametro con su ptr y su tipo
-                    int number = addTercet("param", ptrParam, typeParam);
+                    int number = addTercet("paramReal", ptrParam, typeParam);
+                    number = addTercet("paramFormal", methodSymbol->nameParam, methodSymbol->typeParam);
 
                     // agregamos el terceto la llamada al metodo en la respectiva tabla de tercetos
                     number = addTercet("call", methodSymbol->lexema, "");
@@ -1847,4 +1861,9 @@ void newInvocacionMethodWithParam(string objectName, string methodName, string s
             }
         }
     }
+};
+void addTercetReturn(string& reglaptr){
+        int number = addTercet("return","","");        
+
+        reglaptr = charTercetoId + to_string(number);
 };

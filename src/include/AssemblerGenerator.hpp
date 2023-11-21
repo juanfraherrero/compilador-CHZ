@@ -13,6 +13,7 @@ private:
     string code;
     string data;
     string libraries;
+    int auxVariable = 0;
     TableSymbol * tableSymbol;
     Tercets * tercets;
 public:
@@ -21,6 +22,7 @@ public:
     string getTercetAssembler(Tercet * tercet); //genera el código assembler dado un terceto
     void generateData(); //Genera las instrucciones declarativas.
     string reemplazarEspacios(string s); //Reemplaza los espacios por guiones bajos.
+    string getAuxVariable(); //Obtiene una variable auxiliar.
 };
 
 #endif
