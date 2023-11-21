@@ -1,5 +1,6 @@
 #include "include/AssemblerGenerator.hpp"
-#include <iostream> 
+#include <iostream>
+#include <fstream>
 
 using namespace std;
 
@@ -72,7 +73,6 @@ string AssemblerGenerator::reemplazarEspacios(string s){
 
 //Genera el código assembler dado una lista de tercetos.
 void AssemblerGenerator::generateAssembler(){
-    //this->code = tercets->getAssembler(this->tableSymbol);
     for (auto t : tercets->getTercets()){
         this->code += getTercetAssembler(t);
     }
@@ -82,7 +82,21 @@ void AssemblerGenerator::generateAssembler(){
                  + this->code +
                  "invoke ExitProcess, 0\n"
                  "end start";
-    cout << this->libraries + this->data + this->code << endl;
+    //cout << this->libraries + this->data + this->code << endl;
+    ofstream file(this->pathFinal, ios::out);
+    if (file.is_open()) {
+        // Escribir el string en el archivo
+        file << this->libraries + this->data + this->code;
+
+        // Cerrar el archivo
+        file.close();
+
+        std::cout << "String escrito en el archivo correctamente." << std::endl;
+    } else {
+        std::cerr << "No se pudo crear el archivo en la ruta especificada." << std::endl;
+    }
+    
+
 }
 
 string AssemblerGenerator::getTercetAssembler(Tercet * tercet){
