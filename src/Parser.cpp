@@ -29,6 +29,7 @@ VectorOfFunction * vectorOfFunctionDeclaredInClasses = new VectorOfFunction(); /
 stack<functionStack*>* stackFunction = new stack<functionStack*>();
 int cantOfRecursions = 0;
 
+int cantLabels = 0;
 int lineNumber = 1;
 bool isErrorInCode = false;
 Tercets *tableTercets = new Tercets();
@@ -1042,7 +1043,7 @@ void initClass(string key, string scope, string & reglaptr){
                         //aca borramos el simbolo de la tabla de simbolos general
                         tableSymbol->deleteSymbol(key); 
                         
-                        // agregamos la clase al stack de clases
+                        // agregamos la clase al stack de clases para que aunque este redeclarada no tire un error si intentamos acceder a una clase del stack que no existe
                         stackClasses->push(symbolFinded);
                 }else{
                         //aca borramos el simbolo de la tabla de simbolos general
@@ -1295,8 +1296,8 @@ void initMethod(string key, string scope, string classOfAttribute){
         if(methodAlredyExist == 1){
                 yyerror("Sobreescritura de metodos prohibida");
         }      
-        // aunque tire error igual lo agregamos para que no falle la generación de codigo   
-            
+        // aunque tire error igual lo agregamos para que no falle la genreacion de codigo   
+                
         // creamos el nuevo símbolo
         symbol* newMetodo = new symbol(key+scope, "", "void", "metodo");
         /*
@@ -1320,6 +1321,9 @@ void initMethod(string key, string scope, string classOfAttribute){
         stackFunction->push(fs);
         
         cantOfRecursions++;
+        cantOfRecursions++;
+        
+        cantOfRecursions++;        
         
 };                        
 /**
@@ -1777,18 +1781,24 @@ void addElse(string& reglaptr){
                 t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2));
         } 
         int number =  addTercetAndStack("BI", "", ""); 
+        number = addTercet("label","label"+to_string(cantLabels),"");
+        cantLabels++;
         reglaptr = charTercetoId + to_string(number); 
 }
 
 void finIf(){
+        cantLabels++;
         Tercet *t = popTercet(); 
         if (t!=nullptr){
                 t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1) );
         }
+        int number = addTercet("label","label"+to_string(cantLabels),"");
 }
 
 void initWhile(){
         addTercetOnlyStack("incioCondicionWhile", charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1), "");
+        int number = addTercet("label","label"+to_string(cantLabels),"");
+        cantLabels++;
 }
 
 void finWhile(string & reglaptr) {
@@ -1799,8 +1809,10 @@ void finWhile(string & reglaptr) {
         Tercet *t2 = popTercet(); 
         int number; 
         if(t2!=nullptr){
-                int number = addTercet("BI", t2->getArg1(), "");
+                number = addTercet("BI", t2->getArg1(), "");
         } 
+        number = addTercet("label","label"+to_string(cantLabels),"");
+        cantLabels++;
         reglaptr = charTercetoId + to_string(number);
 }
 
@@ -1947,6 +1959,7 @@ void  detectInheritance(string classToInherit , string scope, string classWhoInh
                         }else{
                                 yyerror("La clase " + symbolofClassWhoInherit->classOfSymbol +" intenta heredar de " + classToInherit + " pero ya hereda de 2 clases");
                         }
+                        
                 }
         }
 }
@@ -2412,11 +2425,11 @@ void newInvocacionMethodWithParam(string objectName, string methodName, string s
     }
 };
 void addTercetReturn(string& reglaptr){
-        int number = addTercet("return","" , "");        
+        int number = addTercet("return","","");        
 
         reglaptr = charTercetoId + to_string(number);
 };
-#line 2413 "y.tab.c"
+#line 2424 "y.tab.c"
 #define YYABORT goto yyabort
 #define YYACCEPT goto yyaccept
 #define YYERROR goto yyerrlab
@@ -2489,7 +2502,7 @@ yyloop:
     goto yynewerror;
 #endif
 yynewerror:
-
+    yyerror("syntax error");
 #ifdef lint
     goto yyerrlab;
 #endif
@@ -3164,7 +3177,7 @@ case 192:
 #line 347 "./gramaticaForGenCod.y"
 { yyerror("Falta constante numerica en la expresion"); }
 break;
-#line 3161 "y.tab.c"
+#line 3172 "y.tab.c"
     }
     yyssp -= yym;
     yystate = *yyssp;

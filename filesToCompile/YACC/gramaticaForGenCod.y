@@ -1223,6 +1223,7 @@ void addElse(string& reglaptr){
                 t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2));
         } 
         int number =  addTercetAndStack("BI", "", ""); 
+        number = addTercet("label","label"+to_string(cantLabels),"");
         reglaptr = charTercetoId + to_string(number); 
 }
 
@@ -1231,10 +1232,12 @@ void finIf(){
         if (t!=nullptr){
                 t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1) );
         }
+        int number = addTercet("label","label"+to_string(cantLabels),"");
 }
 
 void initWhile(){
         addTercetOnlyStack("incioCondicionWhile", charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1), "");
+        int number = addTercet("label","label"+to_string(cantLabels),"");
 }
 
 void finWhile(string & reglaptr) {
@@ -1245,8 +1248,9 @@ void finWhile(string & reglaptr) {
         Tercet *t2 = popTercet(); 
         int number; 
         if(t2!=nullptr){
-                int number = addTercet("BI", t2->getArg1(), "");
+                number = addTercet("BI", t2->getArg1(), "");
         } 
+        number = addTercet("label","label"+to_string(cantLabels),"");
         reglaptr = charTercetoId + to_string(number);
 }
 
