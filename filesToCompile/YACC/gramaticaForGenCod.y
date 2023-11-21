@@ -25,6 +25,7 @@ VectorOfFunction * vectorOfFunctionDeclaredInClasses = new VectorOfFunction(); /
 stack<functionStack*>* stackFunction = new stack<functionStack*>();
 int cantOfRecursions = 0;
 
+int cantLabels = 0;
 int lineNumber = 1;
 bool isErrorInCode = false;
 Tercets *tableTercets = new Tercets();
@@ -73,23 +74,23 @@ void yyPrintInLine(string s){
 
 %%
 
-programa    :   '{' sentencias '}'              { int number = addTercet("FIN", "-", "-"); }
-            |   '{' comas sentencias '}'        { int number = addTercet("FIN", "-", "-"); }     
-            |   '{' comas '}'                   { int number = addTercet("FIN", "-", "-"); }      
-            |   '{' '}'                         { yywarning("Se esta compilando un programa sin contenido"); }
-            |   '{'                             { yywarning("Se esta compilando un programa sin contenido y falta la ultima llave"); }
-            |   '}'                             { yywarning("Se esta compilando un programa sin contenido y falta la primer llave"); }
+programa    :   '{' sentencias '}'              { finPrograma();  }
+            |   '{' comas sentencias '}'        { finPrograma(); }     
+            |   '{' comas '}'                   { finPrograma(); }      
+            |   '{' '}'                         { finPrograma(); yywarning("Se esta compilando un programa sin contenido"); }
+            |   '{'                             { finPrograma(); yywarning("Se esta compilando un programa sin contenido y falta la ultima llave"); }
+            |   '}'                             { finPrograma(); yywarning("Se esta compilando un programa sin contenido y falta la primer llave"); }
             |   '{' sentencias '}' error        { yyerror("Se detecto contenido luego de finalizado el programa");}             
             |   '{' '}' error                   { yywarning("Se esta compilando un programa sin contenido"); yyerror("Se detecto contenido luego de finalizado el programa");}             
-            |   sentencias                      { yywarning("Se detecto la falta de llaves en el programa"); }
-            |   '{' sentencias                  { yywarning("Se detecto la falta de la ultima llave del programa"); }
-            |   sentencias '}'                  { yywarning("Se detecto la falta de la primera llave del programa"); }
-            |   comas                           { yywarning("Se detecto la falta de llaves en el programa"); }
-            |   '{' comas                       { yywarning("Se detecto la falta de la ultima llave del programa"); }
-            |   comas '}'                       { yywarning("Se detecto la falta de la primera llave del programa"); }
-            |   '{' comas sentencias            { yywarning("Se detecto la falta de la ultima llave del programa"); }
-            |    comas sentencias '}'           { yywarning("Se detecto la falta de la primera llave del programa"); }
-            |    comas sentencias               { yywarning("Se detecto la falta de llaves en el programa"); }
+            |   sentencias                      { finPrograma(); yywarning("Se detecto la falta de llaves en el programa"); }
+            |   '{' sentencias                  { finPrograma(); yywarning("Se detecto la falta de la ultima llave del programa"); }
+            |   sentencias '}'                  { finPrograma(); yywarning("Se detecto la falta de la primera llave del programa"); }
+            |   comas                           { finPrograma(); yywarning("Se detecto la falta de llaves en el programa"); }
+            |   '{' comas                       { finPrograma(); yywarning("Se detecto la falta de la ultima llave del programa"); }
+            |   comas '}'                       { finPrograma(); yywarning("Se detecto la falta de la primera llave del programa"); }
+            |   '{' comas sentencias            { finPrograma(); yywarning("Se detecto la falta de la ultima llave del programa"); }
+            |    comas sentencias '}'           { finPrograma(); yywarning("Se detecto la falta de la primera llave del programa"); }
+            |    comas sentencias               { finPrograma(); yywarning("Se detecto la falta de llaves en el programa"); }
             ;
             
 sentencias  :   sentencias sentencia
@@ -552,7 +553,7 @@ void createFunctionTerecets(string objectName, string scope, symbol* simboloDeFu
 };
 /**
  * Cuando se detecta una clase que fue forwardeada y un objeto fue declarado de esa clase se llma a esta función
- * instranciamos el obejo cargando los elementosdela tabla de simbolos de la clase y de sus herencias a la tabla general
+ * instranciamos el obejo cargando los elementos de la tabla de simbolos de la clase y de sus herencias a la tabla general
  * 
  * @param symbolObject Puntero al símbolo del objeto.
  * @param classSymbol Puntero al símbolo de la clase del objeto.
@@ -624,6 +625,7 @@ void finishClass(){
         for (symbol* sm : symbolsMatched){
                 // recorremos los simbolos de los objetos e instanciamos
                 sm->forwarded = false;
+                sm->posponeForForwarding = false;
 
                 addObjectForwarded(sm, symbolClass);
         }
@@ -936,7 +938,7 @@ void addObject(string key, string scope, string classType){
                 // de ser forward el objeto también se convierte en forwarded para luego isntanciarlo cuando la clase se declare
                 // ya que si es asi no podemos agregar sus atributos y métodos
                 if(matchingClass->forwarded){
-                    newObject->forwarded = true;    
+                    newObject->posponeForForwarding = true;    
                     return;
                 }
                 
@@ -1224,6 +1226,7 @@ void addElse(string& reglaptr){
         } 
         int number =  addTercetAndStack("BI", "", ""); 
         number = addTercet("label","label"+to_string(cantLabels),"");
+        cantLabels++;
         reglaptr = charTercetoId + to_string(number); 
 }
 
@@ -1233,11 +1236,13 @@ void finIf(){
                 t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1) );
         }
         int number = addTercet("label","label"+to_string(cantLabels),"");
+        cantLabels++;
 }
 
 void initWhile(){
         addTercetOnlyStack("incioCondicionWhile", charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1), "");
         int number = addTercet("label","label"+to_string(cantLabels),"");
+        cantLabels++;
 }
 
 void finWhile(string & reglaptr) {
@@ -1251,6 +1256,7 @@ void finWhile(string & reglaptr) {
                 number = addTercet("BI", t2->getArg1(), "");
         } 
         number = addTercet("label","label"+to_string(cantLabels),"");
+        cantLabels++;
         reglaptr = charTercetoId + to_string(number);
 }
 
@@ -1374,6 +1380,11 @@ void  detectInheritance(string classToInherit , string scope, string classWhoInh
                 if(classFinded == nullptr){
                         yyerror("No se encontro declaracion previa de la clase a heredar "+ classToInherit);
                 }else{
+                        // verificamos que la clase a heredar no esté pospuesta para forwardear, sino marcamos esta clase también para forwardear
+                        if(classFinded->forwarded){
+                            symbolofClassWhoInherit->posponeForForwarding = true;
+                        }
+
                         // copiamos el arreglo de herencia de la clase a heredar a la clase que hereda
                         // intentamos agregar la clase a heredar en el primer nullptr del arreglo de herencia, si tiene más de 3 elementos lanzamos un error
 
@@ -1867,3 +1878,41 @@ void addTercetReturn(string& reglaptr){
 
         reglaptr = charTercetoId + to_string(number);
 };
+void checkAllClassForwarding(){
+        // esta función se encarga de recorrer la tabla de símbolo y por cada clase verifica que no este forwardeada
+
+        // recorremos la tabla de símbolos
+        for(const auto& pair : tableSymbol->getSymbolTable()){
+                symbol* sm = pair.second;
+                // verificamos que sea una clase
+                if(sm->uso == "clase"){
+                        // verificamos que no este forwardeada
+                        if(sm->forwarded){
+                                yyerror("La clase " + sm->lexema + " esta forwardeada y no se completó su declaración");
+                        }
+                }
+        }
+};
+void checkPosponeObjectForForwarding(){
+        // esta función se encarga de recorrer la tabla de símbolo y por cada objeto que tenga posponeForForwarding en true, 
+        // agrega sus atributos y métodos a la tabla de símbolos general y setea posponeForForwarding en false
+
+        // recorremos la tabla de símbolos
+        for(const auto& pair : tableSymbol->getSymbolTable()){
+                symbol* sm = pair.second;
+                // verificamos que sea una clase
+                if(sm->uso == "objeto"){
+                        // verificamos que no este forwardeada
+                        if(sm->posponeForForwarding){
+                                // agregamos los atributos y métodos a la tabla de símbolos general
+                                symbol* symbolClass = tableSymbol->getFirstSymbolMatching2(sm->classOfSymbol, "clase", ":main");
+                                addObjectForwarded(sm, symbolClass);
+                        }
+                }
+        } 
+};
+void finPrograma(){
+        int number = addTercet("FIN", "-", "-");
+        checkAllClassForwarding();
+        checkPosponeObjectForForwarding();
+}

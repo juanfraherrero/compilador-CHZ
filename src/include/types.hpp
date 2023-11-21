@@ -35,6 +35,7 @@ struct symbol {
     string fullIdentifier;      // define el identificador completo, se usa para el truncado
     int count;                  // se usa para contabilizar cuantos lexemas apuntan al mismo elemento
     bool forwarded = false;     // se usa para saber si el simbolo fue forwardado o no
+    bool posponeForForwarding = false;                              // se usa para saber si el simbolo fue pospuesto para forwardar o no
     TableSymbol* attributesAndMethodsVector;                        // se usa para que tengamos los atritbutos y métodos de una clase en este vector en heap de simbolos del heap
     TableSymbol* inheritance[2] = {nullptr, nullptr};               // lleva la herencia de la clase, si es que tiene. Máximo 3 niveles de herencia. Por ejemplo [*ts_clase1, *ts_clase2, *ts_clase3] nos indicaría que la clase actual hereda de clase 3 que hereda de clase 2... (se le de der a izq y se agrega de izq a der)  
     string scopeInsideClass = "";                                   // define el scope de un atributo o método dentro de una clase
