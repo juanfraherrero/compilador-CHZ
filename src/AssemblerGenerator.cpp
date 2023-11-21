@@ -96,16 +96,36 @@ void AssemblerGenerator::generateMainAssembler(){
     }
 }
 
+void AssemblerGenerator::generateCode(){
+    this->code = "\n.code\n"
+                 + this->code 
+                 + "\n"
+                 "INVOKE ExitProcess, 0\n"
+                 "end start";
+}
+
+void AssemblerGenerator::generateErrorAssembler(){
+    if (this->overflowEnteros){
+        this->code += "errorSumaEnteros:\n"
+                      "INVOKE MessageBox, NULL, addr errorSumaEnteros, addr errorSumaEnteros, MB_OK\n"
+                      "INVOKE ExitProcess, 0\n";
+    }
+    if (this->overflowProductos){
+        this->code += "errorProductoFlotantes:\n"
+                      "INVOKE MessageBox, NULL, addr errorProductoFlotantes, addr errorProductoFlotantes, MB_OK\n"
+                      "INVOKE ExitProcess, 0\n";
+    }
+}
+
 //Genera el código assembler dado una lista de tercetos.
 void AssemblerGenerator::generateAssembler(){
     this->generateFunctionsAssembler();
     this->generateMainAssembler();
+    this->generateErrorAssembler();
+
     this->generateData();
+    this->generateCode();
     
-    this->code = "\n.code\n"
-                 + this->code +
-                 "invoke ExitProcess, 0\n"
-                 "end start";
     ofstream file(this->pathFinal, ios::out);
     if (file.is_open()) {
         // Escribir el string en el archivo
@@ -170,6 +190,7 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet){
             out += "ADD AX, " + op2 + "\n";
             out += "MOV " + tercet->getAuxVariable() + ", AX\n";
             out += "JO errorSumaEnteros\n";
+            this->overflowEnteros = true;
         }
         else if (typeOfFirstArg == "float"){
             out += "FLD " + op1 + "\n";
@@ -220,6 +241,7 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet){
             out += "FMUL " + op2 + "\n";
             out += "FSTP " + tercet->getAuxVariable() + "\n";
             out += "JO errorProductoFlotantes\n";
+            this->overflowProductos = true;
         }
     }
     //Division

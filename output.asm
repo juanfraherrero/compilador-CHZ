@@ -67,5 +67,9 @@ MOV _x:main, AX
 CALL _metodo1:main:clase2:ob2:main
 
 
-invoke ExitProcess, 0
+errorSumaEnteros:
+INVOKE MessageBox, NULL, addr errorSumaEnteros, addr errorSumaEnteros, MB_OK
+INVOKE ExitProcess, 0
+
+INVOKE ExitProcess, 0
 end start
