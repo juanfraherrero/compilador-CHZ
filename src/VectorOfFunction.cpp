@@ -32,6 +32,9 @@ functionStack* VectorOfFunction::getCopyOfFunction(string _name){
     return nullptr;
 } 
 
+vector<functionStack*> * VectorOfFunction::getFunctionsStack(){
+    return this->functions;
+}
 VectorOfFunction::~VectorOfFunction() {
     // // Eliminar objetos apuntados en el vector 'tercets'
     // for (Tercet* tercet : tercets) {

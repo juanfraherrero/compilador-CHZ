@@ -5,7 +5,7 @@
 
 using namespace std;
 
-AssemblerGenerator::AssemblerGenerator(string pathFinal, TableSymbol * tableSymbol, Tercets * tercets){
+AssemblerGenerator::AssemblerGenerator(string pathFinal, TableSymbol * tableSymbol, Tercets * tercets, VectorOfFunction * vectorOfFunction, VectorOfFunction * vectorOfFunctionDeclaredInClasses){
     //Definimos el modelo de memoria, el tamaño de la pila y las librerias a utilizar.
     this->libraries = ".386 \n"
                       ".model flat, stdcall \n" 
@@ -30,6 +30,8 @@ AssemblerGenerator::AssemblerGenerator(string pathFinal, TableSymbol * tableSymb
     this->code = "";
     this->tableSymbol = tableSymbol;
     this->tercets = tercets;
+    this->functionTercets = vectorOfFunction;
+    this->functionTercetsDeclaredInClasses = vectorOfFunctionDeclaredInClasses;
     this->pathFinal = pathFinal;
 }
 
@@ -71,19 +73,39 @@ string AssemblerGenerator::reemplazarEspacios(string s){
     return s;
 }
 
+void AssemblerGenerator::generateFunctionsAssembler(){
+    //Primero generamos el código assembler de las funciones.
+    vector<functionStack*> * functions = this->functionTercets->getFunctionsStack();
+    for (auto f: *functions){
+        if (f){
+            Tercets * functionTercets = f->ter;
+            this->code += f->name + ":\n";
+            for (auto t : functionTercets->getTercets()){
+                if (t)
+                    this->code += getTercetAssembler(t);
+            }
+        }
+        
+    }
+}
 
-//Genera el código assembler dado una lista de tercetos.
-void AssemblerGenerator::generateAssembler(){
+void AssemblerGenerator::generateMainAssembler(){
+    this->code += "start:\n";
     for (auto t : tercets->getTercets()){
         this->code += getTercetAssembler(t);
     }
+}
+
+//Genera el código assembler dado una lista de tercetos.
+void AssemblerGenerator::generateAssembler(){
+    this->generateFunctionsAssembler();
+    this->generateMainAssembler();
     this->generateData();
+    
     this->code = "\n.code\n"
-                 "start:\n"
                  + this->code +
                  "invoke ExitProcess, 0\n"
                  "end start";
-    //cout << this->libraries + this->data + this->code << endl;
     ofstream file(this->pathFinal, ios::out);
     if (file.is_open()) {
         // Escribir el string en el archivo
@@ -397,8 +419,18 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet){
         symbol * auxSymbol = new symbol(tercet->getAuxVariable(), "", "float", "auxVariable");
         tableSymbol->insert(auxSymbol);
 
-        out += "FILD " + op2 + "\n";
-        out += "FSTP " + tercet->getAuxVariable() + "\n";
+        if (typeOfFirstArg == "short"){
+            out += "MOV AL, " + op2 + "\n";
+            out += "CBW \n";
+            out += "CWDE \n";
+            out += "MOV " + tercet->getAuxVariable() + ", EAX \n";
+            out += "FILD " + tercet->getAuxVariable()+ "\n";
+            out += "FSTP " + tercet->getAuxVariable() + "\n";
+        }
+        else if (typeOfFirstArg == "unsigned int"){
+            out += "FILD " + op1 + "\n";
+            out += "FSTP " + tercet->getAuxVariable() + "\n";
+        }
     }
 
     //Si se trataba de una comparacion, no se devuelve el assembler + \n ya que lo siguiente que viene es el label.

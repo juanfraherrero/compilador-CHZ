@@ -20,6 +20,7 @@ public:
 
     void add(functionStack* vf); //Añade una lista de tercetos
     void imprimir(); //Imprime todos los tercetos de la estructura.
+    vector<functionStack*> * getFunctionsStack(); //Devuelve la lista de tercetos
     functionStack* getCopyOfFunction(string name); //Devuelve una copia de la lista de la función de tercetos
     ~VectorOfFunction();
 

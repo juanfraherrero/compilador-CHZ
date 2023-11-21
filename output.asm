@@ -15,56 +15,56 @@ errorSumaEnteros db "Se produjo un overflow en la suma de enteros.", 0
 errorProductoFlotantes db "Se produjo un overflow en el producto de flotantes.", 0 
 errorRecursion db "Se produjo un llamado recursivo de una funcion a si misma.", 0 
 error db "Error de ejecucion.", 0 
-@aux3 dd ? 
-_falso  db " falso ", 0 
-_verdadero  db " verdadero ", 0 
-_6_s db ? 
-_4_s db ? 
-_10_s db ? 
-_8_s db ? 
-@aux1 dd ? 
-_7_s db ? 
 @aux2 dd ? 
-_z:main dd ? 
+_clase2:main dd ? 
+_metodo1 dd ? 
+inside_metodo1 db "inside metodo1", 0 
+_x:main:clase2:metodo1:ob2:main dw ? 
+_3_s db ? 
+_z:main:clase2:ob2:main db ? 
 _x:main db ? 
+_3_ui dw ? 
+_ob2:main dd ? 
+_ob2 dd ? 
+_z dd ? 
+@aux1 dd ? 
 
 .code
+metodo1:main:clase2:ob2:main:
+MOV AL, _3_ui
+MOV _x:main:clase2:metodo1:ob2:main, AL
+
+INVOKE MessageBox, NULL, addr inside_metodo1, addr inside_metodo1, MB_OK
+
+RET
+
 start:
-MOV AX, _7_s
+MOV AX, _z:main:clase2:ob2:main
 MOV _x:main, AX
 
-MOV AX, _x:main
-ADD AX, _8_s
+MOV AX, _3_s
+MOV _z:main:clase2:ob2:main, AX
+
+MOV AX, _z:main:clase2:ob2:main
+ADD AX, _1_s
 MOV @aux1, AX
 JO errorSumaEnteros
 
 MOV AX, @aux1
-MOV _x:main, AX
+MOV _z:main:clase2:ob2:main, AX
 
-FILD _10_s
-FSTP @aux2
-
-FLD @aux2
-FSTP _z:main
-
-CMP _4_s, _6_s
-JGE label0
-
-INVOKE MessageBox, NULL, addr _verdadero , addr _verdadero , MB_OK
-
-JMP label2
-
-label0:
-INVOKE MessageBox, NULL, addr _falso , addr _falso , MB_OK
-
-label2:
-MOV AX, _x:main
-ADD AX, _10_s
-MOV @aux3, AX
+MOV AX, _z:main:clase2:ob2:main
+ADD AX, _1_s
+MOV @aux2, AX
 JO errorSumaEnteros
 
-MOV AX, @aux3
+MOV AX, @aux2
+MOV _z:main:clase2:ob2:main, AX
+
+MOV AX, 
 MOV _x:main, AX
+
+CALL _metodo1:main:clase2:ob2:main
 
 
 invoke ExitProcess, 0

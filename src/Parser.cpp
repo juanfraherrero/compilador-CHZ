@@ -1320,11 +1320,7 @@ void initMethod(string key, string scope, string classOfAttribute){
         fs->ter = new Tercets();
         stackFunction->push(fs);
         
-        cantOfRecursions++;
-        cantOfRecursions++;
-        
-        cantOfRecursions++;        
-        
+        cantOfRecursions++;          
 };                        
 /**
  * Cuando detectamos un parámtro en un método de clase
