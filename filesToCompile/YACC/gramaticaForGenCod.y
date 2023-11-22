@@ -1190,7 +1190,14 @@ void checkVarInScope(string key, string scope, string uso, string& reglaptr, str
         tableSymbol->deleteSymbol(key); 
 
         // verificamos a que distancia se encuentra la primer aparición de la variable en un ámbito alcanzable
-        symbol* symbolFinded = tableSymbol->getFirstSymbolMatching2(key, uso, scope); 
+        // verifico si estoy dentro de una clase o no
+        TableSymbol* ts;
+        if(stackClasses->size() <= 0){
+                ts = tableSymbol;
+        }else{
+                ts = stackClasses->top()->attributesAndMethodsVector;
+        }
+        symbol* symbolFinded = ts->getFirstSymbolMatching2(key, uso, scope); 
         if(symbolFinded == nullptr){
                 yyerror("No se encontro declaracion previa de la variable "+ key);
         }else{
@@ -1200,7 +1207,6 @@ void checkVarInScope(string key, string scope, string uso, string& reglaptr, str
                 /* en este punto sabes que es una variable declarada, 
                     pero ahora quiero saber si es de este ámbito o de otro, 
                     si es de otro y esa variable tiene el check debo informar que se está usando a la izquierda de una asignación
-                    ESTO LO DEJO PARA ZUCCHI, DESPUES BORRAR ESTE COMENTARIO
                 */
                 
                 // si el símbolo tiene que checkearse y si los lexemas no coincidencia entonces es una variable de otro ámbito
