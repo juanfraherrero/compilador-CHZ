@@ -36,7 +36,10 @@ string typeAux = "";
 string actualClass = "";
 symbol* lastMethod;
 stack<symbol*>*  stackClasses = new stack<symbol*>();
-
+void yyerrorFin(string s){
+    isErrorInCode = true;    
+    cerr << "\033[31m" << "Error: " << s <<"\033[0m"<< endl;
+};
 void yyerror(string s){
     isErrorInCode = true;    
     cerr << "\033[31m" << "Linea: " << lineNumber << "-> Error: " << s <<"\033[0m"<< endl;
@@ -401,6 +404,11 @@ void checkTypesParams(string type1, string type2){
                 yyerror("Incompatibilidad de tipos "+ type2 + " y " + type1 + " entre los parametros");
         }
 }
+void checkTypesParamsFin(string type1, string type2){
+        if(type1 != type2 && type1 != "error" && type2 != "error"){
+                yyerrorFin("Incompatibilidad de tipos "+ type2 + " y " + type1 + " entre los parametros");
+        }
+}
 /**
  * Carga el símbolo en la tabla
  * Dado el acceso a un elemento de la tabla de simbolos lo elimina
@@ -441,6 +449,37 @@ symbol* setNewScope(string key, string type, string scope, string uso, TableSymb
 // Los paramtros son argumento, operador1, y operador2
 int addTercet(string argumento, string operando1, string operando2){
         Tercet *t = new Tercet(argumento, operando1, operando2); 
+        
+        // le marcamos al terceto si tiene un elemento pospuesto
+        symbol* smArg1 = tableSymbol->getSymbol(operando1);
+        symbol* smArg2 = tableSymbol->getSymbol(operando2);
+        if(smArg1!= nullptr && smArg1->posponeForForwarding == true){
+                t->arg1Pospone = true;
+                t->type1 = smArg1->type;
+        }
+        if(smArg2!= nullptr && smArg2->posponeForForwarding == true){
+                t->arg2Pospone = true;
+                t->type2 = smArg2->type;
+        }
+
+        int number;
+        if(cantOfRecursions <= 0){
+                number = tableTercets->add(t);
+        }else{
+                number = stackFunction->top()->ter->add(t);
+        }
+                
+        return number;
+}
+// Crea un terceto y lo agrega a la tabla de tercetos. pero setea si algun parametro esta pospuesto
+// Los paramtros son argumento, operador1, y operador2
+int addTercetPospone(string argumento, string operando1, string operando2, bool _arg1pospone, bool _arg2pospone, string _op1Type, string _op2Type){
+        Tercet *t = new Tercet(argumento, operando1, operando2); 
+        
+        t->arg1Pospone = _arg1pospone;
+        t->type1 = _op1Type;
+        t->arg2Pospone = _arg2pospone;
+        t->type2 = _op2Type;
         int number;
         if(cantOfRecursions <= 0){
                 number = tableTercets->add(t);
@@ -454,6 +493,17 @@ int addTercet(string argumento, string operando1, string operando2){
 // Los paramtros son argumento, operador1, y operador2
 int addTercetAndStack(string argumento, string operando1, string operando2){
         Tercet *t = new Tercet(argumento, operando1, operando2); 
+
+        // le marcamos al terceto si tiene un elemento pospuesto
+        symbol* smArg1 = tableSymbol->getSymbol(operando1);
+        symbol* smArg2 = tableSymbol->getSymbol(operando2);
+        if(smArg1->posponeForForwarding == true){
+                t->arg1Pospone = true;
+        }
+        if(smArg2->posponeForForwarding == true){
+                t->arg2Pospone = true;
+        }
+
         int number;
         if(cantOfRecursions <= 0){
                 number = tableTercets->add(t);
@@ -1200,12 +1250,16 @@ void newAsignacion(string key, string scope, string op2Lexeme, string op2Type){
 };
 
 void newOperacionAritmetica(string operador, string op1ptr, string op2ptr, string op1type, string op2type, string& reglaptr, string& reglatype){
-        if(checkTypesOperation(op1type, op2type)){
-                reglatype = op1type;
+        if(op1type != "pospone" && op2type != "pospone"){
+            if(checkTypesOperation(op1type, op2type)){
+                    reglatype = op1type;
+            }else{
+                    reglatype = "error";
+            } 
         }else{
-                reglatype = "error";
-        } 
-        
+            reglatype = "pospone";
+        }
+            
         int number = addTercet(operador, op1ptr, op2ptr); 
         reglaptr = charTercetoId + to_string(number); 
 }
@@ -1488,8 +1542,10 @@ void newUseObjectAttribute(string objectName, string attributeName, string scope
             // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
             yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
         }else{
-            if(classSymbol->forwarded){
-                yyerror("Uso de clase " + classOfObject + " y esta forwardeada");
+            // si el objeto fue pospuesto por forwarding entonces el checkeo del uso se pospone también
+            if(objectSymbol->posponeForForwarding){
+                reglaptr =  attributeName+":"+classOfObject+":"+objectName+scope;
+                reglatype = "pospone";
                 return;
             }
             // si encontramos la clase verificamos que contenga el atributo     
@@ -1543,8 +1599,12 @@ void newAsignacionObjectAttribute(string objectName, string attributeName, strin
             // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
             yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
         }else{
-            if(classSymbol->forwarded){
-                yyerror("Uso de clase " + classOfObject + " y esta forwardeada");
+            // si el objeto fue pospuesto por forwarding entonces el checkeo del uso se pospone también
+            if(objectSymbol->posponeForForwarding){
+                // agregamos el terceto la llamada al metodo en la respectiva tabla de tercetos pero indicando que el símbolo está pospuesto
+                int number = addTercetPospone("=", attributeName+":"+classOfObject+":"+objectName+scope, op2Lexeme, true, false, "pospone", op2Type);
+
+                reglaptr = charTercetoId + to_string(number);
                 return;
             }
             // si encontramos la clase verificamos que contenga el atributo     
@@ -1588,8 +1648,13 @@ void newUseObjectAttributeFactorMasMas(string objectName, string attributeName, 
             // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
             yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
         }else{
-            if(classSymbol->forwarded){
-                yyerror("Uso de clase " + classOfObject + " y esta forwardeada");
+            // si el objeto fue pospuesto por forwarding entonces el checkeo del uso se pospone también
+            if(objectSymbol->posponeForForwarding){
+                // agregamos el terceto la llamada al metodo en la respectiva tabla de tercetos pero indicando que el símbolo está pospuesto
+                int number = addTercetPospone("++", attributeName+":"+classOfObject+":"+objectName+scope, "", true, false, "pospone", ""); 
+                number = addTercetPospone("=", attributeName+":"+classOfObject+":"+objectName+scope, charTercetoId + to_string(number), true, false,"pospone",""); 
+                reglaptr = charTercetoId + to_string(number);
+                reglatype = "pospone";
                 return;
             }
             // si encontramos la clase verificamos que contenga el atributo     
@@ -1770,8 +1835,12 @@ void newInvocacionMethod(string objectName, string methodName, string scope, str
             // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
             yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
         }else{
-            if(classSymbol->forwarded){
-                yyerror("Uso de clase " + classOfObject + " y esta forwardeada");
+            // si el objeto fue pospuesto por forwarding entonces el checkeo del uso se pospone también
+            if(objectSymbol->posponeForForwarding){
+                // agregamos el terceto la llamada al metodo en la respectiva tabla de tercetos pero indicando que el símbolo está pospuesto
+                int number = addTercetPospone("call", methodName+":"+classOfObject+":"+objectName+scope, "", true, false,"pospone","");
+
+                reglaptr = charTercetoId + to_string(number);
                 return;
             }
             // si encontramos la clase verificamos que contenga el metodo    
@@ -1826,8 +1895,16 @@ void newInvocacionMethodWithParam(string objectName, string methodName, string s
             // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
             yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
         }else{
-            if(classSymbol->forwarded){
-                yyerror("Uso de clase " + classOfObject + " y esta forwardeada");
+            // si el objeto fue pospuesto por forwarding entonces el checkeo del uso se pospone también
+            if(objectSymbol->posponeForForwarding){
+                // agregamos el terceto la llamada al metodo en la respectiva tabla de tercetos pero indicando que el símbolo está pospuesto
+                // como tiene un parametro se lo ponemoscomo segundo argumetno para suposterior uso
+                // creamos un terceto de pasaje de parametro con su ptr y su tipo
+                int number = addTercet("paramReal", ptrParam, typeParam);
+                number = addTercet("paramFormal", "", "");
+                number = addTercetPospone("call", methodName+":"+classOfObject+":"+objectName+scope, typeParam+":"+ptrParam, true, false,"pospone","");
+
+                reglaptr = charTercetoId + to_string(number);
                 return;
             }
             // si encontramos la clase verificamos que contenga el metodo    
@@ -1878,7 +1955,7 @@ void addTercetReturn(string& reglaptr){
 
         reglaptr = charTercetoId + to_string(number);
 };
-void checkAllClassForwarding(){
+void verifyAllClassForwardedAreDeclared(){
         // esta función se encarga de recorrer la tabla de símbolo y por cada clase verifica que no este forwardeada
 
         // recorremos la tabla de símbolos
@@ -1893,7 +1970,7 @@ void checkAllClassForwarding(){
                 }
         }
 };
-void checkPosponeObjectForForwarding(){
+void instanciatePosponeObjectForForwarding(){
         // esta función se encarga de recorrer la tabla de símbolo y por cada objeto que tenga posponeForForwarding en true, 
         // agrega sus atributos y métodos a la tabla de símbolos general y setea posponeForForwarding en false
 
@@ -1911,8 +1988,92 @@ void checkPosponeObjectForForwarding(){
                 }
         } 
 };
+void checkTercetsPosponeAreCorrect(){
+    // recorrer los tercetos del main y buscamos que terceto tiene algún pospone activado
+    // sabemos que si es un call es a un étodo del primer argumento y debemos verificar que exista y setear correctamente el argumento (por el scope)
+    // si es una operación aritmétca es una tributo de clase y debemos ver cual de los argumetnos está pospuesto, buscar ese atributo y checkear tipos
+    int numberTercet = -1;
+    for (Tercet* tercet : tableTercets->getTercets()){
+        numberTercet++;
+        if(tercet->getOp() == "call"){
+            if(tercet->type1 == "pospone" ){
+                // es un llamado a método
+                size_t firstPos = tercet->getArg1().find(":");
+                size_t secondPos = tercet->getArg1().find(":", firstPos + 1);
+                size_t thirdPos = tercet->getArg1().find(":", secondPos + 1);
+                
+                // obtenemos cada uno de los elementos del argumento para verificar si es correcto el uso del objeto
+                string methodName = tercet->getArg1().substr(0, firstPos);
+                string classOfObject = tercet->getArg1().substr(firstPos+1, secondPos - firstPos - 1);
+                string objectName = tercet->getArg1().substr(secondPos+1, thirdPos - secondPos - 1);
+                string scope  = tercet->getArg1().substr(thirdPos, tercet->getArg1().size());
+                
+                // Verifica que el objeto este declarado y obtiene su clase
+                symbol* objectSymbol = tableSymbol->getFirstSymbolMatching2(objectName, "objeto", scope);
+                if(objectSymbol == nullptr){
+                        yyerrorFin("No se encontro declaracion previa del objeto"+ objectName);
+                }else{
+                    // si encontramos el objeto declarado obtenemos su clase y verificamos que exista la clase en el scope ":main" ya que todas las clases van ahí
+                    symbol* classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
+                    if(classSymbol == nullptr){
+                        // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
+                        yyerrorFin("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
+                    }else{
+                        // si encontramos la clase verificamos que contenga el metodo    
+                        symbol* methodSymbol = getFirstSymbolMatchingOfMethod(methodName, classSymbol);
+                        if(methodSymbol == nullptr){
+                            yyerrorFin("No se encontro declaracion previa del metodo "+ methodName + " en la clase " + classOfObject + " del objeto " + objectName); 
+                        }else{
+                            // encontramos el metodo en la clase y obtenemos el scope estático del metodo, 
+                            // buscamos en la tabla general el scope estático + el nombre del objeto + el scope actual y obtenemos el simbolo del primer metodo que coincida
+                
+                            methodSymbol = tableSymbol->getFirstSymbolMatching2(methodSymbol->lexema + ":" + objectName, "metodo", scope);
+                            if (methodSymbol == nullptr){
+                                yyerrorFin("No se encontro declaracion previa del metodo "+ methodName + " en la clase " + classOfObject + " del objeto " + objectName);
+                            }else{
+                            // verificamos que el metodo tenga parametros
+                                if(tercet->getArg2() != ""){
+                                    // el método tiene parametros
+                                    string typeParam = tercet->getArg2().substr(0, tercet->getArg2().find(":"));
+                                    string ptrParam = tercet->getArg2().substr(tercet->getArg2().find(":")+1, tercet->getArg2().size());
+                                    if(methodSymbol->cantParam == 0){
+                                        yyerrorFin("Se esta llamando al metodo "+ methodName + " con parametro y el metodo no recibe parametro");
+                                    }else{
+                                        // esto va acá dentro para que no tire dos errores si no recibe paramatro la función
+                                        // verificamos que los tipos de los parametros sean iguales
+                                        checkTypesParamsFin(methodSymbol->typeParam, typeParam); 
+                                    }
+
+                                    // reemplazamos los tercetos existentes de los parametros por los correctos
+                                    Tercet *t1 = new Tercet("paramReal", ptrParam, typeParam); 
+                                    Tercet *t2 = new Tercet("paramFormal", methodSymbol->nameParam, methodSymbol->typeParam); 
+                                    tableTercets->replace(numberTercet-2, t1);
+                                    tableTercets->replace(numberTercet-1, t2);
+
+                                }else{
+                                    // el método no tiene parametros
+                                    if(methodSymbol->cantParam != 0){
+                                        yyerrorFin("Se esta llamando al metodo "+ methodName + " sin parametro y el metodo recibe parametro");
+                                    }
+                                }
+                                Tercet *tcall = new Tercet("call", methodSymbol->lexema, "");
+                                tableTercets->replace(numberTercet, tcall);
+                            }
+                        }
+                    }
+                }
+            }
+            
+        }
+        if(tercet->getOp() == "asdasd"){
+            return;
+        }   
+        
+    }
+};
 void finPrograma(){
         int number = addTercet("FIN", "-", "-");
-        checkAllClassForwarding();
-        checkPosponeObjectForForwarding();
+        verifyAllClassForwardedAreDeclared();
+        instanciatePosponeObjectForForwarding();
+        checkTercetsPosponeAreCorrect();
 }

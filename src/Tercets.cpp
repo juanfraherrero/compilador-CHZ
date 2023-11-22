@@ -17,7 +17,12 @@ void Tercets::erase(int index){
 }
 
 void Tercets::replace(int index, Tercet* t){
+    // this->tercets[index]->print();
+    delete this->tercets[index];
+    // cout << "Reemplazando terceto en posicion " << index << endl;
     this->tercets[index] = t;
+    // this->tercets[index]->print();
+
 }
 
 void Tercets::print(){

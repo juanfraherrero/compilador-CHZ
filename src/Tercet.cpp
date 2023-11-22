@@ -32,7 +32,7 @@ void Tercet::setArg2(string arg2){
 }
 
 void Tercet::print(){
-    cout << "(" + this->op + "," + this->arg1 + "," + this->arg2  + ")" << endl;
+    cout << "(" + this->op + "," + this->arg1 + "," + this->arg2  + ") " << this->arg1Pospone << " - " <<this->arg2Pospone << " | " << this->type1 << " - " <<this->type2 << endl;
 }
 
 Tercet::~Tercet(){
