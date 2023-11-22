@@ -8,6 +8,7 @@ using namespace std;
 class Tercet {
 public:
     Tercet(string op, string arg1, string arg2);
+    Tercet(string op, string arg1, string arg2, bool arg1Pospone, bool arg2Pospone, string type1, string type2, string typeTercet);
     
     string getOp() const; //Operador, tipo de terceto
     string getArg1() const; //Operando 1

@@ -2048,14 +2048,14 @@ void instanciatePosponeObjectForForwarding(){
                 }
         } 
 };
-void checkTercetsPosponeAreCorrect(){
+void checkTercetsPosponeAreCorrect(Tercets* ts){
     // recorrer los tercetos del main y buscamos que terceto tiene algún pospone activado
     // sabemos que si es un call es a un étodo del primer argumento y debemos verificar que exista y setear correctamente el argumento (por el scope)
     // si es una operación aritmétca es una tributo de clase y debemos ver cual de los argumetnos está pospuesto, buscar ese atributo y checkear tipos
     int numberTercet = -1;
-    for (Tercet* tercet : tableTercets->getTercets()){
+    for (Tercet* tercet : ts->getTercets()){
         numberTercet++;
-        tercet->print();
+        // tercet->print();
         if(tercet->getOp() == "call"){
             if(tercet->arg1Pospone ){
                 // es un llamado a método
@@ -2108,8 +2108,8 @@ void checkTercetsPosponeAreCorrect(){
                                     // reemplazamos los tercetos existentes de los parametros por los correctos
                                     Tercet *t1 = new Tercet("paramReal", ptrParam, typeParam); 
                                     Tercet *t2 = new Tercet("paramFormal", methodSymbol->nameParam, methodSymbol->typeParam); 
-                                    tableTercets->replace(numberTercet-2, t1);
-                                    tableTercets->replace(numberTercet-1, t2);
+                                    ts->replace(numberTercet-2, t1);
+                                    ts->replace(numberTercet-1, t2);
 
                                 }else{
                                     // el método no tiene parametros
@@ -2118,7 +2118,7 @@ void checkTercetsPosponeAreCorrect(){
                                     }
                                 }
                                 Tercet *tcall = new Tercet("call", methodSymbol->lexema, "");
-                                tableTercets->replace(numberTercet, tcall);
+                                ts->replace(numberTercet, tcall);
                             }
                         }
                     }
@@ -2177,7 +2177,7 @@ void checkTercetsPosponeAreCorrect(){
                                 tcall->typeTercet = attributeSymbol->type; // le seteamos el tipo al terceto para luego poder operar con estos
                                 tcall->type1 = attributeSymbol->type;
                                 tcall->type2 = attributeSymbol->type;
-                                tableTercets->replace(numberTercet, tcall);
+                                ts->replace(numberTercet, tcall);
 
                             }
                         }
@@ -2193,7 +2193,7 @@ void checkTercetsPosponeAreCorrect(){
             bool isErrorInAttribute = false;
             if ( tercet->arg1Pospone){
                 if(tercet->getArg1()[0] == charTercetoId){
-                    tercet->type1 = tableTercets->get(stoi(tercet->getArg1().substr(1, tercet->getArg1().size())))->typeTercet;
+                    tercet->type1 = ts->get(stoi(tercet->getArg1().substr(1, tercet->getArg1().size())))->typeTercet;
                 }else{
                     // es un llamado a método
                     size_t firstPos = tercet->getArg1().find(":");
@@ -2242,7 +2242,7 @@ void checkTercetsPosponeAreCorrect(){
             }
             if ( tercet->arg2Pospone){
                 if(tercet->getArg2()[0] == charTercetoId){
-                    tercet->type2 = tableTercets->get(stoi(tercet->getArg2().substr(1, tercet->getArg2().size())))->typeTercet;
+                    tercet->type2 = ts->get(stoi(tercet->getArg2().substr(1, tercet->getArg2().size())))->typeTercet;
                 }else{
                     // es un llamado a método
                     size_t firstPos = tercet->getArg2().find(":");
@@ -2293,7 +2293,7 @@ void checkTercetsPosponeAreCorrect(){
                 if (tercet->arg1Pospone && !tercet->arg2Pospone){
                     // checkeamos que los tipos sean iguales 
                     if(tercet->getArg2()[0] == charTercetoId){
-                        tercet->type2 = tableTercets->get(stoi(tercet->getArg2().substr(1, tercet->getArg2().size())))->typeTercet;
+                        tercet->type2 = ts->get(stoi(tercet->getArg2().substr(1, tercet->getArg2().size())))->typeTercet;
                     }
                     checkTypesAsignationFin(attributeSymbol1->type, tercet->type2); 
                     // agregamos el terceto de asignación en la respectiva tabla de tercetos
@@ -2303,10 +2303,10 @@ void checkTercetsPosponeAreCorrect(){
                 }
                 if (!tercet->arg1Pospone && tercet->arg2Pospone){
                     if(tercet->getArg2()[0] == charTercetoId){
-                        tercet->type2 = tableTercets->get(stoi(tercet->getArg2().substr(1, tercet->getArg2().size())))->typeTercet;
+                        tercet->type2 = ts->get(stoi(tercet->getArg2().substr(1, tercet->getArg2().size())))->typeTercet;
                         // checkeamos que los tipos sean iguales 
                         if(tercet->getArg1()[0] == charTercetoId){
-                            tercet->type1 = tableTercets->get(stoi(tercet->getArg1().substr(1, tercet->getArg1().size())))->typeTercet;
+                            tercet->type1 = ts->get(stoi(tercet->getArg1().substr(1, tercet->getArg1().size())))->typeTercet;
                         }
                         checkTypesAsignationFin(tercet->type1, tercet->type2);
                         // agregamos el terceto de asignación en la respectiva tabla de tercetos
@@ -2315,7 +2315,7 @@ void checkTercetsPosponeAreCorrect(){
                     }else{
                         // checkeamos que los tipos sean iguales 
                         if(tercet->getArg1()[0] == charTercetoId){
-                            tercet->type1 = tableTercets->get(stoi(tercet->getArg1().substr(1, tercet->getArg1().size())))->typeTercet;
+                            tercet->type1 = ts->get(stoi(tercet->getArg1().substr(1, tercet->getArg1().size())))->typeTercet;
                         }
                         checkTypesAsignationFin(tercet->type1, attributeSymbol2->type); 
 
@@ -2328,7 +2328,7 @@ void checkTercetsPosponeAreCorrect(){
                 }
                 if (tercet->arg1Pospone && tercet->arg2Pospone){
                     if(tercet->getArg2()[0] == charTercetoId){
-                        tercet->type2 = tableTercets->get(stoi(tercet->getArg2().substr(1, tercet->getArg2().size())))->typeTercet;
+                        tercet->type2 = ts->get(stoi(tercet->getArg2().substr(1, tercet->getArg2().size())))->typeTercet;
                         // checkeamos que los tipos sean iguales 
                         checkTypesAsignationFin(attributeSymbol1->type, tercet->type2); 
                         
@@ -2359,7 +2359,7 @@ void checkTercetsPosponeAreCorrect(){
             bool isErrorInAttribute = false;
             if ( tercet->arg1Pospone){
                 if(tercet->getArg1()[0] == charTercetoId){
-                    tercet->type1 = tableTercets->get(stoi(tercet->getArg1().substr(1, tercet->getArg1().size())))->typeTercet;
+                    tercet->type1 = ts->get(stoi(tercet->getArg1().substr(1, tercet->getArg1().size())))->typeTercet;
                 }else{
                     // es un llamado a método
                     size_t firstPos = tercet->getArg1().find(":");
@@ -2408,7 +2408,7 @@ void checkTercetsPosponeAreCorrect(){
             }
             if ( tercet->arg2Pospone){
                 if(tercet->getArg2()[0] == charTercetoId){
-                    tercet->type2 = tableTercets->get(stoi(tercet->getArg2().substr(1, tercet->getArg2().size())))->typeTercet;
+                    tercet->type2 = ts->get(stoi(tercet->getArg2().substr(1, tercet->getArg2().size())))->typeTercet;
                 }else{
                     // es un llamado a método
                     size_t firstPos = tercet->getArg2().find(":");
@@ -2458,10 +2458,10 @@ void checkTercetsPosponeAreCorrect(){
             if (!isErrorInAttribute){
                 if (tercet->arg1Pospone && !tercet->arg2Pospone){
                     if(tercet->getArg1()[0] == charTercetoId){
-                        tercet->type1 = tableTercets->get(stoi(tercet->getArg1().substr(1, tercet->getArg1().size())))->typeTercet;
+                        tercet->type1 = ts->get(stoi(tercet->getArg1().substr(1, tercet->getArg1().size())))->typeTercet;
                         // checkeamos que los tipos sean iguales 
                         if(tercet->getArg2()[0] == charTercetoId){
-                            tercet->type2 = tableTercets->get(stoi(tercet->getArg2().substr(1, tercet->getArg2().size())))->typeTercet;
+                            tercet->type2 = ts->get(stoi(tercet->getArg2().substr(1, tercet->getArg2().size())))->typeTercet;
                         }
                         checkTypesAsignationFin(tercet->type1, tercet->type2);
                         // agregamos el terceto de asignación en la respectiva tabla de tercetos
@@ -2470,11 +2470,11 @@ void checkTercetsPosponeAreCorrect(){
                     }else{
                         // checkeamos que los tipos sean iguales 
                         if(tercet->getArg2()[0] == charTercetoId){
-                            tercet->type2 = tableTercets->get(stoi(tercet->getArg2().substr(1, tercet->getArg2().size())))->typeTercet;
+                            tercet->type2 = ts->get(stoi(tercet->getArg2().substr(1, tercet->getArg2().size())))->typeTercet;
                         }
                         checkTypesAsignationFin(attributeSymbol1->type, tercet->type2); 
                         // agregamos el terceto de asignación en la respectiva tabla de tercetos
-                        Tercet * tasig = tableTercets->get(numberTercet);
+                        Tercet * tasig = ts->get(numberTercet);
                         tasig->setArg1(attributeSymbol1->lexema);
                         tasig->type1 = attributeSymbol1->type;
                         tasig->arg1Pospone = false;
@@ -2483,10 +2483,10 @@ void checkTercetsPosponeAreCorrect(){
                 }
                 if (!tercet->arg1Pospone && tercet->arg2Pospone){
                     if(tercet->getArg2()[0] == charTercetoId){
-                        tercet->type2 = tableTercets->get(stoi(tercet->getArg2().substr(1, tercet->getArg2().size())))->typeTercet;
+                        tercet->type2 = ts->get(stoi(tercet->getArg2().substr(1, tercet->getArg2().size())))->typeTercet;
                         // checkeamos que los tipos sean iguales 
                         if(tercet->getArg1()[0] == charTercetoId){
-                            tercet->type1 = tableTercets->get(stoi(tercet->getArg1().substr(1, tercet->getArg1().size())))->typeTercet;
+                            tercet->type1 = ts->get(stoi(tercet->getArg1().substr(1, tercet->getArg1().size())))->typeTercet;
                         }
                         checkTypesAsignationFin(tercet->type1, tercet->type2);
                         // agregamos el terceto de asignación en la respectiva tabla de tercetos
@@ -2495,12 +2495,12 @@ void checkTercetsPosponeAreCorrect(){
                     }else{
                         // checkeamos que los tipos sean iguales 
                         if(tercet->getArg1()[0] == charTercetoId){
-                            tercet->type1 = tableTercets->get(stoi(tercet->getArg1().substr(1, tercet->getArg1().size())))->typeTercet;
+                            tercet->type1 = ts->get(stoi(tercet->getArg1().substr(1, tercet->getArg1().size())))->typeTercet;
                         }
                         checkTypesAsignationFin(tercet->type1, attributeSymbol2->type); 
 
                         // agregamos el terceto de asignación en la respectiva tabla de tercetos
-                        Tercet * tasig = tableTercets->get(numberTercet);
+                        Tercet * tasig = ts->get(numberTercet);
                         tasig->setArg2(attributeSymbol2->lexema);
                         tasig->type2 = attributeSymbol2->type;
                         tasig->arg2Pospone = false;
@@ -2509,7 +2509,7 @@ void checkTercetsPosponeAreCorrect(){
                 }
                 if (tercet->arg1Pospone && tercet->arg2Pospone){
                     if(tercet->getArg1()[0] == charTercetoId && tercet->getArg2()[0] != charTercetoId){
-                        tercet->type1 = tableTercets->get(stoi(tercet->getArg1().substr(1, tercet->getArg1().size())))->typeTercet;
+                        tercet->type1 = ts->get(stoi(tercet->getArg1().substr(1, tercet->getArg1().size())))->typeTercet;
                         checkTypesAsignationFin(tercet->type1, attributeSymbol2->type); 
                         tercet->setArg2(attributeSymbol2->lexema);
                         tercet->type2 = attributeSymbol2->type;
@@ -2518,7 +2518,7 @@ void checkTercetsPosponeAreCorrect(){
                         tercet->typeTercet = attributeSymbol2->type;
                     }
                     if(tercet->getArg1()[0] != charTercetoId && tercet->getArg2()[0] == charTercetoId){
-                        tercet->type2 = tableTercets->get(stoi(tercet->getArg2().substr(1, tercet->getArg2().size())))->typeTercet;
+                        tercet->type2 = ts->get(stoi(tercet->getArg2().substr(1, tercet->getArg2().size())))->typeTercet;
                         checkTypesAsignationFin(attributeSymbol1->type, tercet->type2); 
                         tercet->setArg1(attributeSymbol1->lexema);
                         tercet->type1 = attributeSymbol1->type;
@@ -2547,6 +2547,8 @@ void finPrograma(){
         int number = addTercet("FIN", "-", "-");
         verifyAllClassForwardedAreDeclared();
         instanciatePosponeObjectForForwarding();
-        tableTercets->print();
-        checkTercetsPosponeAreCorrect();
+        checkTercetsPosponeAreCorrect(tableTercets);
+        for(functionStack* fs : *(vectorOfFunction->getFunctions())){
+            checkTercetsPosponeAreCorrect(fs->ter);
+        }
 }

@@ -24,13 +24,18 @@ functionStack* VectorOfFunction::getCopyOfFunction(string _name){
             functionStack* copy = new functionStack(_name);
             copy->ter = new Tercets();
             for (Tercet* tercet : vf->ter->getTercets()) {
-                copy->ter->add(new Tercet(tercet->getOp(), tercet->getArg1(), tercet->getArg2()));
+                copy->ter->add(new Tercet(tercet->getOp(), tercet->getArg1(), tercet->getArg2(), tercet->arg1Pospone, tercet->arg2Pospone, tercet->type1, tercet->type2, tercet->typeTercet));
             }
             return copy;
         }
     }
     return nullptr;
 } 
+
+//Devuelve una copia de la lista de la función de tercetos
+vector<functionStack*> * VectorOfFunction::getFunctions(){
+    return this->functions;
+}; 
 
 VectorOfFunction::~VectorOfFunction() {
     // // Eliminar objetos apuntados en el vector 'tercets'
