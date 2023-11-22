@@ -2008,12 +2008,19 @@ void initObjectDeclaration(string key, string scope, string& reglaptr){
     tableSymbol->deleteSymbol(key);
     // usamos ":main" porque todas las clases se usan en el ámbito ":main"
     symbol* classFinded = tableSymbol->getFirstSymbolMatching2(key, "clase", ":main");
+    //debo revisar si es estoy dentro de una clase o no, ya que pudiera pasar que uno quiera declarar un objeto de una dentro de la misma clase
     if(classFinded == nullptr){
         yyerror("No se encontro declaracion previa de la clase "+ key);
         actualClass = "_error"; 
-    }else{
-        reglaptr = key; 
-        actualClass = key; 
+    }else if(stackClasses->size() > 0){
+        //si estoy dentro de una clase, debo verificar que la clase que quiero instanciar no sea la misma clase en la que estoy
+        if(stackClasses->top()->classOfSymbol == key){
+            yyerror("No se puede instanciar un objeto de la misma clase en la que se encuentra");
+            actualClass = "_error"; 
+        }else{
+            reglaptr = key; 
+            actualClass = key; 
+        }
     }
 }
 /**
@@ -2046,37 +2053,54 @@ void  detectInheritance(string classToInherit , string scope, string classWhoInh
                 symbol* classFinded = tableSymbol->getFirstSymbolMatching2(classToInherit, "clase", ":main");
                 if(classFinded == nullptr){
                         yyerror("No se encontro declaracion previa de la clase a heredar "+ classToInherit);
-                }else{
-                        // verificamos que la clase a heredar no esté pospuesta para forwardear, sino marcamos esta clase también para forwardear
-                        if(classFinded->forwarded){
-                            symbolofClassWhoInherit->posponeForForwarding = true;
-                        }
-
-                        // copiamos el arreglo de herencia de la clase a heredar a la clase que hereda
-                        // intentamos agregar la clase a heredar en el primer nullptr del arreglo de herencia, si tiene más de 3 elementos lanzamos un error
-
-                        // copiamos el arreglo de herencia de la clase a heredar a la clase que hereda
-                        for(int i = 0; i < 2; i++) {
-                                symbolofClassWhoInherit->inheritance[i] = classFinded->inheritance[i];
-                        }
-                        bool isNullptr = false;
-                        int posOfNullInInheritance = -1;
-                        // recorres el arreglo verificando que exista alguna posicion con nullptr, si es asi seteas el booleano con true y guardas la posicion del nullptr.
-                        for (int i=0; i < 2; i++){
-                                if(symbolofClassWhoInherit->inheritance[i]==nullptr){
-                                        isNullptr = true;
-                                        posOfNullInInheritance = i;
-                                        break;
-                                }
-                        }
-                        // si el boleano es true, agregas la clase a heredar en el lugar que se encuentra nullptr del arreglo de herencia, si no es true lanzas un error diciendo que ya existe una herencia de 3 clases
-                        if(isNullptr){
-                                symbolofClassWhoInherit->inheritance[posOfNullInInheritance] = classFinded->attributesAndMethodsVector;  
+                }else if (symbolofClassWhoInherit->classOfSymbol == classToInherit)
+                        {
+                                yyerror("La clase " + symbolofClassWhoInherit->classOfSymbol +" intenta heredar de si misma");
                         }else{
-                                yyerror("La clase " + symbolofClassWhoInherit->classOfSymbol +" intenta heredar de " + classToInherit + " pero ya hereda de 2 clases");
-                        }
+                            // copiamos el arreglo de herencia de la clase a heredar a la clase que hereda
+                            // intentamos agregar la clase a heredar en el primer nullptr del arreglo de herencia, si tiene más de 3 elementos lanzamos un error
+
+                            // copiamos el arreglo de herencia de la clase a heredar a la clase que hereda
+                            for(int i = 0; i < 2; i++) {
+                                    symbolofClassWhoInherit->inheritance[i] = classFinded->inheritance[i];
+                            }
+                            bool isNullptr = false;
+                            int posOfNullInInheritance = -1;
+                            // recorres el arreglo verificando que exista alguna posicion con nullptr, si es asi seteas el booleano con true y guardas la posicion del nullptr.
+                            for (int i=0; i < 2; i++){
+                                    if(symbolofClassWhoInherit->inheritance[i]==nullptr){
+                                            isNullptr = true;
+                                            posOfNullInInheritance = i;
+                                            break;
+                                    }
+                            }
+                            // si el boleano es true, agregas la clase a heredar en el lugar que se encuentra nullptr del arreglo de herencia, si no es true lanzas un error diciendo que ya existe una herencia de 3 clases
+                            if(isNullptr){
+                                    symbolofClassWhoInherit->inheritance[posOfNullInInheritance] = classFinded->attributesAndMethodsVector; 
+                                    symbolofClassWhoInherit->isAlreadyInhenriting = true; 
+                                    //se debe realizar un chequeo de metodos para evitar la sobreescritura de metodos
+                                    //si se encuentra un metodo con el mismo nombre en la clase que hereda y en la clase que es heredada se lanza un error
+                                    for (const auto& par : symbolofClassWhoInherit->attributesAndMethodsVector->getSymbolTable()){
+                                        symbol* sm = par.second;
+                                        if(sm->uso == "metodo"){
+                                            string lexemaAux = sm->lexema.substr(0, sm->lexema.find(":"));
+                                            symbol* sm2 = classFinded->attributesAndMethodsVector->getElementInTableByFisrtPartAndUse(lexemaAux, "metodo");
+                                            //accedo si es que classfinded hereda de otra clase para verificar si esta tambien hereda un metodo con el mismo nombre
+                                            symbol* sm3;
+                                            if(classFinded->inheritance[0] != nullptr){
+                                                symbol* sm3 = classFinded->inheritance[0]->getElementInTableByFisrtPartAndUse(lexemaAux, "metodo");
+                                            }
+                                            if(sm2 != nullptr || sm3 != nullptr){
+                                                yyerror("La clase " + symbolofClassWhoInherit->classOfSymbol +" intenta heredar de " + classToInherit + " pero ya hereda un metodo con el mismo nombre");
+                                                }
+                                        }
+                                    }
+                                    
+                            }else{
+                                    yyerror("La clase " + symbolofClassWhoInherit->classOfSymbol +" intenta heredar de " + classToInherit + " pero ya hereda de 2 clases");
+                            }
                         
-                }
+                        }
         }
 }
 /**

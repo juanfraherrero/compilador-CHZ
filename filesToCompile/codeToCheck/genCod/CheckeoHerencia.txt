@@ -1,0 +1,38 @@
+{
+    CLASS clase1 {
+        SHORT x,    
+        VOID method1(){
+            RETURN,
+        },    
+    },
+
+    CLASS clase2 {
+        clase1,      
+    },     
+
+    CLASS clase3 {
+        VOID method1(){
+            RETURN,
+        },
+        clase2,        
+    },
+
+    CLASS clase4 {
+        VOID method1(){
+            RETURN,
+        },
+        clase1,
+    },
+    CLASS clase5 {
+        clase1,
+        clase2,
+
+    },
+    CLASS clase6 {
+        clase1,
+        VOID method3(){
+            RETURN,
+        },
+    },
+
+}
