@@ -425,10 +425,10 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
     //Parametro real
     else if (tercet->getOp() == "paramReal"){
         if (tercet->getArg2() == "short"){
-            out += "MOV AX, " + op1 + "\n";
+            out += "MOV AH, " + op1 + "\n";
         }
         else if (tercet->getArg2() == "unsigned int"){
-            out += "MOV AL, " + op1 + "\n";
+            out += "MOV AX, " + op1 + "\n";
         }
         else if (tercet->getArg2() == "float"){
             out += "FLD " + op1 + "\n";
@@ -437,10 +437,10 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
     //Parametro formal
     else if (tercet->getOp() == "paramFormal"){
         if (tercet->getArg2() == "short"){
-            out += "MOV " + op1 + ", AX\n";
+            out += "MOV " + op1 + ", AH\n";
         }
         else if (tercet->getArg2() == "unsigned int"){
-            out += "MOV " + op1 + ", AL\n";
+            out += "MOV " + op1 + ", AX\n";
         }
         else if (tercet->getArg2() == "float"){
             out += "FSTP " + op1 + "\n";
