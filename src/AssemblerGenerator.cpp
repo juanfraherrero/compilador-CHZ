@@ -42,36 +42,37 @@ void AssemblerGenerator::generateData(){
     while (it != symbols.end()){
         symbol * s = it->second;
         if (s){
-            if (s->type == "identifier" || s->uso == "auxVariable"){
-                string prefix = "";
-                if (s->type == "identifier")
-                    prefix = "_";
-                this->data += prefix + s->lexema + " dd ? \n";
-            }
-            else if (s->type == "short"){
-                this->data += "_" + s->lexema + " db ? \n";
+            string prefix = "_";
+            if (s->uso == "auxVariable")
+                prefix = "";
+
+            string value = (s->value == "" || s->value == "-") ? "?" : s->value;
+
+            if (s->type == "short"){
+                this->data += prefix + reemplazarCaracter(s->lexema,':','_') + " db " + value + "\n";
             }
             else if (s->type == "unsigned int"){
-                this->data += "_" + s->lexema + " dw ? \n";
+                this->data += prefix + reemplazarCaracter(s->lexema,':','_') + " dw " + value + "\n";
             }
             else if (s->type == "float"){
-                this->data += "_" + s->lexema + " dd ? \n";
+                this->data += prefix + reemplazarCaracter(s->lexema,':','_') + " dd " + value + "\n";
             }
             else if (s->type == "string"){
-                this->data += reemplazarEspacios(s->value) + " db " + '"' + s->value + '"' + ", 0 \n";  //Aca se reemplazan los espacios por guiones bajos para que no haya problemas.
+                this->data += reemplazarCaracter(value, ' ', '_') + " db " + '"' + value + '"' + ", 0 \n";  //Aca se reemplazan los espacios por guiones bajos para que no haya problemas.
             }
         }
     it++;    
     }
 }
 
-string AssemblerGenerator::reemplazarEspacios(string s){
+string AssemblerGenerator::reemplazarCaracter(string s, char caracter, char reemplazo){
     for (int i = 0; i < s.length() - 1; i++){
-        if (s[i] == ' ')
-            s[i] = '_';
+        if (s[i] == caracter)
+            s[i] = reemplazo;
     }
     return s;
 }
+
 
 void AssemblerGenerator::generateFunctionsAssembler(){
     //Primero generamos el código assembler de las funciones.
@@ -79,10 +80,10 @@ void AssemblerGenerator::generateFunctionsAssembler(){
     for (auto f: *functions){
         if (f){
             Tercets * functionTercets = f->ter;
-            this->code += f->name + ":\n";
+            this->code += reemplazarCaracter(f->name,':','_') + ":\n";
             for (auto t : functionTercets->getTercets()){
                 if (t)
-                    this->code += getTercetAssembler(t);
+                    this->code += getTercetAssembler(t, functionTercets);
             }
         }
         
@@ -92,26 +93,26 @@ void AssemblerGenerator::generateFunctionsAssembler(){
 void AssemblerGenerator::generateMainAssembler(){
     this->code += "start:\n";
     for (auto t : tercets->getTercets()){
-        this->code += getTercetAssembler(t);
+        this->code += getTercetAssembler(t, this->tercets);
     }
+    this->code += "INVOKE ExitProcess, 0\n";
 }
 
 void AssemblerGenerator::generateCode(){
     this->code = "\n.code\n"
-                 + this->code 
+                 + this->code +
                  + "\n"
-                 "INVOKE ExitProcess, 0\n"
-                 "end start";
+                 + "end start";
 }
 
 void AssemblerGenerator::generateErrorAssembler(){
     if (this->overflowEnteros){
-        this->code += "errorSumaEnteros:\n"
+        this->code += "labelErrorSumaEnteros:\n"
                       "INVOKE MessageBox, NULL, addr errorSumaEnteros, addr errorSumaEnteros, MB_OK\n"
                       "INVOKE ExitProcess, 0\n";
     }
     if (this->overflowProductos){
-        this->code += "errorProductoFlotantes:\n"
+        this->code += "labelErrorProductoFlotantes:\n"
                       "INVOKE MessageBox, NULL, addr errorProductoFlotantes, addr errorProductoFlotantes, MB_OK\n"
                       "INVOKE ExitProcess, 0\n";
     }
@@ -147,24 +148,24 @@ string AssemblerGenerator::getAuxVariable(){
     return "@aux" + to_string(this->auxVariable);
 }
 
-string AssemblerGenerator::getTercetAssembler(Tercet * tercet){
+string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets){
     string out = "";
     string op1 = "";
     string op2 = "";
     string typeOfFirstArg;
-    
+
     //Primero verificamos que los operandos sean referencias a tercetos. En caso de serlo, los reemplazamos por la variable auxiliar que guarda el resultado del terceto.
     if (tercet->opIsTercet(1)){
-        op1 = this->tercets->get(stoi(tercet->getArg1().substr(1)))->getAuxVariable();
+        op1 = tercets->get(stoi(tercet->getArg1().substr(1)))->getAuxVariable();
         symbol * firstArg = this->tableSymbol->getSymbol(op1);
         if (firstArg)
             typeOfFirstArg = firstArg->type;
     }
-    else{
+    else if (tercet->getArg1() != ""){
         if (tercet->getOp() == "print"){ //Si se trata de un print, se reemplazan todos los espacios por guiones bajos.
-            op1 = reemplazarEspacios(tercet->getArg1());
+            op1 = reemplazarCaracter(tercet->getArg1(), ' ', '_');
         } else {
-            op1 = "_" + tercet->getArg1();
+            op1 = "_" + reemplazarCaracter(tercet->getArg1(), ':', '_');
             symbol * firstArg = tableSymbol->getSymbol(tercet->getArg1());
             if (firstArg)
                 typeOfFirstArg = firstArg->type;          
@@ -172,10 +173,10 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet){
     }
 
     if (tercet->opIsTercet(2)){
-        op2 = this->tercets->get(stoi(tercet->getArg2().substr(1)))->getAuxVariable();
+        op2 = tercets->get(stoi(tercet->getArg2().substr(1)))->getAuxVariable();
     }
-    else{
-        op2 = "_" + tercet->getArg2();
+    else if (tercet->getArg2() != ""){
+        op2 = "_" + reemplazarCaracter(tercet->getArg2(), ':','_');
     }
 
     //Suma, chequeando overflow en suma de enteros
@@ -185,11 +186,19 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet){
 
         symbol * auxSymbol = new symbol(tercet->getAuxVariable(), "", typeOfFirstArg, "auxVariable");
         tableSymbol->insert(auxSymbol);
-        if (typeOfFirstArg == "short" || typeOfFirstArg == "unsigned int"){
+
+        if (typeOfFirstArg == "short"){
+            out += "MOV AH, " + op1 + "\n";
+            out += "ADD AH, " + op2 + "\n";
+            out += "MOV " + tercet->getAuxVariable() + ", AH\n";
+            out += "JO labelErrorSumaEnteros\n";
+            this->overflowEnteros = true;
+        }
+        else if (typeOfFirstArg == "unsigned int"){
             out += "MOV AX, " + op1 + "\n";
             out += "ADD AX, " + op2 + "\n";
             out += "MOV " + tercet->getAuxVariable() + ", AX\n";
-            out += "JO errorSumaEnteros\n";
+            out += "JO labelErrorSumaEnteros\n";
             this->overflowEnteros = true;
         }
         else if (typeOfFirstArg == "float"){
@@ -197,7 +206,6 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet){
             out += "FADD " + op2 + "\n";
             out += "FSTP " + tercet->getAuxVariable() + "\n";
         }
-        
     }
     //Resta
     else if (tercet->getOp() == "-"){
@@ -207,7 +215,12 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet){
         symbol * auxSymbol = new symbol(tercet->getAuxVariable(), "", typeOfFirstArg, "auxVariable");
         tableSymbol->insert(auxSymbol);
 
-        if (typeOfFirstArg == "short" || typeOfFirstArg == "unsigned int"){
+        if (typeOfFirstArg == "short"){
+            out += "MOV AH, " + op1 + "\n";
+            out += "SUB AH, " + op2 + "\n";
+            out += "MOV " + tercet->getAuxVariable() + ", AH\n";
+        }
+        else if (typeOfFirstArg == "unsigned int") {
             out += "MOV AX, " + op1 + "\n";
             out += "SUB AX, " + op2 + "\n";
             out += "MOV " + tercet->getAuxVariable() + ", AX\n";
@@ -240,7 +253,7 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet){
             out += "FLD " + op1 + "\n";
             out += "FMUL " + op2 + "\n";
             out += "FSTP " + tercet->getAuxVariable() + "\n";
-            out += "JO errorProductoFlotantes\n";
+            out += "JO labelErrorProductoFlotantes\n";
             this->overflowProductos = true;
         }
     }
@@ -271,12 +284,12 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet){
     //Asignacion
     else if (tercet->getOp() == "="){
         if (typeOfFirstArg == "short"){
-            out += "MOV AX, " + op2 + "\n";
-            out += "MOV " + op1 + ", AX\n";
+            out += "MOV AH, " + op2 + "\n";
+            out += "MOV " + op1 + ", AH\n";
         }
         else if (typeOfFirstArg == "unsigned int"){
-            out += "MOV AL, " + op2 + "\n";
-            out += "MOV " + op1 + ", AL\n";
+            out += "MOV AX, " + op2 + "\n";
+            out += "MOV " + op1 + ", AX\n";
         }
         else if (typeOfFirstArg == "float"){
             out += "FLD " + op2 + "\n";
@@ -399,7 +412,7 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet){
     }
     //Llamado a subrutina
     else if (tercet->getOp() == "call"){
-        out += "CALL " + op1 + "\n";
+        out += "CALL " + op1.substr(1) + "\n";
     }
     //Return
     else if (tercet->getOp() == "return"){

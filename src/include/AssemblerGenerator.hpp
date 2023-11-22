@@ -31,8 +31,8 @@ public:
     void generateMainAssembler(); //Genera el código assembler del main.
     void generateErrorAssembler(); //Genera los labels y el assembler de los errores.
 
-    string getTercetAssembler(Tercet * tercet); //genera el código assembler dado un terceto
-    string reemplazarEspacios(string s); //Reemplaza los espacios por guiones bajos.
+    string getTercetAssembler(Tercet * tercet, Tercets * tercets); //genera el código assembler dado un terceto
+    string reemplazarCaracter(string s, char caracter, char reemplazo); //Reemplaza un caracter por otro en una cadena.
     string getAuxVariable(); //Obtiene una variable auxiliar.
 };
 
