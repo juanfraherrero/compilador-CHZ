@@ -16,6 +16,10 @@ void Tercets::erase(int index){
     this->tercets.erase(this->tercets.begin() + index);
 }
 
+Tercet* Tercets::get(int index){
+    return this->tercets[index];
+}
+
 void Tercets::replace(int index, Tercet* t){
     // this->tercets[index]->print();
     delete this->tercets[index];

@@ -22,7 +22,8 @@ public:
     bool arg2Pospone = false;       // determina si el terceto fue pospuesto o no
     string type1;                   // tipo del primer argumento
     string type2;                   // tipo del segundo argumento
-    
+    string typeTercet = "";              // tipo del terceto
+
 private:
     string op;
     string arg1;

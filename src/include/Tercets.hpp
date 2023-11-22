@@ -16,6 +16,7 @@ public:
 
     int add(Tercet* tercet); //Añade un terceto y devuelve la posicion en la que se añadio.
     void erase(int index); //Elimina un terceto en cierta posicion de la estructura
+    Tercet* get(int index); //devuelve el terceto en la posición index
     void replace(int index, Tercet* tercet); //Reemplaza un terceto en cierta posicion de la estructura por otro Terceto.
     int numberOfLastTercet(); //Devuelve el numero del ultimo terceto añadido.
     void print(); //Imprime todos los tercetos de la estructura.
