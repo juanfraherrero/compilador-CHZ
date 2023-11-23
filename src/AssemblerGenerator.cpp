@@ -151,17 +151,23 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
     string out = "";
     string op1 = "";
     string op2 = "";
-    string type = tercet->typeTercet;
+    string typeOfFirstArg = "";
 
     //Primero verificamos que los operandos sean referencias a tercetos. En caso de serlo, los reemplazamos por la variable auxiliar que guarda el resultado del terceto.
     if (tercet->opIsTercet(1)){
         op1 = tercets->get(stoi(tercet->getArg1().substr(1)))->getAuxVariable();
+        symbol * firstArg = this->tableSymbol->getSymbol(op1);
+        if (firstArg)
+            typeOfFirstArg = firstArg->type;
     }
     else if (tercet->getArg1() != ""){
         if (tercet->getOp() == "print"){ //Si se trata de un print, se reemplazan todos los espacios por guiones bajos.
             op1 = reemplazarCaracter(tercet->getArg1(), ' ', '_');
         } else {
             op1 = "_" + reemplazarCaracter(tercet->getArg1(), ':', '_');
+            symbol * firstArg = tableSymbol->getSymbol(tercet->getArg1());
+            if (firstArg)
+                typeOfFirstArg = firstArg->type;          
         }
     }
 
@@ -177,24 +183,24 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
         tercet->setAuxVariable(getAuxVariable());
         string auxVariable = tercet->getAuxVariable();
 
-        symbol * auxSymbol = new symbol(tercet->getAuxVariable(), "", type, "auxVariable");
+        symbol * auxSymbol = new symbol(tercet->getAuxVariable(), "", typeOfFirstArg, "auxVariable");
         tableSymbol->insert(auxSymbol);
 
-        if (type == "short"){
+        if (typeOfFirstArg == "short"){
             out += "MOV AH, " + op1 + "\n";
             out += "ADD AH, " + op2 + "\n";
             out += "MOV " + tercet->getAuxVariable() + ", AH\n";
             out += "JO labelErrorSumaEnteros\n";
             this->overflowEnteros = true;
         }
-        else if (type == "unsigned int"){
+        else if (typeOfFirstArg == "unsigned int"){
             out += "MOV AX, " + op1 + "\n";
             out += "ADD AX, " + op2 + "\n";
             out += "MOV " + tercet->getAuxVariable() + ", AX\n";
-            out += "JO labelErrorSumaEnteros\n";
+            out += "JC labelErrorSumaEnteros\n";
             this->overflowEnteros = true;
         }
-        else if (type == "float"){
+        else if (typeOfFirstArg == "float"){
             out += "FLD " + op1 + "\n";
             out += "FADD " + op2 + "\n";
             out += "FSTP " + tercet->getAuxVariable() + "\n";
@@ -205,20 +211,20 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
         tercet->setAuxVariable(getAuxVariable());
         string auxVariable = tercet->getAuxVariable();
 
-        symbol * auxSymbol = new symbol(tercet->getAuxVariable(), "", type, "auxVariable");
+        symbol * auxSymbol = new symbol(tercet->getAuxVariable(), "", typeOfFirstArg, "auxVariable");
         tableSymbol->insert(auxSymbol);
 
-        if (type == "short"){
+        if (typeOfFirstArg == "short"){
             out += "MOV AH, " + op1 + "\n";
             out += "SUB AH, " + op2 + "\n";
             out += "MOV " + tercet->getAuxVariable() + ", AH\n";
         }
-        else if (type == "unsigned int") {
+        else if (typeOfFirstArg == "unsigned int") {
             out += "MOV AX, " + op1 + "\n";
             out += "SUB AX, " + op2 + "\n";
             out += "MOV " + tercet->getAuxVariable() + ", AX\n";
         }
-        else if (type == "float"){
+        else if (typeOfFirstArg == "float"){
             out += "FLD " + op1 + "\n";
             out += "FSUB " + op2 + "\n";
             out += "FSTP " + tercet->getAuxVariable() + "\n";
@@ -229,20 +235,20 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
         tercet->setAuxVariable(getAuxVariable());
         string auxVariable = tercet->getAuxVariable();
 
-        symbol * auxSymbol = new symbol(tercet->getAuxVariable(), "", type, "auxVariable");
+        symbol * auxSymbol = new symbol(tercet->getAuxVariable(), "", typeOfFirstArg, "auxVariable");
         tableSymbol->insert(auxSymbol);
 
-        if (type == "short"){
+        if (typeOfFirstArg == "short"){
             out += "MOV AL, " + op1 + "\n";
             out += "IMUL AL" + op2 + "\n";
             out += "MOV " + tercet->getAuxVariable() + ", AL\n";
         }
-        else if (type == "unsigned int"){
+        else if (typeOfFirstArg == "unsigned int"){
             out += "MOV AX, " + op1 + "\n";
             out += "MUL AX" + op2 + "\n";
             out += "MOV " + tercet->getAuxVariable() + ", AX\n";
         }
-        else if (type == "float"){
+        else if (typeOfFirstArg == "float"){
             out += "FLD " + op1 + "\n";
             out += "FMUL " + op2 + "\n";
             out += "FSTP " + tercet->getAuxVariable() + "\n";
@@ -255,20 +261,20 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
         tercet->setAuxVariable(getAuxVariable());
         string auxVariable = tercet->getAuxVariable();
 
-        symbol * auxSymbol = new symbol(tercet->getAuxVariable(), "", type, "auxVariable");
+        symbol * auxSymbol = new symbol(tercet->getAuxVariable(), "", typeOfFirstArg, "auxVariable");
         tableSymbol->insert(auxSymbol);
 
-        if (type == "short"){
+        if (typeOfFirstArg == "short"){
             out += "MOV AX, " + op1 + "\n";
             out += "IDIV " + op2 + "\n";
             out += "MOV " + tercet->getAuxVariable() + ", AL\n";
         }
-        else if (type == "unsigned int"){
+        else if (typeOfFirstArg == "unsigned int"){
             out += "MOV AX, " + op1 + "\n";
             out += "DIV " + op2 + "\n";
             out += "MOV " + tercet->getAuxVariable() + ", AX\n";
         }
-        else if (type == "float"){
+        else if (typeOfFirstArg == "float"){
             out += "FLD " + op1 + "\n";
             out += "FDIV " + op2 + "\n";
             out += "FSTP " + tercet->getAuxVariable() + "\n";
@@ -276,26 +282,26 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
     }
     //Asignacion
     else if (tercet->getOp() == "="){
-        if (type == "short"){
+        if (typeOfFirstArg == "short"){
             out += "MOV AH, " + op2 + "\n";
             out += "MOV " + op1 + ", AH\n";
         }
-        else if (type == "unsigned int"){
+        else if (typeOfFirstArg == "unsigned int"){
             out += "MOV AX, " + op2 + "\n";
             out += "MOV " + op1 + ", AX\n";
         }
-        else if (type == "float"){
+        else if (typeOfFirstArg == "float"){
             out += "FLD " + op2 + "\n";
             out += "FSTP " + op1 + "\n";
         }
     }
     //Comparacion igual
     else if (tercet->getOp() == "=="){
-        if (type == "short" || type == "unsigned int"){
+        if (typeOfFirstArg == "short" || typeOfFirstArg == "unsigned int"){
             out += "CMP " + op1 + ", " + op2 + "\n";
             out += "JNE ";
         }
-        else if (type == "float"){
+        else if (typeOfFirstArg == "float"){
             out += "FLD " + op1 + "\n";
             out += "FCOM " + op2 + "\n";
             out += "FSTSW AX\n";
@@ -305,15 +311,15 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
     }
     //Comparacion menor o igual
     else if (tercet->getOp() == "<="){
-        if (type == "short"){
+        if (typeOfFirstArg == "short"){
             out += "CMP " + op1 + ", " + op2 + "\n";
             out += "JG ";
         }
-        else if (type == "unsigned int"){
+        else if (typeOfFirstArg == "unsigned int"){
             out += "CMP " + op1 + ", " + op2 + "\n";
             out += "JA ";
         }
-        else if (type == "float"){
+        else if (typeOfFirstArg == "float"){
             out += "FLD " + op1 + "\n";
             out += "FCOM " + op2 + "\n";
             out += "FSTSW AX\n";
@@ -323,15 +329,15 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
     }
     //Comparacion menor
     else if (tercet->getOp() == "<"){
-        if (type == "short"){
+        if (typeOfFirstArg == "short"){
             out += "CMP " + op1 + ", " + op2 + "\n";
             out += "JGE ";
         }
-        else if (type == "unsigned int"){
+        else if (typeOfFirstArg == "unsigned int"){
             out += "CMP " + op1 + ", " + op2 + "\n";
             out += "JAE ";
         }
-        else if (type == "float"){
+        else if (typeOfFirstArg == "float"){
             out += "FLD " + op1 + "\n";
             out += "FCOM " + op2 + "\n";
             out += "FSTSW AX\n";
@@ -341,15 +347,15 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
     }
     //Comparacion mayor o igual
     else if (tercet->getOp() == ">="){
-        if (type == "short"){
+        if (typeOfFirstArg == "short"){
             out += "CMP " + op1 + ", " + op2 + "\n";
             out += "JL";
         }
-        else if (type == "unsigned int"){
+        else if (typeOfFirstArg == "unsigned int"){
             out += "CMP " + op1 + ", " + op2 + "\n";
             out += "JB ";
         }
-        else if (type == "float"){
+        else if (typeOfFirstArg == "float"){
             out += "FLD " + op1 + "\n";
             out += "FCOM " + op2 + "\n";
             out += "FSTSW AX\n";
@@ -359,15 +365,15 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
     }
     //Comparacion mayor
     else if (tercet->getOp() == ">"){
-        if (type == "short"){
+        if (typeOfFirstArg == "short"){
             out += "CMP " + op1 + ", " + op2 + "\n";
             out += "JLE ";
         }
-        else if (type == "unsigned int"){
+        else if (typeOfFirstArg == "unsigned int"){
             out += "CMP " + op1 + ", " + op2 + "\n";
             out += "JBE ";
         }
-        else if (type == "float"){
+        else if (typeOfFirstArg == "float"){
             out += "FLD " + op1 + "\n";
             out += "FCOM " + op2 + "\n";
             out += "FSTSW AX\n";
@@ -377,11 +383,11 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
     }
     //Comparacion distinto
     else if (tercet->getOp() == "!!"){
-        if (type == "short" || type == "unsigned int"){
+        if (typeOfFirstArg == "short" || typeOfFirstArg == "unsigned int"){
             out += "CMP " + op1 + ", " + op2 + "\n";
             out += "JE ";
         }
-        else if (type == "float"){
+        else if (typeOfFirstArg == "float"){
             out += "FLD " + op1 + "\n";
             out += "FCOM " + op2 + "\n";
             out += "FSTSW AX\n";
@@ -396,7 +402,7 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
     }
     //Branch incondicional
     else if (tercet->getOp() == "BI"){
-        string label = tercets->get(stoi(tercet->getArg2().substr(1)))->getArg1();
+        string label = tercets->get(stoi(tercet->getArg1().substr(1)))->getArg1();
         out+= "JMP " + label + "\n";
     }
     //Label
@@ -447,7 +453,7 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
         symbol * auxSymbol = new symbol(tercet->getAuxVariable(), "", "float", "auxVariable");
         tableSymbol->insert(auxSymbol);
 
-        if (type == "short"){
+        if (typeOfFirstArg == "short"){
             out += "MOV AL, " + op2 + "\n";
             out += "CBW \n";
             out += "CWDE \n";
@@ -455,7 +461,7 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
             out += "FILD " + tercet->getAuxVariable()+ "\n";
             out += "FSTP " + tercet->getAuxVariable() + "\n";
         }
-        else if (type == "unsigned int"){
+        else if (typeOfFirstArg == "unsigned int"){
             out += "FILD " + op1 + "\n";
             out += "FSTP " + tercet->getAuxVariable() + "\n";
         }
