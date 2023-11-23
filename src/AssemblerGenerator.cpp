@@ -34,6 +34,27 @@ AssemblerGenerator::AssemblerGenerator(string pathFinal, TableSymbol * tableSymb
     this->pathFinal = pathFinal;
 }
 
+void AssemblerGenerator::addVariable(symbol * s){
+    string prefix = "_";
+    if (s->uso == "auxVariable")
+        prefix = "";
+
+    string value = (s->value == "" || s->value == "-") ? "?" : s->value;
+
+    if (s->type == "short"){
+        this->data += prefix + reemplazarCaracter(s->lexema,':','_') + " db " + value + "\n";
+    }
+    else if (s->type == "unsigned int"){
+        this->data += prefix + reemplazarCaracter(s->lexema,':','_') + " dw " + value + "\n";
+    }
+    else if (s->type == "float"){
+        this->data += prefix + reemplazarCaracter(s->lexema,':','_') + " dd " + value + "\n";
+    }
+    else if (s->type == "string"){
+        this->data += reemplazarCaracter(value, ' ', '_') + " db " + '"' + value + '"' + ", 0 \n";  //Aca se reemplazan los espacios por guiones bajos para que no haya problemas.
+    }
+}
+
 //Genera el bloque de sentencias declarativas del código assembler.
 void AssemblerGenerator::generateData(){
     unordered_map<string, symbol*> symbols = this->tableSymbol->getSymbolTable();
@@ -41,29 +62,24 @@ void AssemblerGenerator::generateData(){
     while (it != symbols.end()){
         symbol * s = it->second;
         if (s){
-            string prefix = "_";
-            if (s->uso == "auxVariable")
-                prefix = "";
-
-            string value = (s->value == "" || s->value == "-") ? "?" : s->value;
-
-            if (s->type == "short"){
-                this->data += prefix + reemplazarCaracter(s->lexema,':','_') + " db " + value + "\n";
-            }
-            else if (s->type == "unsigned int"){
-                this->data += prefix + reemplazarCaracter(s->lexema,':','_') + " dw " + value + "\n";
-            }
-            else if (s->type == "float"){
-                this->data += prefix + reemplazarCaracter(s->lexema,':','_') + " dd " + value + "\n";
-            }
-            else if (s->type == "string"){
-                this->data += reemplazarCaracter(value, ' ', '_') + " db " + '"' + value + '"' + ", 0 \n";  //Aca se reemplazan los espacios por guiones bajos para que no haya problemas.
-            }
+            if (s->uso != "clase"){
+                addVariable(s);
+            } 
+            else {
+                unordered_map<string, symbol*> functionSymbols = s->attributesAndMethodsVector->getSymbolTable();
+                unordered_map<string, symbol*>::iterator it2 = functionSymbols.begin();
+                while (it2 != functionSymbols.end()){
+                    symbol * s = it2->second;
+                    if (s){
+                       addVariable(s);
+                    }
+                it2++;
+                }
+            }  
         }
     it++;    
     }
 }
-
 string AssemblerGenerator::reemplazarCaracter(string s, char caracter, char reemplazo){
     for (int i = 0; i < s.length() - 1; i++){
         if (s[i] == caracter)
@@ -115,6 +131,12 @@ void AssemblerGenerator::generateErrorAssembler(){
                       "INVOKE MessageBox, NULL, addr errorProductoFlotantes, addr errorProductoFlotantes, MB_OK\n"
                       "INVOKE ExitProcess, 0\n";
     }
+    if (this->recursionMutua){
+        this->code += "labelErrorRecursion:\n"
+                      "INVOKE MessageBox, NULL, addr errorRecursion, addr errorRecursion, MB_OK\n"
+                      "INVOKE ExitProcess, 0\n";
+    }
+
 }
 
 //Genera el código assembler dado una lista de tercetos.
