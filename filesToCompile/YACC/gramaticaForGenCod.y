@@ -547,13 +547,17 @@ int addTercetAndStack(string argumento, string operando1, string operando2){
         Tercet *t = new Tercet(argumento, operando1, operando2); 
 
         // le marcamos al terceto si tiene un elemento pospuesto
-        symbol* smArg1 = tableSymbol->getSymbol(operando1);
-        symbol* smArg2 = tableSymbol->getSymbol(operando2);
-        if(smArg1->posponeForForwarding == true){
+        if(operando1[0] == charTercetoId){
+            string type;
+            if(cantOfRecursions <= 0){
+                type = tableTercets->get(stoi(operando1.substr(1, operando1.size())))->typeTercet;
+            }else{
+                type = stackFunction->top()->ter->get(stoi(operando1.substr(1, operando1.size())))->typeTercet;
+            }
+            if(type == "pospone"){
                 t->arg1Pospone = true;
-        }
-        if(smArg2->posponeForForwarding == true){
-                t->arg2Pospone = true;
+                t->type1 = "pospone";
+            }
         }
 
         int number;
@@ -1306,7 +1310,7 @@ void newAsignacion(string key, string scope, string op2Lexeme, string op2Type){
                 /* en este punto sabes que es una variable declarada, 
                     pero ahora quiero saber si es de este ámbito o de otro, 
                     si es de otro y esa variable tiene el check debo informar que se está usando a la izquierda de una asignación
-                    ESTO LO DEJO PARA ZUCCHI, DESPUES BORRAR ESTE COMENTARIO
+                
                 */
 
                 // si al variable tiene asignado que se checke y si los lexemas no coincidencia entonces es una variable de otro ámbito
@@ -1342,14 +1346,26 @@ void newTof(string key, string& reglaptr, string& reglatype){
         reglatype = "float";
 }
 void condition(string& reglaptr){
-        int number = addTercetAndStack("BF", charTercetoId + to_string(tableTercets->numberOfLastTercet()), ""); 
+        string lastTercet;
+        if(cantOfRecursions <= 0){
+            lastTercet = to_string(tableTercets->numberOfLastTercet());
+        }else{
+            lastTercet = to_string(stackFunction->top()->ter->numberOfLastTercet());
+        }
+        int number = addTercetAndStack("BF", charTercetoId + lastTercet, ""); 
         reglaptr = charTercetoId + to_string(number); 
 }
 
 void addElse(string& reglaptr){
+        string lastTercet;
+        if(cantOfRecursions <= 0){
+            lastTercet = to_string(tableTercets->numberOfLastTercet()+ 2);
+        }else{
+            lastTercet = to_string(stackFunction->top()->ter->numberOfLastTercet() + 2);
+        }
         Tercet * t = popTercet();  
         if (t!=nullptr){
-                t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2));
+                t->setArg2( charTercetoId + lastTercet);
         } 
         int number =  addTercetAndStack("BI", "", ""); 
         number = addTercet("label","label"+to_string(cantLabels),"");
@@ -1358,39 +1374,57 @@ void addElse(string& reglaptr){
 }
 
 void finIf(){
+        string lastTercet;
+        if(cantOfRecursions <= 0){
+            lastTercet = to_string(tableTercets->numberOfLastTercet() + 1);
+        }else{
+            lastTercet = to_string(stackFunction->top()->ter->numberOfLastTercet() + 1);
+        }
         Tercet *t = popTercet(); 
         if (t!=nullptr){
-                t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1) );
+                t->setArg2( charTercetoId + lastTercet);
         }
         int number = addTercet("label","label"+to_string(cantLabels),"");
         cantLabels++;
 }
 
 void initWhile(){
-        addTercetOnlyStack("incioCondicionWhile", charTercetoId + to_string(tableTercets->numberOfLastTercet() + 1), "");
-        int number = addTercet("label","label"+to_string(cantLabels),"");
-        cantLabels++;
+    string lastTercet;
+    if(cantOfRecursions <= 0){
+        lastTercet = to_string(tableTercets->numberOfLastTercet() + 1);
+    }else{
+        lastTercet = to_string(stackFunction->top()->ter->numberOfLastTercet() + 1);
+    }
+    addTercetOnlyStack("incioCondicionWhile", charTercetoId + lastTercet, "");
+    int number = addTercet("label","label"+to_string(cantLabels),"");
+    cantLabels++;
 }
 
 void finWhile(string & reglaptr) {
-        Tercet *t = popTercet(); 
-        if (t!=nullptr){
-                t->setArg2( charTercetoId + to_string(tableTercets->numberOfLastTercet() + 2) );
-        } 
-        Tercet *t2 = popTercet(); 
-        int number; 
-        if(t2!=nullptr){
-                number = addTercet("BI", t2->getArg1(), "");
-        } 
-        number = addTercet("label","label"+to_string(cantLabels),"");
-        cantLabels++;
-        reglaptr = charTercetoId + to_string(number);
+    string lastTercet;
+    if(cantOfRecursions <= 0){
+        lastTercet = to_string(tableTercets->numberOfLastTercet() + 2);
+    }else{
+        lastTercet = to_string(stackFunction->top()->ter->numberOfLastTercet() + 2);
+    }
+    Tercet *t = popTercet(); 
+    if (t!=nullptr){
+            t->setArg2( charTercetoId + lastTercet );
+    } 
+    Tercet *t2 = popTercet(); 
+    int number; 
+    if(t2!=nullptr){
+            number = addTercet("BI", t2->getArg1(), "");
+    } 
+    number = addTercet("label","label"+to_string(cantLabels),"");
+    cantLabels++;
+    reglaptr = charTercetoId + to_string(number);
 }
 
 void newCondicion(string operador, string op1ptr, string op2ptr, string op1type, string op2type, string& reglaptr){
-        checkTypesCompare(op1type, op2type); 
-        int number = addTercet(operador, op1ptr, op2ptr); 
-        reglaptr = charTercetoId + to_string(number);
+    checkTypesCompare(op1type, op2type); 
+    int number = addTercet(operador, op1ptr, op2ptr); 
+    reglaptr = charTercetoId + to_string(number);
 }
 
 /**
