@@ -28,6 +28,7 @@ VectorOfFunction * vectorOfFunction = new VectorOfFunction(); /* este vector se 
 VectorOfFunction * vectorOfFunctionDeclaredInClasses = new VectorOfFunction(); /* este vector se usa para cuando declaramos un método o una función dentro de una clase (esto es una declaración y se debe instanciar por cada objeto)*/
 stack<functionStack*>* stackFunction = new stack<functionStack*>();
 int cantOfRecursions = 0;
+int cantOfRecursionsInMethod = 0;
 
 int cantLabels = 0;
 int lineNumber = 1;
@@ -1523,6 +1524,7 @@ void initMethod(string key, string scope, string classOfAttribute){
         tableSymbol->deleteSymbol(key);   // eliminamos el simbolo (usa el contador) de la tabla general
         symbol * classSymbol = stackClasses->top();
         TableSymbol* tsClass = classSymbol->attributesAndMethodsVector; // obtenemos la tabla de simbolos de la clase a la que le agramos el metodo
+        cantOfRecursionsInMethod = 0;
 
         int methodAlredyExist = existMethodInInheritance(key, scope, "metodo", classSymbol);    // verificamos si el método ya existe en la clase o en alguna de sus clases heredadas
 
@@ -1810,6 +1812,12 @@ void initFunction(string key, string scope){
                 ts = tableSymbol;
         }else{
                 ts = stackClasses->top()->attributesAndMethodsVector;
+
+                // si estamos dentro de una clase sumamos 1 a la recursión interna de metodo
+                cantOfRecursionsInMethod++;
+                if(cantOfRecursionsInMethod > 1){
+                        yyerror("No se permite anidamiento de funciones locales dentro de metodos");
+                }
         }
 
         // buscamos si existe una función con el mismo nombre en el mismo ámbito
@@ -1855,6 +1863,7 @@ void finishFunction(){
         }else{
             // si está dentro de una clase es una función declarada de ntro de un metodo y se guarda en el vector de funciones declaradas en clases
             vectorOfFunctionDeclaredInClasses->add(fs);
+            cantOfRecursionsInMethod--;
         }
             
 }
