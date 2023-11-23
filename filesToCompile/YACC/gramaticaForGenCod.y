@@ -31,6 +31,7 @@ bool isErrorInCode = false;
 Tercets *tableTercets = new Tercets();
 char charTercetoId = '%';
 bool isVariableToCheck = false;      // booleano que sirve para indicar si se esta declarando una variable con check
+string accesosEfectuados;             // string que sirve para guardar los accesos efectuados en una invocacion múltiple
 
 string typeAux = "";
 string actualClass = "";
@@ -223,18 +224,20 @@ ejecutable  :    asignacion
             ;
 
 asignacion : IDENTIFICADOR '=' expresion_aritmetica                     { newAsignacion($1->ptr, tableSymbol->getScope(), $3->ptr,$3->type);}
-           | IDENTIFICADOR '.' IDENTIFICADOR '=' expresion_aritmetica   { newAsignacionObjectAttribute($1->ptr, $3->ptr, tableSymbol->getScope(), $5->ptr, $5->type, $5->ptr,$5->type); }
+           | accesoObjetos '.' IDENTIFICADOR '=' expresion_aritmetica   { newAsignacionObjectAttribute($1->ptr, $3->ptr, tableSymbol->getScope(), $5->ptr, $5->type, $5->ptr,$5->type); }
            | IDENTIFICADOR OPERADOR_SUMA_SUMA                           { newFactorMasMas($1->ptr, tableSymbol->getScope(), $$->ptr, $$->type); }
-           | IDENTIFICADOR '.' IDENTIFICADOR OPERADOR_SUMA_SUMA         { newUseObjectAttributeFactorMasMas($1->ptr, $3->ptr,  tableSymbol->getScope(), $$->ptr, $$->type); } 
+           | accesoObjetos '.' IDENTIFICADOR OPERADOR_SUMA_SUMA         { newUseObjectAttributeFactorMasMas($1->ptr, $3->ptr,  tableSymbol->getScope(), $$->ptr, $$->type); } 
            ;
 
 invocacion : IDENTIFICADOR '(' expresion_aritmetica ')'                     { newInvocacionWithParam($1->ptr, tableSymbol->getScope(), $3->ptr, $3->type, $$->ptr); }
            | IDENTIFICADOR '(' ')'                                          { newInvocacion($1->ptr, tableSymbol->getScope(), $$->ptr); }
-           | IDENTIFICADOR '.' IDENTIFICADOR '(' expresion_aritmetica ')'   { newInvocacionMethodWithParam($1->ptr, $3->ptr, tableSymbol->getScope(), $5->ptr, $5->type, $$->ptr); }   
-           | IDENTIFICADOR '.' IDENTIFICADOR '(' ')'                        { newInvocacionMethod($1->ptr, $3->ptr, tableSymbol->getScope(), $$->ptr); }   
+           | accesoObjetos '.' IDENTIFICADOR '(' expresion_aritmetica ')'   { newInvocacionMethodWithParam($1->ptr, $3->ptr, tableSymbol->getScope(), $5->ptr, $5->type, $$->ptr); }   
+           | accesoObjetos '.' IDENTIFICADOR '(' ')'                        { newInvocacionMethod($1->ptr, $3->ptr, tableSymbol->getScope(), $$->ptr); }   
            ;
 
-
+accesoObjetos : accesoObjetos '.' IDENTIFICADOR                             { accessObjects($1->ptr, $3->ptr, $$->ptr); }
+              | IDENTIFICADOR                                               { accessObject($1->ptr, $$->ptr); }
+              ;
 expresion_aritmetica : expresion_aritmetica '+' termino         { newOperacionAritmetica("+", $1->ptr, $3->ptr, $1->type, $3->type, $$->ptr, $$->type); }
                     | expresion_aritmetica '-' termino          { newOperacionAritmetica("-", $1->ptr, $3->ptr, $1->type, $3->type, $$->ptr, $$->type); }
                     | expresion_aritmetica '-' '*' termino      { newOperacionAritmetica("-", $1->ptr, $4->ptr, $1->type, $4->type, $$->ptr, $$->type); yywarning("Se detecto un error en operador, quedara '-'"); }
@@ -338,8 +341,8 @@ factor : IDENTIFICADOR                                                  { checkV
        | constanteSinSigno                                              { $$->ptr = $1->ptr; $$->type = $1->type;}
        | constanteConSigno                                              { $$->ptr = $1->ptr; $$->type = $1->type;}
        | TOF '(' expresion_aritmetica ')'                               { newTof($3->ptr,$$->ptr,$$->type); } 
-       | IDENTIFICADOR '.' IDENTIFICADOR                                { newUseObjectAttribute($1->ptr, $3->ptr,  tableSymbol->getScope(), $$->ptr, $$->type); } 
-       | IDENTIFICADOR '.' IDENTIFICADOR OPERADOR_SUMA_SUMA             { newUseObjectAttributeFactorMasMas($1->ptr, $3->ptr,  tableSymbol->getScope(), $$->ptr, $$->type); } 
+       | accesoObjetos '.' IDENTIFICADOR                                { newUseObjectAttribute($1->ptr, $3->ptr,  tableSymbol->getScope(), $$->ptr, $$->type); } 
+       | accesoObjetos '.' IDENTIFICADOR OPERADOR_SUMA_SUMA             { newUseObjectAttributeFactorMasMas($1->ptr, $3->ptr,  tableSymbol->getScope(), $$->ptr, $$->type); } 
        | CADENA_CARACTERES                                              { yyerror("No se puede operar con cadena de caracteres");{ $$->ptr = $1->ptr; $$->type = $1->type;} }          
        ;
 
@@ -452,6 +455,26 @@ symbol* setNewScope(string key, string type, string scope, string uso, TableSymb
         // retornamos el puntero al simbolo
         return newIdentificador;
 }
+vector<string> getAccesoFromString(string _accesos){
+    vector<string> elementos;
+
+    size_t posInicio = 0;
+    size_t posDelimitador = _accesos.find(':');
+
+    while (posDelimitador != string::npos) {
+        string elemento = _accesos.substr(posInicio, posDelimitador - posInicio);
+        elementos.push_back(elemento);
+
+        posInicio = posDelimitador + 1;
+        posDelimitador = _accesos.find(':', posInicio);
+    }
+
+    // El último elemento después del último delimitador
+    string ultimoElemento = _accesos.substr(posInicio);
+    elementos.push_back(ultimoElemento);
+
+    return elementos;
+};
 // Crea un terceto y lo agrega a la tabla de tercetos.
 // Los paramtros son argumento, operador1, y operador2
 int addTercet(string argumento, string operando1, string operando2){
@@ -1756,6 +1779,40 @@ symbol* getFirstSymbolMatchingOfAttribute(string attributeName, symbol* classSym
     }           
 }
 /**
+ * Esta función busca el símbolo de un objeto que tenga el mismo nombre que el parámetro en el símbolo del a clase, si no está busca en sus herencias.
+ * si encuentra el símbolo lo devuelve y sino devuelve nullptr
+ *
+ * @param key La clave del método a buscar.
+ * @param classSymbol La tabla de símbolos de la clase actual en la que buscar.
+ * @return puntero al simbolo del atributo encontrado o nullptr sino lo encuentra
+ */
+symbol* getFirstSymbolMatchingOfObject(string objectName, symbol* classSymbol){
+    
+    // verificamos si el elemento está en la tabla de símbolos de la clase actual, si está devolvemos el símbolo
+    // si no es asi verificamos si está en alguna de las que hereda (de derecha a izquierda), si está devilvemos el símbolo
+    // sino lo encontramos devolvemos nullptr
+    
+    // obtenemos el simbolo que tenga el mismo nombre (solo mira la primer parte del nombre) y el mismo uso
+    symbol* symbolAttribute = classSymbol->attributesAndMethodsVector->getElementInTableByFisrtPartAndUse(objectName, "objeto");
+    if(symbolAttribute != nullptr){
+        // si encontramos el atributo en la tabla de símbolos de la clase actual devolvemos el símbolo
+        return symbolAttribute;
+    }else{
+        // si no encontramos símbolo en la tabla principal dela clase buscamos en sus herencias de derecha a izquierda ya que si hay sobre escritura buscamos la más reciente
+        for (int i=1; i >= 0; i--){
+            if(classSymbol->inheritance[i]!=nullptr){
+                
+                // obtener el símbolo de la clase que hereda
+                symbolAttribute = classSymbol->inheritance[i]->getElementInTableByFisrtPartAndUse(objectName, "objeto");
+                if(symbolAttribute != nullptr){
+                    return symbolAttribute;
+                }
+            }
+        }
+        return nullptr;
+    }           
+}
+/**
  * Esta función se llama cuando se detecta el uso de un atributo en una expresión aritmética (a la derecha de una asignación).
  * Verifica que el objeto esté declarado y obtiene su clase.
  * Verifica que la clase exista.
@@ -1771,14 +1828,18 @@ symbol* getFirstSymbolMatchingOfAttribute(string attributeName, symbol* classSym
  */
 void newUseObjectAttribute(string objectName, string attributeName, string scope, string& reglaptr, string& reglatype){
 
+    vector<string> accesos = getAccesoFromString(objectName);
+   
     // Verifica que el objeto este declarado y obtiene su clase
-    symbol* objectSymbol = tableSymbol->getFirstSymbolMatching2(objectName, "objeto", scope);
+    symbol* objectSymbol = tableSymbol->getFirstSymbolMatching2(accesos[0], "objeto", scope);
+    symbol* classSymbol = nullptr;
+    string classOfObject;
     if(objectSymbol == nullptr){
             yyerror("No se encontro declaracion previa del objeto"+ objectName);
     }else{
         // si encontramos el objeto declarado obtenemos su clase y verificamos que exista la clase en el scope ":main" ya que todas las clases van ahí
-        string classOfObject = objectSymbol->classOfSymbol;
-        symbol* classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
+        classOfObject = objectSymbol->classOfSymbol;
+        classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
         if(classSymbol == nullptr){
             // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
             yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
@@ -1789,18 +1850,41 @@ void newUseObjectAttribute(string objectName, string attributeName, string scope
                 reglatype = "pospone";
                 return;
             }
+            // ya encontraste el primer objeto en u ámbito alcanzable, ahora buscamos dentro de su clase cada uno de los diferentes acccesos
+            for(int i = 1; i < accesos.size(); i++){
+                objectSymbol = getFirstSymbolMatchingOfObject(accesos[i], classSymbol);
+                if(objectSymbol == nullptr){
+                    yyerror("No se encontro declaracion previa del objeto "+ accesos[i] + " en la clase " + classSymbol->classOfSymbol + " del objeto " + accesos[i-1]); 
+                    return;
+                }else{
+                    classOfObject = objectSymbol->classOfSymbol;
+                    classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
+                    if(classSymbol == nullptr){
+                        // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
+                        yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
+                        return;
+                    }else{
+                        if(objectSymbol->posponeForForwarding){
+                            reglaptr =  attributeName+":"+classOfObject+":"+objectName+scope;
+                            reglatype = "pospone";
+                            return;
+                        }
+                    }
+                }
+            }
+
             // si encontramos la clase verificamos que contenga el atributo     
             symbol* attributeSymbol = getFirstSymbolMatchingOfAttribute(attributeName, classSymbol);
 
             if(attributeSymbol == nullptr){
-                yyerror("No se encontro declaracion previa del atributo "+ attributeName + " en la clase " + classOfObject + " del objeto " + objectName); 
+                yyerror("No se encontro declaracion previa del atributo "+ attributeName + " en la clase " + classOfObject + " del objeto " + accesos[accesos.size()-1]); 
             }else{
                 // encontramos el atributo en la clase y obtenemos el scope estático del atributo, 
                 // buscamos en la tabla general el scope estático + le nombre del objeto + el scope actual y obtenemos el simbolo del primer atributo que coincida
                 
-                attributeSymbol = tableSymbol->getFirstSymbolMatching2(attributeSymbol->lexema + ":" + objectName, "atributo", scope);
+                attributeSymbol = tableSymbol->getFirstSymbolMatching2(attributeSymbol->lexema + ":" + accesos[accesos.size()-1], "atributo", scope);
                 if (attributeSymbol == nullptr){
-                    yyerror("No se encontro declaracion previa del atributo "+ attributeName + " en la clase " + classOfObject + " del objeto " + objectName);
+                    yyerror("No se encontro declaracion previa del atributo "+ attributeName + " en la clase " + classOfObject + " del objeto " + accesos[accesos.size()-1]);
                 }else{
                     reglaptr =  attributeSymbol->lexema;
                     reglatype = attributeSymbol->type;
@@ -1827,15 +1911,22 @@ void newUseObjectAttribute(string objectName, string attributeName, string scope
  * @param reglatype Tipo del atributo.
  */
 void newAsignacionObjectAttribute(string objectName, string attributeName, string scope, string op2Lexeme, string op2Type, string& reglaptr, string& reglatype){
-
+    // la idea es que sabemos los accesos que hay que usar, entonces es buscar el primer símbolo del objeto, tomar suclase yverificar que tenga el segundo objeto y así
+    // luego debemos quedarnos con el último símbolo de objeto y guardarlo en objectSymbol
+    // si alguno de los objetos está pospuesto debemos crear el terceto correspondiente marcando los pospuestos y marcando todos los accesos para en el forwarding poder acceder
+    
+    vector<string> accesos = getAccesoFromString(objectName);
+   
     // Verifica que el objeto este declarado y obtiene su clase
-    symbol* objectSymbol = tableSymbol->getFirstSymbolMatching2(objectName, "objeto", scope);
+    symbol* objectSymbol = tableSymbol->getFirstSymbolMatching2(accesos[0], "objeto", scope);
+    symbol* classSymbol = nullptr;
+    string classOfObject;
     if(objectSymbol == nullptr){
             yyerror("No se encontro declaracion previa del objeto"+ objectName);
     }else{
         // si encontramos el objeto declarado obtenemos su clase y verificamos que exista la clase en el scope ":main" ya que todas las clases van ahí
-        string classOfObject = objectSymbol->classOfSymbol;
-        symbol* classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
+        classOfObject = objectSymbol->classOfSymbol;
+        classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
         if(classSymbol == nullptr){
             // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
             yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
@@ -1848,18 +1939,43 @@ void newAsignacionObjectAttribute(string objectName, string attributeName, strin
                 reglaptr = charTercetoId + to_string(number);
                 return;
             }
+            // ya encontraste el primer objeto en u ámbito alcanzable, ahora buscamos dentro de su clase cada uno de los diferentes acccesos
+            for(int i = 1; i < accesos.size(); i++){
+                objectSymbol = getFirstSymbolMatchingOfObject(accesos[i], classSymbol);
+                if(objectSymbol == nullptr){
+                    yyerror("No se encontro declaracion previa del objeto "+ accesos[i] + " en la clase " + classSymbol->classOfSymbol + " del objeto " + accesos[i-1]); 
+                    return;
+                }else{
+                    classOfObject = objectSymbol->classOfSymbol;
+                    classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
+                    if(classSymbol == nullptr){
+                        // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
+                        yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
+                        return;
+                    }else{
+                        if(objectSymbol->posponeForForwarding){
+                        // agregamos el terceto la llamada al metodo en la respectiva tabla de tercetos pero indicando que el símbolo está pospuesto
+                        int number = addTercetPospone("=", attributeName+":"+classOfObject+":"+objectName+scope, op2Lexeme, true, false, "pospone", op2Type);
+
+                        reglaptr = charTercetoId + to_string(number);
+                        return;
+                        }
+                    }
+                }
+            }
+
             // si encontramos la clase verificamos que contenga el atributo     
             symbol* attributeSymbol = getFirstSymbolMatchingOfAttribute(attributeName, classSymbol);
 
             if(attributeSymbol == nullptr){
-                yyerror("No se encontro declaracion previa del atributo "+ attributeName + " en la clase " + classOfObject + " del objeto " + objectName); 
+                yyerror("No se encontro declaracion previa del atributo "+ attributeName + " en la clase " + classOfObject + " del objeto " + accesos[accesos.size()-1]); 
             }else{
                 // encontramos el atributo en la clase y obtenemos el scope estático del atributo, 
                 // buscamos en la tabla general el scope estático + le nombre del objeto + el scope actual y obtenemos el simbolo del primer atributo que coincida
                 
-                attributeSymbol = tableSymbol->getFirstSymbolMatching2(attributeSymbol->lexema + ":" + objectName, "atributo", scope);
+                attributeSymbol = tableSymbol->getFirstSymbolMatching2(attributeSymbol->lexema + ":" + accesos[0], "atributo", scope);
                 if (attributeSymbol == nullptr){
-                    yyerror("No se encontro declaracion previa del atributo "+ attributeName + " en la clase " + classOfObject + " del objeto " + objectName);
+                    yyerror("No se encontro declaracion previa del atributo "+ attributeName + " en la clase " + classOfObject + " del objeto " + accesos[accesos.size()-1]);
                 }else{
                     // checkeamos que los tipos sean iguales 
                     checkTypesAsignation(attributeSymbol->type, op2Type); 
@@ -1877,39 +1993,67 @@ void newAsignacionObjectAttribute(string objectName, string attributeName, strin
 
 void newUseObjectAttributeFactorMasMas(string objectName, string attributeName, string scope, string& reglaptr, string& reglatype){
 
+    vector<string> accesos = getAccesoFromString(objectName);
+   
     // Verifica que el objeto este declarado y obtiene su clase
-    symbol* objectSymbol = tableSymbol->getFirstSymbolMatching2(objectName, "objeto", scope);
+    symbol* objectSymbol = tableSymbol->getFirstSymbolMatching2(accesos[0], "objeto", scope);
+    symbol* classSymbol = nullptr;
+    string classOfObject;
     if(objectSymbol == nullptr){
             yyerror("No se encontro declaracion previa del objeto"+ objectName);
     }else{
         // si encontramos el objeto declarado obtenemos su clase y verificamos que exista la clase en el scope ":main" ya que todas las clases van ahí
-        string classOfObject = objectSymbol->classOfSymbol;
-        symbol* classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
+        classOfObject = objectSymbol->classOfSymbol;
+        classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
         if(classSymbol == nullptr){
             // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
             yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
         }else{
             // si el objeto fue pospuesto por forwarding entonces el checkeo del uso se pospone también
             if(objectSymbol->posponeForForwarding){
-                // agregamos el terceto la llamada al metodo en la respectiva tabla de tercetos pero indicando que el símbolo está pospuesto
                 int number = addTercetPospone("++", attributeName+":"+classOfObject+":"+objectName+scope, "", true, false, "pospone", ""); 
                 number = addTercetPospone("=", attributeName+":"+classOfObject+":"+objectName+scope, charTercetoId + to_string(number), true, false,"pospone",""); 
                 reglaptr = attributeName+":"+classOfObject+":"+objectName+scope;
                 reglatype = "pospone";
                 return;
             }
+            // ya encontraste el primer objeto en u ámbito alcanzable, ahora buscamos dentro de su clase cada uno de los diferentes acccesos
+            for(int i = 1; i < accesos.size(); i++){
+                objectSymbol = getFirstSymbolMatchingOfObject(accesos[i], classSymbol);
+                if(objectSymbol == nullptr){
+                    yyerror("No se encontro declaracion previa del objeto "+ accesos[i] + " en la clase " + classSymbol->classOfSymbol + " del objeto " + accesos[i-1]); 
+                    return;
+                }else{
+                    classOfObject = objectSymbol->classOfSymbol;
+                    classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
+                    if(classSymbol == nullptr){
+                        // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
+                        yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
+                        return;
+                    }else{
+                        if(objectSymbol->posponeForForwarding){
+                            int number = addTercetPospone("++", attributeName+":"+classOfObject+":"+objectName+scope, "", true, false, "pospone", ""); 
+                            number = addTercetPospone("=", attributeName+":"+classOfObject+":"+objectName+scope, charTercetoId + to_string(number), true, false,"pospone",""); 
+                            reglaptr = attributeName+":"+classOfObject+":"+objectName+scope;
+                            reglatype = "pospone";
+                            return;
+                        }
+                    }
+                }
+            }
+
             // si encontramos la clase verificamos que contenga el atributo     
             symbol* attributeSymbol = getFirstSymbolMatchingOfAttribute(attributeName, classSymbol);
 
             if(attributeSymbol == nullptr){
-                yyerror("No se encontro declaracion previa del atributo "+ attributeName + " en la clase " + classOfObject + " del objeto " + objectName); 
+                yyerror("No se encontro declaracion previa del atributo "+ attributeName + " en la clase " + classOfObject + " del objeto " + accesos[accesos.size()-1]); 
             }else{
                 // encontramos el atributo en la clase y obtenemos el scope estático del atributo, 
                 // buscamos en la tabla general el scope estático + le nombre del objeto + el scope actual y obtenemos el simbolo del primer atributo que coincida
                 
-                attributeSymbol = tableSymbol->getFirstSymbolMatching2(attributeSymbol->lexema + ":" + objectName, "atributo", scope);
+                attributeSymbol = tableSymbol->getFirstSymbolMatching2(attributeSymbol->lexema + ":" + accesos[0], "atributo", scope);
                 if (attributeSymbol == nullptr){
-                    yyerror("No se encontro declaracion previa del atributo "+ attributeName + " en la clase " + classOfObject + " del objeto " + objectName);
+                    yyerror("No se encontro declaracion previa del atributo "+ attributeName + " en la clase " + classOfObject + " del objeto " + accesos[accesos.size()-1]);
                 }else{
                     string value = "";
                     if(attributeSymbol->type == "unsigned int"){
@@ -1922,7 +2066,7 @@ void newUseObjectAttributeFactorMasMas(string objectName, string attributeName, 
                     int number = addTercet("+", attributeSymbol->lexema, value);   
                     number = addTercet("=", attributeSymbol->lexema, charTercetoId + to_string(number));           
                 
-                    reglaptr = charTercetoId + to_string(number);
+                    reglaptr = attributeSymbol->lexema;
                     reglatype = attributeSymbol->type;
                 }
             }
@@ -2064,42 +2208,72 @@ void newInvocacionMethod(string objectName, string methodName, string scope, str
 
     */
 
+    vector<string> accesos = getAccesoFromString(objectName);
+   
     // Verifica que el objeto este declarado y obtiene su clase
-    symbol* objectSymbol = tableSymbol->getFirstSymbolMatching2(objectName, "objeto", scope);
+    symbol* objectSymbol = tableSymbol->getFirstSymbolMatching2(accesos[0], "objeto", scope);
+    symbol* classSymbol = nullptr;
+    string classOfObject;
     if(objectSymbol == nullptr){
             yyerror("No se encontro declaracion previa del objeto"+ objectName);
     }else{
         // si encontramos el objeto declarado obtenemos su clase y verificamos que exista la clase en el scope ":main" ya que todas las clases van ahí
-        string classOfObject = objectSymbol->classOfSymbol;
-        symbol* classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
+        classOfObject = objectSymbol->classOfSymbol;
+        classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
         if(classSymbol == nullptr){
             // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
             yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
         }else{
             // si el objeto fue pospuesto por forwarding entonces el checkeo del uso se pospone también
             if(objectSymbol->posponeForForwarding){
-                // agregamos el terceto la llamada al metodo en la respectiva tabla de tercetos pero indicando que el símbolo está pospuesto
+                /// agregamos el terceto la llamada al metodo en la respectiva tabla de tercetos pero indicando que el símbolo está pospuesto
                 int number = addTercetPospone("call", methodName+":"+classOfObject+":"+objectName+scope, "", true, false,"pospone","");
 
                 reglaptr = charTercetoId + to_string(number);
                 return;
             }
+            // ya encontraste el primer objeto en u ámbito alcanzable, ahora buscamos dentro de su clase cada uno de los diferentes acccesos
+            for(int i = 1; i < accesos.size(); i++){
+                objectSymbol = getFirstSymbolMatchingOfObject(accesos[i], classSymbol);
+                if(objectSymbol == nullptr){
+                    yyerror("No se encontro declaracion previa del objeto "+ accesos[i] + " en la clase " + classSymbol->classOfSymbol + " del objeto " + accesos[i-1]); 
+                    return;
+                }else{
+                    classOfObject = objectSymbol->classOfSymbol;
+                    classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
+                    if(classSymbol == nullptr){
+                        // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
+                        yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
+                        return;
+                    }else{
+                        if(objectSymbol->posponeForForwarding){
+                            // agregamos el terceto la llamada al metodo en la respectiva tabla de tercetos pero indicando que el símbolo está pospuesto
+                            int number = addTercetPospone("call", methodName+":"+classOfObject+":"+objectName+scope, "", true, false,"pospone","");
+
+                            reglaptr = charTercetoId + to_string(number);
+                            return;
+                        }
+                    }
+                }
+            }
+
+
             // si encontramos la clase verificamos que contenga el metodo    
             symbol* methodSymbol = getFirstSymbolMatchingOfMethod(methodName, classSymbol);
 
             if(methodSymbol == nullptr){
-                yyerror("No se encontro declaracion previa del metodo "+ methodName + " en la clase " + classOfObject + " del objeto " + objectName); 
+                yyerror("No se encontro declaracion previa del metodo "+ methodName + " en la clase " + classOfObject + " del objeto " + accesos[accesos.size()-1]); 
             }else{
                 // encontramos el metodo en la clase y obtenemos el scope estático del metodo, 
                 // buscamos en la tabla general el scope estático + el nombre del objeto + el scope actual y obtenemos el simbolo del primer metodo que coincida
                 
-                methodSymbol = tableSymbol->getFirstSymbolMatching2(methodSymbol->lexema + ":" + objectName, "metodo", scope);
+                methodSymbol = tableSymbol->getFirstSymbolMatching2(methodSymbol->lexema + ":" + accesos[0], "metodo", scope);
                 if (methodSymbol == nullptr){
-                    yyerror("No se encontro declaracion previa del metodo "+ methodName + " en la clase " + classOfObject + " del objeto " + objectName);
+                    yyerror("No se encontro declaracion previa del metodo "+ methodName + " en la clase " + classOfObject + " del objeto " + accesos[accesos.size()-1]);
                 }else{
                     // verificamos que el metodo no tenga parametros
                     if(methodSymbol->cantParam != 0){
-                        yyerror("Se esta llamando al metodo "+ methodName + " del objeto " + objectName + " sin pasarle un parametro, el parametro debe ser de tipo " + methodSymbol->typeParam);
+                        yyerror("Se esta llamando al metodo "+ methodName + " del objeto " + accesos[0] + " sin pasarle un parametro, el parametro debe ser de tipo " + methodSymbol->typeParam);
                     }
                     // agregamos el terceto la llamada al metodo en la respectiva tabla de tercetos
                     int number = addTercet("call", methodSymbol->lexema, "");
@@ -2124,14 +2298,18 @@ void newInvocacionMethodWithParam(string objectName, string methodName, string s
 
     */
 
+    vector<string> accesos = getAccesoFromString(objectName);
+   
     // Verifica que el objeto este declarado y obtiene su clase
-    symbol* objectSymbol = tableSymbol->getFirstSymbolMatching2(objectName, "objeto", scope);
+    symbol* objectSymbol = tableSymbol->getFirstSymbolMatching2(accesos[0], "objeto", scope);
+    symbol* classSymbol = nullptr;
+    string classOfObject;
     if(objectSymbol == nullptr){
             yyerror("No se encontro declaracion previa del objeto"+ objectName);
     }else{
         // si encontramos el objeto declarado obtenemos su clase y verificamos que exista la clase en el scope ":main" ya que todas las clases van ahí
-        string classOfObject = objectSymbol->classOfSymbol;
-        symbol* classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
+        classOfObject = objectSymbol->classOfSymbol;
+        classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
         if(classSymbol == nullptr){
             // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
             yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
@@ -2148,6 +2326,36 @@ void newInvocacionMethodWithParam(string objectName, string methodName, string s
                 reglaptr = charTercetoId + to_string(number);
                 return;
             }
+            // ya encontraste el primer objeto en u ámbito alcanzable, ahora buscamos dentro de su clase cada uno de los diferentes acccesos
+            for(int i = 1; i < accesos.size(); i++){
+                objectSymbol = getFirstSymbolMatchingOfObject(accesos[i], classSymbol);
+                if(objectSymbol == nullptr){
+                    yyerror("No se encontro declaracion previa del objeto "+ accesos[i] + " en la clase " + classSymbol->classOfSymbol + " del objeto " + accesos[i-1]); 
+                    return;
+                }else{
+                    classOfObject = objectSymbol->classOfSymbol;
+                    classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
+                    if(classSymbol == nullptr){
+                        // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
+                        yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
+                        return;
+                    }else{
+                        if(objectSymbol->posponeForForwarding){
+                        // agregamos el terceto la llamada al metodo en la respectiva tabla de tercetos pero indicando que el símbolo está pospuesto
+                        // como tiene un parametro se lo ponemoscomo segundo argumetno para suposterior uso
+                        // creamos un terceto de pasaje de parametro con su ptr y su tipo
+                        int number = addTercet("paramReal", ptrParam, typeParam);
+                        number = addTercet("paramFormal", "", "");
+                        number = addTercetPospone("call", methodName+":"+classOfObject+":"+objectName+scope, typeParam+":"+ptrParam, true, false,"pospone","");
+
+                        reglaptr = charTercetoId + to_string(number);
+                        return;
+                        }
+                    }
+                }
+            }
+            
+
             // si encontramos la clase verificamos que contenga el metodo    
             symbol* methodSymbol = getFirstSymbolMatchingOfMethod(methodName, classSymbol);
             /*
@@ -2156,14 +2364,14 @@ void newInvocacionMethodWithParam(string objectName, string methodName, string s
             */
 
             if(methodSymbol == nullptr){
-                yyerror("No se encontro declaracion previa del metodo "+ methodName + " en la clase " + classOfObject + " del objeto " + objectName); 
+                yyerror("No se encontro declaracion previa del metodo "+ methodName + " en la clase " + classOfObject + " del objeto " + accesos[accesos.size()-1]); 
             }else{
                 // encontramos el metodo en la clase y obtenemos el scope estático del metodo, 
                 // buscamos en la tabla general el scope estático + el nombre del objeto + el scope actual y obtenemos el simbolo del primer metodo que coincida
                 
-                methodSymbol = tableSymbol->getFirstSymbolMatching2(methodSymbol->lexema + ":" + objectName, "metodo", scope);
+                methodSymbol = tableSymbol->getFirstSymbolMatching2(methodSymbol->lexema + ":" + accesos[0], "metodo", scope);
                 if (methodSymbol == nullptr){
-                    yyerror("No se encontro declaracion previa del metodo "+ methodName + " en la clase " + classOfObject + " del objeto " + objectName);
+                    yyerror("No se encontro declaracion previa del metodo "+ methodName + " en la clase " + classOfObject + " del objeto " + accesos[accesos.size()-1]);
                 }else{
                     // verificamos que el metodo tenga parametros
                     if(methodSymbol->cantParam == 0){
@@ -2229,6 +2437,14 @@ void addObjectToClass(string objectName, string scope, string className, string 
             tsClass->insert(newAttribute);
     }        
 }
+void accessObjects(string _accesosEfectuados, string _nuevoAcceso, string& _reglaptr){
+    _reglaptr = _accesosEfectuados + ":" + _nuevoAcceso;
+    accesosEfectuados = _accesosEfectuados + ":" + _nuevoAcceso;
+};
+void accessObject(string _nuevoAcceso, string& _reglaptr){
+    _reglaptr = _nuevoAcceso;
+    accesosEfectuados = _nuevoAcceso;
+};
 void verifyAllClassForwardedAreDeclared(){
         // esta función se encarga de recorrer la tabla de símbolo y por cada clase verifica que no este forwardeada
 
