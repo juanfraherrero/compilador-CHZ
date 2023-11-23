@@ -1,0 +1,46 @@
+{
+    CLASS clase2,
+    CLASS clase1 {                          
+        SHORT z,                      *{ declaración de variable en clase }*      
+        VOID metodo1 ()                
+        {   
+            clase2 obprueba2,
+            SHORT x,
+            x = 3_s,
+            VOID func3()                
+            {   
+                SHORT x,
+                x = 3_s,
+                obprueba2.metodo2(x),
+                RETURN,
+            },
+            func3(),
+            RETURN,
+        },                              
+    },         
+    CLASS clase2 {                          
+        clase1,
+        SHORT z,
+        VOID metodo2 (SHORT w)                
+        {   
+            clase1 obprueba,                 
+            UINT x,
+            x = 3_ui,
+            VOID func3()                
+            {   
+                SHORT x,
+                x = 3_s,
+                obprueba.metodo1(),
+                RETURN,
+            },
+            func3(),
+            RETURN,
+        },                                  
+    },                        
+
+    clase2 ob2,
+    
+    SHORT a,
+    UINT b,
+    ob2.metodo2(a),
+}

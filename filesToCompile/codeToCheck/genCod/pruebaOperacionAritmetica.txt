@@ -1,0 +1,12 @@
+{
+    SHORT x; y,
+    x = 1_s,
+    y = 2_s,
+    x = x + y,
+     
+    IF (x == 3_s){
+        PRINT #El resultado fue correcto#,
+    } ELSE {
+        PRINT #El resultado fue incorrecto#,
+    } END_IF,
+}

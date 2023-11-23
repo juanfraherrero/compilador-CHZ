@@ -96,9 +96,24 @@ void AssemblerGenerator::generateFunctionsAssembler(){
         if (f){
             Tercets * functionTercets = f->ter;
             this->code += reemplazarCaracter(f->name,':','_') + ":\n";
+            //Chequeo de recursividad mutua
+            this->code += "CMP _flagRecursividadMutua" + reemplazarCaracter(f->name,':','_') + ", 1\n";
+            this->code += "JE labelErrorRecursion\n";
+
+            //Insertamos en la tabla de simbolos el flag de recursividad mutua asociado a la funcion.
+            this->tableSymbol->insert(new symbol("flagRecursividadMutua" + reemplazarCaracter(f->name,':','_'), "0", "short", "var"));
+            
+            int n = functionTercets->getTercets().size();
+            int i = 0;
             for (auto t : functionTercets->getTercets()){
-                if (t)
+                if (t){
+                    if (i == n-1){
+                        //En la ultima linea, seteamos el flag de recursividad mutua en 0.
+                        this->code += "MOV " "_flagRecursividadMutua" + reemplazarCaracter(f->name,':','_') + ", 0\n";
+                    }
                     this->code += getTercetAssembler(t, functionTercets);
+                }
+                i++;
             }
         }
         
@@ -110,7 +125,7 @@ void AssemblerGenerator::generateMainAssembler(){
     for (auto t : tercets->getTercets()){
         this->code += getTercetAssembler(t, this->tercets);
     }
-    this->code += "INVOKE ExitProcess, 0\n";
+    this->code += "INVOKE ExitProcess, 0\n\n";
 }
 
 void AssemblerGenerator::generateCode(){
@@ -424,8 +439,13 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
     }
     //Branch incondicional
     else if (tercet->getOp() == "BI"){
-        string label = tercets->get(stoi(tercet->getArg1().substr(1)))->getArg1();
-        out+= "JMP " + label + "\n";
+        if (tercet->getArg1() != ""){
+            string label = tercets->get(stoi(tercet->getArg1().substr(1)))->getArg1();
+            out+= "JMP " + label + "\n";
+        } else if (tercet->getArg2() != ""){
+            string label = tercets->get(stoi(tercet->getArg2().substr(1)))->getArg1();
+            out+= "JMP " + label + "\n";
+        }
     }
     //Label
     else if (tercet->getOp() == "label"){
@@ -433,6 +453,7 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
     }
     //Llamado a subrutina
     else if (tercet->getOp() == "call"){
+        this->recursionMutua = true;
         out += "CALL " + op1.substr(1) + "\n";
     }
     //Return
