@@ -659,6 +659,80 @@ void createFunctionTerecets(string objectName, string scope, symbol* simboloDeFu
     vectorOfFunction->add(copyOfTheStack);
 
 };
+// ob1 ob2:main:clase1 :main clase1
+bool instanciateObject(string objectName, string objectWithScopeStatic, string scopeDynamic, string classNameOfNewObject){
+
+    // obtenemos el símbolo de la clase del objeto
+    symbol* classOfNewObject = tableSymbol->getFirstSymbolMatching2(classNameOfNewObject, "clase", ":main"); // obtenemos el símbolo de la clase del nuevo objeto
+    
+    // verificamos si la clase es una forward declaration 
+    // de ser forward el objeto también se convierte en forwarded para luego isntanciarlo cuando la clase se declare
+    // ya que si es asi no podemos agregar sus atributos y métodos
+    if(classOfNewObject->forwarded){
+        return true;
+    }
+    
+    // recorremos la tabla de símbolos de la clase del objeto y agregamos cada uno de los elementos
+    for (const auto& par : classOfNewObject->attributesAndMethodsVector->getSymbolTable()){
+        symbol* simbolo = par.second;
+        // creamos el nuevo símbolo
+        symbol* newSm = new symbol(*simbolo);                
+        
+        // verificamos si el simbolo es una función o método y cargamos su bloque de tercetos en 
+        //      la tabla de tercetos principal o de ejecución
+        if(newSm->uso=="metodo" || newSm->uso=="funcion"){
+            createFunctionTerecets(objectName, scopeDynamic, newSm, classOfNewObject->attributesAndMethodsVector);
+        }
+                
+        if(newSm->uso=="objeto"){
+            // como el elemento de la clase es un objeto, debemos copiar cada atributo de la clase del objeto e intanciarlo
+            // string objectName = newSm->lexema.substr(0, newSm->lexema.find(":"));
+            // ob1 ob2:main:clase1 :main clase1
+            newSm->posponeForForwarding = instanciateObject(objectName, newSm->lexema, scopeDynamic, newSm->classOfSymbol);
+        }
+
+        newSm->lexema = newSm->lexema+":"+objectName+scopeDynamic; // le agregamos el nombre del objeto + el scope actual
+        
+        // agregamos el nuevo símbolo a la tabla de simbolos        
+        tableSymbol->insert(newSm);
+    }
+
+    // recorremos las herencias de derecha a izquierda y agregamos cada uno de los elementos a la tabla general
+
+    // recorres el arreglo de herencia de esta clase verificando que exista alguna posicion con nullptr, si es asi verificas si esa clase tiene unmetodo con el mismo nombre y si es asi devuelves 1
+    for (int i=1; i >= 0; i--){
+        TableSymbol* tableSymbolMatchingClass = classOfNewObject->inheritance[i];
+        // si hereda de alguna clase recorremos sus simbolos y los agregamos
+        if(tableSymbolMatchingClass != nullptr){
+            
+            // recorremos la tabla de símbolos de la clase que hereda y agregamos cada uno de los elementos
+            for (const auto& par : tableSymbolMatchingClass->getSymbolTable()){
+                symbol* simbolo = par.second;
+                // creamos el nuevo símbolo
+                symbol* newSm = new symbol(*simbolo);                
+                
+                // verificamos si el simbolo es una función o método y cargamos su bloque de tercetos en 
+                //      la tabla de tercetos principal o de ejecución
+                if(newSm->uso=="metodo" || newSm->uso=="funcion"){
+                    createFunctionTerecets(objectName, scopeDynamic, newSm, tableSymbolMatchingClass);
+                }
+
+                if(newSm->uso=="objeto"){
+                    // como el elemento de la clase es un objeto, debemos copiar cada atributo de la clase del objeto e intanciarlo
+                    // string objectName = newSm->lexema.substr(0, newSm->lexema.find(":"));
+                    // ob1 ob2:main:clase1 :main clase1
+                    newSm->posponeForForwarding = instanciateObject(objectName, newSm->lexema, scopeDynamic, newSm->classOfSymbol);
+                }
+
+                newSm->lexema = newSm->lexema+":"+objectName+scopeDynamic; // le agregamos el nombre del objeto + el scope actual
+                
+                // agregamos el nuevo símbolo a la tabla de simbolos        
+                tableSymbol->insert(newSm);
+            }
+        }
+    }
+    
+};
 /**
  * Cuando se detecta una clase que fue forwardeada y un objeto fue declarado de esa clase se llma a esta función
  * instranciamos el obejo cargando los elementos de la tabla de simbolos de la clase y de sus herencias a la tabla general
@@ -667,10 +741,23 @@ void createFunctionTerecets(string objectName, string scope, symbol* simboloDeFu
  * @param classSymbol Puntero al símbolo de la clase del objeto.
  */
 void addObjectForwarded(symbol* symbolObject, symbol* classSymbol){
-        string key = symbolObject->lexema.substr(0, symbolObject->lexema.find(":"));
-        string scope = symbolObject->lexema.substr( symbolObject->lexema.find(":"), symbolObject->lexema.size() );
+        // Encontrar la posición del segundo "main"
+        size_t lastPosMain = symbolObject->lexema.rfind("main");
+        
+        // Encontrar la posición del último ":" antes del segundo "main"
+        size_t posUltimo = symbolObject->lexema.rfind(":", lastPosMain - 2);
+        
+        string correctLexeme;
+        if (posUltimo != string::npos){
+            correctLexeme = symbolObject->lexema.substr(posUltimo + 1);
+        }else{
+            correctLexeme = symbolObject->lexema;
+        };
+        // Extraer la subcadena deseada
+        
+        string key = correctLexeme.substr(0, correctLexeme.find(":"));
+        string scope = correctLexeme.substr( correctLexeme.find(":"), correctLexeme.size());
         string classType = symbolObject->classOfSymbol;
-
               
         // recorremos la tabla de símbolos de la clase del objeto y agregamos cada uno de los elementos
         for (const auto& par : classSymbol->attributesAndMethodsVector->getSymbolTable()){
@@ -683,7 +770,15 @@ void addObjectForwarded(symbol* symbolObject, symbol* classSymbol){
                 if(newSm->uso=="metodo" || newSm->uso=="funcion"){
                     createFunctionTerecets(key, scope, newSm, classSymbol->attributesAndMethodsVector);
                 }
-                        
+
+                if(newSm->uso=="objeto"){
+                    // como el elemento de la clase es un objeto, debemos copiar cada atributo de la clase del objeto e intanciarlo
+                    // string objectName = newSm->lexema.substr(0, newSm->lexema.find(":"));
+                    // ob1 ob2:main:clase1 :main clase1
+
+                    newSm->posponeForForwarding = instanciateObject(key, newSm->lexema, scope, newSm->classOfSymbol);
+                }
+
                 newSm->lexema = newSm->lexema+":"+key+scope; // le agregamos el nombre del objeto + el scope actual
                 
                 // agregamos el nuevo símbolo a la tabla de simbolos        
@@ -977,105 +1072,38 @@ void addParamFunction(string key, string scope, string type, string & reglaptr, 
 };
 
 string checkNewNameBeforeInsert(symbol* newSm){
-        // funcion que se encarga de borrar las apariciones de nombres de clases dentro un lexema 
-        // y de verificar que no exista un nombre igual en el mismo ámbito
-        // la logica funciona en iterar sobre la tabla de symbolor preguntando por cada uno de los lexemas si es que son de tipo clase
-        // si es asi se crea una variable auxiliar donde se concatena de forma correcta el nuevo lexema para buscar si este se encuentra como substring dentro de 
-        // de nuevo lexema a insertar dentro de la tabla de simbolos 
-        
-        for (const auto& par : tableSymbol->getSymbolTable()){
-                symbol* sm = par.second;
-                if(sm->uso == "clase"){
-                        // creo una variable aux para guardar el lexema                 ejemplo= b:main:func3
-                        string lexemaAux = sm->lexema;
-                        //busco la primera aparicion de :                               ejemplo= 2
-                        size_t firstColonPos = lexemaAux.find(':');
-                        //obtengo el nombre de la clase para su uso a posteriori        ejemplo= b
-                        string nameOfClass = lexemaAux.substr(0, firstColonPos); 
-                        //busco el tamaño de la palabra                                 ejemplo= 12
-                        size_t secondColonPos = lexemaAux.size();
-                        //creo el nuevo lexema                                         ejemplo= primer substr = main:func3 segundo substr = b, lo concateno y queda main:func3:b
-                        lexemaAux =  lexemaAux.substr(firstColonPos + 1, secondColonPos)+":"+lexemaAux.substr(0,firstColonPos);
-                        //busco si el nuevo lexema se encuentra dentro del lexema a insertar
-                        size_t pos = newSm->lexema.find(lexemaAux);
-                        // si encuentra una posicion con el find significa que esta
-                        if(pos != string::npos){
-                                //si se encuentra dentro del lexema a insertar, se borra la aparicion de el nombre de la clase unicamente 
-                                size_t pos = newSm->lexema.find(nameOfClass);
-                                newSm->lexema.erase(pos-1, pos);      //siguiendo con el ejemplo y suponiendo que tenemos x:main:func3:b, se borra la aparicion de b y queda x:main:func3
-                                newSm->lexema =  newSm->lexema +":"+nameOfClass; //se concatena el nombre de la clase al final del lexema
-                        }
-                }
+    // funcion que se encarga de borrar las apariciones de nombres de clases dentro un lexema 
+    // y de verificar que no exista un nombre igual en el mismo ámbito
+    // la logica funciona en iterar sobre la tabla de symbolor preguntando por cada uno de los lexemas si es que son de tipo clase
+    // si es asi se crea una variable auxiliar donde se concatena de forma correcta el nuevo lexema para buscar si este se encuentra como substring dentro de 
+    // de nuevo lexema a insertar dentro de la tabla de simbolos 
+    
+    for (const auto& par : tableSymbol->getSymbolTable()){
+        symbol* sm = par.second;
+        if(sm->uso == "clase"){
+            // creo una variable aux para guardar el lexema                 ejemplo= b:main:func3
+            string lexemaAux = sm->lexema;
+            //busco la primera aparicion de :                               ejemplo= 2
+            size_t firstColonPos = lexemaAux.find(':');
+            //obtengo el nombre de la clase para su uso a posteriori        ejemplo= b
+            string nameOfClass = lexemaAux.substr(0, firstColonPos); 
+            //busco el tamaño de la palabra                                 ejemplo= 12
+            size_t secondColonPos = lexemaAux.size();
+            //creo el nuevo lexema                                         ejemplo= primer substr = main:func3 segundo substr = b, lo concateno y queda main:func3:b
+            lexemaAux =  lexemaAux.substr(firstColonPos + 1, secondColonPos)+":"+lexemaAux.substr(0,firstColonPos);
+            //busco si el nuevo lexema se encuentra dentro del lexema a insertar
+            size_t pos = newSm->lexema.find(lexemaAux);
+            // si encuentra una posicion con el find significa que esta
+            if(pos != string::npos){
+                    //si se encuentra dentro del lexema a insertar, se borra la aparicion de el nombre de la clase unicamente 
+                    size_t pos = newSm->lexema.find(nameOfClass);
+                    newSm->lexema.erase(pos-1, pos);      //siguiendo con el ejemplo y suponiendo que tenemos x:main:func3:b, se borra la aparicion de b y queda x:main:func3
+                    newSm->lexema =  newSm->lexema +":"+nameOfClass; //se concatena el nombre de la clase al final del lexema
+            }
         }
-        return newSm->lexema;
+    }
+    return newSm->lexema;
 }
-// ob1 ob2:main:clase1 :main clase1
-bool instanciateObject(string objectName, string objectWithScopeStatic, string scopeDynamic, string classNameOfNewObject){
-
-    // obtenemos el símbolo de la clase del objeto
-    symbol* classOfNewObject = tableSymbol->getFirstSymbolMatching2(classNameOfNewObject, "clase", ":main"); // obtenemos el símbolo de la clase del nuevo objeto
-    
-    // verificamos si la clase es una forward declaration 
-    // de ser forward el objeto también se convierte en forwarded para luego isntanciarlo cuando la clase se declare
-    // ya que si es asi no podemos agregar sus atributos y métodos
-    if(classOfNewObject->forwarded){
-        return true;
-    }
-    
-    // recorremos la tabla de símbolos de la clase del objeto y agregamos cada uno de los elementos
-    for (const auto& par : classOfNewObject->attributesAndMethodsVector->getSymbolTable()){
-            symbol* simbolo = par.second;
-            // creamos el nuevo símbolo
-            symbol* newSm = new symbol(*simbolo);                
-            
-            // verificamos si el simbolo es una función o método y cargamos su bloque de tercetos en 
-            //      la tabla de tercetos principal o de ejecución
-            if(newSm->uso=="metodo" || newSm->uso=="funcion"){
-                createFunctionTerecets(objectName, scopeDynamic, newSm, classOfNewObject->attributesAndMethodsVector);
-            }
-                    
-            if(newSm->uso=="objeto"){
-                // como el elemento de la clase es un objeto, debemos copiar cada atributo de la clase del objeto e intanciarlo
-                // string objectName = newSm->lexema.substr(0, newSm->lexema.find(":"));
-                // ob1 ob2:main:clase1 :main clase1
-                newSm->posponeForForwarding = instanciateObject(objectName, newSm->lexema, scopeDynamic, newSm->classOfSymbol);
-            }
-
-            newSm->lexema = newSm->lexema+":"+objectName+scopeDynamic; // le agregamos el nombre del objeto + el scope actual
-            
-            // agregamos el nuevo símbolo a la tabla de simbolos        
-            tableSymbol->insert(newSm);
-    }
-
-    // recorremos las herencias de derecha a izquierda y agregamos cada uno de los elementos a la tabla general
-
-    // recorres el arreglo de herencia de esta clase verificando que exista alguna posicion con nullptr, si es asi verificas si esa clase tiene unmetodo con el mismo nombre y si es asi devuelves 1
-    for (int i=1; i >= 0; i--){
-        TableSymbol* tableSymbolMatchingClass = classOfNewObject->inheritance[i];
-        // si hereda de alguna clase recorremos sus simbolos y los agregamos
-        if(tableSymbolMatchingClass != nullptr){
-            
-            // recorremos la tabla de símbolos de la clase que hereda y agregamos cada uno de los elementos
-            for (const auto& par : tableSymbolMatchingClass->getSymbolTable()){
-                    symbol* simbolo = par.second;
-                    // creamos el nuevo símbolo
-                    symbol* newSm = new symbol(*simbolo);                
-                    
-                    // verificamos si el simbolo es una función o método y cargamos su bloque de tercetos en 
-                    //      la tabla de tercetos principal o de ejecución
-                    if(newSm->uso=="metodo" || newSm->uso=="funcion"){
-                        createFunctionTerecets(objectName, scopeDynamic, newSm, tableSymbolMatchingClass);
-                    }
-
-                    newSm->lexema = newSm->lexema+":"+objectName+scopeDynamic; // le agregamos el nombre del objeto + el scope actual
-                    
-                    // agregamos el nuevo símbolo a la tabla de simbolos        
-                    tableSymbol->insert(newSm);
-            }
-        }
-    }
-    
-};
 /**
  * Cuando se detecta una declaración de objeto se llama esta función
  * Verificamos que no exista un objeto en el mismo ámbito con el mismo nombre   
@@ -1087,7 +1115,6 @@ bool instanciateObject(string objectName, string objectWithScopeStatic, string s
  * @param classType La clase del objeto a agregar.
  */
 void addObject(string key, string scope, string classType){
-        
     // si la clase no existe no hacemos nada ya que en la función initObjectDeclaration() se levanta el error de clase no declarada
     if (classType == "_error"){
         return;
@@ -1160,6 +1187,13 @@ void addObject(string key, string scope, string classType){
                         //      la tabla de tercetos principal o de ejecución
                         if(newSm->uso=="metodo" || newSm->uso=="funcion"){
                             createFunctionTerecets(key, scope, newSm, tableSymbolMatchingClass);
+                        }
+
+                        if(newSm->uso=="objeto"){
+                            // como el elemento de la clase es un objeto, debemos copiar cada atributo de la clase del objeto e intanciarlo
+                            // string objectName = newSm->lexema.substr(0, newSm->lexema.find(":"));
+                            // ob1 ob2:main:clase1 :main clase1
+                            newSm->posponeForForwarding = instanciateObject(key, newSm->lexema, scope, newSm->classOfSymbol);
                         }
 
                         newSm->lexema = newSm->lexema+":"+key+scope; // le agregamos el nombre del objeto + el scope actual
@@ -1581,15 +1615,16 @@ void initObjectDeclaration(string key, string scope, string& reglaptr){
     if(classFinded == nullptr){
         yyerror("No se encontro declaracion previa de la clase "+ key);
         actualClass = "_error"; 
-    }else if(stackClasses->size() > 0){
-        //si estoy dentro de una clase, debo verificar que la clase que quiero instanciar no sea la misma clase en la que estoy
-        if(stackClasses->top()->classOfSymbol == key){
-            yyerror("No se puede instanciar un objeto de la misma clase en la que se encuentra");
-            actualClass = "_error"; 
-        }else{
-            reglaptr = key; 
-            actualClass = key; 
+    }else{ 
+        if(stackClasses->size() > 0){
+            //si estoy dentro de una clase, debo verificar que la clase que quiero instanciar no sea la misma clase en la que estoy
+            if(stackClasses->top()->classOfSymbol == key){
+                yyerror("No se puede instanciar un objeto de la misma clase en la que se encuentra");
+                actualClass = "_error"; 
+            }
         }
+        reglaptr = key; 
+        actualClass = key; 
     }
 }
 /**
