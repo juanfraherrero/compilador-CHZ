@@ -2,12 +2,13 @@
 #define _TYPES_H_
 
 #include "AccionSemantica.hpp"
-#include "Tercets.hpp"
-
+//#include "Tercets.hpp"
 #include <iostream>
 #include <vector>
 
 using namespace std;
+
+class Tercets; //Dependencia circular
 
 // struct para el tipo del token que devuelve el léxico
 struct tokenWithLexeme {

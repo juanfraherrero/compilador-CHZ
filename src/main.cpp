@@ -3,7 +3,7 @@
 // #include "include/TableReservedWord.hpp"
 #include "include/Tercets.hpp"
 #include "include/Lexico.hpp"
-#include "include/VectorOfFunction.hpp"
+//#include "include/VectorOfFunction.hpp"
 #include "include/AssemblerGenerator.hpp"
 
 #include <iostream>
@@ -80,8 +80,8 @@ int main(int arg_count, char *arg_list[]) {
             cout << "Parsing exitoso" << endl;
             cout << "Generando el assembler" << endl;
             // generamos el codigo assembler
-            // AssemblerGenerator * assemblerGenerator = new AssemblerGenerator("output.asm");
-            // assemblerGenerator->generateAssembler(tableTercets);
+            AssemblerGenerator * assemblerGenerator = new AssemblerGenerator("output.asm", tableSymbol, tableTercets, vectorOfFunction);
+            assemblerGenerator->generateAssembler();
         }
     }else{
         yyerror("Se detecto una sentencia invalida");
