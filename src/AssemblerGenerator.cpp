@@ -177,7 +177,7 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
     else if (tercet->getArg2() != ""){
         op2 = "_" + reemplazarCaracter(tercet->getArg2(), ':','_');
     }
-    
+
     //Suma, chequeando overflow en suma de enteros
     if (tercet->getOp() == "+"){
         tercet->setAuxVariable(getAuxVariable());
@@ -197,7 +197,7 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
             out += "MOV AX, " + op1 + "\n";
             out += "ADD AX, " + op2 + "\n";
             out += "MOV " + tercet->getAuxVariable() + ", AX\n";
-            out += "JO labelErrorSumaEnteros\n";
+            out += "JC labelErrorSumaEnteros\n";
             this->overflowEnteros = true;
         }
         else if (typeOfFirstArg == "float"){
