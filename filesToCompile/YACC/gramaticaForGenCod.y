@@ -144,9 +144,11 @@ nombre_clase    :       CLASS IDENTIFICADOR                     { initClass($2->
 lista_atributos_y_metodos       :       lista_atributos_y_metodos tipo lista_de_atributos ','           { yyPrintInLine("Se detecto declaracion de variable en clase");}
                                 |       lista_atributos_y_metodos metodo ','                                 
                                 |       lista_atributos_y_metodos clase_heredada ','                                 
+                                |       lista_atributos_y_metodos IDENTIFICADOR IDENTIFICADOR ','       { addObjectToClass($3->ptr, tableSymbol->getScope(), $2->ptr, actualClass); }
                                 |       tipo lista_de_atributos ','                                     { yyPrintInLine("Se detecto declaracion de variable en clase");}
                                 |       metodo ','
                                 |       clase_heredada ','
+                                |       IDENTIFICADOR IDENTIFICADOR ','                                 { addObjectToClass($2->ptr, tableSymbol->getScope(), $1->ptr, actualClass);}
                                 ;
 lista_de_atributos  :   lista_de_atributos ';' IDENTIFICADOR    { addAtribute($3->ptr, tableSymbol->getScope(), typeAux, actualClass); }
                     |   IDENTIFICADOR                           { addAtribute($1->ptr, tableSymbol->getScope(), typeAux, actualClass); }
@@ -1007,6 +1009,73 @@ string checkNewNameBeforeInsert(symbol* newSm){
         }
         return newSm->lexema;
 }
+// ob1 ob2:main:clase1 :main clase1
+bool instanciateObject(string objectName, string objectWithScopeStatic, string scopeDynamic, string classNameOfNewObject){
+
+    // obtenemos el símbolo de la clase del objeto
+    symbol* classOfNewObject = tableSymbol->getFirstSymbolMatching2(classNameOfNewObject, "clase", ":main"); // obtenemos el símbolo de la clase del nuevo objeto
+    
+    // verificamos si la clase es una forward declaration 
+    // de ser forward el objeto también se convierte en forwarded para luego isntanciarlo cuando la clase se declare
+    // ya que si es asi no podemos agregar sus atributos y métodos
+    if(classOfNewObject->forwarded){
+        return true;
+    }
+    
+    // recorremos la tabla de símbolos de la clase del objeto y agregamos cada uno de los elementos
+    for (const auto& par : classOfNewObject->attributesAndMethodsVector->getSymbolTable()){
+            symbol* simbolo = par.second;
+            // creamos el nuevo símbolo
+            symbol* newSm = new symbol(*simbolo);                
+            
+            // verificamos si el simbolo es una función o método y cargamos su bloque de tercetos en 
+            //      la tabla de tercetos principal o de ejecución
+            if(newSm->uso=="metodo" || newSm->uso=="funcion"){
+                createFunctionTerecets(objectName, scopeDynamic, newSm, classOfNewObject->attributesAndMethodsVector);
+            }
+                    
+            if(newSm->uso=="objeto"){
+                // como el elemento de la clase es un objeto, debemos copiar cada atributo de la clase del objeto e intanciarlo
+                // string objectName = newSm->lexema.substr(0, newSm->lexema.find(":"));
+                // ob1 ob2:main:clase1 :main clase1
+                newSm->posponeForForwarding = instanciateObject(objectName, newSm->lexema, scopeDynamic, newSm->classOfSymbol);
+            }
+
+            newSm->lexema = newSm->lexema+":"+objectName+scopeDynamic; // le agregamos el nombre del objeto + el scope actual
+            
+            // agregamos el nuevo símbolo a la tabla de simbolos        
+            tableSymbol->insert(newSm);
+    }
+
+    // recorremos las herencias de derecha a izquierda y agregamos cada uno de los elementos a la tabla general
+
+    // recorres el arreglo de herencia de esta clase verificando que exista alguna posicion con nullptr, si es asi verificas si esa clase tiene unmetodo con el mismo nombre y si es asi devuelves 1
+    for (int i=1; i >= 0; i--){
+        TableSymbol* tableSymbolMatchingClass = classOfNewObject->inheritance[i];
+        // si hereda de alguna clase recorremos sus simbolos y los agregamos
+        if(tableSymbolMatchingClass != nullptr){
+            
+            // recorremos la tabla de símbolos de la clase que hereda y agregamos cada uno de los elementos
+            for (const auto& par : tableSymbolMatchingClass->getSymbolTable()){
+                    symbol* simbolo = par.second;
+                    // creamos el nuevo símbolo
+                    symbol* newSm = new symbol(*simbolo);                
+                    
+                    // verificamos si el simbolo es una función o método y cargamos su bloque de tercetos en 
+                    //      la tabla de tercetos principal o de ejecución
+                    if(newSm->uso=="metodo" || newSm->uso=="funcion"){
+                        createFunctionTerecets(objectName, scopeDynamic, newSm, tableSymbolMatchingClass);
+                    }
+
+                    newSm->lexema = newSm->lexema+":"+objectName+scopeDynamic; // le agregamos el nombre del objeto + el scope actual
+                    
+                    // agregamos el nuevo símbolo a la tabla de simbolos        
+                    tableSymbol->insert(newSm);
+            }
+        }
+    }
+    
+};
 /**
  * Cuando se detecta una declaración de objeto se llama esta función
  * Verificamos que no exista un objeto en el mismo ámbito con el mismo nombre   
@@ -1019,37 +1088,70 @@ string checkNewNameBeforeInsert(symbol* newSm){
  */
 void addObject(string key, string scope, string classType){
         
-        // si la clase no existe no hacemos nada ya que en la función initObjectDeclaration() se levanta el error de clase no declarada
-        if (classType == "_error"){
-                return;
+    // si la clase no existe no hacemos nada ya que en la función initObjectDeclaration() se levanta el error de clase no declarada
+    if (classType == "_error"){
+        return;
+    }
+        
+    // verificamos que no existea un objeto con el mismo nombre en el mismo ámbito
+    int diff = tableSymbol->getDiffOffScope2(key, "objeto", scope); 
+    if(diff == 0){
+        // existe un objeto ocn el mismo nombre en el mismo ámbito
+        yyerror("Redeclaracion del objeto " + key + " en el mismo ambito");
+    }else{
+        // eliminamos el símbolo viejo y lo agregamos en la tabla de simbolo general
+        symbol* newObject = setNewScope(key, "", scope, "objeto", tableSymbol);
+        /*
+            ACA SE AGREGAN LOS ATRIBUTOS AL OBJETO INSTANCIADO
+        */
+        newObject->classOfSymbol = classType; // seteamos el tipo de clase del objeto
+
+        // obtenemos el símbolo de la clase del objeto
+        symbol* matchingClass = tableSymbol->getFirstSymbolMatching2(classType, "clase", ":main"); // obtenemos el símbolo de la clase del objeto
+        
+        // verificamos si la clase es una forward declaration 
+        // de ser forward el objeto también se convierte en forwarded para luego isntanciarlo cuando la clase se declare
+        // ya que si es asi no podemos agregar sus atributos y métodos
+        if(matchingClass->forwarded){
+            newObject->posponeForForwarding = true;    
+            return;
         }
         
-        // verificamos que no existea un objeto con el mismo nombre en el mismo ámbito
-        int diff = tableSymbol->getDiffOffScope2(key, "objeto", scope); 
-        if(diff == 0){
-                // existe un objeto ocn el mismo nombre en el mismo ámbito
-                yyerror("Redeclaracion del objeto " + key + " en el mismo ambito");
-        }else{
-                // eliminamos el símbolo viejo y lo agregamos en la tabla de simbolo general
-                symbol* newObject = setNewScope(key, "", scope, "objeto", tableSymbol);
-                /*
-                    ACA SE AGREGAN LOS ATRIBUTOS AL OBJETO INSTANCIADO
-                */
-                newObject->classOfSymbol = classType; // seteamos el tipo de clase del objeto
+        // recorremos la tabla de símbolos de la clase del objeto y agregamos cada uno de los elementos
+        for (const auto& par : matchingClass->attributesAndMethodsVector->getSymbolTable()){
+            symbol* simbolo = par.second;
+            // creamos el nuevo símbolo
+            symbol* newSm = new symbol(*simbolo);                
+            
+            // verificamos si el simbolo es una función o método y cargamos su bloque de tercetos en 
+            //      la tabla de tercetos principal o de ejecución
+            if(newSm->uso=="metodo" || newSm->uso=="funcion"){
+                createFunctionTerecets(key, scope, newSm, matchingClass->attributesAndMethodsVector);
+            }
+                    
+            if(newSm->uso=="objeto"){
+                // como el elemento de la clase es un objeto, debemos copiar cada atributo de la clase del objeto e intanciarlo
+                // string objectName = newSm->lexema.substr(0, newSm->lexema.find(":"));
+                // ob1 ob2:main:clase1 :main clase1
+                newSm->posponeForForwarding = instanciateObject(key, newSm->lexema, scope, newSm->classOfSymbol);
+            }
 
-                // obtenemos el símbolo de la clase del objeto
-                symbol* matchingClass = tableSymbol->getFirstSymbolMatching2(classType, "clase", ":main"); // obtenemos el símbolo de la clase del objeto
+            newSm->lexema = newSm->lexema+":"+key+scope; // le agregamos el nombre del objeto + el scope actual
+            
+            // agregamos el nuevo símbolo a la tabla de simbolos        
+            tableSymbol->insert(newSm);
+        }
+
+        // recorremos las herencias de derecha a izquierda y agregamos cada uno de los elementos a la tabla general
+
+        // recorres el arreglo de herencia de esta clase verificando que exista alguna posicion con nullptr, si es asi verificas si esa clase tiene unmetodo con el mismo nombre y si es asi devuelves 1
+        for (int i=1; i >= 0; i--){
+            TableSymbol* tableSymbolMatchingClass = matchingClass->inheritance[i];
+            // si hereda de alguna clase recorremos sus simbolos y los agregamos
+            if(tableSymbolMatchingClass != nullptr){
                 
-                // verificamos si la clase es una forward declaration 
-                // de ser forward el objeto también se convierte en forwarded para luego isntanciarlo cuando la clase se declare
-                // ya que si es asi no podemos agregar sus atributos y métodos
-                if(matchingClass->forwarded){
-                    newObject->posponeForForwarding = true;    
-                    return;
-                }
-                
-                // recorremos la tabla de símbolos de la clase del objeto y agregamos cada uno de los elementos
-                for (const auto& par : matchingClass->attributesAndMethodsVector->getSymbolTable()){
+                // recorremos la tabla de símbolos de la clase que hereda y agregamos cada uno de los elementos
+                for (const auto& par : tableSymbolMatchingClass->getSymbolTable()){
                         symbol* simbolo = par.second;
                         // creamos el nuevo símbolo
                         symbol* newSm = new symbol(*simbolo);                
@@ -1057,44 +1159,17 @@ void addObject(string key, string scope, string classType){
                         // verificamos si el simbolo es una función o método y cargamos su bloque de tercetos en 
                         //      la tabla de tercetos principal o de ejecución
                         if(newSm->uso=="metodo" || newSm->uso=="funcion"){
-                            createFunctionTerecets(key, scope, newSm, matchingClass->attributesAndMethodsVector);
+                            createFunctionTerecets(key, scope, newSm, tableSymbolMatchingClass);
                         }
-                                
 
                         newSm->lexema = newSm->lexema+":"+key+scope; // le agregamos el nombre del objeto + el scope actual
                         
                         // agregamos el nuevo símbolo a la tabla de simbolos        
                         tableSymbol->insert(newSm);
                 }
-
-                // recorremos las herencias de derecha a izquierda y agregamos cada uno de los elementos a la tabla general
-
-                // recorres el arreglo de herencia de esta clase verificando que exista alguna posicion con nullptr, si es asi verificas si esa clase tiene unmetodo con el mismo nombre y si es asi devuelves 1
-                for (int i=1; i >= 0; i--){
-                    TableSymbol* tableSymbolMatchingClass = matchingClass->inheritance[i];
-                    // si hereda de alguna clase recorremos sus simbolos y los agregamos
-                    if(tableSymbolMatchingClass != nullptr){
-                        
-                        // recorremos la tabla de símbolos de la clase que hereda y agregamos cada uno de los elementos
-                        for (const auto& par : tableSymbolMatchingClass->getSymbolTable()){
-                                symbol* simbolo = par.second;
-                                // creamos el nuevo símbolo
-                                symbol* newSm = new symbol(*simbolo);                
-                                
-                                // verificamos si el simbolo es una función o método y cargamos su bloque de tercetos en 
-                                //      la tabla de tercetos principal o de ejecución
-                                if(newSm->uso=="metodo" || newSm->uso=="funcion"){
-                                    createFunctionTerecets(key, scope, newSm, tableSymbolMatchingClass);
-                                }
-
-                                newSm->lexema = newSm->lexema+":"+key+scope; // le agregamos el nombre del objeto + el scope actual
-                                
-                                // agregamos el nuevo símbolo a la tabla de simbolos        
-                                tableSymbol->insert(newSm);
-                        }
-                    }
-                }
-        } 
+            }
+        }
+    } 
 };
 /**
  * cuando detectamos una declaracion de función
@@ -2086,6 +2161,39 @@ void addTercetReturn(string& reglaptr){
 
         reglaptr = charTercetoId + to_string(number);
 };
+void addObjectToClass(string objectName, string scope, string className, string classActual){
+    yyPrintInLine("Se detecto declaracion de objeto en clase"); 
+    cout << className << "    " << classActual << endl;
+    // Obtememos el simbolo viejo de la clase y el objeto y los borramos
+    // buscamos si existe la clase de este objeto, sino lanzamos ese error
+    // buscamos si existe la clase en donde queremos poner el objeto sino no hacemos nada
+    // agregamos el objeto a la clase
+
+    tableSymbol->deleteSymbol(objectName);         // eliminamos el simbolo de la tabla general
+    tableSymbol->deleteSymbol(className);
+
+    // operamos sobre la tabla de símbolos de la clase
+    TableSymbol * tsClass = stackClasses->top()->attributesAndMethodsVector;
+
+    // verificamos a que distancia se encuentra la primer aparición del atributo en un ámbito alcanzable
+    int diff = tsClass->getDiffOffScope2(objectName, "objeto", scope); 
+            
+    if(diff == 0){
+            yyerror("Redeclaracion de objeto en la misma clase");
+    }else{
+            // creamos el nuevo símbolo para el atributo
+            symbol* newAttribute = new symbol(objectName+scope, "", "", "objeto");
+            /*
+                    ACA SE PUEDEN AGREGAR COSAS A LOS SIMBOLOS DE ATRIBUTOS CARGADOS
+            */
+
+            // Marcamos a la clase que pertenece el atributo
+            newAttribute->classOfSymbol = className;
+
+            // agregamos el nuevo símbolo al vector de simbolos de la clase        
+            tsClass->insert(newAttribute);
+    }        
+}
 void verifyAllClassForwardedAreDeclared(){
         // esta función se encarga de recorrer la tabla de símbolo y por cada clase verifica que no este forwardeada
 

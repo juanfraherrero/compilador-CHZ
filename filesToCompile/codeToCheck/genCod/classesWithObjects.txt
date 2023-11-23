@@ -1,0 +1,44 @@
+{
+    CLASS ant {
+        SHORT ann,
+    },
+    CLASS claseob{
+        SHORT j,
+        VOID metodob ()
+        {
+            RETURN,
+        },
+        ant obnt,
+    },
+    CLASS clase1 {                         
+        claseob ob2,
+        SHORT y,
+                                                         
+    },         
+    clase1 ob1,
+    
+}
+
+*{
+la tabla de ann
+
+ann:main:ant   uso atributo    classOfSymbol ant
+
+la tabla de claseob
+
+j:main:claseob   uso atributo    classOfSymbol claseob
+metodob:main:claseob   uso metodo    classOfSymbol claseob
+obnt:main:claseob   uso objeto    classOfSymbol ant
+
+la tabla de clase 1
+
+ob2:main:clase1   uso objeto    classOfSymbol claseob
+
+
+tabla general
+
+j:main:claseob:ob2:main:   uso atributo
+metodob:main:claseob:ob2:main   uso metodo
+ann:main:ant:ob2:main:c
+
+}*
