@@ -1100,13 +1100,17 @@ int addTercetAndStack(string argumento, string operando1, string operando2){
         Tercet *t = new Tercet(argumento, operando1, operando2); 
 
         // le marcamos al terceto si tiene un elemento pospuesto
-        symbol* smArg1 = tableSymbol->getSymbol(operando1);
-        symbol* smArg2 = tableSymbol->getSymbol(operando2);
-        if(smArg1->posponeForForwarding == true){
+        if(operando1[0] == charTercetoId){
+            string type;
+            if(cantOfRecursions <= 0){
+                type = tableTercets->get(stoi(operando1.substr(1, operando1.size())))->typeTercet;
+            }else{
+                type = stackFunction->top()->ter->get(stoi(operando1.substr(1, operando1.size())))->typeTercet;
+            }
+            if(type == "pospone"){
                 t->arg1Pospone = true;
-        }
-        if(smArg2->posponeForForwarding == true){
-                t->arg2Pospone = true;
+                t->type1 = "pospone";
+            }
         }
 
         int number;
