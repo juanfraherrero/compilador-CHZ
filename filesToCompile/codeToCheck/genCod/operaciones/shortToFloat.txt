@@ -1,0 +1,12 @@
+{
+    FLOAT x,
+    SHORT y,
+
+    y = 10_s,
+    x = TOF(y),
+
+    IF (x == 10.0){
+        PRINT #Bien la conversion#,
+    }
+    END_IF,
+}
