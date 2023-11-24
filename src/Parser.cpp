@@ -2971,6 +2971,23 @@ void newInvocacionMethodWithParam(string objectName, string methodName, string s
         }
     }
 };
+void printIdentificador(string _lexema, string _scope){
+    // queres imprimir una variable, 
+    // la borramos de la tabla general
+    // la buscamos en la tabla de símbolos de la clase actual
+
+    tableSymbol->deleteSymbol(_lexema);         // eliminamos el simbolo de la tabla general
+
+    // obtenemos el símbolo de la clase del objeto
+    symbol* identificador = tableSymbol->getFirstSymbolMatching2(_lexema, "var", _scope); 
+
+    if (identificador == nullptr){
+        yyerror("No se encontro declaracion previa de la variable "+ _lexema);
+    }else{
+        // agregamos el terceto de asignación en la respectiva tabla de tercetos
+        int number = addTercet("printIdentificador", identificador->lexema, "");
+    }
+}; 
 void addTercetReturn(string& reglaptr){
         int number = addTercet("return","","");        
 
@@ -4167,15 +4184,15 @@ case 100:
 break;
 case 101:
 #line 220 "./gramaticaForGenCod.y"
-{ }
+{   printIdentificador(yyvsp[0]->ptr, tableSymbol->getScope()); }
 break;
 case 102:
 #line 221 "./gramaticaForGenCod.y"
-{ }
+{ int number = addTercet("print", tableSymbol->getSymbol(yyvsp[0]->ptr)->value, ""); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 103:
 #line 222 "./gramaticaForGenCod.y"
-{  }
+{ int number = addTercet("print", tableSymbol->getSymbol(yyvsp[0]->ptr)->value, ""); yyval->ptr = charTercetoId + to_string(number); }
 break;
 case 105:
 #line 226 "./gramaticaForGenCod.y"

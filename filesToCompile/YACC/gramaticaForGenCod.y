@@ -218,9 +218,9 @@ ejecutable  :    asignacion
             |    invocacion                                 
             |    seleccion
             |    PRINT CADENA_CARACTERES                    { int number = addTercet("print", tableSymbol->getSymbol($2->ptr)->value, ""); $$->ptr = charTercetoId + to_string(number); }
-            |    PRINT IDENTIFICADOR                        {  }
-            |    PRINT constanteConSigno                    {  }
-            |    PRINT constanteSinSigno                    {  }
+            |    PRINT IDENTIFICADOR                        { printIdentificador(); }
+            |    PRINT constanteConSigno                    { int number = addTercet("print", tableSymbol->getSymbol($2->ptr)->value, ""); $$->ptr = charTercetoId + to_string(number); }
+            |    PRINT constanteSinSigno                    { int number = addTercet("print", tableSymbol->getSymbol($2->ptr)->value, ""); $$->ptr = charTercetoId + to_string(number); }
             |    ciclo_while
             ;
 
@@ -2409,6 +2409,24 @@ void newInvocacionMethodWithParam(string objectName, string methodName, string s
         }
     }
 };
+void printIdentificador(string _lexema, string _scope){
+    // queres imprimir una variable, 
+    // la borramos de la tabla general
+    // la buscamos en la tabla de símbolos de la clase actual
+
+    tableSymbol->deleteSymbol(_lexema);         // eliminamos el simbolo de la tabla general
+
+    // obtenemos el símbolo de la clase del objeto
+    symbol* identificador = tableSymbol->getFirstSymbolMatching2(_lexema, "var", _scope); 
+
+    if (identificador == nullptr){
+        yyerror("No se encontro declaracion previa de la variable "+ _lexema);
+    }else{
+        // agregamos el terceto de asignación en la respectiva tabla de tercetos
+        int number = addTercet("printIdentificador", identificador->lexema, "");
+    }
+
+}; 
 void addTercetReturn(string& reglaptr){
         int number = addTercet("return","","");        
 
