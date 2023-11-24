@@ -96,20 +96,21 @@ void AssemblerGenerator::generateFunctionsAssembler(){
         if (f){
             Tercets * functionTercets = f->ter;
             this->code += reemplazarCaracter(f->name,':','_') + ":\n";
-            //Chequeo de recursividad mutua
-            this->code += "CMP _flagRecursividadMutua" + reemplazarCaracter(f->name,':','_') + ", 1\n";
+            //Chequeo de recursividad 
+            this->code += "CMP _flagRecursividad" + reemplazarCaracter(f->name,':','_') + ", 1\n";
             this->code += "JE labelErrorRecursion\n";
+            this->code += "MOV _flagRecursividad" + reemplazarCaracter(f->name,':','_') + ", 1\n";
 
-            //Insertamos en la tabla de simbolos el flag de recursividad mutua asociado a la funcion.
-            this->tableSymbol->insert(new symbol("flagRecursividadMutua" + reemplazarCaracter(f->name,':','_'), "0", "short", "var"));
+            //Insertamos en la tabla de simbolos el flag de recursividad  asociado a la funcion.
+            this->tableSymbol->insert(new symbol("flagRecursividad" + reemplazarCaracter(f->name,':','_'), "0", "short", "var"));
             
             int n = functionTercets->getTercets().size();
             int i = 0;
             for (auto t : functionTercets->getTercets()){
                 if (t){
                     if (i == n-1){
-                        //En la ultima linea, seteamos el flag de recursividad mutua en 0.
-                        this->code += "MOV " "_flagRecursividadMutua" + reemplazarCaracter(f->name,':','_') + ", 0\n";
+                        //En la anteultima linea, seteamos el flag de recursividad en 0.
+                        this->code += "MOV " "_flagRecursividad" + reemplazarCaracter(f->name,':','_') + ", 0\n";
                     }
                     this->code += getTercetAssembler(t, functionTercets);
                 }
@@ -289,7 +290,7 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
             out += "FLD " + op1 + "\n";
             out += "FMUL " + op2 + "\n";
             out += "FSTP " + tercet->getAuxVariable() + "\n";
-            out += "JO labelErrorProductoFlotantes\n";
+            out += "JO labelErrorProductoFlotantes\n"; //Chequear
             this->overflowProductos = true;
         }
     }
