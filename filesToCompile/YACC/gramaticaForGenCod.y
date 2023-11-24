@@ -1210,30 +1210,24 @@ void addObject(string key, string scope, string classType){
  * @param key nombre del acceso
  * @param scope scope actual
 */
-void initFunction(string key, string scope){
-        TableSymbol* ts;
-        
+void initFunction(string key, string scope){        
         string scopeOriginal = scope;
 
-        // verificamos si es dentro de una clase o fuera y obtenemos la respectiva tabla de símbolos
-        if(stackClasses->size() <= 0){
-                ts = tableSymbol;
-        }else{
-                ts = stackClasses->top()->attributesAndMethodsVector;
-
-                // si estamos dentro de una clase sumamos 1 a la recursión interna de metodo
-                cantOfRecursionsInMethod++;
-                if(cantOfRecursionsInMethod > 1){
-                        yyerror("No se permite anidamiento de funciones locales dentro de metodos");
-                }
+        // verificamos si es dentro de una clase 
+        if(stackClasses->size() > 0){
+            // si estamos dentro de una clase sumamos 1 a la recursión interna de metodo
+            cantOfRecursionsInMethod++;
+            if(cantOfRecursionsInMethod > 1){
+                    yyerror("No se permite anidamiento de funciones locales dentro de metodos");
+            }
         }
 
         // buscamos si existe una función con el mismo nombre en el mismo ámbito
-        int diff = ts->getDiffOffScope2(key, "funcion", scope); 
+        int diff = tableSymbol->getDiffOffScope2(key, "funcion", scope); 
         if( diff == 0){
                 yyerror("Redeclaracion de funcion en el mismo ambito");
         }else{
-                symbol* newFunction = setNewScope(key, "void", scope, "funcion", ts); 
+                symbol* newFunction = setNewScope(key, "void", scope, "funcion", tableSymbol); 
                 
                 // cargamos cual fue el último método o función por si tiene un parámetro
                 lastMethod = newFunction;
@@ -1259,20 +1253,17 @@ void initFunction(string key, string scope){
  * sacamos el scope de la función
 */
 void finishFunction(){
-        // obtenemos el stack con los tercetos de la función
-        functionStack* fs = stackFunction->top();
-        stackFunction->pop();
-        tableSymbol->deleteScope(); // sacamos el scope de la función
-        cantOfRecursions--;     // sacamos una recursión
+    // obtenemos el stack con los tercetos de la función
+    functionStack* fs = stackFunction->top();
+    stackFunction->pop();
+    tableSymbol->deleteScope(); // sacamos el scope de la función
+    cantOfRecursions--;     // sacamos una recursión
 
-        if(stackClasses->size() <= 0){
-                // si no está dentro de una clase lo agregamos a la tabla general
-                vectorOfFunction->add(fs);
-        }else{
-            // si está dentro de una clase es una función declarada de ntro de un metodo y se guarda en el vector de funciones declaradas en clases
-            vectorOfFunctionDeclaredInClasses->add(fs);
-            cantOfRecursionsInMethod--;
-        }
+    vectorOfFunction->add(fs);
+    if(stackClasses->size() > 0){
+        // si no está dentro de una clase lo agregamos a la tabla general
+        cantOfRecursionsInMethod--;
+    }
             
 }
 /**
@@ -2021,17 +2012,9 @@ void newUseObjectAttributeFactorMasMas(string objectName, string attributeName, 
 void newInvocacion(string nombreFuncion, string scope, string& reglaptr){
     // borramos el simbolo de la tabla general
     tableSymbol->deleteSymbol(nombreFuncion); 
-
-    TableSymbol* ts;
-    // verificamos si es dentro de una clase o fuera y obtenemos la respectiva tabla de símbolos
-    if(stackClasses->size() <= 0){
-        ts = tableSymbol;
-    }else{
-        ts = stackClasses->top()->attributesAndMethodsVector;
-    }
         
     //buscamos si existe una variable con el mismo nombre al alcance de la tabla de simbolos
-    symbol* functionFinded = ts->getFirstSymbolMatching2(nombreFuncion, "funcion", scope); 
+    symbol* functionFinded = tableSymbol->getFirstSymbolMatching2(nombreFuncion, "funcion", scope); 
     if(functionFinded == nullptr){
         yyerror("No se encontro declaracion previa de la funcion "+ nombreFuncion);
     }else{
@@ -2063,17 +2046,9 @@ void newInvocacionWithParam(string nombreFuncion, string scope, string ptrParam,
 
     // borramos el simbolo de la tabla general
     tableSymbol->deleteSymbol(nombreFuncion); 
-
-    TableSymbol* ts;
-    // verificamos si es dentro de una clase o fuera y obtenemos la respectiva tabla de símbolos
-    if(stackClasses->size() <= 0){
-        ts = tableSymbol;
-    }else{
-        ts = stackClasses->top()->attributesAndMethodsVector;
-    }
         
     //buscamos si existe una variable con el mismo nombre al alcance de la tabla de simbolos
-    symbol* functionFinded = ts->getFirstSymbolMatching2(nombreFuncion, "funcion", scope); 
+    symbol* functionFinded = tableSymbol->getFirstSymbolMatching2(nombreFuncion, "funcion", scope); 
     if(functionFinded == nullptr){
         yyerror("No se encontro declaracion previa de la funcion "+ nombreFuncion);
     }else{
