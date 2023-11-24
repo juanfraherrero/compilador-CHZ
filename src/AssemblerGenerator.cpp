@@ -57,7 +57,7 @@ void AssemblerGenerator::addVariable(symbol * s){
         this->data += prefix + formatearFloat(reemplazarCaracter(s->lexema,':','_')) + " dd " + value + "\n";
     }
     else if (s->type == "string"){
-        this->data += reemplazarCaracter(value, ' ', '_') + " db " + '"' + value + '"' + ", 0 \n";  //Aca se reemplazan los espacios por guiones bajos para que no haya problemas.
+        this->data += prefix + reemplazarCaracter(reemplazarCaracter(value, ' ', '_'),'.','_') + " db " + '"' + value + '"' + ", 0 \n";  //Aca se reemplazan los espacios por guiones bajos para que no haya problemas.
     }
 }
 
@@ -240,7 +240,7 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
     }
     else if (tercet->getArg1() != ""){
         if (tercet->getOp() == "print"){ //Si se trata de un print, se reemplazan todos los espacios por guiones bajos.
-            op1 = reemplazarCaracter(tercet->getArg1(), ' ', '_');
+            op1 = "_" + reemplazarCaracter(reemplazarCaracter(tercet->getArg1(), ' ', '_'), '.', '_');
         } else {
 
             //El operando 1 no es un terceto, por lo tanto se trata de una variable. Se agrega el prefijo "_" y se reemplazan los ":" por "" por convencion.
@@ -486,7 +486,7 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
         if (typeOfFirstArg == "short"){
             out += "MOV AH, " + op1 + "\n";
             out += "CMP AH," + op2 + "\n";
-            out += "JL";
+            out += "JL ";
         }
         else if (typeOfFirstArg == "unsigned int"){
             out += "MOV AX, " + op1 + "\n";

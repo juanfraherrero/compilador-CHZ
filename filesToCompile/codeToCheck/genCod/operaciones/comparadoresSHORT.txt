@@ -1,0 +1,43 @@
+{
+    SHORT x; y,
+    x = 10_s,
+    y = 20_s,
+
+    IF (x < y){
+        PRINT #10 es menor que 20#,
+    } ELSE {
+        PRINT #Claramente 10 es menor que 20#,
+    }
+    END_IF,
+
+    IF (y > x){
+        PRINT #20 es mayor que 10#,
+    }
+    END_IF,
+
+    IF (x !! y){
+        PRINT #Claramente 10 no es igual a 20#,
+    }
+    END_IF,
+
+    IF (x <= 10_s) {
+        PRINT #Claramente 10 es menor o igual a 10#,
+    }
+    END_IF,
+
+    IF (x == 10_s) {
+        PRINT #Claramente x es igual a 10#,
+    }
+    END_IF,
+
+    IF (y >= 20_s){
+        PRINT #Claramente y es mayor o igual a 20#,
+    } 
+    END_IF,
+
+    IF (y == 20_s) {
+        PRINT #Claramente y es igual a 20#,
+    }
+    END_IF,
+    
+}

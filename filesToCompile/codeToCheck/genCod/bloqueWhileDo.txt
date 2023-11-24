@@ -4,5 +4,7 @@
 
     WHILE ( x < 20_s ) DO {
         x = x + 1_s,
+        PRINT #todavia no termino#,
     },
+    PRINT #ahora si termino#,
 }
