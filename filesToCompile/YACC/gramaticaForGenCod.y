@@ -1295,15 +1295,7 @@ void checkVarInScope(string key, string scope, string uso, string& reglaptr, str
         // borramos el simbolo de la tabla general
         tableSymbol->deleteSymbol(key); 
 
-        // verificamos a que distancia se encuentra la primer aparición de la variable en un ámbito alcanzable
-        // verifico si estoy dentro de una clase o no
-        TableSymbol* ts;
-        if(stackClasses->size() <= 0){
-                ts = tableSymbol;
-        }else{
-                ts = stackClasses->top()->attributesAndMethodsVector;
-        }
-        symbol* symbolFinded = ts->getFirstSymbolMatching2(key, uso, scope); 
+        symbol* symbolFinded = tableSymbol->getFirstSymbolMatching2(key, uso, scope); 
         if(symbolFinded == nullptr){
                 yyerror("No se encontro declaracion previa de la variable "+ key);
         }else{
