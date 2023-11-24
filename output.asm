@@ -19,26 +19,53 @@ errorRecursion db "Se produjo un llamado recursivo de una funcion a si misma.", 
 @minimoPositivo dd 1.17549435E-38 
 @maximoNegativo dd -3.40282347E+38 
 @minimoNegativo dd -1.17549435E-38 
-_flagRecursividadfuncion1_main db 0
+@aux1 dd ?
+_1_17549435EMENOS37 dd 1.17549435E-37
+_0_0001 dd 0.0001
+_y_main dd ?
+_x_main dd ?
 
 .code
-funcion1_main:
-CMP _flagRecursividadfuncion1_main, 1
-JE labelErrorRecursion
-MOV _flagRecursividadfuncion1_main, 1
-CALL funcion1_main
-
-MOV _flagRecursividadfuncion1_main, 0
-RET
-
 start:
-CALL funcion1_main
+FLD _0_0001
+FSTP _x_main
+
+FLD _1_17549435EMENOS37
+FSTP _y_main
+
+FLD _x_main
+FMUL _y_main
+FCOM @cero
+FSTSW AX
+SAHF
+JE @labelAsignacionFlotante1
+FCOM @maximoPositivo
+FSTSW AX
+SAHF
+JA labelErrorProductoFlotantes
+FCOM @minimoNegativo
+FSTSW AX
+SAHF
+JB labelErrorProductoFlotantes
+FCOM @minimoPositivo
+FSTSW AX
+SAHF
+JA @labelAsignacionFlotante1
+FCOM @maximoNegativo
+FSTSW AX
+SAHF
+JA labelErrorProductoFlotantes
+@labelAsignacionFlotante1:
+FSTP @aux1
+
+FLD @aux1
+FSTP _x_main
 
 
 INVOKE ExitProcess, 0
 
-labelErrorRecursion:
-INVOKE MessageBox, NULL, addr errorRecursion, addr errorRecursion, MB_OK
+labelErrorProductoFlotantes:
+INVOKE MessageBox, NULL, addr errorProductoFlotantes, addr errorProductoFlotantes, MB_OK
 INVOKE ExitProcess, 0
 
 end start
