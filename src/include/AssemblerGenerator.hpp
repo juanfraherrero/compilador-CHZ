@@ -20,7 +20,7 @@ private:
     VectorOfFunction * functionTercets;     //Tercetos del cuerpo de cada función
     bool overflowEnteros = false;       //Flag para saber si se debe chequear overflow en suma de enteros
     bool overflowProductos = false;     //Flag para saber si se debe chequear overflow en multiplicacion de enteros
-    bool recursionMutua = false;    //Flag para saber si hay recursion mutua
+    bool recursion = false;    //Flag para saber si hay posible recursion
 public:
     AssemblerGenerator(string pathFinal, TableSymbol * tableSymbol, Tercets* tercets, VectorOfFunction * vectorOfFunction);
     void generateAssembler(); //Genera el código assembler

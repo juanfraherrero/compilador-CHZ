@@ -147,7 +147,7 @@ void AssemblerGenerator::generateErrorAssembler(){
                       "INVOKE MessageBox, NULL, addr errorProductoFlotantes, addr errorProductoFlotantes, MB_OK\n"
                       "INVOKE ExitProcess, 0\n";
     }
-    if (this->recursionMutua){
+    if (this->recursion){
         this->code += "labelErrorRecursion:\n"
                       "INVOKE MessageBox, NULL, addr errorRecursion, addr errorRecursion, MB_OK\n"
                       "INVOKE ExitProcess, 0\n";
@@ -335,8 +335,14 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
     }
     //Comparacion igual
     else if (tercet->getOp() == "=="){
-        if (typeOfFirstArg == "short" || typeOfFirstArg == "unsigned int"){
-            out += "CMP " + op1 + ", " + op2 + "\n";
+        if (typeOfFirstArg == "short"){
+            out += "MOV AH, " + op1 + "\n";
+            out += "CMP AH," + op2 + "\n";
+            out += "JNE ";
+        }
+        else if (typeOfFirstArg == "unsigned int"){
+            out += "MOV AX, " + op1 + "\n";
+            out += "CMP AX," + op2 + "\n";
             out += "JNE ";
         }
         else if (typeOfFirstArg == "float"){
@@ -350,11 +356,13 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
     //Comparacion menor o igual
     else if (tercet->getOp() == "<="){
         if (typeOfFirstArg == "short"){
-            out += "CMP " + op1 + ", " + op2 + "\n";
+            out += "MOV AH, " + op1 + "\n";
+            out += "CMP AH," + op2 + "\n";
             out += "JG ";
         }
         else if (typeOfFirstArg == "unsigned int"){
-            out += "CMP " + op1 + ", " + op2 + "\n";
+            out += "MOV AX, " + op1 + "\n";
+            out += "CMP AX," + op2 + "\n";
             out += "JA ";
         }
         else if (typeOfFirstArg == "float"){
@@ -368,11 +376,13 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
     //Comparacion menor
     else if (tercet->getOp() == "<"){
         if (typeOfFirstArg == "short"){
-            out += "CMP " + op1 + ", " + op2 + "\n";
+            out += "MOV AH, " + op1 + "\n";
+            out += "CMP AH," + op2 + "\n";
             out += "JGE ";
         }
         else if (typeOfFirstArg == "unsigned int"){
-            out += "CMP " + op1 + ", " + op2 + "\n";
+            out += "MOV AX, " + op1 + "\n";
+            out += "CMP AX," + op2 + "\n";
             out += "JAE ";
         }
         else if (typeOfFirstArg == "float"){
@@ -386,11 +396,13 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
     //Comparacion mayor o igual
     else if (tercet->getOp() == ">="){
         if (typeOfFirstArg == "short"){
-            out += "CMP " + op1 + ", " + op2 + "\n";
+            out += "MOV AH, " + op1 + "\n";
+            out += "CMP AH," + op2 + "\n";
             out += "JL";
         }
         else if (typeOfFirstArg == "unsigned int"){
-            out += "CMP " + op1 + ", " + op2 + "\n";
+            out += "MOV AX, " + op1 + "\n";
+            out += "CMP AX," + op2 + "\n";
             out += "JB ";
         }
         else if (typeOfFirstArg == "float"){
@@ -404,11 +416,13 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
     //Comparacion mayor
     else if (tercet->getOp() == ">"){
         if (typeOfFirstArg == "short"){
-            out += "CMP " + op1 + ", " + op2 + "\n";
+            out += "MOV AH, " + op1 + "\n";
+            out += "CMP AH," + op2 + "\n";
             out += "JLE ";
         }
         else if (typeOfFirstArg == "unsigned int"){
-            out += "CMP " + op1 + ", " + op2 + "\n";
+            out += "MOV AX, " + op1 + "\n";
+            out += "CMP AX," + op2 + "\n";
             out += "JBE ";
         }
         else if (typeOfFirstArg == "float"){
@@ -421,8 +435,14 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
     }
     //Comparacion distinto
     else if (tercet->getOp() == "!!"){
-        if (typeOfFirstArg == "short" || typeOfFirstArg == "unsigned int"){
-            out += "CMP " + op1 + ", " + op2 + "\n";
+        if (typeOfFirstArg == "short"){
+            out += "MOV AH, " + op1 + "\n";
+            out += "CMP AH," + op2 + "\n";
+            out += "JE ";
+        }
+        else if (typeOfFirstArg == "unsigned int"){
+            out += "MOV AX, " + op1 + "\n";
+            out += "CMP AX," + op2 + "\n";
             out += "JE ";
         }
         else if (typeOfFirstArg == "float"){
@@ -454,7 +474,7 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
     }
     //Llamado a subrutina
     else if (tercet->getOp() == "call"){
-        this->recursionMutua = true;
+        this->recursion = true;
         out += "CALL " + op1.substr(1) + "\n";
     }
     //Return
