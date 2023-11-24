@@ -1573,41 +1573,30 @@ void initMethod(string key, string scope, string classOfAttribute){
 */
 void addParamMetodo(string key, string scope, string type, string classOfAttribute){
 
-        // obtener el símbolo viejo y eliminarlo
-        // verificar que no esté previamente en ese scope en esa tabla de símobolo
-        // lo agregamos y setear el tipo del parametro
+    // obtener el símbolo viejo y eliminarlo
+    // verificar que no esté previamente en ese scope en esa tabla de símobolo
+    // lo agregamos y setear el tipo del parametro
 
 
-        tableSymbol->deleteSymbol(key);    // eliminamos el simbolo (usa el contador) de la tabla general
-        
-        TableSymbol* tsClass = stackClasses->top()->attributesAndMethodsVector; // obtenemos la tabla de simbolos de la clase a la que le agramos el metodo
+    tableSymbol->deleteSymbol(key);    // eliminamos el simbolo (usa el contador) de la tabla general
+    
 
-        /* SE SUPONE QUE ESTO NUNCA DEBERÍA SUCEDER PORQUE ES UN SOLO PARÁEMETRO Y LA PRIMER VARIABLE DEL ÁMBITO */
+    /* SE SUPONE QUE ESTO NUNCA DEBERÍA SUCEDER PORQUE ES UN SOLO PARÁEMETRO Y LA PRIMER VARIABLE DEL ÁMBITO */
+    // verificamos a que distancia se encuentra la primer aparición de la variable en un ámbito alcanzable dentro de la tala de símbolos de la clase
+    int diff = tableSymbol->getDiffOffScope2(key, "var", scope); 
+    if(diff == 0){
+        yyerror("Redeclaracion de variable en el mismo ambito del metodo");
+    }else{
+        // creamos el nuevo símbolo
+        symbol* newparam = new symbol(key+scope, "", type, "var");
 
-        // verificamos a que distancia se encuentra la primer aparición de la variable en un ámbito alcanzable dentro de la tala de símbolos de la clase
-        int diff = tsClass->getDiffOffScope2(key, "var", scope); 
-        if(diff == 0){
-                yyerror("Redeclaracion de variable en el misma ambito del metodo");
-        }else{
-                // creamos el nuevo símbolo
-                symbol* newparam = new symbol(key+scope, "", type, "var");
-                /*
-                        ACA SE PUEDEN AGREGAR COSAS A LOS SIMBOLOS DE PARAMETROS DE METODO CARGADOS
-                */
+        // agregamos el nuevo símbolo al vector de simbolos de la clase        
+        tableSymbol->insert(newparam);
 
-                // Marcamos a la clase que pertenece la variable
-                newparam->classOfSymbol = classOfAttribute;
-
-                // obtenemos el scopeInsideClass, que al ser un parámetro de un método siempre es el mismo método
-                newparam->scopeInsideClass = ":"+lastMethod->lexema.substr(0, lastMethod->lexema.find(":"));
-
-                // agregamos el nuevo símbolo al vector de simbolos de la clase        
-                tsClass->insert(newparam);
-
-                lastMethod->cantParam++;
-                lastMethod->typeParam = type;
-                lastMethod->nameParam = key+scope;
-        }
+        lastMethod->cantParam++;
+        lastMethod->typeParam = type;
+        lastMethod->nameParam = key+scope;
+    }
 };
 /**
  * Cuando detectamos un parámtro en una declaración de función
@@ -1622,40 +1611,21 @@ void addParamMetodo(string key, string scope, string type, string classOfAttribu
  * @param reglatype puntero al tipo de la regla
 */
 void addParamFunction(string key, string scope, string type, string & reglaptr, string& reglatype){
-        // verificamos si está dentro de la declaración de una clase o no
+    //  verificamos si está dentro de la declaración de una clase o no
 
-        // obtener el símbolo viejo y eliminarlo
-        // setear el tipo del parametro
+    // obtener el símbolo viejo y eliminarlo
+    // setear el tipo del parametro
 
-        TableSymbol* ts;
-        
-        symbol* newIdentificador = nullptr;
+    // obtenemos la tabla general y le cargamos el parametro como variable
+    symbol* newIdentificador = setNewScope(key, type, scope, "var", tableSymbol); 
 
-        // determinas que tabla de símbolo usas checkeando si esta vacio el stack de clases
-        if(stackClasses->size() <= 0){
-                // obtenemos la tabla general y le cargamos el parametro como variable
-                ts = tableSymbol;
-                newIdentificador = setNewScope(key, type, scope, "var", ts); 
-        }else{
-                // obtenemos la tabla de la clase y le cargamos el parametro como variable
-                ts = stackClasses->top()->attributesAndMethodsVector;
-                newIdentificador = setNewScope(key, type, scope, "var", ts); 
-                
-                // marcamos a que clase pertenece el simbolo
-                string classOfAttribute = stackClasses->top()->classOfSymbol;
-                newIdentificador->classOfSymbol = classOfAttribute;
-
-                string scopeInsideClass = scope.substr(scope.find(classOfAttribute) + classOfAttribute.length());
-                newIdentificador->scopeInsideClass = scopeInsideClass;
-        }
-
-        // seteamos el parámetro al símbolo de la función
-        lastMethod->cantParam++;
-        lastMethod->typeParam = type;
-        lastMethod->nameParam = key+scope;
-        
-        reglaptr = newIdentificador->lexema; 
-        reglatype = type; 
+    // seteamos el parámetro al símbolo de la función
+    lastMethod->cantParam++;
+    lastMethod->typeParam = type;
+    lastMethod->nameParam = key+scope;
+    
+    reglaptr = newIdentificador->lexema; 
+    reglatype = type;
 };
 
 string checkNewNameBeforeInsert(symbol* newSm){
@@ -1933,45 +1903,37 @@ void checkVarInScope(string key, string scope, string uso, string& reglaptr, str
  * @throws yyerror si no hay variable enalcanzable
  */
 void newFactorMasMas (string key, string scope, string& reglaptr, string& reglatype){
-        tableSymbol->deleteSymbol(key);
-
-        // busca variable en scope que coincide con el uso
-        //verificamos si estamos adentro de una clase
-        TableSymbol* ts;
-        if(stackClasses->size() <= 0){
-                ts = tableSymbol;
-        }else{
-                ts = stackClasses->top()->attributesAndMethodsVector;
-        }        
-        symbol* symbolFinded = ts->getFirstSymbolMatching2(key, "var", scope); 
-        if(symbolFinded == nullptr){
-                yyerror("No se encontro declaracion previa de la variable "+ key);
-        }else{
-                string value = "";
-                if(symbolFinded->type == "unsigned int"){
-                    value = "1_ui";
-                }else if(symbolFinded->type == "short"){
-                    value = "1_s";
-                }else if(symbolFinded->type == "float"){
-                    value = "1.0";
-                }
-                int number = addTercet("+", symbolFinded->lexema, value);   
-                number = addTercet("=", symbolFinded->lexema, charTercetoId + to_string(number));       
-                
-                reglaptr = symbolFinded->lexema;
-                reglatype = symbolFinded->type;
-
-                /* en este punto sabes que es una variable declarada, 
-                    pero ahora quiero saber si es de este ámbito o de otro, 
-                    si es de otro y esa variable tiene el check debo informar que se está usando a la izquierda de una asignación
-                    ESTO LO DEJO PARA ZUCCHI, DESPUES BORRAR ESTE COMENTARIO
-                */
-                
-                // si el símbolo tiene que checkearse y si los lexemas no coincidencia entonces es una variable de otro ámbito
-                if(symbolFinded->isVariableToCheck && key+scope != symbolFinded->lexema){
-                    yywarning("Se esta modificando la variable "+ key +" en un ambito diferente al de su declaracion");
-                }
+    tableSymbol->deleteSymbol(key);
+    
+    symbol* symbolFinded = tableSymbol->getFirstSymbolMatching2(key, "var", scope); 
+    if(symbolFinded == nullptr){
+        yyerror("No se encontro declaracion previa de la variable "+ key);
+    }else{
+        string value = "";
+        if(symbolFinded->type == "unsigned int"){
+            value = "1_ui";
+        }else if(symbolFinded->type == "short"){
+            value = "1_s";
+        }else if(symbolFinded->type == "float"){
+            value = "1.0";
         }
+        int number = addTercet("+", symbolFinded->lexema, value);   
+        number = addTercet("=", symbolFinded->lexema, charTercetoId + to_string(number));       
+        
+        reglaptr = symbolFinded->lexema;
+        reglatype = symbolFinded->type;
+
+        /* en este punto sabes que es una variable declarada, 
+            pero ahora quiero saber si es de este ámbito o de otro, 
+            si es de otro y esa variable tiene el check debo informar que se está usando a la izquierda de una asignación
+            ESTO LO DEJO PARA ZUCCHI, DESPUES BORRAR ESTE COMENTARIO
+        */
+        
+        // si el símbolo tiene que checkearse y si los lexemas no coincidencia entonces es una variable de otro ámbito
+        if(symbolFinded->isVariableToCheck && key+scope != symbolFinded->lexema){
+            yywarning("Se esta modificando la variable "+ key +" en un ambito diferente al de su declaracion");
+        }
+    }
 }
 /**
  * función cuando se detecta una asginación sobre una variable
@@ -1989,17 +1951,9 @@ void newFactorMasMas (string key, string scope, string& reglaptr, string& reglat
 void newAsignacion(string key, string scope, string op2Lexeme, string op2Type){
         // borramos el simbolo de la tabla general
         tableSymbol->deleteSymbol(key); 
-
-        TableSymbol* ts;
-        // verificamos si es dentro de una clase o fuera y obtenemos la respectiva tabla de símbolos
-        if(stackClasses->size() <= 0){
-                ts = tableSymbol;
-        }else{
-                ts = stackClasses->top()->attributesAndMethodsVector;
-        }
         
         //buscamos si existe una variable con el mismo nombre al alcance de la tabla de simbolos
-        symbol* symbolFinded = ts->getFirstSymbolMatching2(key, "var", scope); 
+        symbol* symbolFinded = tableSymbol->getFirstSymbolMatching2(key, "var", scope); 
         if(symbolFinded == nullptr){
                 yyerror("No se encontro declaracion previa de la variable "+ key);
         }else{
@@ -2141,54 +2095,24 @@ void newCondicion(string operador, string op1ptr, string op2ptr, string op1type,
  * @param type El tipo de la variable.
  */
 void newVariable(string key, string scope, string type){
-        TableSymbol* ts;
+    symbol* newIdentificador = nullptr;
+    
+    //buscamos si esta definida ya una variable con ese mismo nombre dentro de la tabla de simbolos que corresponda
+    int diff = tableSymbol->getDiffOffScope2(key, "var", scope); 
+    if(diff == 0){
+        // existe una variable previa en el mismo ambito con el mismo nombre
+        yyerror("Redeclaracion de variable en el mismo ambito");
+    }else{
         
-        symbol* newIdentificador = nullptr;
-        
-        // determinas que tabla de símbolo usas checkeando si esta vacio el stack de clases
-        if(stackClasses->size() <= 0){
-                // obtenemos la tabla general
-                ts = tableSymbol;
-        }else{
-                // obtenemos la tabla de la clase
-                ts = stackClasses->top()->attributesAndMethodsVector;
+        newIdentificador = setNewScope(key, type, scope, "var", tableSymbol); 
+        /*
+            ACA SE PUEDEN AGREGAR COSAS A LOS SIMBOLOS DE VARIABLES CARGADOS
+        */
+        if (isVariableToCheck){
+            // si es una variable a chequear le seteamos que se debe checkear en el simbolo
+            newIdentificador->isVariableToCheck = true;
         }
-        //buscamos si esta definida ya una variable con ese mismo nombre dentro de la tabla de simbolos que corresponda
-        int diff = ts->getDiffOffScope2(key, "var", scope); 
-        
-        if(diff == 0){
-                // existe una variable previa en el mismo ambito con el mismo nombre
-                yyerror("Redeclaracion de variable en el mismo ambito");
-        }else{
-            // eliminamos el simbolo de la tabla general y lo agregamos a la tabla específica, si es de clase le seteamos los atributos
-            if(stackClasses->size() <= 0){
-                    newIdentificador = setNewScope(key, type, scope, "var", ts); 
-                    /*
-                        ACA SE PUEDEN AGREGAR COSAS A LOS SIMBOLOS DE VARIABLES CARGADOS
-                    */
-                    if (isVariableToCheck){
-                        // si es una variable a chequear le seteamos que se debe checkear en el simbolo
-                        newIdentificador->isVariableToCheck = true;
-                    }
-            }else{
-                    newIdentificador = setNewScope(key, type, scope, "var", ts); 
-                    /*
-                        ACA SE PUEDEN AGREGAR COSAS A LOS SIMBOLOS DE VARIABLES CARGADOS
-                    */
-
-                    // marcamos a que clase pertenece el simbolo
-                    string classOfAttribute = stackClasses->top()->classOfSymbol;
-                    newIdentificador->classOfSymbol = classOfAttribute;
-                    // marcamos cual seria el scope dentro de la clase de donde proviene la variable
-                    string scopeInsideClass = scope.substr(scope.find(classOfAttribute) + classOfAttribute.length());
-                    newIdentificador->scopeInsideClass = scopeInsideClass;
-
-                    if (isVariableToCheck){
-                        // si es una variable a chequear le seteamos que se debe checkear en el simbolo
-                        newIdentificador->isVariableToCheck = true;
-                    }
-            }
-        }
+    }
 };
 /**
  * Cuando se detecta la clase de un objeto a instanciar se llama esta función.
