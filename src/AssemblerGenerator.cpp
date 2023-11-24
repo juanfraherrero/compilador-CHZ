@@ -24,9 +24,13 @@ AssemblerGenerator::AssemblerGenerator(string pathFinal, TableSymbol * tableSymb
                  "errorSumaEnteros db \"Se produjo un overflow en la suma de enteros.\", 0 \n"
                  "errorProductoFlotantes db \"Se produjo un overflow en el producto de flotantes.\", 0 \n"
                  "errorRecursion db \"Se produjo un llamado recursivo de una funcion a si misma.\", 0 \n"
-                 "error db \"Error de ejecucion.\", 0 \n";
+                 "@cero dd 0.0 \n"
+                 "@maximoPositivo dd 3.40282347E+38 \n"
+                 "@minimoPositivo dd 1.17549435E-38 \n"
+                 "@maximoNegativo dd -3.40282347E+38 \n"
+                 "@minimoNegativo dd -1.17549435E-38 \n";
+
     
-    //Definimos el inicio del codigo.
     this->code = "";
     this->tableSymbol = tableSymbol;
     this->tercets = tercets;
@@ -34,13 +38,15 @@ AssemblerGenerator::AssemblerGenerator(string pathFinal, TableSymbol * tableSymb
     this->pathFinal = pathFinal;
 }
 
+//Agrega una variable al string que representa la seccion .data del codigo assembler.
 void AssemblerGenerator::addVariable(symbol * s){
-    string prefix = "_";
+    string prefix = "_";    //Prefijo para las variables por defecto. Las variables auxiliares tienen prefijo "@", por eso si son variables auxiliares, no se agrega prefijo.
     if (s->uso == "auxVariable")
         prefix = "";
 
     string value = (s->value == "" || s->value == "-") ? "?" : s->value;
 
+    //Si es una variable de tipo short, unsigned int o float, se agrega el prefijo y se reemplazan los ":" por "_". DB (8 bits) es para short, DW (16 bits) para unsigned int y DD (32 bits) para float.
     if (s->type == "short"){
         this->data += prefix + reemplazarCaracter(s->lexema,':','_') + " db " + value + "\n";
     }
@@ -48,7 +54,7 @@ void AssemblerGenerator::addVariable(symbol * s){
         this->data += prefix + reemplazarCaracter(s->lexema,':','_') + " dw " + value + "\n";
     }
     else if (s->type == "float"){
-        this->data += prefix + reemplazarCaracter(s->lexema,':','_') + " dd " + value + "\n";
+        this->data += prefix + formatearFloat(reemplazarCaracter(s->lexema,':','_')) + " dd " + value + "\n";
     }
     else if (s->type == "string"){
         this->data += reemplazarCaracter(value, ' ', '_') + " db " + '"' + value + '"' + ", 0 \n";  //Aca se reemplazan los espacios por guiones bajos para que no haya problemas.
@@ -65,7 +71,8 @@ void AssemblerGenerator::generateData(){
             if (s->uso != "clase"){
                 addVariable(s);
             } 
-            else {
+            else { 
+                //Si es una clase, se agregan las variables de la tabla de simbolos de la clase.
                 unordered_map<string, symbol*> functionSymbols = s->attributesAndMethodsVector->getSymbolTable();
                 unordered_map<string, symbol*>::iterator it2 = functionSymbols.begin();
                 while (it2 != functionSymbols.end()){
@@ -80,6 +87,8 @@ void AssemblerGenerator::generateData(){
     it++;    
     }
 }
+
+//Remplaza el caracter "caracter" por el caracter "reemplazo" en la cadena "s", devolviendo una copia.
 string AssemblerGenerator::reemplazarCaracter(string s, char caracter, char reemplazo){
     for (int i = 0; i < s.length() - 1; i++){
         if (s[i] == caracter)
@@ -88,29 +97,32 @@ string AssemblerGenerator::reemplazarCaracter(string s, char caracter, char reem
     return s;
 }
 
-
+//Genera el código assembler de las funciones.
 void AssemblerGenerator::generateFunctionsAssembler(){
-    //Primero generamos el código assembler de las funciones.
     vector<functionStack*> * functions = this->functionTercets->getFunctions();
+    
+    //Iteramos sobre cada funcion
     for (auto f: *functions){
         if (f){
             Tercets * functionTercets = f->ter;
             this->code += reemplazarCaracter(f->name,':','_') + ":\n";
             //Chequeo de recursividad 
-            this->code += "CMP _flagRecursividad" + reemplazarCaracter(f->name,':','_') + ", 1\n";
+            this->code += "CMP flagRecursividad" + reemplazarCaracter(f->name,':','_') + ", 1\n";
             this->code += "JE labelErrorRecursion\n";
-            this->code += "MOV _flagRecursividad" + reemplazarCaracter(f->name,':','_') + ", 1\n";
+            this->code += "MOV flagRecursividad" + reemplazarCaracter(f->name,':','_') + ", 1\n";
 
             //Insertamos en la tabla de simbolos el flag de recursividad  asociado a la funcion.
             this->tableSymbol->insert(new symbol("flagRecursividad" + reemplazarCaracter(f->name,':','_'), "0", "short", "var"));
             
             int n = functionTercets->getTercets().size();
             int i = 0;
+
+            //Iteramos sobre la lista de tercetos de la funcion actual.
             for (auto t : functionTercets->getTercets()){
                 if (t){
                     if (i == n-1){
                         //En la anteultima linea, seteamos el flag de recursividad en 0.
-                        this->code += "MOV " "_flagRecursividad" + reemplazarCaracter(f->name,':','_') + ", 0\n";
+                        this->code += "MOV " "flagRecursividad" + reemplazarCaracter(f->name,':','_') + ", 0\n";
                     }
                     this->code += getTercetAssembler(t, functionTercets);
                 }
@@ -121,6 +133,7 @@ void AssemblerGenerator::generateFunctionsAssembler(){
     }
 }
 
+//Genera el assembler de los tercetos del main.
 void AssemblerGenerator::generateMainAssembler(){
     this->code += "start:\n";
     for (auto t : tercets->getTercets()){
@@ -129,6 +142,7 @@ void AssemblerGenerator::generateMainAssembler(){
     this->code += "INVOKE ExitProcess, 0\n\n";
 }
 
+//Ensambla el string final que contiene el código assembler.
 void AssemblerGenerator::generateCode(){
     this->code = "\n.code\n"
                  + this->code +
@@ -136,6 +150,7 @@ void AssemblerGenerator::generateCode(){
                  + "end start";
 }
 
+//Genera el assembler de los labels de los errores en tiempo de ejecucion.
 void AssemblerGenerator::generateErrorAssembler(){
     if (this->overflowEnteros){
         this->code += "labelErrorSumaEnteros:\n"
@@ -155,7 +170,7 @@ void AssemblerGenerator::generateErrorAssembler(){
 
 }
 
-//Genera el código assembler dado una lista de tercetos.
+//Genera el código assembler de todo el programa y lo vuelca en un archivo.
 void AssemblerGenerator::generateAssembler(){
     this->generateFunctionsAssembler();
     this->generateMainAssembler();
@@ -180,20 +195,45 @@ void AssemblerGenerator::generateAssembler(){
 
 }
 
+//Obtiene una variable auxiliar y actualiza el contador de variables auxiliares.
 string AssemblerGenerator::getAuxVariable(){
     this->auxVariable++;
     return "@aux" + to_string(this->auxVariable);
 }
 
+//Obtiene el label para la asignacion del float y actualiza el contador de labels.
+string AssemblerGenerator::getFloatLabel(){
+    this->floatLabel++;
+    return "@labelAsignacionFlotante" + to_string(this->floatLabel);
+}
+
+//Formatea un float reemplazando los '+' por 'MAS', los '-' por 'MENOS' y los '.' por '_', para que no haya problemas de sintaxis en el assembler.
+string AssemblerGenerator::formatearFloat(string s){
+    for (int i = 0; i < s.length() - 1; i++){
+        if (s[i] == '+')
+            s.replace(i, 1, "MAS");
+        else if (s[i] == '-')
+            s.replace(i, 1, "MENOS");
+        else if (s[i] == '.')
+            s.replace(i, 1, "_");
+    }
+    return s;
+}
+
+//Genera el código assembler de un terceto.
 string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets){
     string out = "";
     string op1 = "";
     string op2 = "";
     string typeOfFirstArg = "";
 
-    //Primero verificamos que los operandos sean referencias a tercetos. En caso de serlo, los reemplazamos por la variable auxiliar que guarda el resultado del terceto.
+    //Primero verificamos que los operandos sean referencias a tercetos.
     if (tercet->opIsTercet(1)){
+
+        //El operando 1 es un terceto, por lo tanto buscamos en la lista de tercetos, el terceto al que hace referencia y obtenemos su variable auxiliar.
         op1 = tercets->get(stoi(tercet->getArg1().substr(1)))->getAuxVariable();
+
+        //Buscamos en la tabla de simbolos la variable auxiliar, para obtener su tipo de dato.
         symbol * firstArg = this->tableSymbol->getSymbol(op1);
         if (firstArg)
             typeOfFirstArg = firstArg->type;
@@ -202,10 +242,17 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
         if (tercet->getOp() == "print"){ //Si se trata de un print, se reemplazan todos los espacios por guiones bajos.
             op1 = reemplazarCaracter(tercet->getArg1(), ' ', '_');
         } else {
-            op1 = "_" + reemplazarCaracter(tercet->getArg1(), ':', '_');
+
+            //El operando 1 no es un terceto, por lo tanto se trata de una variable. Se agrega el prefijo "" y se reemplazan los ":" por "" por convencion.
+            op1 = "" + reemplazarCaracter(tercet->getArg1(), ':','_');
+
+            //Mismo razonamiento que antes, buscamos en la tabla de simbolos la variable para obtener su tipo de dato.
             symbol * firstArg = tableSymbol->getSymbol(tercet->getArg1());
-            if (firstArg)
-                typeOfFirstArg = firstArg->type;          
+            if (firstArg){
+                typeOfFirstArg = firstArg->type;
+                if (typeOfFirstArg == "float")
+                    op1 = formatearFloat(op1);
+            }         
         }
     }
 
@@ -213,29 +260,31 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
         op2 = tercets->get(stoi(tercet->getArg2().substr(1)))->getAuxVariable();
     }
     else if (tercet->getArg2() != ""){
-        op2 = "_" + reemplazarCaracter(tercet->getArg2(), ':','_');
+        op2 = "" + reemplazarCaracter(tercet->getArg2(), ':','_');
+        if (typeOfFirstArg == "float")
+            op2 = formatearFloat(op2);
     }
 
     //Suma, chequeando overflow en suma de enteros
     if (tercet->getOp() == "+"){
-        tercet->setAuxVariable(getAuxVariable());
+        tercet->setAuxVariable(getAuxVariable());   //Seteamos la variable auxiliar del terceto.
         string auxVariable = tercet->getAuxVariable();
 
-        symbol * auxSymbol = new symbol(tercet->getAuxVariable(), "", typeOfFirstArg, "auxVariable");
+        symbol * auxSymbol = new symbol(tercet->getAuxVariable(), "", typeOfFirstArg, "auxVariable"); //Creamos el simbolo de la variable auxiliar y lo insertamos en la tabla de simbolos.
         tableSymbol->insert(auxSymbol);
 
         if (typeOfFirstArg == "short"){
             out += "MOV AH, " + op1 + "\n";
             out += "ADD AH, " + op2 + "\n";
             out += "MOV " + tercet->getAuxVariable() + ", AH\n";
-            out += "JO labelErrorSumaEnteros\n";
+            out += "JO labelErrorSumaEnteros\n";           //Esta instruccion salta si se produce un overflow en la suma de enteros con signo.
             this->overflowEnteros = true;
         }
         else if (typeOfFirstArg == "unsigned int"){
             out += "MOV AX, " + op1 + "\n";
             out += "ADD AX, " + op2 + "\n";
             out += "MOV " + tercet->getAuxVariable() + ", AX\n";
-            out += "JC labelErrorSumaEnteros\n";
+            out += "JC labelErrorSumaEnteros\n";            //Esta instruccion salta si se produce un overflow en la suma de enteros sin signo.
             this->overflowEnteros = true;
         }
         else if (typeOfFirstArg == "float"){
@@ -287,10 +336,48 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
             out += "MOV " + tercet->getAuxVariable() + ", AX\n";
         }
         else if (typeOfFirstArg == "float"){
+            string label = this->getFloatLabel();
+            
             out += "FLD " + op1 + "\n";
             out += "FMUL " + op2 + "\n";
+
+            //Chequeo de overflow. La idea es chequear que no se pase de los rangos maximos ni minimos, positivos ni negativos. 
+            //En los casos validos, se salta a un label donde se realiza la asignacion.
+            //IMPORTANTE: Si no se entiende la logica, recuerden: JE (Jump if Equal), JA (Jump if Above), JB (Jump if Below). Todo para aritmetica SIN SIGNO.
+            
+            //Chequeamos si el resultado de la multiplicacion es 0. Si es 0, no hay overflow, y se salta al label de asignacion.
+            out += "FCOM @cero\n";
+            out += "FSTSW AX\n";
+            out += "SAHF\n";
+            out += "JE " + label + "\n";
+
+            //Chequeamos si el resultado de la multiplicacion es mayor al maximo positivo. Si es mayor, hay overflow, y se salta al label de error.
+            out += "FCOM @maximoPositivo\n";
+            out += "FSTSW AX\n";
+            out += "SAHF\n";
+            out += "JA labelErrorProductoFlotantes\n";
+
+            //Chequeamos si el resultado de la multiplicacion es menor al minimo negativo. Si es menor, hay overflow, y se salta al label de error.
+            out += "FCOM @minimoNegativo\n";
+            out += "FSTSW AX\n";
+            out += "SAHF\n";
+            out += "JB labelErrorProductoFlotantes\n";
+
+            //Chequeamos si el resultado de la multiplicacion es mayor al minimo positivo. Si es mayor, no hay overflow y se salta al label de asignacion.
+            out += "FCOM @minimoPositivo\n";
+            out += "FSTSW AX\n";
+            out += "SAHF\n";
+            out += "JA " + label + "\n";
+
+            //Chequeamos si el resultado de la multiplicacion es menor al maximo negativo. Si es mayor, hay overflow, y se salta al label de error.
+            out += "FCOM @maximoNegativo\n";
+            out += "FSTSW AX\n";
+            out += "SAHF\n";
+            out += "JA labelErrorProductoFlotantes\n";
+
+            //Agregamos el label de asignacion.
+            out += label + ":\n";
             out += "FSTP " + tercet->getAuxVariable() + "\n";
-            out += "JO labelErrorProductoFlotantes\n"; //Chequear
             this->overflowProductos = true;
         }
     }
@@ -318,6 +405,7 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
             out += "FSTP " + tercet->getAuxVariable() + "\n";
         }
     }
+
     //Asignacion
     else if (tercet->getOp() == "="){
         if (typeOfFirstArg == "short"){
@@ -461,9 +549,11 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
     //Branch incondicional
     else if (tercet->getOp() == "BI"){
         if (tercet->getArg1() != ""){
+            //Busco el label al que hace referencia el operando 1.
             string label = tercets->get(stoi(tercet->getArg1().substr(1)))->getArg1();
             out+= "JMP " + label + "\n";
         } else if (tercet->getArg2() != ""){
+            //Busco el label al que hace referencia el operando 2.
             string label = tercets->get(stoi(tercet->getArg2().substr(1)))->getArg1();
             out+= "JMP " + label + "\n";
         }
@@ -474,7 +564,7 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
     }
     //Llamado a subrutina
     else if (tercet->getOp() == "call"){
-        this->recursion = true;
+        this->recursion = true; //Hay un llamado a funcion, puede haber recursion.
         out += "CALL " + op1.substr(1) + "\n";
     }
     //Return

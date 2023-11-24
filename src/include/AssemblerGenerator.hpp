@@ -15,12 +15,13 @@ private:
     string data;    //String que contiene la seccion .data del código assembler.
     string libraries; //String que contiene las librerias del código assembler asi como los parametros iniciales.
     int auxVariable = 0;    //Contador para las variables auxiliares
-    TableSymbol * tableSymbol;
-    Tercets * tercets;
+    TableSymbol * tableSymbol; //Tabla de simbolos del compilador
+    Tercets * tercets;  //Tercetos del main
     VectorOfFunction * functionTercets;     //Tercetos del cuerpo de cada función
     bool overflowEnteros = false;       //Flag para saber si se debe chequear overflow en suma de enteros
     bool overflowProductos = false;     //Flag para saber si se debe chequear overflow en multiplicacion de enteros
     bool recursion = false;    //Flag para saber si hay posible recursion
+    int floatLabel = 0;     //Contador para los labels de asignacion en productos de float.
 public:
     AssemblerGenerator(string pathFinal, TableSymbol * tableSymbol, Tercets* tercets, VectorOfFunction * vectorOfFunction);
     void generateAssembler(); //Genera el código assembler
@@ -34,7 +35,9 @@ public:
     void addVariable(symbol * s); //Agrega una variable al código assembler.
     string getTercetAssembler(Tercet * tercet, Tercets * tercets); //genera el código assembler dado un terceto
     string reemplazarCaracter(string s, char caracter, char reemplazo); //Reemplaza un caracter por otro en una cadena.
+    string formatearFloat(string s); //Formatea un float para que sea aceptado por el assembler.
     string getAuxVariable(); //Obtiene una variable auxiliar.
+    string getFloatLabel();   //Obtiene un label para asignacion de float.
 };
 
 #endif
