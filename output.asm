@@ -19,69 +19,50 @@ errorRecursion db "Se produjo un llamado recursivo de una funcion a si misma.", 
 @minimoPositivo dd 1.17549435E-38 
 @maximoNegativo dd -3.40282347E+38 
 @minimoNegativo dd -1.17549435E-38 
-_No_son_iguales_asi_que_aca_no_se_va_a_entrar db "No son iguales asi que aca no se va a entrar", 0 
-_Claramente_x_es_igual_a_100_35 db "Claramente x es igual a 100.35", 0 
-_200_45_es_mayor_que_100_35 db "200.45 es mayor que 100.35", 0 
-_200_45 dd 200.45
-_Claramente_100_35_es_menor_o_igual_a_100_35 db "Claramente 100.35 es menor o igual a 100.35", 0 
-_100_35 dd 100.35
-_Claramente_100_35_no_es_igual_a_200_45 db "Claramente 100.35 no es igual a 200.45", 0 
+_re_contra_mal_la_comparacion db "re contra mal la comparacion", 0 
+_20_0 dd 20.0
+_bien_la_comparacion db "bien la comparacion", 0 
+_2_0 dd 2.0
+_5_0 dd 5.0
+@aux1 dd ?
+_10_0 dd 10.0
+_z_main dd ?
 _y_main dd ?
 _x_main dd ?
 
 .code
 start:
-FLD _100_35
+FLD _10_0
 FSTP _x_main
 
-FLD _200_45
+FLD _5_0
 FSTP _y_main
 
-FLD _y_main
-FCOM _x_main
+FLD _x_main
+FDIV _y_main
+FSTP @aux1
+
+FLD @aux1
+FSTP _z_main
+
+FLD _z_main
+FCOM _2_0
 FSTSW AX
 SAHF
-JLE label0
+JNE label0
 
-INVOKE MessageBox, NULL, addr _200_45_es_mayor_que_100_35, addr _200_45_es_mayor_que_100_35, MB_OK
+INVOKE MessageBox, NULL, addr _bien_la_comparacion, addr _bien_la_comparacion, MB_OK
 
 label0:
-FLD _x_main
-FCOM _y_main
+FLD _z_main
+FCOM _20_0
 FSTSW AX
 SAHF
-JE label1
+JNE label1
 
-INVOKE MessageBox, NULL, addr _Claramente_100_35_no_es_igual_a_200_45, addr _Claramente_100_35_no_es_igual_a_200_45, MB_OK
+INVOKE MessageBox, NULL, addr _re_contra_mal_la_comparacion, addr _re_contra_mal_la_comparacion, MB_OK
 
 label1:
-FLD _x_main
-FCOM _y_main
-FSTSW AX
-SAHF
-JNE label2
-
-INVOKE MessageBox, NULL, addr _No_son_iguales_asi_que_aca_no_se_va_a_entrar, addr _No_son_iguales_asi_que_aca_no_se_va_a_entrar, MB_OK
-
-label2:
-FLD _x_main
-FCOM _100_35
-FSTSW AX
-SAHF
-JG label3
-
-INVOKE MessageBox, NULL, addr _Claramente_100_35_es_menor_o_igual_a_100_35, addr _Claramente_100_35_es_menor_o_igual_a_100_35, MB_OK
-
-label3:
-FLD _x_main
-FCOM _100_35
-FSTSW AX
-SAHF
-JNE label4
-
-INVOKE MessageBox, NULL, addr _Claramente_x_es_igual_a_100_35, addr _Claramente_x_es_igual_a_100_35, MB_OK
-
-label4:
 
 INVOKE ExitProcess, 0
 

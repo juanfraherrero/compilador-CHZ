@@ -1,0 +1,17 @@
+{
+    SHORT x; y; z,
+
+    x = 10_s,
+    y = 5_s,
+
+    z = x / y,
+
+    IF (z == 2_s){
+        PRINT #bien la comparacion#,
+    }
+    END_IF,
+    IF (z == 20_s){
+        PRINT #re contra mal la comparacion#,
+    }
+    END_IF,
+}

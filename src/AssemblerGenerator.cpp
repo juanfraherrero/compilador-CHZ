@@ -327,12 +327,12 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
 
         if (typeOfFirstArg == "short"){
             out += "MOV AL, " + op1 + "\n";
-            out += "IMUL AL" + op2 + "\n";
+            out += "IMUL " + op2 + "\n";
             out += "MOV " + tercet->getAuxVariable() + ", AL\n";
         }
         else if (typeOfFirstArg == "unsigned int"){
             out += "MOV AX, " + op1 + "\n";
-            out += "MUL AX" + op2 + "\n";
+            out += "MUL " + op2 + "\n";
             out += "MOV " + tercet->getAuxVariable() + ", AX\n";
         }
         else if (typeOfFirstArg == "float"){
@@ -390,7 +390,7 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
         tableSymbol->insert(auxSymbol);
 
         if (typeOfFirstArg == "short"){
-            out += "MOV AX, " + op1 + "\n";
+            out += "MOV AL, " + op1 + "\n";
             out += "IDIV " + op2 + "\n";
             out += "MOV " + tercet->getAuxVariable() + ", AL\n";
         }

@@ -1,0 +1,17 @@
+{
+    FLOAT x; y; z,
+
+    x = 10.0,
+    y = 5.0,
+
+    z = x / y,
+
+    IF (z == 2.0){
+        PRINT #bien la comparacion#,
+    }
+    END_IF,
+    IF (z == 20.0){
+        PRINT #re contra mal la comparacion#,
+    }
+    END_IF,
+}
