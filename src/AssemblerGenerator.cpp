@@ -107,9 +107,9 @@ void AssemblerGenerator::generateFunctionsAssembler(){
             Tercets * functionTercets = f->ter;
             this->code += reemplazarCaracter(f->name,':','_') + ":\n";
             //Chequeo de recursividad 
-            this->code += "CMP flagRecursividad" + reemplazarCaracter(f->name,':','_') + ", 1\n";
+            this->code += "CMP _flagRecursividad" + reemplazarCaracter(f->name,':','_') + ", 1\n";
             this->code += "JE labelErrorRecursion\n";
-            this->code += "MOV flagRecursividad" + reemplazarCaracter(f->name,':','_') + ", 1\n";
+            this->code += "MOV _flagRecursividad" + reemplazarCaracter(f->name,':','_') + ", 1\n";
 
             //Insertamos en la tabla de simbolos el flag de recursividad  asociado a la funcion.
             this->tableSymbol->insert(new symbol("flagRecursividad" + reemplazarCaracter(f->name,':','_'), "0", "short", "var"));
@@ -122,7 +122,7 @@ void AssemblerGenerator::generateFunctionsAssembler(){
                 if (t){
                     if (i == n-1){
                         //En la anteultima linea, seteamos el flag de recursividad en 0.
-                        this->code += "MOV " "flagRecursividad" + reemplazarCaracter(f->name,':','_') + ", 0\n";
+                        this->code += "MOV " "_flagRecursividad" + reemplazarCaracter(f->name,':','_') + ", 0\n";
                     }
                     this->code += getTercetAssembler(t, functionTercets);
                 }
@@ -243,8 +243,8 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
             op1 = reemplazarCaracter(tercet->getArg1(), ' ', '_');
         } else {
 
-            //El operando 1 no es un terceto, por lo tanto se trata de una variable. Se agrega el prefijo "" y se reemplazan los ":" por "" por convencion.
-            op1 = "" + reemplazarCaracter(tercet->getArg1(), ':','_');
+            //El operando 1 no es un terceto, por lo tanto se trata de una variable. Se agrega el prefijo "_" y se reemplazan los ":" por "" por convencion.
+            op1 = "_" + reemplazarCaracter(tercet->getArg1(), ':','_');
 
             //Mismo razonamiento que antes, buscamos en la tabla de simbolos la variable para obtener su tipo de dato.
             symbol * firstArg = tableSymbol->getSymbol(tercet->getArg1());
@@ -260,7 +260,7 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
         op2 = tercets->get(stoi(tercet->getArg2().substr(1)))->getAuxVariable();
     }
     else if (tercet->getArg2() != ""){
-        op2 = "" + reemplazarCaracter(tercet->getArg2(), ':','_');
+        op2 = "_" + reemplazarCaracter(tercet->getArg2(), ':','_');
         if (typeOfFirstArg == "float")
             op2 = formatearFloat(op2);
     }

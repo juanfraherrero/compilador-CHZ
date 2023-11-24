@@ -14,16 +14,31 @@ includelib C:\masm32\lib\masm32.lib
 errorSumaEnteros db "Se produjo un overflow en la suma de enteros.", 0 
 errorProductoFlotantes db "Se produjo un overflow en el producto de flotantes.", 0 
 errorRecursion db "Se produjo un llamado recursivo de una funcion a si misma.", 0 
-error db "Error de ejecucion.", 0 
-_x_main_clase1_ob1_main db ?
-_x_main_clase1 db ?
+@cero dd 0.0 
+@maximoPositivo dd 3.40282347E+38 
+@minimoPositivo dd 1.17549435E-38 
+@maximoNegativo dd -3.40282347E+38 
+@minimoNegativo dd -1.17549435E-38 
+_flagRecursividadfuncion1_main db 0
 
 .code
-metodo1_main_clase1_ob1_main:
+funcion1_main:
+CMP _flagRecursividadfuncion1_main, 1
+JE labelErrorRecursion
+MOV _flagRecursividadfuncion1_main, 1
+CALL funcion1_main
+
+MOV _flagRecursividadfuncion1_main, 0
 RET
 
 start:
+CALL funcion1_main
 
+
+INVOKE ExitProcess, 0
+
+labelErrorRecursion:
+INVOKE MessageBox, NULL, addr errorRecursion, addr errorRecursion, MB_OK
 INVOKE ExitProcess, 0
 
 end start

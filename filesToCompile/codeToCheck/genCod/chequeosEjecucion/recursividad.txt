@@ -1,0 +1,8 @@
+{
+    VOID funcion1(){   
+        funcion1(),
+        RETURN,
+    },
+
+    funcion1(),
+}
