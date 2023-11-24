@@ -3620,7 +3620,9 @@ void finPrograma(){
         int number = addTercet("FIN", "-", "-");
         verifyAllClassForwardedAreDeclared();
         instanciatePosponeObjectForForwarding();
+        tableTercets->print();
         checkTercetsPosponeAreCorrect(tableTercets);
+        tableTercets->print();
         for(functionStack* fs : *(vectorOfFunction->getFunctions())){
             checkTercetsPosponeAreCorrect(fs->ter);
         }
@@ -3951,7 +3953,7 @@ case 57:
 break;
 case 58:
 #line 158 "./gramaticaForGenCod.y"
-{ finishMethod(); yyerror("Se detecto la falta de RETURN en el cuerpo de la funcion");}
+{ finishMethod(); yyerror("Se detecto la falta de RETURN en el cuerpo del metodo");}
 break;
 case 59:
 #line 159 "./gramaticaForGenCod.y"
@@ -4035,7 +4037,7 @@ case 80:
 break;
 case 81:
 #line 197 "./gramaticaForGenCod.y"
-{yyerror("Se detecto la falta de RETURN en el cuerpo de la funcion");}
+{yyerror("Se detecto la falta de RETURN en el cuerpo de sentencias");}
 break;
 case 84:
 #line 201 "./gramaticaForGenCod.y"

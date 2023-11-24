@@ -156,7 +156,7 @@ lista_de_atributos  :   lista_de_atributos ';' IDENTIFICADOR    { addAtribute($3
                     |   IDENTIFICADOR                           { addAtribute($1->ptr, tableSymbol->getScope(), typeAux, actualClass); }
                     ;
 metodo  :   metodo_name '(' parametro_metodo ')' '{' cuerpo_de_la_funcion '}'                 { finishMethod(); }
-        |   metodo_name '(' parametro_metodo ')' '{' '}'                                      { finishMethod(); yyerror("Se detecto la falta de RETURN en el cuerpo de la funcion");}
+        |   metodo_name '(' parametro_metodo ')' '{' '}'                                      { finishMethod(); yyerror("Se detecto la falta de RETURN en el cuerpo del metodo");}
         |   metodo_name '(' parametro_metodo ')' '{' comas cuerpo_de_la_funcion '}'           { finishMethod(); }
         ;
 
@@ -195,7 +195,7 @@ parametro_funcion   :   tipo IDENTIFICADOR              { addParamFunction ($2->
                 |   parametro_funcion ';' tipo IDENTIFICADOR  { yyerror("Exceso de parametros"); }
                 ;
 
-cuerpo_de_la_funcion    :   cuerpo_de_la_funcion_sin_return                             {yyerror("Se detecto la falta de RETURN en el cuerpo de la funcion");}
+cuerpo_de_la_funcion    :   cuerpo_de_la_funcion_sin_return                             {yyerror("Se detecto la falta de RETURN en el cuerpo de sentencias");}
                         |   cuerpo_de_la_funcion_con_return
                         ;
 cuerpo_de_la_funcion_con_return    :   cuerpo_de_la_funcion_sin_return return ','
