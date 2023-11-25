@@ -372,10 +372,9 @@ void checkIntegerShort(string lexeme){
 string checkIntegerShortNegative(string lexeme){
         tableSymbol->deleteSymbol(lexeme); // reduce el contador, si llega a 0 lo elimina
         
-        lexeme = '-'+lexeme;
-
         size_t pos = lexeme.find("_s");
-        string value = lexeme.substr(0, pos);
+        string value = "-"+lexeme.substr(0, pos);
+        lexeme = "minus"+lexeme;
         
         tableSymbol->insert(lexeme, lexeme, value, "short");
         return lexeme;
