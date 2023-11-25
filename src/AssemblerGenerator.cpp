@@ -11,6 +11,7 @@ AssemblerGenerator::AssemblerGenerator(string pathFinal, TableSymbol * tableSymb
                       ".model flat, stdcall \n" 
                       ".stack 200h \n"
                       "option casemap:none \n"
+                      "include C:\\masm32\\include\\masm32rt.inc \n"
                       "include C:\\masm32\\include\\windows.inc \n"
                       "include C:\\masm32\\include\\kernel32.inc \n"
                       "include C:\\masm32\\include\\user32.inc \n"
@@ -21,6 +22,7 @@ AssemblerGenerator::AssemblerGenerator(string pathFinal, TableSymbol * tableSymb
     
     //Definimos los errores que pueden ocurrir en el programa.
     this->data = "\n.data\n"
+                 "newline db 10, 0 ; Definición de un carácter de nueva línea \n"
                  "errorSumaEnteros db \"Se produjo un overflow en la suma de enteros.\", 0 \n"
                  "errorProductoFlotantes db \"Se produjo un overflow en el producto de flotantes.\", 0 \n"
                  "errorRecursion db \"Se produjo un llamado recursivo de una funcion a si misma.\", 0 \n"
@@ -573,7 +575,9 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
     }
     //Print
     else if (tercet->getOp() == "print"){
-        out += "INVOKE MessageBox, NULL, addr " + op1 + ", addr " + op1 + ", MB_OK" + "\n";
+        // out += "INVOKE MessageBox, NULL, addr " + op1 + ", addr " + op1 + ", MB_OK" + "\n";
+        out += "INVOKE StdOut, addr " + op1 + "\n";
+        out += "INVOKE StdOut, addr newline \n";
     }
     //Parametro real
     else if (tercet->getOp() == "paramReal"){

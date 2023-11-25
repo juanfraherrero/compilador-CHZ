@@ -122,8 +122,9 @@ int main(int arg_count, char *arg_list[]) {
     delete tableSymbol;
     delete tableRWords;
     delete tableTercets;
-
-    assembleAndLink();
+    if(resultParsing == 0 && !isErrorInCode){
+        assembleAndLink();
+    }
 
     return 0;
 }
