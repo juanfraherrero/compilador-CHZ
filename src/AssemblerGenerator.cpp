@@ -195,16 +195,19 @@ void AssemblerGenerator::generateCode(){
 void AssemblerGenerator::generateErrorAssembler(){
     if (this->overflowEnteros){
         this->code += "labelErrorSumaEnteros:\n"
-                      "INVOKE MessageBox, NULL, addr errorSumaEnteros, addr errorSumaEnteros, MB_OK\n"
+                      "INVOKE StdOut, addr errorSumaEnteros\n"
+                      "INVOKE StdOut, addr newline ; Imprimir una nueva línea \n"
                       "INVOKE ExitProcess, 0\n";
     }
     if (this->overflowProductos){
         this->code += "labelErrorProductoFlotantes:\n"
-                      "INVOKE MessageBox, NULL, addr errorProductoFlotantes, addr errorProductoFlotantes, MB_OK\n"
+                      "INVOKE StdOut, addr errorProductoFlotantes \n"
+                      "INVOKE StdOut, addr newline ; Imprimir una nueva línea \n"
                       "INVOKE ExitProcess, 0\n";
     }
     this->code += "labelErrorRecursion:\n"
-                    "INVOKE MessageBox, NULL, addr errorRecursion, addr errorRecursion, MB_OK\n"
+                    "INVOKE StdOut, addr errorRecursion \n"
+                    "INVOKE StdOut, addr newline ; Imprimir una nueva línea \n"
                     "INVOKE ExitProcess, 0\n";
 
 
