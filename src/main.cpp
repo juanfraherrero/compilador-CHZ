@@ -14,7 +14,7 @@
 using namespace std;
 
 void assembleAndLink();
-
+void loadOnesToTableSymbol( TableSymbol * tableSymbol);
 /*
     Este es el main, y en la practica se indico que el sintactico era el main y este es quien pide los tokens al lexico
 */
@@ -81,6 +81,7 @@ int main(int arg_count, char *arg_list[]) {
             cout << "Generando el assembler" << endl;
             // generamos el codigo assembler
             AssemblerGenerator * assemblerGenerator = new AssemblerGenerator("output.asm", tableSymbol, tableTercets, vectorOfFunction);
+            loadOnesToTableSymbol(tableSymbol);
             assemblerGenerator->generateAssembler();
         }
     }else{
@@ -150,3 +151,9 @@ void assembleAndLink(){
         cout << "Error al intentar realizar el link y assembler del codigo fuente" << endl;
     }
 }
+
+void loadOnesToTableSymbol( TableSymbol * tableSymbol){
+    tableSymbol->insert("1_s", "1_s", "1", "short");
+    tableSymbol->insert("1_ui", "1_ui", "1", "unsigned int");
+    tableSymbol->insert("1.0", "1.0", "1.0", "float");
+};
