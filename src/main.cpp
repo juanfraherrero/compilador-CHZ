@@ -13,7 +13,7 @@
 
 using namespace std;
 
-
+void assembleAndLink();
 
 /*
     Este es el main, y en la practica se indico que el sintactico era el main y este es quien pide los tokens al lexico
@@ -122,5 +122,30 @@ int main(int arg_count, char *arg_list[]) {
     delete tableSymbol;
     delete tableRWords;
     delete tableTercets;
+
+    assembleAndLink();
+
     return 0;
+}
+
+
+void assembleAndLink(){
+    string path = "C:/Users/juanf/OneDrive/Escritorio/compilador/compilador-CHZ";
+    string comandoObj= "C:\\masm32\\bin\\ml /c /Zd /coff " + path + "/" + "output" + ".asm";
+    cout << endl << endl;
+    // chdir(path.c_str());
+    int resultado = system(comandoObj.c_str());
+    cout << endl << endl;
+    if (resultado == 0){
+        cout << "OBJ creado exitosamente" << endl << endl << endl;
+        string comandoExe = "C:\\masm32\\bin\\Link /SUBSYSTEM:CONSOLE " + path + "/" + "output" + ".obj";
+        resultado = system(comandoExe.c_str());
+        if (resultado == 0){
+            cout  << "EXE creado exitosamente" << endl << endl << endl;
+        } else {
+            cout << "Error al intentar realizar el assembler del codigo fuente" << endl;
+        }
+    } else {
+        cout << "Error al intentar realizar el link y assembler del codigo fuente" << endl;
+    }
 }
