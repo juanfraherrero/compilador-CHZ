@@ -70,40 +70,6 @@ int main(int arg_count, char *arg_list[]) {
 
     int resultParsing = yyparse(lexico);
     
-    if(resultParsing == 0){
-        if(isErrorInCode){
-            cout << "\n\n --------------- \n\n";
-            cout << "Parsing exitoso pero errores en codigo" << endl;
-            cout << "Soluciona los errores para generar el assembler" << endl;            
-        }else{
-            cout << "\n\n --------------- \n\n";
-            cout << "Parsing exitoso" << endl;
-            cout << "Generando el assembler" << endl;
-            // generamos el codigo assembler
-            AssemblerGenerator * assemblerGenerator = new AssemblerGenerator("output.asm", tableSymbol, tableTercets, vectorOfFunction);
-            loadOnesToTableSymbol(tableSymbol);
-            assemblerGenerator->generateAssembler();
-        }
-    }else{
-        yyerror("Se detecto una sentencia invalida");
-        cout << "\n\n --------------- \n\n";
-        cout << "Parsing fallo" << endl;
-        cout << "No se puede generar el assembler" << endl;
-    }
-
-    // FOR ONLY READ TOKENS COMMENT THE ABOVE CODE (Line 65 to 78)
-    // UNCOMMENT THE NEXT CODE
-
-    // while (!lexico->endOfFile()){
-    //     tokenWithLexeme * token = lexico->getToken(); // esto queda guardado en el heap // checkear cuando hay que eliminarlo
-        
-    //     if(token != nullptr){
-    //         cout <<  "El token es: " << token->token << " con lexema: " << token->lexeme << endl;
-    //         delete token;
-    //     };
-    // }
-        
-
     cout << "\n\n --------------- \n\n";
     tableSymbol->imprimirTabla();
     tableSymbol->imprimirAtributosMetodos();
@@ -118,6 +84,42 @@ int main(int arg_count, char *arg_list[]) {
     
     cout << "\n\n --------Lista de tercetos del main------- \n\n";
     tableTercets->print();
+
+    if(resultParsing == 0){
+        if(isErrorInCode){
+            cout << "\n\n --------------- \n\n";
+            cout << "Parsing exitoso pero errores en codigo" << endl;
+            cout << "Soluciona los errores para generar el assembler" << endl; 
+            cout << "\n\n --------------- \n\n";           
+        }else{
+            cout << "\n\n --------------- \n\n";
+            cout << "Parsing exitoso" << endl;
+            cout << "Generando el assembler" << endl;
+            cout << "\n\n --------------- \n\n";
+            // generamos el codigo assembler
+            AssemblerGenerator * assemblerGenerator = new AssemblerGenerator("output.asm", tableSymbol, tableTercets, vectorOfFunction);
+            loadOnesToTableSymbol(tableSymbol);
+            assemblerGenerator->generateAssembler();
+        }
+    }else{
+        yyerror("Se detecto una sentencia invalida");
+        cout << "\n\n --------------- \n\n";
+        cout << "Parsing fallo" << endl;
+        cout << "No se puede generar el assembler" << endl;
+        cout << "\n\n --------------- \n\n";
+    }
+
+    // FOR ONLY READ TOKENS COMMENT THE ABOVE CODE (Line 65 to 78)
+    // UNCOMMENT THE NEXT CODE
+
+    // while (!lexico->endOfFile()){
+    //     tokenWithLexeme * token = lexico->getToken(); // esto queda guardado en el heap // checkear cuando hay que eliminarlo
+        
+    //     if(token != nullptr){
+    //         cout <<  "El token es: " << token->token << " con lexema: " << token->lexeme << endl;
+    //         delete token;
+    //     };
+    // }
 
 
     delete tableSymbol;
