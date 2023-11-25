@@ -203,11 +203,10 @@ void AssemblerGenerator::generateErrorAssembler(){
                       "INVOKE MessageBox, NULL, addr errorProductoFlotantes, addr errorProductoFlotantes, MB_OK\n"
                       "INVOKE ExitProcess, 0\n";
     }
-    if (this->recursion){
-        this->code += "labelErrorRecursion:\n"
-                      "INVOKE MessageBox, NULL, addr errorRecursion, addr errorRecursion, MB_OK\n"
-                      "INVOKE ExitProcess, 0\n";
-    }
+    this->code += "labelErrorRecursion:\n"
+                    "INVOKE MessageBox, NULL, addr errorRecursion, addr errorRecursion, MB_OK\n"
+                    "INVOKE ExitProcess, 0\n";
+
 
 }
 
