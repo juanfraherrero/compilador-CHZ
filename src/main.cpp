@@ -132,15 +132,13 @@ int main(int arg_count, char *arg_list[]) {
 
 
 void assembleAndLink(){
-    string path = "C:/Users/juanf/OneDrive/Escritorio/compilador/compilador-CHZ";
-    string comandoObj= "C:\\masm32\\bin\\ml /c /Zd /coff " + path + "/" + "output" + ".asm";
+    string comandoObj= "C:\\masm32\\bin\\ml /c /Zd /coff " + string("./") + "output" + ".asm";
     cout << endl << endl;
-    // chdir(path.c_str());
     int resultado = system(comandoObj.c_str());
     cout << endl << endl;
     if (resultado == 0){
         cout << "OBJ creado exitosamente" << endl << endl << endl;
-        string comandoExe = "C:\\masm32\\bin\\Link /SUBSYSTEM:CONSOLE " + path + "/" + "output" + ".obj";
+        string comandoExe = "C:\\masm32\\bin\\Link /SUBSYSTEM:CONSOLE " + string("./") + "output" + ".obj";
         resultado = system(comandoExe.c_str());
         if (resultado == 0){
             cout  << "EXE creado exitosamente" << endl << endl << endl;

@@ -186,6 +186,7 @@ parametro_metodo   :   tipo IDENTIFICADOR               { addParamMetodo($2->ptr
             |   IDENTIFICADOR                           { yyerror("Falta de tipo de parametro"); } 
             |   /* vacio */
             |   parametro_metodo ';' tipo IDENTIFICADOR  { yyerror("Exceso de parametros"); }
+            |   parametro_metodo comas tipo IDENTIFICADOR  { yyerror("Exceso de parametros"); }
             ;
 
 parametro_funcion   :   tipo IDENTIFICADOR              { addParamFunction ($2->ptr, tableSymbol->getScope(), $1->type, $$->ptr, $$->type); }
@@ -193,6 +194,7 @@ parametro_funcion   :   tipo IDENTIFICADOR              { addParamFunction ($2->
                 |   IDENTIFICADOR                   { yyerror("Falta de tipo de parametro"); } 
                 |   /* vacio */
                 |   parametro_funcion ';' tipo IDENTIFICADOR  { yyerror("Exceso de parametros"); }
+                |   parametro_funcion comas tipo IDENTIFICADOR  { yyerror("Exceso de parametros"); }
                 ;
 
 cuerpo_de_la_funcion    :   cuerpo_de_la_funcion_sin_return                             {yyerror("Se detecto la falta de RETURN en el cuerpo de sentencias");}
@@ -218,7 +220,7 @@ ejecutable  :    asignacion
             |    invocacion                                 
             |    seleccion
             |    PRINT CADENA_CARACTERES                    { int number = addTercet("print", tableSymbol->getSymbol($2->ptr)->value, ""); $$->ptr = charTercetoId + to_string(number); }
-            |    PRINT IDENTIFICADOR                        { printIdentificador(); }
+            |    PRINT IDENTIFICADOR                        { printIdentificador($2->ptr, tableSymbol->getScope()); }
             |    PRINT constanteConSigno                    { int number = addTercet("print", tableSymbol->getSymbol($2->ptr)->value, ""); $$->ptr = charTercetoId + to_string(number); }
             |    PRINT constanteSinSigno                    { int number = addTercet("print", tableSymbol->getSymbol($2->ptr)->value, ""); $$->ptr = charTercetoId + to_string(number); }
             |    ciclo_while
