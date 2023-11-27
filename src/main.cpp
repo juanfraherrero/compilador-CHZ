@@ -13,24 +13,27 @@
 
 using namespace std;
 
-void assembleAndLink();
+void assembleAndLink(string outputFile);
 void loadOnesToTableSymbol( TableSymbol * tableSymbol);
 /*
     Este es el main, y en la practica se indico que el sintactico era el main y este es quien pide los tokens al lexico
 */
 
 int main(int arg_count, char *arg_list[]) {
-    
-    // // // setlocale(LC_CTYPE, "Spanish");   
     // checkeo que se haya pasado el archivo a compilar
     if (arg_count < 2) {
-        cout << "Se requiere el archivo a compilar" << endl;
+        cout << "Se requiere al menos el archivo a compilar" << endl;
         exit(0);
     }
-
     string file_name = arg_list[1];
     cout << "Compilando archivo: " << file_name << endl;
     
+    string outputFile = "output"; // Valor por defecto
+    if (arg_count > 2) {
+        outputFile = arg_list[2]; // Si se proporciona un segundo argumento, asignarlo a outputFile
+    }else{
+        cout << "No se especifico un nombre de archivo de salida, se usara el nombre por defecto: " << outputFile << endl;
+    }
     //  CARGAR ARCHVO A STRING
 
     // Crea una cadena para almacenar el contenido del archivo, esto es porque acelera la lectura del archivo al ya tenerlo en ram
@@ -97,7 +100,7 @@ int main(int arg_count, char *arg_list[]) {
             cout << "Generando el assembler" << endl;
             cout << "\n\n --------------- \n\n";
             // generamos el codigo assembler
-            AssemblerGenerator * assemblerGenerator = new AssemblerGenerator("output.asm", tableSymbol, tableTercets, vectorOfFunction);
+            AssemblerGenerator * assemblerGenerator = new AssemblerGenerator(outputFile+".asm", tableSymbol, tableTercets, vectorOfFunction);
             loadOnesToTableSymbol(tableSymbol);
             assemblerGenerator->generateAssembler();
         }
@@ -126,21 +129,21 @@ int main(int arg_count, char *arg_list[]) {
     delete tableRWords;
     delete tableTercets;
     if(resultParsing == 0 && !isErrorInCode){
-        assembleAndLink();
+        assembleAndLink(outputFile);
     }
 
     return 0;
 }
 
 
-void assembleAndLink(){
-    string comandoObj= "C:\\masm32\\bin\\ml /c /Zd /coff " + string("./") + "output" + ".asm";
+void assembleAndLink(string outputFile){
+    string comandoObj= "C:\\masm32\\bin\\ml /c /Zd /coff " + string("./") + outputFile + ".asm";
     cout << endl << endl;
     int resultado = system(comandoObj.c_str());
     cout << endl << endl;
     if (resultado == 0){
         cout << "OBJ creado exitosamente" << endl << endl << endl;
-        string comandoExe = "C:\\masm32\\bin\\Link /SUBSYSTEM:CONSOLE " + string("./") + "output" + ".obj";
+        string comandoExe = "C:\\masm32\\bin\\Link /SUBSYSTEM:CONSOLE " + string("./") + outputFile + ".obj";
         resultado = system(comandoExe.c_str());
         if (resultado == 0){
             cout  << "EXE creado exitosamente" << endl << endl << endl;
