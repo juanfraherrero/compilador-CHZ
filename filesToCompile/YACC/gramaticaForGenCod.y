@@ -343,7 +343,7 @@ factor : IDENTIFICADOR                                                  { checkV
        | IDENTIFICADOR OPERADOR_SUMA_SUMA                               { newFactorMasMas($1->ptr, tableSymbol->getScope(), $$->ptr, $$->type); }
        | constanteSinSigno                                              { $$->ptr = $1->ptr; $$->type = $1->type;}
        | constanteConSigno                                              { $$->ptr = $1->ptr; $$->type = $1->type;}
-       | TOF '(' expresion_aritmetica ')'                               { newTof($3->ptr,$$->ptr,$$->type); } 
+       | TOF '(' expresion_aritmetica ')'                               { newTof($3->ptr, $3->type,$$->ptr,$$->type);} 
        | accesoObjetos '.' IDENTIFICADOR                                { newUseObjectAttribute($1->ptr, $3->ptr,  tableSymbol->getScope(), $$->ptr, $$->type); } 
        | accesoObjetos '.' IDENTIFICADOR OPERADOR_SUMA_SUMA             { newUseObjectAttributeFactorMasMas($1->ptr, $3->ptr,  tableSymbol->getScope(), $$->ptr, $$->type); } 
        | CADENA_CARACTERES                                              { yyerror("No se puede operar con cadena de caracteres");{ $$->ptr = $1->ptr; $$->type = $1->type;} }          
@@ -1419,10 +1419,18 @@ void newOperacionAritmetica(string operador, string op1ptr, string op2ptr, strin
         }
         
 }
-void newTof(string key, string& reglaptr, string& reglatype){
-        int number = addTercet("tof", " ", key); 
+void newTof(string key, string opType, string& reglaptr, string& reglatype){
+        /* int number = addTercet("tof", " ", key); 
         reglaptr = charTercetoId + to_string(number); 
-        reglatype = "float";
+        reglatype = "float"; */
+        if(opType != "pospone" ){
+            int number = addTercetWithType("tof", "", key, "float", optype, "float"); 
+            reglaptr = charTercetoId + to_string(number); 
+        }else{
+            reglatype = "pospone";
+            int number = addTercetPospone("tof", "", key, false, true, "float", optype, reglatype); 
+            reglaptr = charTercetoId + to_string(number); 
+        }
 }
 void condition(string& reglaptr){
         string lastTercet;

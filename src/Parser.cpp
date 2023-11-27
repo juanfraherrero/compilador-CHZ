@@ -1989,10 +1989,19 @@ void newOperacionAritmetica(string operador, string op1ptr, string op2ptr, strin
         }
         
 }
-void newTof(string key, string& reglaptr, string& reglatype){
-        int number = addTercet("tof", " ", key); 
+void newTof(string key, string opType, string& reglaptr, string& reglatype){
+        /* int number = addTercet("tof", " ", key); 
         reglaptr = charTercetoId + to_string(number); 
-        reglatype = "float";
+        */
+        if(opType != "pospone" ){
+            int number = addTercetWithType("tof", "", key, "float", opType, "float"); 
+            reglaptr = charTercetoId + to_string(number); 
+        }else{
+            reglatype = "pospone";
+            int number = addTercetPospone("tof", "", key, false, true, "float", opType, reglatype); 
+            reglaptr = charTercetoId + to_string(number); 
+        }
+        reglatype = "float"; 
 }
 void condition(string& reglaptr){
         string lastTercet;
@@ -3070,6 +3079,111 @@ void checkTercetsPosponeAreCorrect(Tercets* ts){
                 }
             }
             
+        }
+        if(tercet->getOp() == "tof"){
+            // estamos ante una operación de tof
+            // verificamos que el atributo del segundo argumento exista y atualzamos el terceto
+            symbol* attributeSymbol2;
+            bool isErrorInAttribute = false;
+            if (tercet->arg2Pospone){
+                if(tercet->getArg2()[0] == charTercetoId){
+                    // si e sun terceto guardamos su tipo en el terceto actual
+                    tercet->type2 = ts->get(stoi(tercet->getArg2().substr(1, tercet->getArg2().size())))->typeTercet;
+                }else{
+                    // es un llamado a método
+                    // obtenemos cada uno de los elementos del argumento para verificar si es correcto el uso del objeto
+                    size_t posSeparador = tercet->getArg2().find("|");
+                    string primeraParte = tercet->getArg2().substr(0, posSeparador);
+                    string scope = tercet->getArg2().substr(posSeparador + 1);
+
+                    size_t firstPos = primeraParte.find(":");
+                    size_t secondPos = primeraParte.find(":", firstPos + 1);
+
+                    string attributeName = primeraParte.substr(0, firstPos);
+                    string classOfObject = primeraParte.substr(firstPos+1, secondPos - firstPos - 1);
+                    string objectName = primeraParte.substr(secondPos+1, primeraParte.size());
+
+                    vector<string> accesos = getAccesoFromString(objectName);
+    
+                    // Verifica que el objeto este declarado y obtiene su clase
+                    symbol* objectSymbol = tableSymbol->getFirstSymbolMatching2(accesos[0], "objeto", scope);
+                    symbol* classSymbol = nullptr;
+            
+                    if(objectSymbol == nullptr){
+                            yyerror("No se encontro declaracion previa del objeto"+ accesos[0]);
+                            isErrorInAttribute = true;
+                    }else{
+                        // si encontramos el objeto declarado obtenemos su clase y verificamos que exista la clase en el scope ":main" ya que todas las clases van ahí
+                        classOfObject = objectSymbol->classOfSymbol;
+                        classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
+                        if(classSymbol == nullptr){
+                            // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
+                            yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
+                            isErrorInAttribute = true;
+                        }else{
+                            
+                            // ya encontraste el primer objeto en u ámbito alcanzable, ahora buscamos dentro de su clase cada uno de los diferentes acccesos
+                            for(int i = 1; i < accesos.size(); i++){
+                                objectSymbol = getFirstSymbolMatchingOfObject(accesos[i], classSymbol);
+                                if(objectSymbol == nullptr){
+                                    yyerror("No se encontro declaracion previa del objeto "+ accesos[i] + " en la clase " + classSymbol->classOfSymbol + " del objeto " + accesos[i-1]); 
+                                    isErrorInAttribute = true;
+                                }else{
+                                    classOfObject = objectSymbol->classOfSymbol;
+                                    classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
+                                    if(classSymbol == nullptr){
+                                        // nunca debería entrar acá porque si el objeto existe es porque la clase también existe
+                                        yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
+                                        isErrorInAttribute = true;
+                                    }
+                                }
+                            }
+                            if(!isErrorInAttribute){
+                                // si encontramos la clase verificamos que contenga el atributo     
+                                attributeSymbol2 = getFirstSymbolMatchingOfAttribute(attributeName, classSymbol);
+
+                                if(attributeSymbol2 == nullptr){
+                                    yyerrorFin("No se encontro declaracion previa del atributo "+ attributeName + " en la clase " + classOfObject + " del objeto " + accesos[accesos.size()-1]);
+                                    isErrorInAttribute = true;
+                                }else{
+                                    // encontramos el atributo en la clase y obtenemos el scope estático del atributo, 
+                                    // buscamos en la tabla general el scope estático + le nombre del objeto + el scope actual y obtenemos el simbolo del primer atributo que coincida
+                                    
+                                    attributeSymbol2 = tableSymbol->getFirstSymbolMatching2(attributeSymbol2->lexema + ":" + accesos[0], "atributo", scope);
+                                    if (attributeSymbol2 == nullptr){
+                                        yyerrorFin("No se encontro declaracion previa del atributo "+ attributeName + " en la clase " + classOfObject + " del objeto " + accesos[accesos.size()-1]);
+                                        isErrorInAttribute = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (!isErrorInAttribute){
+                if (tercet->arg1Pospone && !tercet->arg2Pospone){
+                    cout << "entro re puto1" << endl;
+                }
+                if (!tercet->arg1Pospone && tercet->arg2Pospone){
+                    if(tercet->getArg2()[0] == charTercetoId){
+                        tercet->type2 = ts->get(stoi(tercet->getArg2().substr(1, tercet->getArg2().size())))->typeTercet;
+                        
+                        // agregamos el terceto de asignación en la respectiva tabla de tercetos
+                        tercet->arg2Pospone = false;
+                        tercet->typeTercet = "float";
+                    }else{
+                        // agregamos el terceto de asignación en la respectiva tabla de tercetos
+                        Tercet * tasig = ts->get(numberTercet);
+                        tasig->setArg2(attributeSymbol2->lexema);
+                        tasig->type2 = attributeSymbol2->type;
+                        tasig->arg2Pospone = false;
+                        tasig->typeTercet = "float";
+                    }
+                }
+                if (tercet->arg1Pospone && tercet->arg2Pospone){
+                    cout << "entro re puto2" << endl;
+                }
+            }
         }
         if(tercet->getOp() == "++"){
             // estamos ante una operación de ++
@@ -4360,7 +4474,7 @@ case 188:
 break;
 case 189:
 #line 346 "./gramaticaForGenCod.y"
-{ newTof(yyvsp[-1]->ptr,yyval->ptr,yyval->type); }
+{ newTof(yyvsp[-1]->ptr, yyvsp[-1]->type,yyval->ptr,yyval->type); }
 break;
 case 190:
 #line 347 "./gramaticaForGenCod.y"
