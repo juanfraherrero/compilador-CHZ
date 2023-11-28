@@ -401,6 +401,7 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
 
         if (typeOfFirstArg == "short"){
             out += "MOV AL, " + op1 + "\n";
+            out += "CBW \n";
             out += "IDIV " + op2 + "\n";
             out += "MOV " + tercet->getAuxVariable() + ", AL\n";
         }
