@@ -1,10 +1,14 @@
 {
     UINT x; y; z,
+
     x = 10_ui,
     y = 5_ui,
+
+    PRINT x,
+    PRINT y,
     
     z = x / y,
-    
+
     PRINT x,
     PRINT y,
     PRINT z,

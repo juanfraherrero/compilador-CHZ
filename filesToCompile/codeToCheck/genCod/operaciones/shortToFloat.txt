@@ -5,6 +5,6 @@
     y = 10_s,
     x = TOF(y),
 
-    PRINT y
+    PRINT y,
     PRINT x,
 }
