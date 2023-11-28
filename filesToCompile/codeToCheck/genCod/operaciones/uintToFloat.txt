@@ -5,8 +5,6 @@
     y = 10_ui,
     x = TOF(y),
 
-    IF (x == 10.0){
-        PRINT #Bien la conversion#,
-    }
-    END_IF,
+    PRINT y,
+    PRINT x,
 }

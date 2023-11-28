@@ -100,7 +100,6 @@ void AssemblerGenerator::generateFunctionsAssembler(){
             Tercets * functionTercets = f->ter;
             this->code += reemplazarCaracter(f->name,':','_') + ":\n";
             // agregado de preservación de pila y registros
-            this->code += "; Subroutine Prologue \n";
             this->code += "push ebp     ; Save the old base pointer value.\n";
             this->code += "mov ebp, esp ; Set the new base pointer value. \n";
             this->code += "sub esp, 4   ; Make room for one 4-byte local variable. \n";
@@ -581,7 +580,6 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
     }
     //Return
     else if (tercet->getOp() == "return"){
-        out += "; Subroutine Epilogue \n";
         out += "pop esi      ; Recover register values \n";
         out += "pop  edi \n";
         out += "mov esp, ebp ; Deallocate local variables \n";

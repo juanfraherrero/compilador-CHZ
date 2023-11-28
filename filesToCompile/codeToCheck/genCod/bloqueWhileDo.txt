@@ -3,6 +3,7 @@
     x = 12_s,
 
     WHILE ( x < 20_s ) DO {
+        PRINT x,
         x = x + 1_s,
         PRINT #todavia no termino#,
     },

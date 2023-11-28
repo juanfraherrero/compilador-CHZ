@@ -6,12 +6,7 @@
 
     z = x * y,
 
-    IF (z == 50_ui){
-        PRINT #bien la comparacion#,
-    }
-    END_IF,
-    IF (z == 40_ui){
-        PRINT #re contra mal la comparacion#,
-    }
-    END_IF,
+    PRINT x,
+    PRINT y,
+    PRINT z,
 }

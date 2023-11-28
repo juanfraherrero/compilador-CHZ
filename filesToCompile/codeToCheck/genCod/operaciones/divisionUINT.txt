@@ -1,17 +1,11 @@
 {
     UINT x; y; z,
-
     x = 10_ui,
     y = 5_ui,
-
+    
     z = x / y,
-
-    IF (z == 2_ui){
-        PRINT #bien la comparacion#,
-    }
-    END_IF,
-    IF (z == 20_ui){
-        PRINT #re contra mal la comparacion#,
-    }
-    END_IF,
+    
+    PRINT x,
+    PRINT y,
+    PRINT z,
 }

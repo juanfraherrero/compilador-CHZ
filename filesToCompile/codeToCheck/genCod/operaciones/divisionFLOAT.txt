@@ -6,5 +6,7 @@
 
     z = x / y,
 
+    PRINT x,
+    PRINT y,
     PRINT z,
 }
