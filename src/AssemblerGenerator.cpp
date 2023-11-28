@@ -73,20 +73,8 @@ void AssemblerGenerator::generateData(){
     while (it != symbols.end()){
         symbol * s = it->second;
         if (s){
-            if (s->uso != "clase"){
+            if (s->uso != "clase" && s->uso != "objeto"){
                 addVariable(s);
-            } 
-            else { 
-                //Si es una clase, se agregan las variables de la tabla de simbolos de la clase.
-                unordered_map<string, symbol*> functionSymbols = s->attributesAndMethodsVector->getSymbolTable();
-                unordered_map<string, symbol*>::iterator it2 = functionSymbols.begin();
-                while (it2 != functionSymbols.end()){
-                    symbol * s = it2->second;
-                    if (s){
-                       addVariable(s);
-                    }
-                it2++;
-                }
             }  
         }
     it++;    
