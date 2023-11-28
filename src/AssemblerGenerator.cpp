@@ -18,12 +18,14 @@ AssemblerGenerator::AssemblerGenerator(string pathFinal, TableSymbol * tableSymb
                       "include C:\\masm32\\include\\masm32.inc \n"
                       "includelib C:\\masm32\\lib\\kernel32.lib \n"
                       "includelib C:\\masm32\\lib\\user32.lib \n"
-                      "includelib C:\\masm32\\lib\\masm32.lib \n";
+                      "includelib C:\\masm32\\lib\\masm32.lib \n"
+                      "dll_dllcrt0 PROTO C\n"
+                      "printf PROTO C : VARARG\n";
     
     //Definimos los errores que pueden ocurrir en el programa.
     this->data = "\n.data\n"
                  "newline db 10, 0 ; Definición de un carácter de nueva línea \n"
-                 "buffer__aux db 16 DUP(?) ; Buffer para almacenar la cadena convertida \n"
+                 "@varForPrintShort dw ?; variable auxiliarpara imprimir short al requerir de una promoción \n"
                  "errorSumaEnteros db \"Se produjo un overflow en la suma de enteros.\", 0 \n"
                  "errorProductoFlotantes db \"Se produjo un overflow en el producto de flotantes.\", 0 \n"
                  "errorRecursion db \"Se produjo un llamado recursivo de una funcion a si misma.\", 0 \n"
@@ -57,7 +59,7 @@ void AssemblerGenerator::addVariable(symbol * s){
         this->data += prefix + reemplazarCaracter(s->lexema,':','_') + " dw " + value + "\n";
     }
     else if (s->type == "float"){
-        this->data += prefix + formatearFloat(reemplazarCaracter(s->lexema,':','_')) + " dd " + value + "\n";
+        this->data += prefix + formatearFloat(reemplazarCaracter(s->lexema,':','_')) + " dq " + value + "\n";
     }
     else if (s->type == "string"){
         this->data += prefix + reemplazarCaracter(reemplazarCaracter(value, ' ', '_'),'.','_') + " db " + '"' + value + '"' + ", 0 \n";  //Aca se reemplazan los espacios por guiones bajos para que no haya problemas.
@@ -148,44 +150,6 @@ void AssemblerGenerator::generateMainAssembler(){
 //Ensambla el string final que contiene el código assembler.
 void AssemblerGenerator::generateCode(){
     this->code = "\n.code\n"
-                "PrintDbAsInteger PROC, byteValue:BYTE\n"
-                "    ; Convertir el número byteValue a una cadena manualmente\n"
-                "    movzx eax, byteValue ; Mover el valor a eax (extendido a 32 bits)\n"
-                "    mov edi, OFFSET buffer__aux ; Poner la dirección de buffer en edi\n"
-                "    add edi, 15 ; Apuntar a la posición final del buffer\n"
-                "    mov ecx, 10 ; Dividir por 10 para convertir a caracteres decimales\n"
-                "convert_loop1:\n"
-                "    dec edi ; Mover el puntero al buffer hacia atrás\n"
-                "    xor edx, edx ; Limpiar edx para la división\n"
-                "    div ecx ; Dividir eax por 10, resultado en eax, residuo en edx\n"
-                "    add dl, '0' ; Convertir el dígito a su representación ASCII\n"
-                "    mov [edi], dl ; Almacenar el dígito convertido en el buffer\n"
-                "    test eax, eax ; Comprobar si queda algo por convertir\n"
-                "    jnz convert_loop1 ; Si hay más, continuar el bucle\n"
-                "    ; Imprimir la cadena usando StdOut\n"
-                "    invoke StdOut, edi ; Imprimir la cadena desde la posición actual en el buffer\n"
-                "    invoke StdOut, addr newline ; Imprimir una nueva línea \n"
-                "    ret\n"
-                "PrintDbAsInteger ENDP \n"
-                "PrintDwAsInteger PROC, byteValue:WORD\n"
-                "    ; Convertir el número byteValue a una cadena manualmente\n"
-                "    movzx eax, byteValue ; Mover el valor a eax (extendido a 32 bits)\n"
-                "    mov edi, OFFSET buffer__aux ; Poner la dirección de buffer en edi\n"
-                "    add edi, 15 ; Apuntar a la posición final del buffer\n"
-                "    mov ecx, 10 ; Dividir por 10 para convertir a caracteres decimales\n"
-                "convert_loop2:\n"
-                "    dec edi ; Mover el puntero al buffer hacia atrás\n"
-                "    xor edx, edx ; Limpiar edx para la división\n"
-                "    div ecx ; Dividir eax por 10, resultado en eax, residuo en edx\n"
-                "    add dl, '0' ; Convertir el dígito a su representación ASCII\n"
-                "    mov [edi], dl ; Almacenar el dígito convertido en el buffer\n"
-                "    test eax, eax ; Comprobar si queda algo por convertir\n"
-                "    jnz convert_loop2 ; Si hay más, continuar el bucle\n"
-                "    ; Imprimir la cadena usando StdOut\n"
-                "    invoke StdOut, edi ; Imprimir la cadena desde la posición actual en el buffer\n"
-                "    invoke StdOut, addr newline ; Imprimir una nueva línea \n"
-                "    ret\n"
-                "PrintDwAsInteger ENDP \n"
                  + this->code +
                  + "\n"
                  + "end start";
@@ -621,19 +585,18 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
         out += "INVOKE StdOut, addr newline \n";
     }
     else if (tercet->getOp() == "printIdentificador"){
-        if (typeOfFirstArg == "short"){
-            out += "INVOKE PrintDbAsInteger, " + op1 + "\n";
+        if (typeOfFirstArg == "unsigned int"){
+            out += "INVOKE printf, cfm$(\"%hu\\n\"), " + op1 + "\n";
         }
-        else if (typeOfFirstArg == "unsigned int"){
-            out += "INVOKE PrintDwAsInteger, " + op1 + "\n";
+        else if (typeOfFirstArg == "float"){
+            out += "INVOKE printf, cfm$(\"%.20Lf\\n\"), " + op1 + "\n";
         }
-        // else if (typeOfFirstArg == "float"){
-        //     out += "FLD " + op1 + "\n";
-        //     out += "FCOM " + op2 + "\n";
-        //     out += "FSTSW AX\n";
-        //     out += "SAHF\n";
-        //     out += "JE ";
-        // }
+        else if (typeOfFirstArg == "short"){
+            out += "MOV AL, " + op1 + "\n";
+            out += "MOVSX AX, AL \n";
+            out += "MOV @varForPrintShort, AX \n";
+            out += "INVOKE printf, cfm$(\"%hd\\n\"), @varForPrintShort \n";
+        }
     }
     //Parametro real
     else if (tercet->getOp() == "paramReal"){
