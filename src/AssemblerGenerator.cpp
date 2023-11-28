@@ -406,6 +406,7 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
         }
         else if (typeOfFirstArg == "unsigned int"){
             out += "MOV AX, " + op1 + "\n";
+            out += "XOR DX, DX \n"; // limpiamoslaparte alta
             out += "DIV " + op2 + "\n";
             out += "MOV " + tercet->getAuxVariable() + ", AX\n";
         }
