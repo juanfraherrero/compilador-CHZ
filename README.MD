@@ -10,7 +10,7 @@ instalarse la extensión:
 - Code Runner
 - Yash
 
-### Compilación
+## Compilación
 
 Instalar make en la máquina, https://sourceforge.net/projects/mingw/ 
 
@@ -31,7 +31,9 @@ Una vez tenemos compilado el código, solo resta ejecutarlo:
 
 El primer parámetro es el binario o ejecutable, el segundo es el archivo de texto de código a compilar y el tercero es el nombre del archivo de salida.
 
-Para la genreación del .obj y .exe se requiere de tener instalado el masm32 y guardado en la variablede entorno path. Además debe estar en "C:\\masm32"
+### Requerimientos para desarrollar
+
+Para la genereación del .obj y .exe se requiere de tener instalado el MASM32 y guardado en la variable de entorno path. Además, debe estar instalada en "C:\\masm32"
 
 # Consideraciones
 Dentro de la carpeta ejecutables se encuentras los ejecutables de windows de 32 y 64 bits para usos directos sin necesidad de instalar nada.
