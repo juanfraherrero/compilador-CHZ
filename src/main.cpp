@@ -22,18 +22,11 @@ void loadOnesToTableSymbol( TableSymbol * tableSymbol);
 int main(int arg_count, char *arg_list[]) {
     // checkeo que se haya pasado el archivo a compilar
     if (arg_count < 2) {
-        cout << "Se requiere al menos el archivo a compilar" << endl;
+        std::cout << "Se requiere al menos el archivo a compilar" << endl;
         exit(0);
     }
     string file_name = arg_list[1];
-    cout << "Compilando archivo: " << file_name << endl;
     
-    string outputFile = "output"; // Valor por defecto
-    if (arg_count > 2) {
-        outputFile = arg_list[2]; // Si se proporciona un segundo argumento, asignarlo a outputFile
-    }else{
-        cout << "No se especifico un nombre de archivo de salida, se usara el nombre por defecto: " << outputFile << endl;
-    }
     //  CARGAR ARCHVO A STRING
 
     // Crea una cadena para almacenar el contenido del archivo, esto es porque acelera la lectura del archivo al ya tenerlo en ram
@@ -45,6 +38,23 @@ int main(int arg_count, char *arg_list[]) {
         std::cerr << "El archivo no existe o no se pudo abrir." << std::endl;
         return 1; // Sale del programa con un codigo de error
     }
+
+    string outputFile = "output"; // Valor por defecto
+
+    if (arg_count > 2) {
+        outputFile = arg_list[2]; // Si se proporciona un segundo argumento, asignarlo a outputFile
+    }else{        
+        size_t lastSlashPos = file_name.find_last_of("/\\");
+        if (lastSlashPos != std::string::npos) {
+            string fileNameAndExtension = file_name.substr(lastSlashPos+1);
+            size_t lastDotPos = fileNameAndExtension.find_last_of(".");
+            outputFile = fileNameAndExtension.substr(0, lastDotPos);
+        } else{
+            std::cerr << "Ruta de archivo no valida." << std::endl;
+            return 1;
+        }
+    }
+    std::cout << "La salida sera: " << outputFile << endl;
 
     // Lee el contenido del archivo linea por linea y lo agrega a la cadena
     std::string linea;
@@ -73,32 +83,32 @@ int main(int arg_count, char *arg_list[]) {
 
     int resultParsing = yyparse(lexico);
     
-    cout << "\n\n --------------- \n\n";
+    std::cout << "\n\n --------------- \n\n";
     tableSymbol->imprimirTabla();
     tableSymbol->imprimirAtributosMetodos();
 
-    cout << "\n\n ------bloques de codigo ejecutables--------- \n\n";
+    std::cout << "\n\n ------bloques de codigo ejecutables--------- \n\n";
     vectorOfFunction->imprimir();
     
-    // cout << "\n\n ------bloques de códigos declarativos--------- \n\n";
+    // std::cout << "\n\n ------bloques de códigos declarativos--------- \n\n";
     // vectorOfFunctionDeclaredInClasses->imprimir();
     
     // tableRWords->imprimirTabla();
     
-    cout << "\n\n --------Lista de tercetos del main------- \n\n";
+    std::cout << "\n\n --------Lista de tercetos del main------- \n\n";
     tableTercets->print();
 
     if(resultParsing == 0){
         if(isErrorInCode){
-            cout << "\n\n --------------- \n\n";
-            cout << "Parsing exitoso pero errores en codigo" << endl;
-            cout << "Soluciona los errores para generar el assembler" << endl; 
-            cout << "\n\n --------------- \n\n";           
+            std::cout << "\n\n --------------- \n\n";
+            std::cout << "Parsing exitoso pero errores en codigo" << endl;
+            std::cout << "Soluciona los errores para generar el assembler" << endl; 
+            std::cout << "\n\n --------------- \n\n";           
         }else{
-            cout << "\n\n --------------- \n\n";
-            cout << "Parsing exitoso" << endl;
-            cout << "Generando el assembler" << endl;
-            cout << "\n\n --------------- \n\n";
+            std::cout << "\n\n --------------- \n\n";
+            std::cout << "Parsing exitoso" << endl;
+            std::cout << "Generando el assembler" << endl;
+            std::cout << "\n\n --------------- \n\n";
             // generamos el codigo assembler
             AssemblerGenerator * assemblerGenerator = new AssemblerGenerator(outputFile+".asm", tableSymbol, tableTercets, vectorOfFunction);
             loadOnesToTableSymbol(tableSymbol);
@@ -106,10 +116,10 @@ int main(int arg_count, char *arg_list[]) {
         }
     }else{
         yyerror("Se detecto una sentencia invalida");
-        cout << "\n\n --------------- \n\n";
-        cout << "Parsing fallo" << endl;
-        cout << "No se puede generar el assembler" << endl;
-        cout << "\n\n --------------- \n\n";
+        std::cout << "\n\n --------------- \n\n";
+        std::cout << "Parsing fallo" << endl;
+        std::cout << "No se puede generar el assembler" << endl;
+        std::cout << "\n\n --------------- \n\n";
     }
 
     // FOR ONLY READ TOKENS COMMENT THE ABOVE CODE (Line 65 to 78)
@@ -119,7 +129,7 @@ int main(int arg_count, char *arg_list[]) {
     //     tokenWithLexeme * token = lexico->getToken(); // esto queda guardado en el heap // checkear cuando hay que eliminarlo
         
     //     if(token != nullptr){
-    //         cout <<  "El token es: " << token->token << " con lexema: " << token->lexeme << endl;
+    //         std::cout <<  "El token es: " << token->token << " con lexema: " << token->lexeme << endl;
     //         delete token;
     //     };
     // }
@@ -138,20 +148,20 @@ int main(int arg_count, char *arg_list[]) {
 
 void assembleAndLink(string outputFile){
     string comandoObj= "C:\\masm32\\bin\\ml /c /Zd /coff " + string("./") + outputFile + ".asm";
-    cout << endl << endl;
+    std::cout << endl << endl;
     int resultado = system(comandoObj.c_str());
-    cout << endl << endl;
+    std::cout << endl << endl;
     if (resultado == 0){
-        cout << "OBJ creado exitosamente" << endl << endl << endl;
+        std::cout << "OBJ creado exitosamente" << endl << endl << endl;
         string comandoExe = "C:\\masm32\\bin\\Link /SUBSYSTEM:CONSOLE " + string("./") + outputFile + ".obj";
         resultado = system(comandoExe.c_str());
         if (resultado == 0){
-            cout  << "EXE creado exitosamente" << endl << endl << endl;
+            std::cout  << "EXE creado exitosamente" << endl << endl << endl;
         } else {
-            cout << "Error al intentar realizar el assembler del codigo fuente" << endl;
+            std::cout << "Error al intentar realizar el assembler del codigo fuente" << endl;
         }
     } else {
-        cout << "Error al intentar realizar el link y assembler del codigo fuente" << endl;
+        std::cout << "Error al intentar realizar el link y assembler del codigo fuente" << endl;
     }
 }
 
