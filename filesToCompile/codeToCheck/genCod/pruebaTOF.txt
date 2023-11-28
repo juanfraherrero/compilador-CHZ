@@ -1,0 +1,33 @@
+{
+    CLASS clase1,
+
+    SHORT x,
+    FLOAT z,
+    
+    clase1 ob1, 
+    
+    ob1.x = -31_s,
+    x = ob1.x,
+    PRINT x,
+    ob1.method1(x),
+    PRINT #JORGE#,
+    x = x + 21_s,
+    PRINT x,
+    z = TOF(x),
+    PRINT z,
+    
+    CLASS clase1 {
+        SHORT x,    
+        VOID method1(SHORT k){
+            SHORT y,
+            y = 2_s,
+            PRINT #PEDRO#,
+            PRINT x,
+            k = 3_s,
+            PRINT k,
+            PRINT #LEVANA#,
+            RETURN,
+        },    
+    },
+    
+}

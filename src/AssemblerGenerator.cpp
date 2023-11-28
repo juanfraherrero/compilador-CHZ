@@ -228,6 +228,7 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
     string op1 = "";
     string op2 = "";
     string typeOfFirstArg = "";
+    string typeOfSecondArg ="";
 
     //Primero verificamos que los operandos sean referencias a tercetos.
     if (tercet->opIsTercet(1)){
@@ -260,11 +261,18 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
 
     if (tercet->opIsTercet(2)){
         op2 = tercets->get(stoi(tercet->getArg2().substr(1)))->getAuxVariable();
+        symbol * secondArg = this->tableSymbol->getSymbol(op2);
+        if (secondArg)
+            typeOfSecondArg = secondArg->type;
     }
     else if (tercet->getArg2() != ""){
         op2 = "_" + reemplazarCaracter(tercet->getArg2(), ':','_');
+        symbol * secondArg = this->tableSymbol->getSymbol(tercet->getArg2());
+        if (secondArg)
+            typeOfSecondArg = secondArg->type;
         if (typeOfFirstArg == "float")
             op2 = formatearFloat(op2);
+         
     }
 
     //Suma, chequeando overflow en suma de enteros
@@ -630,16 +638,19 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
         symbol * auxSymbol = new symbol(tercet->getAuxVariable(), "", "float", "auxVariable");
         tableSymbol->insert(auxSymbol);
 
-        if (typeOfFirstArg == "short"){
+        if (typeOfSecondArg == "short"){
             out += "MOV AL, " + op2 + "\n";
             out += "CBW \n";
             out += "CWDE \n";
-            out += "MOV " + tercet->getAuxVariable() + ", EAX \n";
+            out += "CDQ \n";
+            //out += "MOV " + tercet->getAuxVariable() + ", EAX \n";
+            out += "MOV  DWORD PTR " + tercet->getAuxVariable() + ", EAX" + "\n"; 
+            out += "MOV  DWORD PTR " + tercet->getAuxVariable()+ " + 4, EDX" + "\n";
             out += "FILD " + tercet->getAuxVariable()+ "\n";
             out += "FSTP " + tercet->getAuxVariable() + "\n";
         }
-        else if (typeOfFirstArg == "unsigned int"){
-            out += "FILD " + op1 + "\n";
+        else if (typeOfSecondArg == "unsigned int"){
+            out += "FILD " + op2 + "\n";
             out += "FSTP " + tercet->getAuxVariable() + "\n";
         }
     }
