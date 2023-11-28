@@ -2325,7 +2325,10 @@ symbol* getFirstSymbolMatchingOfObject(string objectName, symbol* classSymbol){
 void newUseObjectAttribute(string objectName, string attributeName, string scope, string& reglaptr, string& reglatype){
 
     vector<string> accesos = getAccesoFromString(objectName);
-   
+    
+    tableSymbol->deleteSymbol(accesos[0]);
+    tableSymbol->deleteSymbol(attributeName);
+
     // Verifica que el objeto este declarado y obtiene su clase
     symbol* objectSymbol = tableSymbol->getFirstSymbolMatching2(accesos[0], "objeto", scope);
     symbol* classSymbol = nullptr;
@@ -2360,6 +2363,7 @@ void newUseObjectAttribute(string objectName, string attributeName, string scope
                         yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
                         return;
                     }else{
+                        tableSymbol->deleteSymbol(accesos[i]);
                         if(objectSymbol->posponeForForwarding){
                             reglaptr =  attributeName+":"+classOfObject+":"+objectName+"|"+scope;
                             reglatype = "pospone";
@@ -2412,7 +2416,10 @@ void newAsignacionObjectAttribute(string objectName, string attributeName, strin
     // si alguno de los objetos está pospuesto debemos crear el terceto correspondiente marcando los pospuestos y marcando todos los accesos para en el forwarding poder acceder
     
     vector<string> accesos = getAccesoFromString(objectName);
-   
+    
+    tableSymbol->deleteSymbol(accesos[0]);
+    tableSymbol->deleteSymbol(attributeName);
+
     // Verifica que el objeto este declarado y obtiene su clase
     symbol* objectSymbol = tableSymbol->getFirstSymbolMatching2(accesos[0], "objeto", scope);
     symbol* classSymbol = nullptr;
@@ -2450,6 +2457,7 @@ void newAsignacionObjectAttribute(string objectName, string attributeName, strin
                         yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
                         return;
                     }else{
+                        tableSymbol->deleteSymbol(accesos[i]);
                         if(objectSymbol->posponeForForwarding){
                         // agregamos el terceto la llamada al metodo en la respectiva tabla de tercetos pero indicando que el símbolo está pospuesto
                         int number = addTercetPospone("=", attributeName+":"+classOfObject+":"+objectName+"|"+scope, op2Lexeme, true, false, "pospone", op2Type);
@@ -2491,7 +2499,10 @@ void newAsignacionObjectAttribute(string objectName, string attributeName, strin
 void newUseObjectAttributeFactorMasMas(string objectName, string attributeName, string scope, string& reglaptr, string& reglatype){
 
     vector<string> accesos = getAccesoFromString(objectName);
-   
+    
+    tableSymbol->deleteSymbol(accesos[0]);
+    tableSymbol->deleteSymbol(attributeName);
+
     // Verifica que el objeto este declarado y obtiene su clase
     symbol* objectSymbol = tableSymbol->getFirstSymbolMatching2(accesos[0], "objeto", scope);
     symbol* classSymbol = nullptr;
@@ -2528,6 +2539,7 @@ void newUseObjectAttributeFactorMasMas(string objectName, string attributeName, 
                         yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
                         return;
                     }else{
+                        tableSymbol->deleteSymbol(accesos[i]);
                         if(objectSymbol->posponeForForwarding){
                             int number = addTercetPospone("++", attributeName+":"+classOfObject+":"+objectName+"|"+scope, "", true, false, "pospone", ""); 
                             number = addTercetPospone("=", attributeName+":"+classOfObject+":"+objectName+"|"+scope, charTercetoId + to_string(number), true, false,"pospone",""); 
@@ -2690,7 +2702,10 @@ void newInvocacionMethod(string objectName, string methodName, string scope, str
     */
 
     vector<string> accesos = getAccesoFromString(objectName);
-   
+    
+    tableSymbol->deleteSymbol(accesos[0]);
+    tableSymbol->deleteSymbol(methodName);
+    
     // Verifica que el objeto este declarado y obtiene su clase
     symbol* objectSymbol = tableSymbol->getFirstSymbolMatching2(accesos[0], "objeto", scope);
     symbol* classSymbol = nullptr;
@@ -2727,6 +2742,7 @@ void newInvocacionMethod(string objectName, string methodName, string scope, str
                         yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
                         return;
                     }else{
+                        tableSymbol->deleteSymbol(accesos[i]);
                         if(objectSymbol->posponeForForwarding){
                             // agregamos el terceto la llamada al metodo en la respectiva tabla de tercetos pero indicando que el símbolo está pospuesto
                             int number = addTercetPospone("call", methodName+":"+classOfObject+":"+objectName+"|"+scope, "", true, false,"pospone","");
@@ -2780,6 +2796,9 @@ void newInvocacionMethodWithParam(string objectName, string methodName, string s
     */
 
     vector<string> accesos = getAccesoFromString(objectName);
+    
+    tableSymbol->deleteSymbol(accesos[0]);
+    tableSymbol->deleteSymbol(methodName);
    
     // Verifica que el objeto este declarado y obtiene su clase
     symbol* objectSymbol = tableSymbol->getFirstSymbolMatching2(accesos[0], "objeto", scope);
@@ -2821,6 +2840,7 @@ void newInvocacionMethodWithParam(string objectName, string methodName, string s
                         yyerror("No se encontro declaracion previa de la clase del objeto "+ classOfObject); 
                         return;
                     }else{
+                        tableSymbol->deleteSymbol(accesos[i]);
                         if(objectSymbol->posponeForForwarding){
                         // agregamos el terceto la llamada al metodo en la respectiva tabla de tercetos pero indicando que el símbolo está pospuesto
                         // como tiene un parametro se lo ponemoscomo segundo argumetno para suposterior uso
@@ -3022,6 +3042,7 @@ void checkTercetsPosponeAreCorrect(Tercets* ts){
                                 yyerror("No se encontro declaracion previa del objeto "+ accesos[i] + " en la clase " + classSymbol->classOfSymbol + " del objeto " + accesos[i-1]); 
                                 return;
                             }else{
+                                tableSymbol->deleteSymbol(accesos[i]);
                                 classOfObject = objectSymbol->classOfSymbol;
                                 classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
                                 if(classSymbol == nullptr){
@@ -3129,6 +3150,7 @@ void checkTercetsPosponeAreCorrect(Tercets* ts){
                                     yyerror("No se encontro declaracion previa del objeto "+ accesos[i] + " en la clase " + classSymbol->classOfSymbol + " del objeto " + accesos[i-1]); 
                                     isErrorInAttribute = true;
                                 }else{
+                                    tableSymbol->deleteSymbol(accesos[i]);
                                     classOfObject = objectSymbol->classOfSymbol;
                                     classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
                                     if(classSymbol == nullptr){
@@ -3161,9 +3183,6 @@ void checkTercetsPosponeAreCorrect(Tercets* ts){
                 }
             }
             if (!isErrorInAttribute){
-                if (tercet->arg1Pospone && !tercet->arg2Pospone){
-                    cout << "entro re puto1" << endl;
-                }
                 if (!tercet->arg1Pospone && tercet->arg2Pospone){
                     if(tercet->getArg2()[0] == charTercetoId){
                         tercet->type2 = ts->get(stoi(tercet->getArg2().substr(1, tercet->getArg2().size())))->typeTercet;
@@ -3179,9 +3198,6 @@ void checkTercetsPosponeAreCorrect(Tercets* ts){
                         tasig->arg2Pospone = false;
                         tasig->typeTercet = "float";
                     }
-                }
-                if (tercet->arg1Pospone && tercet->arg2Pospone){
-                    cout << "entro re puto2" << endl;
                 }
             }
         }
@@ -3228,6 +3244,7 @@ void checkTercetsPosponeAreCorrect(Tercets* ts){
                                 yyerror("No se encontro declaracion previa del objeto "+ accesos[i] + " en la clase " + classSymbol->classOfSymbol + " del objeto " + accesos[i-1]); 
                                 return;
                             }else{
+                                tableSymbol->deleteSymbol(accesos[i]);
                                 classOfObject = objectSymbol->classOfSymbol;
                                 classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
                                 if(classSymbol == nullptr){
@@ -3321,6 +3338,7 @@ void checkTercetsPosponeAreCorrect(Tercets* ts){
                                     yyerror("No se encontro declaracion previa del objeto "+ accesos[i] + " en la clase " + classSymbol->classOfSymbol + " del objeto " + accesos[i-1]); 
                                     isErrorInAttribute = true;
                                 }else{
+                                    tableSymbol->deleteSymbol(accesos[i]);
                                     classOfObject = objectSymbol->classOfSymbol;
                                     classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
                                     if(classSymbol == nullptr){
@@ -3395,6 +3413,7 @@ void checkTercetsPosponeAreCorrect(Tercets* ts){
                                     yyerror("No se encontro declaracion previa del objeto "+ accesos[i] + " en la clase " + classSymbol->classOfSymbol + " del objeto " + accesos[i-1]); 
                                     isErrorInAttribute = true;
                                 }else{
+                                    tableSymbol->deleteSymbol(accesos[i]);
                                     classOfObject = objectSymbol->classOfSymbol;
                                     classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
                                     if(classSymbol == nullptr){
@@ -3538,6 +3557,7 @@ void checkTercetsPosponeAreCorrect(Tercets* ts){
                                     yyerror("No se encontro declaracion previa del objeto "+ accesos[i] + " en la clase " + classSymbol->classOfSymbol + " del objeto " + accesos[i-1]); 
                                     isErrorInAttribute = true;
                                 }else{
+                                    tableSymbol->deleteSymbol(accesos[i]);
                                     classOfObject = objectSymbol->classOfSymbol;
                                     classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
                                     if(classSymbol == nullptr){
@@ -3612,6 +3632,7 @@ void checkTercetsPosponeAreCorrect(Tercets* ts){
                                     yyerror("No se encontro declaracion previa del objeto "+ accesos[i] + " en la clase " + classSymbol->classOfSymbol + " del objeto " + accesos[i-1]); 
                                     isErrorInAttribute = true;
                                 }else{
+                                    tableSymbol->deleteSymbol(accesos[i]);
                                     classOfObject = objectSymbol->classOfSymbol;
                                     classSymbol = tableSymbol->getFirstSymbolMatching2(classOfObject, "clase", ":main");
                                     if(classSymbol == nullptr){
@@ -3735,7 +3756,9 @@ void finPrograma(){
         int number = addTercet("FIN", "-", "-");
         verifyAllClassForwardedAreDeclared();
         instanciatePosponeObjectForForwarding();
+        tableSymbol->imprimirTabla();
         checkTercetsPosponeAreCorrect(tableTercets);
+        tableSymbol->imprimirTabla();
         for(functionStack* fs : *(vectorOfFunction->getFunctions())){
             checkTercetsPosponeAreCorrect(fs->ter);
         }
