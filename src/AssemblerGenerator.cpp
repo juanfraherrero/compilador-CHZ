@@ -99,6 +99,13 @@ void AssemblerGenerator::generateFunctionsAssembler(){
         if (f){
             Tercets * functionTercets = f->ter;
             this->code += reemplazarCaracter(f->name,':','_') + ":\n";
+            // agregado de preservación de pila y registros
+            this->code += "; Subroutine Prologue \n";
+            this->code += "push ebp     ; Save the old base pointer value.\n";
+            this->code += "mov ebp, esp ; Set the new base pointer value. \n";
+            this->code += "sub esp, 4   ; Make room for one 4-byte local variable. \n";
+            this->code += "push edi     ; Save the values of registers that the function \n";
+            this->code += "push esi     ; will modify. This function uses EDI and ESI. \n\n";
             //Chequeo de recursividad 
             this->code += "CMP _flagRecursividad" + reemplazarCaracter(f->name,':','_') + ", 1\n";
             this->code += "JE labelErrorRecursion\n";
@@ -564,6 +571,11 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
     }
     //Return
     else if (tercet->getOp() == "return"){
+        out += "; Subroutine Epilogue \n";
+        out += "pop esi      ; Recover register values \n";
+        out += "pop  edi \n";
+        out += "mov esp, ebp ; Deallocate local variables \n";
+        out += "pop ebp ; Restore the caller's base pointer value \n\n";
         out += "RET" "\n";
     }
     //Print
