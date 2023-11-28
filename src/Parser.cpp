@@ -3756,9 +3756,7 @@ void finPrograma(){
         int number = addTercet("FIN", "-", "-");
         verifyAllClassForwardedAreDeclared();
         instanciatePosponeObjectForForwarding();
-        tableSymbol->imprimirTabla();
         checkTercetsPosponeAreCorrect(tableTercets);
-        tableSymbol->imprimirTabla();
         for(functionStack* fs : *(vectorOfFunction->getFunctions())){
             checkTercetsPosponeAreCorrect(fs->ter);
         }
