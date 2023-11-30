@@ -3971,11 +3971,11 @@ case 17:
 break;
 case 22:
 #line 107 "./gramaticaForGenCod.y"
-{ yywarning("Se detecto una falta de coma"); }
+{ yyerror("Se detecto una falta de coma"); }
 break;
 case 23:
 #line 108 "./gramaticaForGenCod.y"
-{ yywarning("Se detecto una falta de coma"); }
+{ yyerror("Se detecto una falta de coma"); }
 break;
 case 24:
 #line 109 "./gramaticaForGenCod.y"
@@ -4183,7 +4183,7 @@ case 83:
 break;
 case 86:
 #line 204 "./gramaticaForGenCod.y"
-{ yywarning("Se detecto una falta de coma"); }
+{ yyerror("Se detecto una falta de coma"); }
 break;
 case 87:
 #line 205 "./gramaticaForGenCod.y"
@@ -4191,7 +4191,7 @@ case 87:
 break;
 case 88:
 #line 206 "./gramaticaForGenCod.y"
-{ yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
+{ yyerror("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
 break;
 case 89:
 #line 207 "./gramaticaForGenCod.y"
@@ -4199,11 +4199,11 @@ case 89:
 break;
 case 90:
 #line 208 "./gramaticaForGenCod.y"
-{ yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
+{ yyerror("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
 break;
 case 92:
 #line 210 "./gramaticaForGenCod.y"
-{yywarning("Se detecto una falta de coma"); }
+{yyerror("Se detecto una falta de coma"); }
 break;
 case 93:
 #line 211 "./gramaticaForGenCod.y"
@@ -4211,7 +4211,7 @@ case 93:
 break;
 case 94:
 #line 212 "./gramaticaForGenCod.y"
-{ yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
+{ yyerror("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
 break;
 case 95:
 #line 213 "./gramaticaForGenCod.y"
@@ -4219,7 +4219,7 @@ case 95:
 break;
 case 96:
 #line 214 "./gramaticaForGenCod.y"
-{ yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
+{ yyerror("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
 break;
 case 102:
 #line 222 "./gramaticaForGenCod.y"
@@ -4399,11 +4399,11 @@ case 153:
 break;
 case 154:
 #line 302 "./gramaticaForGenCod.y"
-{ yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
+{ yyerror("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
 break;
 case 155:
 #line 303 "./gramaticaForGenCod.y"
-{ yywarning("Se detecto una falta de coma"); }
+{ yyerror("Se detecto una falta de coma"); }
 break;
 case 157:
 #line 305 "./gramaticaForGenCod.y"
@@ -4411,7 +4411,7 @@ case 157:
 break;
 case 159:
 #line 307 "./gramaticaForGenCod.y"
-{ yywarning("Se detecto una falta de coma"); }
+{ yyerror("Se detecto una falta de coma"); }
 break;
 case 162:
 #line 311 "./gramaticaForGenCod.y"
@@ -4423,11 +4423,11 @@ case 165:
 break;
 case 166:
 #line 317 "./gramaticaForGenCod.y"
-{ yywarning("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
+{ yyerror("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
 break;
 case 167:
 #line 318 "./gramaticaForGenCod.y"
-{ yywarning("Se detecto una falta de coma"); }
+{ yyerror("Se detecto una falta de coma"); }
 break;
 case 169:
 #line 320 "./gramaticaForGenCod.y"
@@ -4435,7 +4435,7 @@ case 169:
 break;
 case 171:
 #line 322 "./gramaticaForGenCod.y"
-{ yywarning("Se detecto una falta de coma"); }
+{ yyerror("Se detecto una falta de coma"); }
 break;
 case 173:
 #line 324 "./gramaticaForGenCod.y"
@@ -4447,11 +4447,11 @@ case 174:
 break;
 case 176:
 #line 331 "./gramaticaForGenCod.y"
-{ yywarning("Se detecto una falta de coma"); }
+{ yyerror("Se detecto una falta de coma"); }
 break;
 case 178:
 #line 333 "./gramaticaForGenCod.y"
-{ yywarning("Se detecto una falta de coma"); }
+{ yyerror("Se detecto una falta de coma"); }
 break;
 case 179:
 #line 334 "./gramaticaForGenCod.y"
@@ -4467,7 +4467,7 @@ case 181:
 break;
 case 182:
 #line 337 "./gramaticaForGenCod.y"
-{ yywarning("Se detecto una falta de coma"); }
+{ yyerror("Se detecto una falta de coma"); }
 break;
 case 183:
 #line 338 "./gramaticaForGenCod.y"
