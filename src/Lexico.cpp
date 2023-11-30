@@ -12,13 +12,14 @@
 // ACa DEFNIR EL TIPO QUE ESTa EN EL PARSER.CPP
 extern myTypeYYLVAL* yylval;
 
-Lexico::Lexico(TableSymbol* tableSymbol, TableReservedWord* tableRWords, string * content, int* lineNumber) {
+Lexico::Lexico(TableSymbol* tableSymbol, TableReservedWord* tableRWords, string * content, int* lineNumber, bool* isErrorInCode) {
     // definimos que archivo va a usar y las variables para hacer el conteo de lineas y caracteres leidos   
     this->content = *content;
     this->lineNumber = lineNumber;
     this->automaton = new Automaton(tableSymbol, tableRWords, this->lineNumber, &(this->isCommentActive));
     this->isCommentActive = false;
     this->eof = false;
+    this->isErrorInCode = isErrorInCode;
 }
 int Lexico::yylex(){
     
@@ -56,6 +57,7 @@ tokenWithLexeme *Lexico::getToken(){
             {
                 // si hay un comentario activo lo informamos
                 cerr << "\033[31m" << "Linea: " << *(this->lineNumber) << "-> Error: Comentario activo al final del archivo" << "\033[0m" << endl;
+                *(this->isErrorInCode) = true;
             }
                 
             return nullptr;

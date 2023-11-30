@@ -79,24 +79,29 @@ int main(int arg_count, char *arg_list[]) {
     extern VectorOfFunction * vectorOfFunctionDeclaredInClasses;
 
     // cargamos nuestra fase de analisis lexico
-    Lexico * lexico = new Lexico(tableSymbol, tableRWords, &contenido, &lineNumber); // la dejamos en la pila porque tiene un tamaño pequeño y su tamaño no es dinámico
+    Lexico * lexico = new Lexico(tableSymbol, tableRWords, &contenido, &lineNumber, &isErrorInCode); // la dejamos en la pila porque tiene un tamaño pequeño y su tamaño no es dinámico
 
     int resultParsing = yyparse(lexico);
     
-    std::cout << "\n\n --------------- \n\n";
-    tableSymbol->imprimirTabla();
-    tableSymbol->imprimirAtributosMetodos();
+    if(resultParsing == 0 && !isErrorInCode){
+        
+        // Solo imprimimos las tablas si no hay errores en el codigo y el parsing resultó exitoso
 
-    std::cout << "\n\n ------bloques de codigo ejecutables--------- \n\n";
-    vectorOfFunction->imprimir();
+        std::cout << "\n\n --------------- \n\n";
+        tableSymbol->imprimirTabla();
+        tableSymbol->imprimirAtributosMetodos();
+
+        std::cout << "\n\n ------bloques de codigo ejecutables--------- \n\n";
+        vectorOfFunction->imprimir();
+        
+        // std::cout << "\n\n ------bloques de códigos declarativos--------- \n\n";
+        // vectorOfFunctionDeclaredInClasses->imprimir();
+        
+        // tableRWords->imprimirTabla();
     
-    // std::cout << "\n\n ------bloques de códigos declarativos--------- \n\n";
-    // vectorOfFunctionDeclaredInClasses->imprimir();
-    
-    // tableRWords->imprimirTabla();
-    
-    std::cout << "\n\n --------Lista de tercetos del main------- \n\n";
-    tableTercets->print();
+        std::cout << "\n\n --------Lista de tercetos del main------- \n\n";
+        tableTercets->print();
+    }
 
     if(resultParsing == 0){
         if(isErrorInCode){

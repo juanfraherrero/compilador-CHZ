@@ -15,11 +15,11 @@ class Lexico {
         string content;             // es el contenido del programa para mantenerlo en RAM
         int* lineNumber;            // indica el nro de línea actual
         bool eof;                   // indica si se llegó al final del archivo
-
+        bool * isErrorInCode;       // indica si hay errores en el código
         Automaton *automaton;       // es el autómata que se encarga de procesar los tokens
         
     public:
-        Lexico(TableSymbol* tableSymbol, TableReservedWord* tableRWords, string * line, int* lineNumber);
+        Lexico(TableSymbol* tableSymbol, TableReservedWord* tableRWords, string * line, int* lineNumber, bool* isErrorInCode);
         int yylex();                    // función a usar en el parser
         tokenWithLexeme * getToken();   // devuelve el token
         bool endOfFile();               // indica si se llegó al final del archivo
