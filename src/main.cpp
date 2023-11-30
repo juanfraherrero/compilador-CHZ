@@ -50,8 +50,8 @@ int main(int arg_count, char *arg_list[]) {
             size_t lastDotPos = fileNameAndExtension.find_last_of(".");
             outputFile = fileNameAndExtension.substr(0, lastDotPos);
         } else{
-            std::cerr << "Ruta de archivo no valida." << std::endl;
-            return 1;
+            size_t lastDotPos = file_name.find_last_of(".");
+            outputFile = file_name.substr(0, lastDotPos);
         }
     }
     std::cout << "La salida sera: " << outputFile << endl;
