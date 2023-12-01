@@ -210,13 +210,13 @@ string AssemblerGenerator::getFloatLabel(){
 
 //Formatea un float reemplazando los '+' por 'MAS', los '-' por 'MENOS' y los '.' por '_', para que no haya problemas de sintaxis en el assembler.
 string AssemblerGenerator::formatearFloat(string s){
-    for (int i = 0; i < s.length() - 1; i++){
+    for (int i = 0; i < s.length(); i++){
         if (s[i] == '+')
-            s.replace(i, 1, "MAS");
+            s.replace(i, 1, "P"); //Abreviacion de plus
         else if (s[i] == '-')
-            s.replace(i, 1, "MENOS");
+            s.replace(i, 1, "M"); //Abreviacion de minus
         else if (s[i] == '.')
-            s.replace(i, 1, "_");
+            s.replace(i, 1, "D"); //Abrevacion de dot
     }
     return s;
 }

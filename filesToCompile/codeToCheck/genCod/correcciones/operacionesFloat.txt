@@ -1,0 +1,45 @@
+{
+
+   
+
+FLOAT a,
+
+ 
+
+a = 3. + 4.,
+
+PRINT a,
+
+a = 3. - 4.,
+
+PRINT a,
+
+a = 3. * 4.,
+
+PRINT a,
+
+a = 3. / 4.,
+
+PRINT a,
+
+a = 3. + -1.2E+10,
+
+PRINT a,
+ 
+a = 3. + -1.2,
+
+PRINT a,
+
+a = 3. + 2.E+34,
+
+PRINT a,
+
+a = 3. + 1.2E+10,
+
+PRINT a,
+
+a = 3. + 0.,
+
+PRINT a,
+
+}
