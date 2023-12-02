@@ -3,3 +3,4 @@ obj/*.o
 *.o
 compilador-CHZ
 compilador-CHZ.exe
+Makefile
