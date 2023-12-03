@@ -1259,7 +1259,7 @@ void createFunctionTerecets(string objectName, string scope, symbol* simboloDeFu
         }
         // si la tabla contiene exactamente ese elemento del terceto entonces le agregamos el objeto y el scope actual
         if(tableSymbolOfTheClass->isTheSpecificLexemaInTable(tercet->getArg2())){
-            tercet->setArg2(tercet->getArg1()+":"+objectName+scope);
+            tercet->setArg2(tercet->getArg2()+":"+objectName+scope);
         }
     }
 
@@ -1865,6 +1865,34 @@ void finishMethod(){
         tableSymbol->deleteScope(); // sacamos el scope de la función
         cantOfRecursions--;     // sacamos una recursión
 };
+symbol* findElementInOrderClassInheritanceGeneral(string _key, string _scope, TableSymbol* _tsGeneral, symbol* _smClass, string _usoInTsGeneral, string _usoInTsClass ){
+    // recibis el key del a tributos a buscar, el scope actual, la tabla general y el simbolo de la clase (para obtener la ts de la clase y de las herencias)
+    // primero buscas en la tabla de la tabla general un "atributo" con el nombre del key
+    // si lo encontras devolves el simbolo
+    // si no lo encontras buscas en las herencias hasta encontrarlo y lo devolves
+    // si no lo encontras buscas enla trabla de simbolos con getFirstSymbolMantching2 y lo devolves
+    // si no lo encontras devolves nullptr
+    symbol* symbolFinded;
+    symbolFinded = _smClass->attributesAndMethodsVector->getElementInTableByFisrtPartAndUse(_key, _usoInTsClass);
+    if (symbolFinded != nullptr){
+        return symbolFinded;
+    }else{
+        // recorres el arreglo de herencia de la clase buscando el elemento coincidente
+        for (int i=1; i >= 0; i--){
+            TableSymbol* tableSymbolMatchingClass = _smClass->inheritance[i];
+            if (tableSymbolMatchingClass != nullptr){
+                // si hereda de alguna clase recorremos sus simbolos y los agregamos
+                symbolFinded = tableSymbolMatchingClass->getElementInTableByFisrtPartAndUse(_key, _usoInTsClass);
+                if(symbolFinded != nullptr){
+                    return symbolFinded;
+                }
+            }
+        }
+
+        // si en la herencia no se encuentra nada retornamos el primer simbolo que coincida con el key y el uso "atributo" en la tabla general
+        return tableSymbol->getFirstSymbolMatching2(_key, _usoInTsGeneral, _scope); 
+    }
+}
 /**
  * Cuando detectas una variable
  * Borras el símbolo de la tabla general
@@ -1877,28 +1905,34 @@ void finishMethod(){
  * @throws yyerror si no hay variable enalcanzable
  */
 void checkVarInScope(string key, string scope, string uso, string& reglaptr, string& reglatype){
-        // borramos el simbolo de la tabla general
-        tableSymbol->deleteSymbol(key); 
+    // borramos el simbolo de la tabla general
+    tableSymbol->deleteSymbol(key); 
+    //buscamos si existe una variable con el mismo nombre al alcance
+    symbol* symbolFinded;
+    if(stackClasses->size() > 0){
+        //si estoy dentro de una clase, busco primero en la clase, luego de quien herede y luego en la tabla general
+        symbolFinded = findElementInOrderClassInheritanceGeneral(key, scope, tableSymbol, stackClasses->top(),"var", "atributo");
+    }else{
+        // sino estoy dentro de una clase busco en la tabla general
+        symbolFinded = tableSymbol->getFirstSymbolMatching2(key, "var", scope); 
+    };
+    if(symbolFinded == nullptr){
+        yyerror("No se encontro declaracion previa de la variable "+ key);
+    }else{
+        reglaptr = symbolFinded->lexema;
+        reglatype = symbolFinded->type;
 
-        symbol* symbolFinded = tableSymbol->getFirstSymbolMatching2(key, uso, scope); 
-        if(symbolFinded == nullptr){
-                yyerror("No se encontro declaracion previa de la variable "+ key);
-        }else{
-                reglaptr = symbolFinded->lexema;
-                reglatype = symbolFinded->type;
-
-                /* en este punto sabes que es una variable declarada, 
-                    pero ahora quiero saber si es de este ámbito o de otro, 
-                    si es de otro y esa variable tiene el check debo informar que se está usando a la izquierda de una asignación
-                */
-                
-                // si el símbolo tiene que checkearse y si los lexemas no coincidencia entonces es una variable de otro ámbito
-                if(symbolFinded->isVariableToCheck && key+scope != symbolFinded->lexema){
-                    yywarning("Se esta usando la variable "+ key +" como una expresion en un ambito diferente al de su declaracion");
-                }
+        /* en este punto sabes que es una variable declarada, 
+            pero ahora quiero saber si es de este ámbito o de otro, 
+            si es de otro y esa variable tiene el check debo informar que se está usando a la izquierda de una asignación
+        */
+        
+        // si el símbolo tiene que checkearse y si los lexemas no coincidencia entonces es una variable de otro ámbito
+        if(symbolFinded->isVariableToCheck && key+scope != symbolFinded->lexema){
+            yywarning("Se esta usando la variable "+ key +" como una expresion en un ambito diferente al de su declaracion");
         }
+    }
 };
-
 /**
  * función cuando se detecta una variable++ 
  *
@@ -1911,7 +1945,15 @@ void checkVarInScope(string key, string scope, string uso, string& reglaptr, str
 void newFactorMasMas (string key, string scope, string& reglaptr, string& reglatype){
     tableSymbol->deleteSymbol(key);
     
-    symbol* symbolFinded = tableSymbol->getFirstSymbolMatching2(key, "var", scope); 
+    //buscamos si existe una variable con el mismo nombre al alcance
+    symbol* symbolFinded;
+    if(stackClasses->size() > 0){
+        //si estoy dentro de una clase, busco primero en la clase, luego de quien herede y luego en la tabla general
+        symbolFinded = findElementInOrderClassInheritanceGeneral(key, scope, tableSymbol, stackClasses->top(),"var", "atributo");
+    }else{
+        // sino estoy dentro de una clase busco en la tabla general
+        symbolFinded = tableSymbol->getFirstSymbolMatching2(key, "var", scope); 
+    };
     if(symbolFinded == nullptr){
         yyerror("No se encontro declaracion previa de la variable "+ key);
     }else{
@@ -1955,32 +1997,38 @@ void newFactorMasMas (string key, string scope, string& reglaptr, string& reglat
  * @throws yyerror si no hay variable alcanzable
  */
 void newAsignacion(string key, string scope, string op2Lexeme, string op2Type){
-        // borramos el simbolo de la tabla general
-        tableSymbol->deleteSymbol(key); 
+    // borramos el simbolo de la tabla general
+    tableSymbol->deleteSymbol(key); 
+    
+    //buscamos si existe una variable con el mismo nombre al alcance
+    symbol* symbolFinded;
+    if(stackClasses->size() > 0){
+        //si estoy dentro de una clase, busco primero en la clase, luego de quien herede y luego en la tabla general
+        symbolFinded = findElementInOrderClassInheritanceGeneral(key, scope, tableSymbol, stackClasses->top(),"var", "atributo");
+    }else{
+        // sino estoy dentro de una clase busco en la tabla general
+        symbolFinded = tableSymbol->getFirstSymbolMatching2(key, "var", scope); 
+    };
+    if(symbolFinded == nullptr){
+        yyerror("No se encontro declaracion previa de la variable "+ key);
+    }else{
+        // checkeamos que los tipos sean iguales 
+        checkTypesAsignation(symbolFinded->type, op2Type); 
+        bool isOp1Posponed = symbolFinded->type == "pospone";
+        bool isOp2Posponed = op2Type == "pospone";
+        // agregamos el terceto de asignación en la respectiva tabla de tercetos
+        int number = addTercetPospone("=", symbolFinded->lexema, op2Lexeme, isOp1Posponed, isOp2Posponed, symbolFinded->type, op2Type, symbolFinded->type);
+        /* en este punto sabes que es una variable declarada, 
+            pero ahora quiero saber si es de este ámbito o de otro, 
+            si es de otro y esa variable tiene el check debo informar que se está usando a la izquierda de una asignación
         
-        //buscamos si existe una variable con el mismo nombre al alcance de la tabla de simbolos
-        symbol* symbolFinded = tableSymbol->getFirstSymbolMatching2(key, "var", scope); 
-        if(symbolFinded == nullptr){
-                yyerror("No se encontro declaracion previa de la variable "+ key);
-        }else{
-                // checkeamos que los tipos sean iguales 
-                checkTypesAsignation(symbolFinded->type, op2Type); 
-                bool isOp1Posponed = symbolFinded->type == "pospone";
-                bool isOp2Posponed = op2Type == "pospone";
-                // agregamos el terceto de asignación en la respectiva tabla de tercetos
-                int number = addTercetPospone("=", symbolFinded->lexema, op2Lexeme, isOp1Posponed, isOp2Posponed, symbolFinded->type, op2Type, symbolFinded->type);
-                
-                /* en este punto sabes que es una variable declarada, 
-                    pero ahora quiero saber si es de este ámbito o de otro, 
-                    si es de otro y esa variable tiene el check debo informar que se está usando a la izquierda de una asignación
-                
-                */
+        */
 
-                // si al variable tiene asignado que se checke y si los lexemas no coincidencia entonces es una variable de otro ámbito
-                if(symbolFinded->isVariableToCheck && key+scope != symbolFinded->lexema){
-                    yywarning("Se esta usando la variable "+ key +" a la izquierda de una asignacion en un ambito diferente al de su declaracion");
-                }
-        } 
+        // si al variable tiene asignado que se checke y si los lexemas no coincidencia entonces es una variable de otro ámbito
+        if(symbolFinded->isVariableToCheck && key+scope != symbolFinded->lexema){
+            yywarning("Se esta usando la variable "+ key +" a la izquierda de una asignacion en un ambito diferente al de su declaracion");
+        }
+    } 
 };
 
 void newOperacionAritmetica(string operador, string op1ptr, string op2ptr, string op1type, string op2type, string& reglaptr, string& reglatype){
@@ -2348,7 +2396,7 @@ void newUseObjectAttribute(string objectName, string attributeName, string scope
     symbol* classSymbol = nullptr;
     string classOfObject;
     if(objectSymbol == nullptr){
-            yyerror("No se encontro declaracion previa del objeto"+ objectName);
+            yyerror("No se encontro declaracion previa del objeto "+ objectName);
     }else{
         // si encontramos el objeto declarado obtenemos su clase y verificamos que exista la clase en el scope ":main" ya que todas las clases van ahí
         classOfObject = objectSymbol->classOfSymbol;
@@ -2439,7 +2487,7 @@ void newAsignacionObjectAttribute(string objectName, string attributeName, strin
     symbol* classSymbol = nullptr;
     string classOfObject;
     if(objectSymbol == nullptr){
-            yyerror("No se encontro declaracion previa del objeto"+ objectName);
+            yyerror("No se encontro declaracion previa del objeto "+ objectName);
     }else{
         // si encontramos el objeto declarado obtenemos su clase y verificamos que exista la clase en el scope ":main" ya que todas las clases van ahí
         classOfObject = objectSymbol->classOfSymbol;
@@ -2522,7 +2570,7 @@ void newUseObjectAttributeFactorMasMas(string objectName, string attributeName, 
     symbol* classSymbol = nullptr;
     string classOfObject;
     if(objectSymbol == nullptr){
-            yyerror("No se encontro declaracion previa del objeto"+ objectName);
+            yyerror("No se encontro declaracion previa del objeto "+ objectName);
     }else{
         // si encontramos el objeto declarado obtenemos su clase y verificamos que exista la clase en el scope ":main" ya que todas las clases van ahí
         classOfObject = objectSymbol->classOfSymbol;
@@ -2610,9 +2658,16 @@ void newUseObjectAttributeFactorMasMas(string objectName, string attributeName, 
 void newInvocacion(string nombreFuncion, string scope, string& reglaptr){
     // borramos el simbolo de la tabla general
     tableSymbol->deleteSymbol(nombreFuncion); 
-        
-    //buscamos si existe una variable con el mismo nombre al alcance de la tabla de simbolos
-    symbol* functionFinded = tableSymbol->getFirstSymbolMatching2(nombreFuncion, "funcion", scope); 
+    
+    //buscamos si existe una variable con el mismo nombre al alcance
+    symbol* functionFinded;
+    if(stackClasses->size() > 0){
+        //si estoy dentro de una clase, busco primero en la clase, luego de quien herede y luego en la tabla general
+        functionFinded = findElementInOrderClassInheritanceGeneral(nombreFuncion, scope, tableSymbol, stackClasses->top(),"funcion", "metodo");
+    }else{
+        // sino estoy dentro de una clase busco en la tabla general
+        functionFinded = tableSymbol->getFirstSymbolMatching2(nombreFuncion, "funcion", scope); 
+    };
     if(functionFinded == nullptr){
         yyerror("No se encontro declaracion previa de la funcion "+ nombreFuncion);
     }else{
@@ -2645,8 +2700,15 @@ void newInvocacionWithParam(string nombreFuncion, string scope, string ptrParam,
     // borramos el simbolo de la tabla general
     tableSymbol->deleteSymbol(nombreFuncion); 
         
-    //buscamos si existe una variable con el mismo nombre al alcance de la tabla de simbolos
-    symbol* functionFinded = tableSymbol->getFirstSymbolMatching2(nombreFuncion, "funcion", scope); 
+    //buscamos si existe una variable con el mismo nombre al alcance
+    symbol* functionFinded;
+    if(stackClasses->size() > 0){
+        //si estoy dentro de una clase, busco primero en la clase, luego de quien herede y luego en la tabla general
+        functionFinded = findElementInOrderClassInheritanceGeneral(nombreFuncion, scope, tableSymbol, stackClasses->top(),"funcion", "metodo");
+    }else{
+        // sino estoy dentro de una clase busco en la tabla general
+        functionFinded = tableSymbol->getFirstSymbolMatching2(nombreFuncion, "funcion", scope); 
+    };
     if(functionFinded == nullptr){
         yyerror("No se encontro declaracion previa de la funcion "+ nombreFuncion);
     }else{
@@ -2725,7 +2787,7 @@ void newInvocacionMethod(string objectName, string methodName, string scope, str
     symbol* classSymbol = nullptr;
     string classOfObject;
     if(objectSymbol == nullptr){
-            yyerror("No se encontro declaracion previa del objeto"+ objectName);
+            yyerror("No se encontro declaracion previa del objeto "+ objectName);
     }else{
         // si encontramos el objeto declarado obtenemos su clase y verificamos que exista la clase en el scope ":main" ya que todas las clases van ahí
         classOfObject = objectSymbol->classOfSymbol;
@@ -2819,7 +2881,7 @@ void newInvocacionMethodWithParam(string objectName, string methodName, string s
     symbol* classSymbol = nullptr;
     string classOfObject;
     if(objectSymbol == nullptr){
-            yyerror("No se encontro declaracion previa del objeto"+ objectName);
+            yyerror("No se encontro declaracion previa del objeto "+ objectName);
     }else{
         // si encontramos el objeto declarado obtenemos su clase y verificamos que exista la clase en el scope ":main" ya que todas las clases van ahí
         classOfObject = objectSymbol->classOfSymbol;
@@ -2921,8 +2983,15 @@ void printIdentificador(string _lexema, string _scope){
 
     tableSymbol->deleteSymbol(_lexema);         // eliminamos el simbolo de la tabla general
 
-    // obtenemos el símbolo de la clase del objeto
-    symbol* identificador = tableSymbol->getFirstSymbolMatching2(_lexema, "var", _scope); 
+    //buscamos si existe una variable con el mismo nombre al alcance
+    symbol* identificador;
+    if(stackClasses->size() > 0){
+        //si estoy dentro de una clase, busco primero en la clase, luego de quien herede y luego en la tabla general
+        identificador = findElementInOrderClassInheritanceGeneral(_lexema, _scope, tableSymbol, stackClasses->top(),"var", "atributo");
+    }else{
+        // sino estoy dentro de una clase busco en la tabla general
+        identificador = tableSymbol->getFirstSymbolMatching2(_lexema, "var", _scope); 
+    };
 
     if (identificador == nullptr){
         yyerror("No se encontro declaracion previa de la variable "+ _lexema);
@@ -3039,7 +3108,7 @@ void checkTercetsPosponeAreCorrect(Tercets* ts){
                 symbol* objectSymbol = tableSymbol->getFirstSymbolMatching2(accesos[0], "objeto", scope);
                 symbol* classSymbol = nullptr;
                 if(objectSymbol == nullptr){
-                        yyerror("No se encontro declaracion previa del objeto"+ accesos[0]);
+                        yyerror("No se encontro declaracion previa del objeto "+ accesos[0]);
                 }else{
                     // si encontramos el objeto declarado obtenemos su clase y verificamos que exista la clase en el scope ":main" ya que todas las clases van ahí
                     classOfObject = objectSymbol->classOfSymbol;
@@ -3145,7 +3214,7 @@ void checkTercetsPosponeAreCorrect(Tercets* ts){
                     symbol* classSymbol = nullptr;
             
                     if(objectSymbol == nullptr){
-                            yyerror("No se encontro declaracion previa del objeto"+ accesos[0]);
+                            yyerror("No se encontro declaracion previa del objeto "+ accesos[0]);
                             isErrorInAttribute = true;
                     }else{
                         // si encontramos el objeto declarado obtenemos su clase y verificamos que exista la clase en el scope ":main" ya que todas las clases van ahí
@@ -3241,7 +3310,7 @@ void checkTercetsPosponeAreCorrect(Tercets* ts){
                 symbol* classSymbol = nullptr;
         
                 if(objectSymbol == nullptr){
-                        yyerror("No se encontro declaracion previa del objeto"+ accesos[0]);
+                        yyerror("No se encontro declaracion previa del objeto "+ accesos[0]);
                 }else{
                     // si encontramos el objeto declarado obtenemos su clase y verificamos que exista la clase en el scope ":main" ya que todas las clases van ahí
                     classOfObject = objectSymbol->classOfSymbol;
@@ -3333,7 +3402,7 @@ void checkTercetsPosponeAreCorrect(Tercets* ts){
                     symbol* classSymbol = nullptr;
             
                     if(objectSymbol == nullptr){
-                            yyerror("No se encontro declaracion previa del objeto"+ accesos[0]);
+                            yyerror("No se encontro declaracion previa del objeto "+ accesos[0]);
                             isErrorInAttribute = true;
                     }else{
                         // si encontramos el objeto declarado obtenemos su clase y verificamos que exista la clase en el scope ":main" ya que todas las clases van ahí
@@ -3408,7 +3477,7 @@ void checkTercetsPosponeAreCorrect(Tercets* ts){
                     symbol* classSymbol = nullptr;
             
                     if(objectSymbol == nullptr){
-                            yyerror("No se encontro declaracion previa del objeto"+ accesos[0]);
+                            yyerror("No se encontro declaracion previa del objeto "+ accesos[0]);
                             isErrorInAttribute = true;
                     }else{
                         // si encontramos el objeto declarado obtenemos su clase y verificamos que exista la clase en el scope ":main" ya que todas las clases van ahí
@@ -3552,7 +3621,7 @@ void checkTercetsPosponeAreCorrect(Tercets* ts){
                     symbol* classSymbol = nullptr;
             
                     if(objectSymbol == nullptr){
-                            yyerror("No se encontro declaracion previa del objeto"+ accesos[0]);
+                            yyerror("No se encontro declaracion previa del objeto "+ accesos[0]);
                             isErrorInAttribute = true;
                     }else{
                         // si encontramos el objeto declarado obtenemos su clase y verificamos que exista la clase en el scope ":main" ya que todas las clases van ahí
@@ -3627,7 +3696,7 @@ void checkTercetsPosponeAreCorrect(Tercets* ts){
                     symbol* classSymbol = nullptr;
             
                     if(objectSymbol == nullptr){
-                            yyerror("No se encontro declaracion previa del objeto"+ accesos[0]);
+                            yyerror("No se encontro declaracion previa del objeto "+ accesos[0]);
                             isErrorInAttribute = true;
                     }else{
                         // si encontramos el objeto declarado obtenemos su clase y verificamos que exista la clase en el scope ":main" ya que todas las clases van ahí

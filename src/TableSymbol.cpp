@@ -379,7 +379,7 @@ bool TableSymbol::isTheSpecificLexemaInTable(string _lexema){
     }
     return false;
 };
-// devuelva la primera apariciónde un simbolo con el mismo nombre de simboloy mismo uso    
+// devuelva la primera aparición de un simbolo con el mismo nombre de simbolo y mismo uso    
 symbol* TableSymbol::getElementInTableByFisrtPartAndUse(const string key, const string uso){
     
     // recorremos la tabla por cada símbolo
