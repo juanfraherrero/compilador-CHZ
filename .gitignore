@@ -4,3 +4,7 @@ obj/*.o
 compilador-CHZ
 compilador-CHZ.exe
 Makefile
+*.asm
+*.exe
+*.obj
+*.txt
