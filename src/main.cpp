@@ -54,7 +54,6 @@ int main(int arg_count, char *arg_list[]) {
             outputFile = file_name.substr(0, lastDotPos);
         }
     }
-    std::cout << "La salida sera: " << outputFile << endl;
 
     // Lee el contenido del archivo linea por linea y lo agrega a la cadena
     std::string linea;
@@ -113,6 +112,7 @@ int main(int arg_count, char *arg_list[]) {
             std::cout << "\n\n --------------- \n\n";
             std::cout << "Parsing exitoso" << endl;
             std::cout << "Generando el assembler" << endl;
+            std::cout << "La salida sera: " << outputFile << endl;
             std::cout << "\n\n --------------- \n\n";
             // generamos el codigo assembler
             AssemblerGenerator * assemblerGenerator = new AssemblerGenerator(outputFile+".asm", tableSymbol, tableTercets, vectorOfFunction);

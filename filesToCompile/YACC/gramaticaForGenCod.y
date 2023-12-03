@@ -144,13 +144,19 @@ clase_heredada  :       IDENTIFICADOR                                       { de
 nombre_clase    :       CLASS IDENTIFICADOR                     { initClass($2->ptr, tableSymbol->getScope(), $$->ptr); }
                 ;
 lista_atributos_y_metodos       :       lista_atributos_y_metodos tipo lista_de_atributos ','           { }
-                                |       lista_atributos_y_metodos metodo ','                                 
+                                |       lista_atributos_y_metodos metodo ','     
                                 |       lista_atributos_y_metodos clase_heredada ','                                 
                                 |       lista_atributos_y_metodos IDENTIFICADOR IDENTIFICADOR ','       { addObjectToClass($3->ptr, tableSymbol->getScope(), $2->ptr, actualClass); }
                                 |       tipo lista_de_atributos ','                                     { }
                                 |       metodo ','
                                 |       clase_heredada ','
                                 |       IDENTIFICADOR IDENTIFICADOR ','                                 { addObjectToClass($2->ptr, tableSymbol->getScope(), $1->ptr, actualClass);}
+                                |       lista_atributos_y_metodos tipo lista_de_atributos               { yyerror("Se detecto una falta de coma"); }         
+                                |       lista_atributos_y_metodos metodo                                { yyerror("Se detecto una falta de coma"); }
+                                |       lista_atributos_y_metodos IDENTIFICADOR IDENTIFICADOR           { yyerror("Se detecto una falta de coma"); addObjectToClass($3->ptr, tableSymbol->getScope(), $2->ptr, actualClass); }
+                                |       tipo lista_de_atributos                                         { yyerror("Se detecto una falta de coma"); }
+                                |       metodo                                                          { yyerror("Se detecto una falta de coma"); }
+                                |       IDENTIFICADOR IDENTIFICADOR                                     { yyerror("Se detecto una falta de coma"); addObjectToClass($2->ptr, tableSymbol->getScope(), $1->ptr, actualClass);}
                                 ;
 lista_de_atributos  :   lista_de_atributos ';' IDENTIFICADOR    { addAtribute($3->ptr, tableSymbol->getScope(), typeAux, actualClass); }
                     |   IDENTIFICADOR                           { addAtribute($1->ptr, tableSymbol->getScope(), typeAux, actualClass); }
@@ -3186,9 +3192,7 @@ void finPrograma(){
         int number = addTercet("FIN", "-", "-");
         verifyAllClassForwardedAreDeclared();
         instanciatePosponeObjectForForwarding();
-        tableSymbol->imprimirTabla();
         checkTercetsPosponeAreCorrect(tableTercets);
-        tableSymbol->imprimirTabla();
         for(functionStack* fs : *(vectorOfFunction->getFunctions())){
             checkTercetsPosponeAreCorrect(fs->ter);
         }
