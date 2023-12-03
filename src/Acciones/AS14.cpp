@@ -43,6 +43,15 @@ class AS14 : public AccionSemantica {
                 return false;
             }
         }
+        string validateFloat(string _str) {
+            // checkeamos si el lexema arrranca con "." y le ponemos un 0 al principio
+
+            if(_str[0] == '.'){
+                _str = "0" + _str;
+            }
+
+            return _str;
+        }
 
     public:
         AS14(){};
@@ -56,6 +65,8 @@ class AS14 : public AccionSemantica {
             // checkea el rango de la constante de Punto Flotante
             if(isInRange(lexeme)){
 
+                lexeme = validateFloat(lexeme); // checkea si arranca con .0
+
                 //insertamos en la tabla de símbolos la constante de punto flotante 
                     // con el lexema como key, el lexema, el valor es el mismo lexema
                     // el insert checkea la existencia de otro lexema igual 
@@ -64,6 +75,7 @@ class AS14 : public AccionSemantica {
                 // encontramos una constante de punto flotante y definimos el token como constante
                 automaton->getToken()->token = id_CONSTANTE_PUNTO_FLOTANTE;
                 automaton->getToken()->type = "float";
+                automaton->getToken()->lexeme = lexeme;
                 
                 // desde la acción no modificamos el siguiente estado
                 return -1;
