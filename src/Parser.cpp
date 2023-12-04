@@ -1816,6 +1816,9 @@ void addObject(string key, string scope, string classType){
  * @param scope scope actual
 */
 void initFunction(string key, string scope){        
+
+        tableSymbol->deleteSymbol(key);    // eliminamos el simbolo (usa el contador) de la tabla general
+
         string scopeOriginal = scope;
 
         // verificamos si es dentro de una clase 
@@ -1826,22 +1829,30 @@ void initFunction(string key, string scope){
                     yyerror("No se permite anidamiento de funciones locales dentro de metodos");
             }
         }
-
+    
         // buscamos si existe una función con el mismo nombre en el mismo ámbito
         int diff = tableSymbol->getDiffOffScope2(key, "funcion", scope); 
         if( diff == 0){
                 yyerror("Redeclaracion de funcion en el mismo ambito");
         }else{
-                symbol* newFunction = setNewScope(key, "void", scope, "funcion", tableSymbol); 
+                symbol* newFunction = new symbol(key+scope, "", "void", "funcion");
                 
-                // cargamos cual fue el último método o función por si tiene un parámetro
-                lastMethod = newFunction;
+                /*
+                        ACA SE PUEDEN AGREGAR COSAS A LOS SIMBOLOS DE METODOS CARGADOS
+                */
+                
                 // si esta dentro de una clase le seteamos los atributos de clase y scopeInsideClass
                 if(stackClasses->size() > 0){
-                        string classOfAttribute = stackClasses->top()->classOfSymbol;
-                        newFunction->classOfSymbol = classOfAttribute;
-                        newFunction->scopeInsideClass = scope.substr(scope.find(classOfAttribute) + classOfAttribute.length());
+                    stackClasses->top()->attributesAndMethodsVector->insert(newFunction); 
+                    string classOfAttribute = stackClasses->top()->classOfSymbol;
+                    newFunction->classOfSymbol = classOfAttribute;
+                    newFunction->scopeInsideClass = scope.substr(scope.find(classOfAttribute) + classOfAttribute.length());
+                
+                }else{
+                    tableSymbol ->insert(newFunction);
                 }
+                // cargamos cual fue el último método o función por si tiene un parámetro
+                lastMethod = newFunction;
         } 
         // agregamos al scope el nombre de la función
         tableSymbol->addScope(key);
@@ -1864,10 +1875,12 @@ void finishFunction(){
     tableSymbol->deleteScope(); // sacamos el scope de la función
     cantOfRecursions--;     // sacamos una recursión
 
-    vectorOfFunction->add(fs);
     if(stackClasses->size() > 0){
         // si no está dentro de una clase lo agregamos a la tabla general
         cantOfRecursionsInMethod--;
+        vectorOfFunctionDeclaredInClasses->add(fs);
+    }else{
+        vectorOfFunction->add(fs);
     }
             
 }
@@ -1885,6 +1898,35 @@ void finishMethod(){
         tableSymbol->deleteScope(); // sacamos el scope de la función
         cantOfRecursions--;     // sacamos una recursión
 };
+symbol* findInvocationInOrderClassInheritanceGeneral(string _key, string _scope, TableSymbol* _tsGeneral, symbol* _smClass){
+    // recibis el key de la función o método a buscar
+    symbol* symbolFinded;
+    symbolFinded = _smClass->attributesAndMethodsVector->getElementInTableByFisrtPartAndUse(_key, "funcion");
+    if (symbolFinded != nullptr){
+        return symbolFinded;
+    }else{
+        symbolFinded = _smClass->attributesAndMethodsVector->getElementInTableByFisrtPartAndUse(_key, "metodo");
+        if (symbolFinded != nullptr){
+            return symbolFinded;
+        }else{
+            // recorres el arreglo de herencia de la clase buscando el elemento coincidente
+            for (int i=1; i >= 0; i--){
+                TableSymbol* tableSymbolMatchingClass = _smClass->inheritance[i];
+                if (tableSymbolMatchingClass != nullptr){
+                    // si hereda de alguna clase recorremos sus simbolos y los agregamos
+                    symbolFinded = tableSymbolMatchingClass->getElementInTableByFisrtPartAndUse(_key, "metodo");
+                    if(symbolFinded != nullptr){
+                        return symbolFinded;
+                    }
+                }
+            }
+
+            // si en la herencia no se encuentra nada retornamos el primer simbolo que coincida con el key y el uso "atributo" en la tabla general
+            return tableSymbol->getFirstSymbolMatching2(_key, "funcion", _scope); 
+        }
+    }
+}
+
 symbol* findElementInOrderClassInheritanceGeneral(string _key, string _scope, TableSymbol* _tsGeneral, symbol* _smClass, string _usoInTsGeneral, string _usoInTsClass ){
     // recibis el key del a tributos a buscar, el scope actual, la tabla general y el simbolo de la clase (para obtener la ts de la clase y de las herencias)
     // primero buscas en la tabla de la tabla general un "atributo" con el nombre del key
@@ -2683,7 +2725,7 @@ void newInvocacion(string nombreFuncion, string scope, string& reglaptr){
     symbol* functionFinded;
     if(stackClasses->size() > 0){
         //si estoy dentro de una clase, busco primero en la clase, luego de quien herede y luego en la tabla general
-        functionFinded = findElementInOrderClassInheritanceGeneral(nombreFuncion, scope, tableSymbol, stackClasses->top(),"funcion", "metodo");
+        functionFinded = findInvocationInOrderClassInheritanceGeneral(nombreFuncion, scope, tableSymbol, stackClasses->top());
     }else{
         // sino estoy dentro de una clase busco en la tabla general
         functionFinded = tableSymbol->getFirstSymbolMatching2(nombreFuncion, "funcion", scope); 
@@ -2724,7 +2766,7 @@ void newInvocacionWithParam(string nombreFuncion, string scope, string ptrParam,
     symbol* functionFinded;
     if(stackClasses->size() > 0){
         //si estoy dentro de una clase, busco primero en la clase, luego de quien herede y luego en la tabla general
-        functionFinded = findElementInOrderClassInheritanceGeneral(nombreFuncion, scope, tableSymbol, stackClasses->top(),"funcion", "metodo");
+        functionFinded = findInvocationInOrderClassInheritanceGeneral(nombreFuncion, scope, tableSymbol, stackClasses->top());
     }else{
         // sino estoy dentro de una clase busco en la tabla general
         functionFinded = tableSymbol->getFirstSymbolMatching2(nombreFuncion, "funcion", scope); 
