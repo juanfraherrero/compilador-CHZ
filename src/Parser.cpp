@@ -1230,6 +1230,24 @@ void initClass(string key, string scope, string & reglaptr){
         reglaptr = key; 
         tableSymbol->addScope(key);
 };
+bool isSpecificLexemeInClassOrInheritance(string _argLexeme, symbol* _smClass, int levelOfInheritance){
+    // si recibo de levelOfInheritance 0 entonces solo busco en la tabla de símbolos de la clase
+    if(2 <= levelOfInheritance && _smClass->attributesAndMethodsVector->isTheSpecificLexemaInTable(_argLexeme)){
+        return true;
+    }else{
+        // si no está en la tabla de símbolos de la clase, entonces buscamos en las herencias
+        for (int i=1; i >= 0; i--){
+            TableSymbol* tableSymbolMatchingClass = _smClass->inheritance[i];
+            // si hereda de alguna clase recorremos sus simbolos y los agregamos
+            if(tableSymbolMatchingClass != nullptr){
+                if(i <= levelOfInheritance && tableSymbolMatchingClass->isTheSpecificLexemaInTable(_argLexeme)){
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
 /**
  * Esta función se llama cuando se quiere crear un método o función de un objeto a instanciar
  * Para esto se require de buscar el bloque de tercetos en el vecto de bloques de tercetos de declaración
@@ -1242,23 +1260,25 @@ void initClass(string key, string scope, string & reglaptr){
  * @param simboloDeFuncion El símbolo de la función o método.
  * @param tableSymbolOfTheClass La tabla de símbolos de la clase.
  */
-void createFunctionTerecets(string objectName, string scope, symbol* simboloDeFuncion, TableSymbol* tableSymbolOfTheClass){
-     /*
-        la función debe buscar en el vector de declaración de bloques de tercetos de funciones la declaraciónde este método o función, 
-            copiarlo al vector de ejecución
-            recorrer cada terceto y por cada operador de este terceto verificar si alguno es igual a algún atributo o método de la clase ode sus herencias, 
-            en ese caso se le agrega el objeto y el scope actual
+void createFunctionTerecets(string objectName, string scope, symbol* simboloDeFuncion, symbol* _classSymbol, int levelOfInheritance){
+    // el nivel de inheritance me sirve para indicarle a la función isSpecificLexeme desde que nivel de herencia debe verificar si existe o no el elemento
+    // esto porque alno poder recibir el símbolo de la clase de herencia le marcamos desde donde arranca a buscar
+    /*
+    la función debe buscar en el vector de declaración de bloques de tercetos de funciones la declaraciónde este método o función, 
+        copiarlo al vector de ejecución
+        recorrer cada terceto y por cada operador de este terceto verificar si alguno es igual a algún atributo o método de la clase ode sus herencias, 
+        en ese caso se le agrega el objeto y el scope actual
     */
     functionStack* copyOfTheStack = vectorOfFunctionDeclaredInClasses->getCopyOfFunction(simboloDeFuncion->lexema);
 
     // recorremos el stack de tercetos de la función o método
     for (const auto& tercet : copyOfTheStack->ter->getTercets()){
         // si la tabla contiene exactamente ese elemento del terceto entonces le agregamos el objeto y el scope actual
-        if(tableSymbolOfTheClass->isTheSpecificLexemaInTable(tercet->getArg1())){
+        if(isSpecificLexemeInClassOrInheritance(tercet->getArg1(), _classSymbol, levelOfInheritance)){
             tercet->setArg1(tercet->getArg1()+":"+objectName+scope);
         }
         // si la tabla contiene exactamente ese elemento del terceto entonces le agregamos el objeto y el scope actual
-        if(tableSymbolOfTheClass->isTheSpecificLexemaInTable(tercet->getArg2())){
+        if(isSpecificLexemeInClassOrInheritance(tercet->getArg2(), _classSymbol, levelOfInheritance)){
             tercet->setArg2(tercet->getArg2()+":"+objectName+scope);
         }
     }
@@ -1290,7 +1310,7 @@ bool instanciateObject(string objectName, string objectWithScopeStatic, string s
         // verificamos si el simbolo es una función o método y cargamos su bloque de tercetos en 
         //      la tabla de tercetos principal o de ejecución
         if(newSm->uso=="metodo" || newSm->uso=="funcion"){
-            createFunctionTerecets(objectName, scopeDynamic, newSm, classOfNewObject->attributesAndMethodsVector);
+            createFunctionTerecets(objectName, scopeDynamic, newSm, classOfNewObject, 2);
         }
                 
         if(newSm->uso=="objeto"){
@@ -1307,7 +1327,7 @@ bool instanciateObject(string objectName, string objectWithScopeStatic, string s
     }
 
     // recorremos las herencias de derecha a izquierda y agregamos cada uno de los elementos a la tabla general
-
+    
     // recorres el arreglo de herencia de esta clase verificando que exista alguna posicion con nullptr, si es asi verificas si esa clase tiene unmetodo con el mismo nombre y si es asi devuelves 1
     for (int i=1; i >= 0; i--){
         TableSymbol* tableSymbolMatchingClass = classOfNewObject->inheritance[i];
@@ -1323,7 +1343,7 @@ bool instanciateObject(string objectName, string objectWithScopeStatic, string s
                 // verificamos si el simbolo es una función o método y cargamos su bloque de tercetos en 
                 //      la tabla de tercetos principal o de ejecución
                 if(newSm->uso=="metodo" || newSm->uso=="funcion"){
-                    createFunctionTerecets(objectName, scopeDynamic, newSm, tableSymbolMatchingClass);
+                    createFunctionTerecets(objectName, scopeDynamic, newSm, classOfNewObject, i);
                 }
 
                 if(newSm->uso=="objeto"){
@@ -1377,7 +1397,7 @@ void addObjectForwarded(symbol* symbolObject, symbol* classSymbol){
                 // verificamos si el simbolo es una función o método y cargamos su bloque de tercetos en 
                 //      la tabla de tercetos principal o de ejecución
                 if(newSm->uso=="metodo" || newSm->uso=="funcion"){
-                    createFunctionTerecets(key, scope, newSm, classSymbol->attributesAndMethodsVector);
+                    createFunctionTerecets(key, scope, newSm, classSymbol, 2);
                 }
 
                 if(newSm->uso=="objeto"){
@@ -1409,7 +1429,7 @@ void addObjectForwarded(symbol* symbolObject, symbol* classSymbol){
                         // verificamos si el simbolo es una función o método y cargamos su bloque de tercetos en 
                         //      la tabla de tercetos principal o de ejecución
                         if(newSm->uso=="metodo" || newSm->uso=="funcion"){
-                            createFunctionTerecets(key, scope, newSm, tableSymbolMatchingClass);
+                            createFunctionTerecets(key, scope, newSm, classSymbol, i);
                         }
 
                         newSm->lexema = newSm->lexema+":"+key+scope; // le agregamos el nombre del objeto + el scope actual
@@ -1733,7 +1753,7 @@ void addObject(string key, string scope, string classType){
             // verificamos si el simbolo es una función o método y cargamos su bloque de tercetos en 
             //      la tabla de tercetos principal o de ejecución
             if(newSm->uso=="metodo" || newSm->uso=="funcion"){
-                createFunctionTerecets(key, scope, newSm, matchingClass->attributesAndMethodsVector);
+                createFunctionTerecets(key, scope, newSm, matchingClass, 2);
             }
                     
             if(newSm->uso=="objeto"){
@@ -1766,7 +1786,7 @@ void addObject(string key, string scope, string classType){
                         // verificamos si el simbolo es una función o método y cargamos su bloque de tercetos en 
                         //      la tabla de tercetos principal o de ejecución
                         if(newSm->uso=="metodo" || newSm->uso=="funcion"){
-                            createFunctionTerecets(key, scope, newSm, tableSymbolMatchingClass);
+                            createFunctionTerecets(key, scope, newSm, matchingClass, i);
                         }
 
                         if(newSm->uso=="objeto"){
