@@ -2009,30 +2009,40 @@ void addObject(string key, string scope, string classType){
             TableSymbol* tableSymbolMatchingClass = matchingClass->inheritance[i];
             // si hereda de alguna clase recorremos sus simbolos y los agregamos
             if(tableSymbolMatchingClass != nullptr){
-                
-                // recorremos la tabla de símbolos de la clase que hereda y agregamos cada uno de los elementos
                 for (const auto& par : tableSymbolMatchingClass->getSymbolTable()){
-                        symbol* simbolo = par.second;
-                        // creamos el nuevo símbolo
-                        symbol* newSm = new symbol(*simbolo);                
-                        
-                        // verificamos si el simbolo es una función o método y cargamos su bloque de tercetos en 
-                        //      la tabla de tercetos principal o de ejecución
-                        if(newSm->uso=="metodo" || newSm->uso=="funcion"){
-                            createFunctionTerecets(key, scope, newSm, matchingClass, i);
-                        }
-
+                    symbol* simbolo = par.second;
+                    // creamos el nuevo símbolo
+                    symbol* newSm = new symbol(*simbolo);                
+                    
+                    // verificamos si el simbolo es una función o método y cargamos su bloque de tercetos en 
+                    //      la tabla de tercetos principal o de ejecución
+                    if(newSm->uso!="metodo" && newSm->uso!="funcion"){
                         if(newSm->uso=="objeto"){
                             // como el elemento de la clase es un objeto, debemos copiar cada atributo de la clase del objeto e intanciarlo
                             // string objectName = newSm->lexema.substr(0, newSm->lexema.find(":"));
                             // ob1 ob2:main:clase1 :main clase1
                             newSm->posponeForForwarding = instanciateObject(key, newSm->lexema, scope, newSm->classOfSymbol);
                         }
-
+                        newSm->lexema = newSm->lexema+":"+key+scope; // le agregamos el nombre del objeto + el scope actual
+                        // agregamos el nuevo símbolo a la tabla de simbolos        
+                        tableSymbol->insert(newSm);
+                    }   
+                }
+                // recorremos la tabla de símbolos de la clase que hereda y agregamos cada uno de los elementos
+                for (const auto& par : tableSymbolMatchingClass->getSymbolTable()){
+                    symbol* simbolo = par.second;
+                    // creamos el nuevo símbolo
+                    symbol* newSm = new symbol(*simbolo);                
+                    
+                    // verificamos si el simbolo es una función o método y cargamos su bloque de tercetos en 
+                    //      la tabla de tercetos principal o de ejecución
+                    if(newSm->uso=="metodo" || newSm->uso=="funcion"){
+                        createFunctionTerecets(key, scope, newSm, matchingClass, i);
                         newSm->lexema = newSm->lexema+":"+key+scope; // le agregamos el nombre del objeto + el scope actual
                         
                         // agregamos el nuevo símbolo a la tabla de simbolos        
                         tableSymbol->insert(newSm);
+                    }
                 }
             }
         }

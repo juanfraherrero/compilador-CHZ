@@ -1,0 +1,30 @@
+{	
+	CLASS classb {
+		UINT b,
+		VOID aux(UINT x){
+			b++,
+			RETURN,
+		},
+	},
+ 
+	CLASS classa{
+		classb,
+		
+		VOID p(){
+			UINT a,
+			b = 3_ui,
+			a = b,
+			b++,
+			PRINT a,
+			PRINT b,
+			aux(a),
+			PRINT b,
+			*{obb.f = 7_ui,}*
+			RETURN,
+		},
+	},
+
+	classa ob2,
+	ob2.p(),
+	
+}

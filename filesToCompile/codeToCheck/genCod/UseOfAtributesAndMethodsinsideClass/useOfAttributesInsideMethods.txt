@@ -1,0 +1,31 @@
+{	
+	CLASS classc {
+		UINT c,
+	},
+	CLASS classb {
+		UINT b,
+		classc ob2,
+	},
+ 
+	CLASS classa{
+		classb ob1,
+		VOID aux(UINT lk){
+			ob1.ob2.c = lk + 30_ui,
+			ob1.ob2.c++,
+			ob1.b = ob1.ob2.c,
+			RETURN,
+		},
+		
+	},
+
+	classa obb2,
+	UINT x,
+	obb2.ob1.ob2.c = 1_ui,
+	x = obb2.ob1.ob2.c,
+	PRINT x,
+	obb2.aux(1_ui),
+	x = obb2.ob1.ob2.c,
+	PRINT x,
+	x = obb2.ob1.b,
+	PRINT x,
+}
