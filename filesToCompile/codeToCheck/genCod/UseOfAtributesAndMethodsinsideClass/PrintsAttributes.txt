@@ -1,0 +1,25 @@
+{
+    CLASS clase2 {
+        SHORT x,    
+    },
+    
+    CLASS clase1 {
+        clase2 ob2,
+		SHORT x,    
+        VOID method1(){
+            SHORT x,
+            x = 1_s,
+            PRINT x,
+			ob2.x = 20_s,
+			PRINT ob2.x,
+            RETURN,
+        },    
+    },
+
+    clase1 ob11, 
+    ob11.method1(),
+    ob11.x = 2_s,
+	PRINT ob11.x,
+	ob11.ob2.x = 40_s,
+	PRINT ob11.ob2.x,
+}
