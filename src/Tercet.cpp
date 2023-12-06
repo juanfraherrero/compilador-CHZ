@@ -21,6 +21,20 @@ Tercet::Tercet(string op, string arg1, string arg2, bool arg1Pospone, bool arg2P
     this->typeTercet = typeTercet;
     this->auxVariable = "";
 }
+Tercet::Tercet(string op, string arg1, string arg2, bool arg1Pospone, bool arg2Pospone, string type1, string type2, string typeTercet, bool isarg1anObjectInsideClass, bool isarg2anObjectInsideClass, symbol* classOfObjectInsideClass){
+    this->op = op;
+    this->arg1 = arg1;
+    this->arg2 = arg2;
+    this->arg1Pospone = arg1Pospone;
+    this->arg2Pospone = arg2Pospone;
+    this->type1 = type1;
+    this->type2 = type2;
+    this->typeTercet = typeTercet;
+    this->auxVariable = "";
+    this->isarg1anObjectInsideClass = isarg1anObjectInsideClass;
+    this->isarg2anObjectInsideClass = isarg2anObjectInsideClass;
+    this->classOfObjectInsideClass = classOfObjectInsideClass;
+}
 
 string Tercet::getOp() const{
     return this->op;

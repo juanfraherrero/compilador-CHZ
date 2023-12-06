@@ -11,7 +11,7 @@ using namespace std;
 
 class Tercets {
 public:
-
+    string objectName; // cuando los rtercetos son de un método o función de un objeto instanciado se marca su nombre
     Tercets();
 
     int add(Tercet* tercet); //Añade un terceto y devuelve la posicion en la que se añadio.

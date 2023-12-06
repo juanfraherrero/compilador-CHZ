@@ -77,7 +77,7 @@ struct symbol {
 struct myTypeYYLVAL {
     string ptr;
     string type;
-
+    bool isInsideClass = false;
     myTypeYYLVAL(string _ptr, string _type) : ptr(_ptr), type(_type) {};
 };
 
