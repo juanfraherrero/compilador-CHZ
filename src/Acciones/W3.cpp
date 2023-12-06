@@ -19,7 +19,7 @@ class W3 : public AccionSemantica {
         W3(){};
         int execute(Automaton* automaton, char characterReaded, TableSymbol* tableSymbol, TableReservedWord* tableRWords) override {
 
-            cerr << "\033[33m" <<"Linea: " << *(automaton->getPtrLineNumber()) << " -> Warning: Palabra reservada '" << automaton->getToken()->lexeme <<"' tiene minúsculas y se convirtieron a mayúsuclas "<< "\033[0m" << endl;
+            cerr << "\033[33m" <<"Linea: " << *(automaton->getPtrLineNumber()) << " -> Warning: Palabra reservada '" << automaton->getToken()->lexeme <<"' tiene minusculas y se convirtieron a mayusuclas "<< "\033[0m" << endl;
             
             return 0;
         } ;
