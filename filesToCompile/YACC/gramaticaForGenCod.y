@@ -2009,9 +2009,7 @@ void  detectInheritance(string classToInherit , string scope, string classWhoInh
                                     }
                                     
                             }else{
-                                    yyerror("La clase " + symbolofClassWhoInherit->classOfSymbol +" intenta heredar de " + classToInherit + " pero ya hereda de 2 clases");
-                            }
-                        
+                                yyerror("La clase " + symbolofClassWhoInherit->classOfSymbol +" intenta heredar de " + classToInherit + " superando la profundidad la máxima profundidad de herencias");                            }
                         }
         }
 }
