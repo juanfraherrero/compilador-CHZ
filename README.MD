@@ -36,4 +36,4 @@ El primer parámetro es el binario o ejecutable, el segundo es el archivo de tex
 Para la genereación del .obj y .exe se requiere de tener instalado el MASM32 y guardado en la variable de entorno path. Además, debe estar instalada en "C:\\masm32"
 
 # Consideraciones
-Dentro de la carpeta ejecutables se encuentras los ejecutables de windows de 32 y 64 bits para usos directos sin necesidad de instalar nada.
+Dentro de la carpeta ejecutables hay 2 ejecutables de windows de 64 bits. El "final" solo muestra las etructuras usadas si el parsing es exitoso y no hay errores. Luego, el segundo ejecutable, el "Debug" imprime todas las estructuras siempre que el parsing sea exitoso aunque no haya errores.
