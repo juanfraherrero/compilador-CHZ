@@ -1,0 +1,82 @@
+{
+    SHORT x,
+    VOID f1(){
+        IF (12_s >13_s){
+            IF (12_s >13_s){
+                IF (12_s >13_s){
+                    x++,
+                    RETURN,
+                }ELSE{
+                    x++,
+                    RETURN,
+                }END_IF,
+                x++,
+                
+            }ELSE{
+                x++,
+                RETURN,
+            }END_IF,
+            x++,
+
+        }ELSE{
+            
+            x++,
+            RETURN,
+        }END_IF,
+    },
+
+    VOID f6(){
+        IF (12_s >13_s){
+            IF (12_s >13_s){
+                IF (12_s >13_s){
+                    x++,
+                    RETURN,
+                }ELSE{
+                    x++,
+                    RETURN,
+                }END_IF,
+                x++,              
+            }ELSE{
+                x++,
+                RETURN,
+            }END_IF,
+            x++,
+        }ELSE{
+            x++,
+            RETURN,
+        }END_IF,
+    },
+    VOID f7(){
+        IF (12_s >13_s){
+            IF (12_s >13_s){
+                x++,
+                RETURN,
+            }ELSE{
+                x++,            *{FALTA RETURN}*
+            }END_IF,
+            x++,
+        }ELSE{
+            x++,
+            RETURN,
+        }END_IF,
+    },
+    VOID f8(){
+        VOID f4(){
+            IF (12_s >13_s){
+                x++,
+                RETURN,
+            }ELSE{
+                x++,
+                RETURN,
+            }END_IF,
+        },
+        IF (12_s >13_s){
+            x++,
+            RETURN,
+        }ELSE{
+            x++,
+            RETURN,
+        }END_IF,
+    },
+
+}

@@ -81,11 +81,20 @@ struct myTypeYYLVAL {
     myTypeYYLVAL(string _ptr, string _type) : ptr(_ptr), type(_type) {};
 };
 
+struct cantOfReturn {
+    int trueBranch = 0;
+    int falseBranch = 0;
+    int sumTotal(){return trueBranch + falseBranch;}; 
+};
+
 struct functionStack {
     string name;
     Tercets * ter;
-
+    vector<cantOfReturn*>* ifVector = new vector<cantOfReturn*>();
+    bool isReturnNeeded = true;
+    vector<int*>* vectorBranchFather = new vector<int*>();
     functionStack(string _name) : name(_name){};
 };
+
 
 #endif

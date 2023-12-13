@@ -204,7 +204,7 @@ parametro_funcion   :   tipo IDENTIFICADOR              { addParamFunction ($2->
                 |   parametro_funcion comas tipo IDENTIFICADOR  { yyerror("Exceso de parametros"); }
                 ;
 
-cuerpo_de_la_funcion    :   cuerpo_de_la_funcion_sin_return                             {yyerror("Se detecto la falta de RETURN en el cuerpo de sentencias");}
+cuerpo_de_la_funcion    :   cuerpo_de_la_funcion_sin_return                             { finishBodyFunctionWithoutReturn(); }
                         |   cuerpo_de_la_funcion_con_return
                         ;
 cuerpo_de_la_funcion_con_return    :   cuerpo_de_la_funcion_sin_return return ','
@@ -263,9 +263,10 @@ termino : termino '*' factor                                    { newOperacionAr
         | factor                                                { $$->ptr = $1->ptr; $$->type = $1->type;}
         ;
 
-seleccion : IF bloque_condicion cuerpo_if                       { finIf(); }                     
+seleccion : if bloque_condicion cuerpo_if                       { finIf(); }                     
           ;
-
+if : IF                                                         { initIf(); }
+   ;
 bloque_condicion : '(' condicion ')'                            { condition($$->ptr); }
                  | '(' condicion                                { condition($$->ptr); yywarning("Falta de ultimo parentesis en condicion"); }
                  |  condicion ')'                               { condition($$->ptr); yywarning("Falta de primer parentesis en condicion"); }
@@ -273,16 +274,16 @@ bloque_condicion : '(' condicion ')'                            { condition($$->
                  |  '(' ')'                                     { condition($$->ptr); yyerror("Falta de condicion en el bloque de control IF"); }
                  ;
 
-cuerpo_if : cuerpo_then else_if cuerpo_else END_IF
+cuerpo_if : cuerpo_then else_if cuerpo_else END_IF              {  } 
           | cuerpo_then else_if cuerpo_else                     { yyerror(" Falta de END_IF en bloque de control IF-ELSE"); }
           | cuerpo_then cuerpo_else END_IF                      { yyerror(" Falta de ELSE en bloque de control IF-ELSE");}
           | cuerpo_then END_IF    
           | cuerpo_then else_if END_IF                         { yyerror(" Falta contenido dentro del ELSE en bloque de control IF-ELSE");}                                        
           ; 
 
-cuerpo_then : bloque_ejecutables                                
+cuerpo_then : bloque_ejecutables                                {  }         
             ;
-cuerpo_else : bloque_ejecutables
+cuerpo_else : bloque_ejecutables                                {  }
             ;
 else_if :       ELSE                                            { addElse($$->ptr); }
         ;
@@ -304,32 +305,32 @@ condicion : expresion_aritmetica '>' expresion_aritmetica                       
           | expresion_aritmetica COMPARADOR_MENOR_IGUAL expresion_aritmetica    { newCondicion("<=",$1->ptr, $3->ptr,$1->type, $3->type,$$->ptr);}
           ;
 
-bloque_ejecutables  :   '{' sentencias_ejecutables '}'
-                    |   '{' sentencias_ejecutables return ',' '}'        
-                    |   '{' sentencias_ejecutables return ',' sentencias_ejecutables '}'        { yywarning("Se detecto codigo posterior a un return"); }
-                    |   '{' sentencias_ejecutables return sentencias_ejecutables '}'            { yyerror("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
-                    |   '{' sentencias_ejecutables return '}'                                   { yyerror("Se detecto una falta de coma"); }
-                    |   ejecutable ',' 
-                    |   declarativa  ','                                                        { yyerror("Se detecto una sentencia declarativa en bloque de control"); }
-                    |   '{' return ',' '}'
-                    |   '{' return '}'                                                          { yyerror("Se detecto una falta de coma"); }
-                    |    return ','
+bloque_ejecutables  :   '{' sentencias_ejecutables '}'                                          {  }
+                    |   '{' sentencias_ejecutables return ',' '}'                               { addCantReturn(); }
+                    |   '{' sentencias_ejecutables return ',' sentencias_ejecutables '}'        { addCantReturn(); yywarning("Se detecto codigo posterior a un return"); }
+                    |   '{' sentencias_ejecutables return sentencias_ejecutables '}'            { addCantReturn(); yyerror("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
+                    |   '{' sentencias_ejecutables return '}'                                   { addCantReturn(); yyerror("Se detecto una falta de coma"); }
+                    |   ejecutable ','                                                          {  }    
+                    |   declarativa  ','                                                        {  yyerror("Se detecto una sentencia declarativa en bloque de control"); }
+                    |   '{' return ',' '}'                                                      { addCantReturn(); }
+                    |   '{' return '}'                                                          { addCantReturn(); yyerror("Se detecto una falta de coma"); }
+                    |    return ','                                                             { addCantReturn(); }
                     
-                    |   '{' sentencias_ejecutables return ',' comas '}'        
-                    |   '{' sentencias_ejecutables return ',' comas sentencias_ejecutables '}'        { yywarning("Se detecto codigo posterior a un return"); }
+                    |   '{' sentencias_ejecutables return ',' comas '}'                         { addCantReturn(); }
+                    |   '{' sentencias_ejecutables return ',' comas sentencias_ejecutables '}'        { addCantReturn(); yywarning("Se detecto codigo posterior a un return"); }
 
 
-                    |   '{' comas sentencias_ejecutables '}'      
-                    |   '{' comas sentencias_ejecutables return ',' '}'              
-                    |   '{' comas sentencias_ejecutables return ',' sentencias_ejecutables '}'  { yywarning("Se detecto codigo posterior a un return"); }
-                    |   '{' comas sentencias_ejecutables return sentencias_ejecutables '}'      { yyerror("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
-                    |   '{' comas sentencias_ejecutables return '}'                             { yyerror("Se detecto una falta de coma"); }
-                    |   comas ejecutable ',' 
-                    |   comas declarativa  ','                                                  { yyerror("Se detecto una sentencia declarativa en bloque de control"); }
-                    |   '{' comas return ',' '}'
-                    |   '{' comas return '}'                                                    { yyerror("Se detecto una falta de coma"); }
-                    |    comas return ','                                               
-                    |   error ','                                                               { yyerror("Se detecto un bloque invalido"); }
+                    |   '{' comas sentencias_ejecutables '}'                                    {  }
+                    |   '{' comas sentencias_ejecutables return ',' '}'                         { addCantReturn(); }
+                    |   '{' comas sentencias_ejecutables return ',' sentencias_ejecutables '}'  { addCantReturn(); yywarning("Se detecto codigo posterior a un return"); }
+                    |   '{' comas sentencias_ejecutables return sentencias_ejecutables '}'      { addCantReturn(); yyerror("Se detecto una falta de coma"); yywarning("Se detecto codigo posterior a un return"); }
+                    |   '{' comas sentencias_ejecutables return '}'                             { addCantReturn(); yyerror("Se detecto una falta de coma"); }
+                    |   comas ejecutable ','                                                    {  }    
+                    |   comas declarativa  ','                                                  {  yyerror("Se detecto una sentencia declarativa en bloque de control"); }
+                    |   '{' comas return ',' '}'                                                { addCantReturn(); }
+                    |   '{' comas return '}'                                                    { addCantReturn(); yyerror("Se detecto una falta de coma"); }
+                    |    comas return ','                                                       { addCantReturn();}
+                    |   error ','                                                               {  yyerror("Se detecto un bloque invalido"); }
                     ;
 
 return  : RETURN                        { addTercetReturn($$->ptr); }
@@ -1798,6 +1799,57 @@ void newTof(string key, string opType, string& reglaptr, string& reglatype){
         }
         reglatype = "float"; 
 }
+/**
+ * Verifica si al finalizar la función esta ya tiene un bloque de código con returns asociado (indicaría que no es necesario agregar un RETURN)
+*/
+void finishBodyFunctionWithoutReturn(){
+    if (!stackFunction->empty()) {
+        functionStack* fs = stackFunction->top();
+
+        if(fs->isReturnNeeded){
+            yyerror("Se detecto la falta de RETURN en el cuerpo de sentencias"); 
+        }
+    }else{
+        yyerror("Se detecto la falta de RETURN en el cuerpo de sentencias");
+    }
+}
+/**
+ * Cuando encontramos que una sentencia tiene un return en cuerpo de función si estamos dentro de una función
+ * se marca que se recibió un return
+*/
+void addCantReturn(){
+    if (!stackFunction->empty()) {
+        functionStack * fs = stackFunction->top();
+        int cantOfIfs = fs->ifVector->size();
+        if (fs != nullptr){
+            // estamos dentro de una función
+            
+            (*fs->vectorBranchFather->back()) = 1; // le definimos que se encontró un return aunque ya antes haya un if total
+            
+            /*
+                Aca se puede definir que se sume uno y checkear queis supera 1 es porque hay un if total y un return más de un if total
+            */ 
+        }
+    }
+}
+/** 
+ * Al iniciar el if debemos agregarlo en el arreglo de ifs de la función actual
+ * en caso de no estar en una función no se hace nada. 
+*/
+void initIf(){    
+    if (!stackFunction->empty()) {
+        functionStack * fs = stackFunction->top();
+        if (fs != nullptr){
+            // estamos dentro de una función
+            fs->ifVector->push_back(new cantOfReturn()); // agregamos un nuevo if con sus ramas en 0's
+
+            // marcamos que si hay un return es para la rama true
+            int* direccTrueBranch = &(fs->ifVector->back()->trueBranch);
+            fs->vectorBranchFather->push_back(direccTrueBranch);
+        }
+    }
+    
+};
 void condition(string& reglaptr){
         string lastTercet;
         if(cantOfRecursions <= 0){
@@ -1823,6 +1875,19 @@ void addElse(string& reglaptr){
         number = addTercet("label","label"+to_string(cantLabels),"");
         cantLabels++;
         reglaptr = charTercetoId + to_string(number); 
+    
+    // marcamos que ahora estamos dentro de la rama del false del if sacando la última referencia (la del then)
+    if (!stackFunction->empty()) {
+        functionStack * fs = stackFunction->top();
+        if (fs != nullptr){
+            // marcamos que el padre del if actual es la rama false
+            int* direccTrueBranch = &((*fs->ifVector)[fs->ifVector->size() - 1]->falseBranch);
+            // sacamos el elemento de la rama anterior
+            fs->vectorBranchFather->pop_back();
+            // agregamos el nuevo elemento
+            fs->vectorBranchFather->push_back(direccTrueBranch);
+        }
+    }
 }
 void finIf(){
         string lastTercet;
@@ -1837,6 +1902,35 @@ void finIf(){
         }
         int number = addTercet("label","label"+to_string(cantLabels),"");
         cantLabels++;
+    
+    // verificamos si estamos dentro de una función, 
+        //si somos el primer if en nivel y sumamos 2 o más returns entonces debemos marcar a la función que no necesita return al final. porque un if ya lo tiene
+        
+        //si no somos el primer nivel de if, entonces si sumamos dos debemos sumarle 1 al if padre (el anterior en el arreglo de ifs)
+    
+    
+    if (!stackFunction->empty()) {
+        functionStack * fs = stackFunction->top();
+        if (fs != nullptr){
+            fs->vectorBranchFather->pop_back(); // sacamos el padre del if actual
+            
+            int cantOfIfs = fs->ifVector->size();
+            if(cantOfIfs > 1){
+                // si no somos el primer nivel
+                if(fs->ifVector->back()->sumTotal() == 2){
+                    // si sumamos 2 o más returns
+                    (*fs->vectorBranchFather->back()) = 1; // lo setamos como uno
+                }
+            }else{
+                // si somos el primer nivel
+                if(fs->ifVector->back()->sumTotal() == 2){
+                    // si sumamos 2 o más returns
+                    fs->isReturnNeeded = false;
+                }
+            };
+            fs->ifVector->pop_back(); // sacamos el if actual
+        }
+    }
 }
 void initWhile(){
     string lastTercet;
