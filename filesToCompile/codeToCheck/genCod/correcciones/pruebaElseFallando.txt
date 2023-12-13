@@ -1,0 +1,56 @@
+{
+
+ 
+
+IF (2. < 3.)
+
+              PRINT #menor en el then#,
+
+ELSE
+
+              PRINT #menor en el else#,
+
+END_IF,
+
+ 
+IF (2. <= 3.)
+            PRINT #menor o igual en el then#,
+ELSE
+            PRINT #menor o igual en el else#,
+END_IF,
+
+IF (2. == 3.)
+            PRINT #igual en el then#,
+ELSE  
+            PRINT #igual en el else#,
+END_IF,
+
+
+IF (2. > 3.)
+
+              PRINT #mayor en el then#,
+
+ELSE
+
+              PRINT #mayor en el else#,
+
+END_IF,
+
+
+IF (2. >= 3.)
+
+              PRINT #mayor o igual en el then#,
+
+ELSE
+
+              PRINT #mayor o igual en el else#,
+
+END_IF,
+
+IF (2. !! 3.)
+            PRINT #distinto en el then#,
+ELSE
+            PRINT #distinto en el else#,
+END_IF,
+
+}

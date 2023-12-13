@@ -445,8 +445,9 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
             out += "JNE ";
         }
         else if (typeOfFirstArg == "float"){
+            out += "FLD " + op2 + "\n";
             out += "FLD " + op1 + "\n";
-            out += "FCOM " + op2 + "\n";
+            out += "FCOMPP" "\n";
             out += "FSTSW AX\n";
             out += "SAHF\n";
             out += "JNE ";
@@ -465,11 +466,12 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
             out += "JA ";
         }
         else if (typeOfFirstArg == "float"){
+            out += "FLD " + op2 + "\n";
             out += "FLD " + op1 + "\n";
-            out += "FCOM " + op2 + "\n";
+            out += "FCOMPP" "\n";
             out += "FSTSW AX\n";
             out += "SAHF\n";
-            out += "JG ";
+            out += "JA ";
         }
     }
     //Comparacion menor
@@ -485,11 +487,12 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
             out += "JAE ";
         }
         else if (typeOfFirstArg == "float"){
+            out += "FLD " + op2 + "\n";
             out += "FLD " + op1 + "\n";
-            out += "FCOM " + op2 + "\n";
+            out += "FCOMPP" "\n";
             out += "FSTSW AX\n";
             out += "SAHF\n";
-            out += "JGE ";
+            out += "JAE ";
         }
     }
     //Comparacion mayor o igual
@@ -505,11 +508,12 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
             out += "JB ";
         }
         else if (typeOfFirstArg == "float"){
+            out += "FLD " + op2 + "\n";
             out += "FLD " + op1 + "\n";
-            out += "FCOM " + op2 + "\n";
+            out += "FCOMPP" "\n";
             out += "FSTSW AX\n";
             out += "SAHF\n";
-            out += "JL ";
+            out += "JB ";
         }
     }
     //Comparacion mayor
@@ -525,11 +529,12 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
             out += "JBE ";
         }
         else if (typeOfFirstArg == "float"){
+            out += "FLD " + op2 + "\n";
             out += "FLD " + op1 + "\n";
-            out += "FCOM " + op2 + "\n";
+            out += "FCOMPP" "\n";
             out += "FSTSW AX\n";
             out += "SAHF\n";
-            out += "JLE ";
+            out += "JBE ";
         }
     }
     //Comparacion distinto
@@ -545,8 +550,9 @@ string AssemblerGenerator::getTercetAssembler(Tercet * tercet, Tercets * tercets
             out += "JE ";
         }
         else if (typeOfFirstArg == "float"){
+            out += "FLD " + op2 + "\n";
             out += "FLD " + op1 + "\n";
-            out += "FCOM " + op2 + "\n";
+            out += "FCOMPP" "\n";
             out += "FSTSW AX\n";
             out += "SAHF\n";
             out += "JE ";
