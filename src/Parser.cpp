@@ -42,6 +42,7 @@ string typeAux = "";
 string actualClass = "";
 symbol* lastMethod;
 stack<symbol*>*  stackClasses = new stack<symbol*>();
+bool isInsideWhile = false;
 void yyerrorFin(string s){
     isErrorInCode = true;    
     cerr << "\033[31m" << "Error: " << s <<"\033[0m"<< endl;
@@ -2424,7 +2425,10 @@ void addCantReturn(){
         if (fs != nullptr){
             // estamos dentro de una función
             
-            (*fs->vectorBranchFather->back()) = 1; // le definimos que se encontró un return aunque ya antes haya un if total
+            // si estamos dentro de un while el return no cuenta
+            if (!isInsideWhile) {
+                (*fs->vectorBranchFather->back()) = 1; // le definimos que se encontró un return aunque ya antes haya un if total
+            }
             
             /*
                 Aca se puede definir que se sume uno y checkear queis supera 1 es porque hay un if total y un return más de un if total
@@ -2542,6 +2546,7 @@ void initWhile(){
     addTercetOnlyStack("incioCondicionWhile", charTercetoId + lastTercet, "");
     int number = addTercet("label","label"+to_string(cantLabels),"");
     cantLabels++;
+    isInsideWhile = true; // setamos que estamos dentro de un while
 }
 void finWhile(string & reglaptr) {
     string lastTercet;
@@ -2562,6 +2567,7 @@ void finWhile(string & reglaptr) {
     number = addTercet("label","label"+to_string(cantLabels),"");
     cantLabels++;
     reglaptr = charTercetoId + to_string(number);
+    isInsideWhile = false; // setamos que estamos fuera de un while
 }
 void newCondicion(string operador, string op1ptr, string op2ptr, string op1type, string op2type, string& reglaptr){
     checkTypesCompare(op1type, op2type); 
